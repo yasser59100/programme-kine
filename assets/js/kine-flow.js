@@ -65,6 +65,14 @@ var KineProgress = (function () {
   // « 12 répétitions » → « 14 répétitions » en S2 ; « 8 à 12 » → 8 (+2 en S2, sans dépasser 12)
   function repsLabel(ex) {
     var label = String(ex && ex.repsLabel || "");
+    // Exercices en durée : durée de la semaine (ex. chaise 30 s → 45 s → 1 min, planche 20 → 40 s)
+    if (/seconde/i.test(label) && window.KineAvatar) {
+      var inf = KineAvatar.info(ex.name, label, state().week);
+      if (inf.mode === "timed") {
+        var sec = inf.seconds, txt = sec >= 60 && sec % 60 === 0 ? (sec / 60) + " minute" + (sec > 60 ? "s" : "") : sec + " secondes";
+        return txt + (/par (jambe|côté)/i.test(label) ? " par côté" : "");
+      }
+    }
     if (!/répétition/i.test(label)) return label;
     var bonus = plan().repsBonus, m = label.match(/(\d+)\s*à\s*(\d+)/);
     if (m) { var lo = +m[1], hi = +m[2]; return label.replace(m[0], String(Math.min(hi, lo + bonus))); }
@@ -119,7 +127,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var inf = KineAvatar.info(ex.name, ex.repsLabel, week());
     if (inf.mode === "timed") return "";
     return KineAvatar.plan(ex.name, 1, inf, week()).steps
-      .map(function (s) { return s.label.replace(/ · (gauche|droite)$/, "").toLowerCase() + " " + String(s.dur).replace(".", ",") + " s"; })
+      .map(function (s) { return s.label.replace(/ · (jambe |côté )?(gauche|droite)$/, "").toLowerCase() + " " + String(s.dur).replace(".", ",") + " s"; })
       .join(" → ");
   }
   function mondayISO() {
@@ -179,6 +187,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
         (doneToday
           ? "<button class='today-go done' onclick=\"openPreview('" + targetId + "')\">✓ Faite aujourd'hui · la refaire</button>"
           : "<button class='today-go' onclick=\"openPreview('" + targetId + "')\">▶ " + (todayId ? "Commencer la séance" : "Voir la prochaine séance") + "</button>") +
+        "<button class='v2-link' style='margin-top:-6px' onclick=\"openExplain('" + targetId + "')\">Voir les explications des exercices</button>" +
       "</div>" +
       "<div class='v2-h'>Cette semaine</div><div class='v2-days'>" + days + "</div>" +
       "<div class='v2-h'>Faire une autre séance</div><div class='v2-other'>" + others + "</div>";
@@ -194,7 +203,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       "<div><div class='kf-h1'>" + esc(day.label) + "</div>" +
       "<div class='kf-sub'>Semaine " + KineProgress.week() + " · ~40 min · " + nS + " séries par exercice</div></div>" +
       "<div class='kf-note'>" + esc(KineProgress.plan().reason) + "</div>" +
-      (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "");
+      (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "") +
+      "<button class='v2-row' onclick=\"closePreview();openExplain('" + dayId + "')\"><b>Lire les explications des exercices</b><span>›</span></button>";
     var lastPhase = null;
     day.exercises.forEach(function (ex, i) {
       if (ex.phase !== lastPhase) { var ph = PHASES[ex.phase] || [ex.phase, "var(--text2)"]; html += "<div class='kf-phase' style='color:" + ph[1] + "'>" + ph[0] + "</div>"; lastPhase = ex.phase; }
@@ -203,8 +213,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       if (v) t = (t ? t + "\n" : "") + "Variante : " + v;
       var img = window.KineAvatar && KineAvatar.snapshot ? KineAvatar.snapshot(ex.name, 112) : null;
       var thumb = img ? "<div class='kf-ex-n thumb'><img alt='' src='" + img + "'></div>" : "<div class='kf-ex-n'>" + (i + 1) + "</div>";
-      html += "<div class='kf-ex'>" + thumb + "<div><div class='kf-ex-name'>" + esc(ex.name) + "</div>" +
-              "<div class='kf-ex-meta'>" + esc(meta) + (t ? "<br>" + esc(t).replace(/\n/g, "<br>") : "") + "</div></div></div>";
+      html += "<div class='kf-ex' role='button' tabindex='0' onclick=\"closePreview();openExplain('" + dayId + "'," + i + ")\">" + thumb + "<div style='flex:1'><div class='kf-ex-name'>" + esc(ex.name) + "</div>" +
+              "<div class='kf-ex-meta'>" + esc(meta) + (t ? "<br>" + esc(t).replace(/\n/g, "<br>") : "") + "</div></div><span class='kf-chev' aria-hidden='true'>›</span></div>";
     });
     html += "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick=\"closePreview();launchSeq('" + dayId + "')\">▶ Démarrer · tout est guidé</button></div>";
     sheet.innerHTML = html;
@@ -382,6 +392,89 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     if (typeof closeSeq === "function") closeSeq();
   };
 
+  /* ════════ EXPLICATIONS SANS LANCER LA SÉANCE ════════ */
+  window.openExplain = function (dayId, idx) {
+    if (typeof showPage === "function") showPage(dayId);
+    setTimeout(function () {
+      var el = idx != null ? $("ex-" + dayId + "-" + idx) : null;
+      if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); el.classList.add("kf-flash"); setTimeout(function () { el.classList.remove("kf-flash"); }, 1600); }
+      else window.scrollTo(0, 0);
+    }, 80);
+  };
+
+  // Démonstration animée d'un exercice, depuis sa fiche
+  window.openDemo = function (dayId, idx) {
+    var ex = SEQ_DAYS[dayId].exercises[idx], sheet = $("kf-demo");
+    if (!sheet) { sheet = document.createElement("div"); sheet.id = "kf-demo"; sheet.className = "kf-sheet"; sheet.setAttribute("role", "dialog"); document.body.appendChild(sheet); }
+    var t = tempoText(ex), v = KineProgress.variant(dayId, idx);
+    sheet.innerHTML = "<div class='kf-sheet-body'>" +
+      "<button class='kf-back' onclick='closeDemo()' aria-label='Fermer'>←</button>" +
+      "<div><div class='kf-h1'>" + esc(ex.name) + "</div><div class='kf-sub'>" + esc(KineProgress.repsLabel(ex)) + (t ? " · " + esc(t) : "") + "</div></div>" +
+      "<div class='v2-stage' style='min-height:340px'><div class='rg-phase-label up' id='kf-demo-label'>Démonstration</div><div id='kf-demo-stage' style='display:flex;justify-content:center;padding-top:30px'></div></div>" +
+      "<div class='kf-note'>" + esc(ex.desc || "") + "</div>" +
+      (v ? "<div class='kf-note'><strong>Variante de la semaine :</strong> " + esc(v) + "</div>" : "") +
+      (ex.tip ? "<div class='kf-note'><strong>Conseil :</strong> " + esc(ex.tip) + "</div>" : "") +
+      (ex.stop ? "<div class='kf-note' style='border-color:rgba(248,113,113,.45)'>" + esc(ex.stop) + "</div>" : "") +
+      "</div><div class='kf-sheet-foot'><button class='seq-btn-secondary' onclick='closeDemo()'>Fermer</button></div>";
+    sheet.classList.add("open");
+    var stage = $("kf-demo-stage");
+    if (!(window.KineAvatar && KineAvatar.show(stage, ex.name))) { stage.innerHTML = "<p class='kf-sub'>Démonstration bientôt disponible.</p>"; return; }
+    var inf = KineAvatar.info(ex.name, KineProgress.repsLabel(ex), week()), cycle = 0;
+    (function loop() {
+      if (!stage.isConnected || !sheet.classList.contains("open")) return;
+      cycle++;
+      var steps = inf.mode === "timed" ? [{ pose: "hold", dur: 2, label: "Position tenue" }, { pose: "hold", dur: 2.5, label: "Position tenue" }, { pose: "up", dur: 2, label: "Retour" }]
+                                       : KineAvatar.plan(ex.name, cycle, inf, week()).steps, i = 0;
+      (function next() {
+        if (!stage.isConnected || !sheet.classList.contains("open")) return;
+        if (i >= steps.length) { setTimeout(loop, 500); return; }
+        var st = steps[i++]; KineAvatar.step(st);
+        var lb = $("kf-demo-label"); if (lb) lb.textContent = st.label || "";
+        setTimeout(next, st.dur * 1000);
+      })();
+    })();
+  };
+  window.closeDemo = function () {
+    var sheet = $("kf-demo"); if (!sheet) return;
+    sheet.classList.remove("open");
+    if (window.KineAvatar) KineAvatar.hide();
+  };
+
+  // Boutons « Voir la démonstration » dans les fiches, et onglet Programme en cartes à ouvrir
+  function enhancePages() {
+    if (typeof SEQ_DAYS === "undefined") return;
+    Object.keys(SEQ_DAYS).forEach(function (dayId) {
+      SEQ_DAYS[dayId].exercises.forEach(function (ex, i) {
+        var card = $("ex-" + dayId + "-" + i); if (!card || card.querySelector(".kf-demo-btn")) return;
+        if (!(window.KineAvatar && KineAvatar.supports(ex.name))) return;
+        var b = document.createElement("button");
+        b.className = "kf-demo-btn"; b.type = "button";
+        b.innerHTML = "<svg width='16' height='16' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4.5v15l13-7.5z'/></svg> Voir la démonstration";
+        b.onclick = function () { openDemo(dayId, i); };
+        var anchor = card.querySelector(".ex-tip, .ex-stop, .timer-triggers");
+        var main = card.querySelector(".ex-main") || card;
+        if (anchor && anchor.parentNode === main) main.insertBefore(b, anchor); else main.appendChild(b);
+      });
+    });
+    var guide = document.querySelector("#page-guide .content");
+    if (guide && !guide.querySelector(".kf-days")) {
+      var list = "<div class='v2-h' style='margin-top:4px'>Les séances et leurs exercices</div><div class='v2-other kf-days'>";
+      Object.keys(SEQ_DAYS).forEach(function (id) {
+        list += "<button class='v2-row' onclick=\"openExplain('" + id + "')\"><b>" + esc(SEQ_DAYS[id].label) + "</b><span>›</span></button>";
+      });
+      guide.insertAdjacentHTML("afterbegin", list + "</div>");
+      // Chaque rubrique devient une carte à ouvrir
+      guide.querySelectorAll(":scope > .sec-title").forEach(function (title, n) {
+        var card = title.nextElementSibling;
+        if (!card || !card.classList.contains("info-card")) return;
+        var det = document.createElement("details"); det.className = "kf-acc";
+        var sum = document.createElement("summary"); sum.textContent = title.textContent.trim();
+        det.appendChild(sum); title.parentNode.insertBefore(det, title); det.appendChild(card); title.remove();
+      });
+      var notice = guide.querySelector(".notice-bar"); if (notice) guide.insertBefore(notice, guide.firstChild);
+    }
+  }
+
   /* ════════ Mise en route ════════ */
   function init() {
     var pain = $("rg-pain"); if (pain && pain.parentNode !== document.body) document.body.appendChild(pain);
@@ -391,6 +484,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       renderAll.__today = true;
     }
     renderToday();
+    enhancePages();
   }
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+  if (document.readyState === "complete") init(); else document.addEventListener("DOMContentLoaded", init);
 })();

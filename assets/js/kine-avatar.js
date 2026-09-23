@@ -44,7 +44,8 @@
   var SUPINE_FEET = { L: { foot: { at: [0.13, 0, 0.74], yaw: 0, pole: [0.15, 1, 0] } }, R: { foot: { at: [-0.13, 0, 0.74], yaw: 0, pole: [-0.15, 1, 0] } } };
   var SUPINE_HANDS = { LA: { hand: { at: [0.29, 0.05, 0.02], pole: [1, 0.4, 0] } }, RA: { hand: { at: [-0.29, 0.05, 0.02], pole: [-1, 0.4, 0] } } };
   var BRIDGE_DOWN = merge({ pelvis: { p: [0, 0.12, 0], r: [-90, 0, 0] }, spine: [0, 0, 0], head: 0 }, SUPINE_FEET, SUPINE_HANDS);
-  var BRIDGE_UP = merge(BRIDGE_DOWN, { pelvis: { p: [0, 0.4, -0.03], r: [-121, 0, 0] }, head: 31 });
+  // Épaules, hanches et genoux alignés (pas de cambrure)
+  var BRIDGE_UP = merge(BRIDGE_DOWN, { pelvis: { p: [0, 0.288, -0.029], r: [-110, 0, 0] }, head: 20 });
 
   var EX = {
     "Squat bilatéral": {
@@ -52,8 +53,9 @@
       poses: {
         up: STAND(0.13, 12),
         // Flexion de genou ≈ 90°, talons au sol, rachis neutre, genoux dans l'axe des pieds
-        down: merge(STAND(0.13, 12), { pelvis: { p: [0, 0.66, -0.22], r: [16, 0, 0] }, spine: [14, 0, 0], head: -14,
-                                        LA: { ang: [80, 6, 0, 0] }, RA: { ang: [80, 6, 0, 0] } })
+        // Cuisses parallèles au sol (flexion de hanche 90°), talons au sol, genoux dans l'axe des pieds
+        down: merge(STAND(0.13, 12), { pelvis: { p: [0, 0.48, -0.29], r: [22, 0, 0] }, spine: [20, 0, 0], head: -26,
+                                        LA: { ang: [88, 6, 0, 0] }, RA: { ang: [88, 6, 0, 0] } })
       },
       steps: [step("down", 2, "On descend", "On descend", "down"),
               step("up", 1, "On monte", "On monte, on expire", "up")],
@@ -62,14 +64,14 @@
                 step("up", 1, "On monte", "On monte, on expire", "up")]
     },
 
-    "Fentes avant alternées": {
-      sides: "alternate", camera: { yaw: 1.05 }, start: "up", thumb: "down",
+    "Fentes avant unilatérales": {
+      sides: "blocks", firstSide: "R", sideWord: "jambe", camera: { yaw: 1.15, dist: 4.4, tz: 0.45 }, start: "up", thumb: "down",
       poses: {
         up: STAND(0.1, 0),
-        // Grand pas avant, genou avant au-dessus du pied, genou arrière proche du sol, buste droit
-        down: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.52, 0.36], r: [0, 0, 0] }, spine: [0, 0, 0],
-          L: { foot: { at: [0.1, 0, 0.84], yaw: 0 } },
-          R: { foot: { at: [-0.1, 0, 0.12], yaw: 0, lift: 50 } } })
+        // Grand pas avant : 90° de flexion aux deux genoux, genou avant au-dessus du pied, genou arrière proche du sol, buste droit
+        down: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.55, 0.54], r: [0, 0, 0] }, spine: [0, 0, 0],
+          L: { foot: { at: [0.1, 0, 1.06], yaw: 0 } },
+          R: { foot: { at: [-0.1, 0, 0.12], yaw: 0, lift: 40 } } })
       },
       steps: [step("down", 2, "On descend", "On descend", "down"),
               step("up", 1, "On revient", "On pousse, on revient", "up")]
@@ -107,6 +109,17 @@
               step("top", 2, "On monte", "On pousse sur la jambe", "up"),
               step("place", 3, "Descente contrôlée", "On redescend doucement", "down"),
               step("floor", 1, "Pied au sol", null, "down")]
+    },
+
+    "Chaise contre le mur": {
+      camera: { yaw: 1.35 }, props: ["wallBack"], start: "up", thumb: "hold",
+      timed: { byWeek: [30, 45, 60, 60] },
+      poses: {
+        up: merge(STAND(0.1, 0), { pelvis: { p: [0, "auto", -0.44], r: [0, 0, 0] }, spine: [0, 0, 0] }),
+        // 90° de flexion de hanches et de genoux, dos plaqué au mur, genoux au-dessus des chevilles
+        hold: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.51, -0.44], r: [0, 0, 0] }, spine: [0, 0, 0], head: 0,
+          LA: { hand: { at: [0.13, 0.6, -0.18], pole: [1, -0.3, -0.5] } }, RA: { hand: { at: [-0.13, 0.6, -0.18], pole: [-1, -0.3, -0.5] } } })
+      }
     },
 
     "Squat sumo": {
@@ -162,6 +175,7 @@
       cues: [{ at: 0, label: "Yeux ouverts", say: "Yeux ouverts" }, { at: 20, label: "Yeux fermés", say: "Fermez les yeux" }] }
   };
   EX["Rotation externe épaule"] = EX["Rotation externe d'épaule"];
+  EX["Fentes avant alternées"] = EX["Fentes avant unilatérales"];
   (function () { // talons levés : avant-pied fixe, talons décollés
     var t = EX["Élévation des talons"].poses;
     t.up = JSON.parse(JSON.stringify(t.down));
@@ -189,16 +203,19 @@
       : [step(0, 2, "On descend", "On descend", "down"), step(0, 1, "On monte", "On monte", "up")];
     var side = "L", announce = null;
     if (inf && inf.sides === "alternate") side = rep % 2 === 1 ? "L" : "R";
+    var first = def && def.firstSide === "R" ? "R" : "L", other = first === "R" ? "L" : "R";
+    var word = def && def.sideWord ? def.sideWord + " " : "";
     if (inf && inf.sides === "blocks" && inf.perSide) {
-      side = rep <= inf.perSide ? "L" : "R";
-      if (rep === inf.perSide + 1) announce = "Changez de côté";
+      side = rep <= inf.perSide ? first : other;
+      if (rep === inf.perSide + 1) announce = "Changez de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (side === "L" ? "gauche" : "droite");
     }
-    var sideTxt = inf && inf.sides ? (side === "L" ? " · gauche" : " · droite") : "";
+    var sideTxt = inf && inf.sides ? " · " + word + (side === "L" ? "gauche" : "droite") : "";
+    var sideSay = inf && inf.sides === "blocks" && rep === 1 ? (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (side === "L" ? "gauche" : "droite") + ". " : "";
     var variant = def && def.variants ? def.variants[(rep - 1) % def.variants.length] : null;
     return {
       announce: announce, side: side,
-      steps: base.map(function (s) {
-        return { pose: s.pose, dur: s.dur, kind: s.kind, say: s.say, side: side,
+      steps: base.map(function (s, i) {
+        return { pose: s.pose, dur: s.dur, kind: s.kind, say: i === 0 && sideSay ? sideSay + (s.say || "") : s.say, side: side,
                  label: s.label + (variant ? " · " + variant : "") + sideTxt };
       })
     };
@@ -334,8 +351,10 @@
 
     var props = {
       step: mesh(new T.BoxGeometry(0.7, 0.18, 0.34), M.prop, scene),
-      wall: mesh(new T.BoxGeometry(1.2, 2.1, 0.05), M.wall, scene)
+      wall: mesh(new T.BoxGeometry(1.2, 2.1, 0.05), M.wall, scene),
+      wallBack: mesh(new T.BoxGeometry(1.2, 2.1, 0.05), M.wall, scene)
     };
+    props.wallBack.position.set(0, 1.05, -0.585);
     props.step.position.set(0, 0.09, 0.42);
     props.wall.position.set(0, 1.05, 0.585);
     for (var k in props) props[k].visible = false;
@@ -388,7 +407,7 @@
       ["L", "R"].forEach(function (s) {
         var f = p[s] && p[s].foot; if (!f) return;
         var a = ankleFromBall(f), hx = (s === "L" ? 1 : -1) * LEN.hipX;
-        var dx = a.x - hx, dz = a.z - p.pelvis.p[2], reach = (LEN.thigh + LEN.shank) * 0.992;
+        var dx = a.x - hx, dz = a.z - p.pelvis.p[2], reach = (LEN.thigh + LEN.shank) * 0.9985;
         py = Math.min(py, a.y + Math.sqrt(Math.max(0.01, reach * reach - dx * dx - dz * dz)));
       });
     }
@@ -516,6 +535,30 @@
     },
 
     pause: function (on) { paused = !!on; },
+
+    // Mesure des angles articulaires d'une pose (contrôle des amplitudes)
+    measure: function (name, poseName, side) {
+      var d = EX[name]; if (!d || !d.poses || !window.THREE) return null;
+      if (!R) { R = build(); if (!R) return null; }
+      var p = d.poses[poseName]; if (side === "R") p = mirror(p);
+      applyPose(p); R.pelvis.updateMatrixWorld(true);
+      var T = R.T, w = function (g) { var v = new T.Vector3(); g.getWorldPosition(v); return v; };
+      var q = new T.Quaternion(); R.spine.getWorldQuaternion(q);
+      var up = new T.Vector3(0, 1, 0).applyQuaternion(q), fwd = new T.Vector3(0, 0, 1).applyQuaternion(q);
+      var deg = function (a, b) { return Math.round(a.angleTo(b) * 180 / Math.PI); };
+      var out = { tronc: Math.round(Math.acos(Math.max(-1, Math.min(1, up.y))) * 180 / Math.PI) };
+      ["L", "R"].forEach(function (s2) {
+        var g = R.legs[s2], H = w(g.hip), K = w(g.knee), A = w(g.ankle);
+        var thigh = K.clone().sub(H), shank = A.clone().sub(K);
+        var hip = deg(thigh, up.clone().negate()) * (thigh.dot(fwd) >= 0 ? 1 : -1);
+        var aq = new T.Quaternion(); g.ankle.getWorldQuaternion(aq);
+        var foot = new T.Vector3(0, 0, 1).applyQuaternion(aq);
+        out[s2] = { hanche: hip, genou: deg(thigh, shank), cheville: 90 - deg(shank.clone().negate(), foot),
+                    genouSol: Math.round((K.y - 0.066) * 100) + " cm" };
+      });
+      if (def) applyPose(current);
+      return out;
+    },
 
     // Image fixe de l'exercice (vignette de l'aperçu), sans perturber l'animation en cours
     snapshot: function (name, size) {

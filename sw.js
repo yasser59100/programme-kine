@@ -1,104 +1,87 @@
-// KinéForce Service Worker v1
-const CACHE = 'kineforce-v1';
-const OFFLINE_PAGE = 'index.html';
-
-// Fichiers à mettre en cache au premier lancement
-const PRECACHE = [
-  'programme-kine-v3.html',
-  'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap'
+// KinéForce — Service Worker v2
+// Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
+// cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
+const VERSION = 'kineforce-v2';
+const APP_FILES = [
+  './',
+  'index.html',
+  'manifest.json',
+  'assets/js/kine-flow.js',
+  'assets/js/kine-avatar.js',
+  'assets/icons/icon-192.png',
+  'assets/icons/icon-512.png'
 ];
+const STATIC_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
-// ── Installation : précache ──
-self.addEventListener('install', function(e) {
+self.addEventListener('install', function (e) {
   e.waitUntil(
-    caches.open(CACHE).then(function(cache) {
-      // On précache le HTML principal; la police est optionnelle (réseau requis)
-      return cache.add(OFFLINE_PAGE);
-    }).then(function() {
-      return self.skipWaiting();
-    })
+    caches.open(VERSION).then(function (cache) {
+      // Chaque fichier est mis en cache séparément : un fichier manquant ne bloque pas l'installation
+      return Promise.all(APP_FILES.map(function (f) { return cache.add(f).catch(function () {}); }));
+    }).then(function () { return self.skipWaiting(); })
   );
 });
 
-// ── Activation : nettoyage anciens caches ──
-self.addEventListener('activate', function(e) {
+self.addEventListener('activate', function (e) {
   e.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k) { return k !== CACHE; })
-            .map(function(k) { return caches.delete(k); })
-      );
-    }).then(function() {
-      return self.clients.claim();
-    })
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.filter(function (k) { return k !== VERSION; }).map(function (k) { return caches.delete(k); }));
+    }).then(function () { return self.clients.claim(); })
   );
 });
 
-// ── Fetch : cache-first pour le HTML, network-first pour le reste ──
-self.addEventListener('fetch', function(e) {
-  var url = e.request.url;
+function saveCopy(request, response) {
+  if (response && response.ok && (response.type === 'basic' || response.type === 'cors')) {
+    var copy = response.clone();
+    caches.open(VERSION).then(function (cache) { cache.put(request, copy); });
+  }
+  return response;
+}
 
-  // Ignorer les requêtes non-GET
-  if (e.request.method !== 'GET') return;
+self.addEventListener('fetch', function (e) {
+  var req = e.request;
+  if (req.method !== 'GET') return;
+  var url = new URL(req.url);
 
-  // Stratégie "cache-first" pour le fichier principal
-  if (url.includes('index.html') || url.includes('sw.js') || url.includes('manifest')) {
-    e.respondWith(
-      caches.match(e.request).then(function(cached) {
-        var networkFetch = fetch(e.request).then(function(response) {
-          if (response && response.status === 200) {
-            var clone = response.clone();
-            caches.open(CACHE).then(function(cache) { cache.put(e.request, clone); });
-          }
-          return response;
-        }).catch(function() { return cached; });
-        return cached || networkFetch;
-      })
-    );
+  // Bibliothèque 3D et polices : ne changent pas → cache d'abord
+  if (STATIC_HOSTS.indexOf(url.hostname) >= 0) {
+    e.respondWith(caches.match(req).then(function (hit) {
+      return hit || fetch(req).then(function (res) { return saveCopy(req, res); });
+    }));
     return;
   }
 
-  // Stratégie "network-first avec fallback cache" pour tout le reste (polices, etc.)
-  e.respondWith(
-    fetch(e.request).then(function(response) {
-      if (response && response.status === 200 && response.type !== 'opaque') {
-        var clone = response.clone();
-        caches.open(CACHE).then(function(cache) { cache.put(e.request, clone); });
-      }
-      return response;
-    }).catch(function() {
-      return caches.match(e.request).then(function(cached) {
-        return cached || caches.match(OFFLINE_PAGE);
-      });
-    })
-  );
+  // Fichiers de l'appli : réseau d'abord, cache si hors connexion
+  if (url.origin === self.location.origin) {
+    e.respondWith(
+      fetch(req, { cache: 'no-store' }).then(function (res) { return saveCopy(req, res); }).catch(function () {
+        return caches.match(req).then(function (hit) {
+          return hit || (req.mode === 'navigate' ? caches.match('index.html') : undefined);
+        });
+      })
+    );
+  }
+  // Autres domaines (connexion, communauté) : comportement normal du navigateur
 });
 
-// ── Push notifications ──
-self.addEventListener('push', function(e) {
+// ── Notifications ──
+self.addEventListener('push', function (e) {
   var data = e.data ? e.data.json() : {};
-  var title = data.title || 'KinéForce';
-  var options = {
-    body: data.body || 'Votre séance du jour vous attend 💪',
-    icon: data.icon || 'icon-192.png',
-    badge: 'icon-72.png',
+  e.waitUntil(self.registration.showNotification(data.title || 'KinéForce', {
+    body: data.body || 'Votre séance du jour vous attend.',
+    icon: data.icon || 'assets/icons/icon-192.png',
+    badge: 'assets/icons/icon-72.png',
     vibrate: [200, 100, 200],
-    data: { url: data.url || '.' },
-    actions: [
-      { action: 'open', title: 'Ouvrir le programme' },
-      { action: 'dismiss', title: 'Plus tard' }
-    ]
-  };
-  e.waitUntil(self.registration.showNotification(title, options));
+    data: { url: data.url || './' },
+    actions: [{ action: 'open', title: 'Ouvrir le programme' }, { action: 'dismiss', title: 'Plus tard' }]
+  }));
 });
 
-self.addEventListener('notificationclick', function(e) {
+self.addEventListener('notificationclick', function (e) {
   e.notification.close();
   if (e.action === 'dismiss') return;
-  e.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(cls) {
-      if (cls.length > 0) { return cls[0].focus(); }
-      return clients.openWindow(e.notification.data.url || '.');
-    })
-  );
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (cls) {
+    if (cls.length > 0) return cls[0].focus();
+    return clients.openWindow(e.notification.data.url || './');
+  }));
 });
