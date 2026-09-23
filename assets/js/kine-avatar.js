@@ -53,9 +53,9 @@
       poses: {
         up: STAND(0.13, 12),
         // Flexion de genou ≈ 90°, talons au sol, rachis neutre, genoux dans l'axe des pieds
-        // Cuisses parallèles au sol (flexion de hanche 90°), talons au sol, genoux dans l'axe des pieds
-        down: merge(STAND(0.13, 12), { pelvis: { p: [0, 0.48, -0.29], r: [22, 0, 0] }, spine: [20, 0, 0], head: -26,
-                                        LA: { ang: [88, 6, 0, 0] }, RA: { ang: [88, 6, 0, 0] } })
+        // 90° de flexion de hanche (cuisse / tronc) et 90° de flexion de genou, talons au sol, genoux dans l'axe des pieds
+        down: merge(STAND(0.13, 12), { pelvis: { p: [0, 0.657, -0.222], r: [13, 0, 0] }, spine: [12, 0, 0], head: -14,
+                                        LA: { ang: [80, 6, 0, 0] }, RA: { ang: [80, 6, 0, 0] } })
       },
       steps: [step("down", 2, "On descend", "On descend", "down"),
               step("up", 1, "On monte", "On monte, on expire", "up")],
@@ -535,6 +535,29 @@
     },
 
     pause: function (on) { paused = !!on; },
+
+    // Vue de profil pour contrôler les amplitudes : image + position des articulations à l'écran
+    debugView: function (name, poseName, side, px) {
+      var d = EX[name]; if (!d || !d.poses || !window.THREE) return null;
+      if (!R) { R = build(); if (!R) return null; }
+      var size = px || 700, T = R.T;
+      for (var k in R.props) R.props[k].visible = (d.props || []).indexOf(k) >= 0;
+      var p = d.poses[poseName]; if (side === "R") p = mirror(p);
+      applyPose(p); R.pelvis.updateMatrixWorld(true);
+      R.renderer.setSize(size, size, false); R.camera.aspect = 1; R.camera.updateProjectionMatrix();
+      var c = d.camera || {}, ty = c.ty != null ? c.ty : 0.8, tz = c.tz || 0, dist = (c.dist || 4.1) * 0.9;
+      R.camera.position.set(dist, ty + 0.05, tz); R.camera.lookAt(0, ty, tz);
+      R.camera.updateMatrixWorld(true);
+      R.renderer.render(R.scene, R.camera);
+      var pt = function (g) { var v = new T.Vector3(); g.getWorldPosition(v); v.project(R.camera); return [(v.x + 1) / 2 * size, (1 - v.y) / 2 * size]; };
+      var sh = new T.Vector3(); R.arms.L.sh.getWorldPosition(sh); sh.x = 0; var shp = sh.clone().project(R.camera);
+      var legs = {};
+      ["L", "R"].forEach(function (s2) { legs[s2] = { hip: pt(R.legs[s2].hip), knee: pt(R.legs[s2].knee), ankle: pt(R.legs[s2].ankle) }; });
+      var url = R.canvas.toDataURL("image/png");
+      if (def) { for (var k2 in R.props) R.props[k2].visible = (def.props || []).indexOf(k2) >= 0; applyPose(current); }
+      if (host) resize();
+      return { img: url, legs: legs, shoulder: [(shp.x + 1) / 2 * size, (1 - shp.y) / 2 * size] };
+    },
 
     // Mesure des angles articulaires d'une pose (contrôle des amplitudes)
     measure: function (name, poseName, side) {
