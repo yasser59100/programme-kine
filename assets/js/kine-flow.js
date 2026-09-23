@@ -5,6 +5,90 @@
    S'appuie sur les fonctions existantes de index.html (SEQ_DAYS,
    launchSeq, launchRepGuide, sessions, rgWeek…).
 ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   PROGRESSION AUTOMATIQUE (règles de l'onglet Programme)
+   · Semaine calculée depuis le début du cycle (S1 → S4)
+   · Absence de plus d'une semaine → reprise en S1, sans exception
+   · S1 : 2 séries · S2 : 2 à 3 séries ou +2 répétitions (un seul paramètre)
+     · S3 : 3 séries · S4 : 3 séries + variante avancée
+   · Effort (Borg) à 4–5 sur les 2 dernières séances → on ne monte pas
+═══════════════════════════════════════════════════════════════ */
+var KineProgress = (function () {
+  "use strict";
+  var DAY = 86400000;
+  function iso(d) { var z = new Date(d); return z.getFullYear() + "-" + ("0" + (z.getMonth() + 1)).slice(-2) + "-" + ("0" + z.getDate()).slice(-2); }
+  function parse(x) { var p = String(x).split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).getTime(); }
+  function daysBetween(a, b) { return Math.round((parse(b) - parse(a)) / DAY); }
+  function list() { return typeof sessions !== "undefined" && sessions ? sessions : []; }
+  function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  function state() {
+    var today = iso(Date.now()), all = list();
+    var dates = all.map(function (s) { return s.date; }).filter(Boolean).sort();
+    var last = dates.length ? dates[dates.length - 1] : null;
+    var start = get("kf-start");
+    if (!start && dates.length) { start = dates[0]; set("kf-start", start); } // patients déjà en cours
+    var reset = false;
+    var ref = last && (!start || last >= start) ? last : start;
+    if (start && ref && daysBetween(ref, today) > 7) { // absence de plus d'une semaine
+      start = null; set("kf-start", ""); set("kf-reset", today); reset = true;
+    }
+    if (get("kf-reset") && daysBetween(get("kf-reset"), today) <= 7) reset = true;
+    var elapsed = start ? Math.max(0, daysBetween(start, today)) : 0;
+    var week = Math.min(4, Math.floor(elapsed / 7) + 1);
+    var cycle = all.filter(function (s) { return s.date && start && s.date >= start; });
+    return { today: today, start: start, week: week, cycleDone: !!start && elapsed >= 28, reset: reset, cycle: cycle, dayInCycle: elapsed + 1 };
+  }
+
+  function plan() {
+    var st = state(), w = st.week;
+    var borgs = st.cycle.map(function (s) { return +s.borg; }).filter(function (b) { return b >= 1 && b <= 5; });
+    var high = borgs.length >= 2 && borgs[0] >= 4 && borgs[1] >= 4;           // les plus récentes en premier
+    var recent = borgs.slice(0, 3), avg = recent.length ? recent.reduce(function (a, b) { return a + b; }, 0) / recent.length : null;
+    var easy = recent.length >= 2 && avg <= 2;
+    var series = 2, bonus = 0, reason;
+    if (w === 1) { reason = "Semaine 1 : 2 séries, on apprend la technique"; }
+    else if (w === 2) {
+      if (high) reason = "Effort élevé aux dernières séances : volume maintenu";
+      else if (easy) { series = 3; reason = "Effort bien toléré : passage à 3 séries"; }
+      else { bonus = 2; reason = "Semaine 2 : +2 répétitions"; }
+    } else {
+      series = high ? 2 : 3;
+      reason = high ? "Effort élevé aux dernières séances : on reste à 2 séries"
+                    : w === 3 ? "Semaine 3 : 3 séries, renforcement" : "Semaine 4 : 3 séries et variante avancée";
+    }
+    return { week: w, series: series, repsBonus: bonus, high: high, reason: reason, state: st };
+  }
+
+  // « 12 répétitions » → « 14 répétitions » en S2 ; « 8 à 12 » → 8 (+2 en S2, sans dépasser 12)
+  function repsLabel(ex) {
+    var label = String(ex && ex.repsLabel || "");
+    if (!/répétition/i.test(label)) return label;
+    var bonus = plan().repsBonus, m = label.match(/(\d+)\s*à\s*(\d+)/);
+    if (m) { var lo = +m[1], hi = +m[2]; return label.replace(m[0], String(Math.min(hi, lo + bonus))); }
+    return bonus ? label.replace(/\d+/, function (n) { return String(+n + bonus); }) : label;
+  }
+
+  // Variante décrite dans la fiche de l'exercice (« Variante S4 : … », « Variante S3–S4 : … »)
+  function variant(dayId, idx) {
+    var el = document.querySelector("#ex-" + dayId + "-" + idx + " .ex-variant");
+    if (!el) return null;
+    var txt = el.textContent.replace(/\s+/g, " ").trim(), m = txt.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
+    if (!m) return null;
+    var from = +m[1], to = m[2] ? +m[2] : from, w = state().week;
+    return w >= from ? txt.replace(/^Variante[^:]*:\s*/, "") : null;
+  }
+
+  return {
+    state: state, plan: plan, repsLabel: repsLabel, variant: variant,
+    week: function () { return state().week; },
+    markStart: function () { if (!get("kf-start")) { set("kf-start", iso(Date.now())); set("kf-reset", ""); } }
+  };
+})();
+window.KineProgress = KineProgress;
+
 var seqRestNext = null;   // ce qui vient après le repos { exIdx, serie }
 var seqSkipped = 0;       // exercices passés pendant la séance
 
@@ -14,13 +98,13 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   var DAY_OF_WEEK = { 1: "day0", 2: "day1", 3: "day2", 5: "day3", 6: "day4" }; // Lun J1 … Sam J5
   var WEEKDAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   var PHASES = { warm: ["Échauffement", "var(--amber)"], work: ["Renforcement", "var(--blue)"], cool: ["Retour au calme", "var(--green)"] };
-  var BORG = [null, ["Très facile", "😴"], ["Facile", "🙂"], ["Modéré", "💪"], ["Difficile", "😤"], ["Épuisant", "🥵"]];
+  var BORG = [null, ["Très facile"], ["Facile"], ["Modéré"], ["Difficile"], ["Épuisant"]];
   var CHIPS = ["Légère fatigue", "Très motivé", "Manque d'énergie", "Progression ressentie", "Trop facile", "Trop difficile"];
 
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function week() { return typeof rgWeek === "function" ? rgWeek() : 1; }
-  function seriesFor() { return week() >= 3 ? 3 : 2; }
+  function seriesFor() { return KineProgress.plan().series; }
   function isGuided(ex) { return ex && ex.phase === "work" && ex.repsLabel && /\d/.test(ex.repsLabel); }
 
   function kitFor(day) {
@@ -81,9 +165,12 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       others += "<button class='v2-row' onclick=\"openPreview('" + id + "')\"><b>" + esc(SEQ_DAYS[id].label) + "</b><span>40 min</span></button>";
     });
 
-    box.innerHTML =
+    var st = KineProgress.state(), banner = "";
+    if (st.reset) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Reprise en semaine 1.</strong> Plus d'une semaine sans séance : comme prévu par votre programme, on repart du début.</div>";
+    else if (st.cycleDone) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Cycle de 4 semaines terminé.</strong> Parlez-en à votre kinésithérapeute pour la suite.</div>";
+    box.innerHTML = banner +
       "<div class='v2-hello'><span>" + WEEKDAYS[dow] + "</span><strong>Bonjour" + (name ? " " + esc(name) : "") + "</strong></div>" +
-      "<div class='v2-week'><div class='v2-week-top'><b>Semaine " + w + " sur 4</b><span>" + doneWeek.length + " séance" + (doneWeek.length > 1 ? "s" : "") + " sur 5 faite" + (doneWeek.length > 1 ? "s" : "") + "</span></div>" +
+      "<div class='v2-week'><div class='v2-week-top'><b>Semaine " + w + " sur 4" + (st.start ? " · jour " + Math.min(28, st.dayInCycle) : "") + "</b><span>" + doneWeek.length + " séance" + (doneWeek.length > 1 ? "s" : "") + " sur 5 faite" + (doneWeek.length > 1 ? "s" : "") + "</span></div>" +
         "<div class='today-bar'>" + bar + "</div></div>" +
       "<div class='v2-card'>" +
         "<div><div class='today-kicker'>" + esc(kicker) + "</div><div class='today-title'>" + esc(day.label) + "</div></div>" +
@@ -105,17 +192,19 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var html = "<div class='kf-sheet-body'>" +
       "<button class='kf-back' onclick='closePreview()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + esc(day.label) + "</div>" +
-      "<div class='kf-sub'>~40 min · " + nS + " séries par exercice" + (rest ? " · repos " + (rest >= 60 ? Math.floor(rest / 60) + " min" + (rest % 60 ? " " + (rest % 60) : "") : rest + " s") : "") + "</div></div>" +
+      "<div class='kf-sub'>Semaine " + KineProgress.week() + " · ~40 min · " + nS + " séries par exercice</div></div>" +
+      "<div class='kf-note'>" + esc(KineProgress.plan().reason) + "</div>" +
       (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "");
     var lastPhase = null;
     day.exercises.forEach(function (ex, i) {
       if (ex.phase !== lastPhase) { var ph = PHASES[ex.phase] || [ex.phase, "var(--text2)"]; html += "<div class='kf-phase' style='color:" + ph[1] + "'>" + ph[0] + "</div>"; lastPhase = ex.phase; }
-      var meta = ex.phase === "work" ? nS + " × " + ex.repsLabel : ex.repsLabel;
-      var t = tempoText(ex);
+      var meta = ex.phase === "work" ? nS + " × " + KineProgress.repsLabel(ex) : ex.repsLabel;
+      var t = tempoText(ex), v = KineProgress.variant(dayId, i);
+      if (v) t = (t ? t + "\n" : "") + "Variante : " + v;
       var img = window.KineAvatar && KineAvatar.snapshot ? KineAvatar.snapshot(ex.name, 112) : null;
       var thumb = img ? "<div class='kf-ex-n thumb'><img alt='' src='" + img + "'></div>" : "<div class='kf-ex-n'>" + (i + 1) + "</div>";
       html += "<div class='kf-ex'>" + thumb + "<div><div class='kf-ex-name'>" + esc(ex.name) + "</div>" +
-              "<div class='kf-ex-meta'>" + esc(meta) + (t ? "<br>" + esc(t) : "") + "</div></div></div>";
+              "<div class='kf-ex-meta'>" + esc(meta) + (t ? "<br>" + esc(t).replace(/\n/g, "<br>") : "") + "</div></div></div>";
     });
     html += "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick=\"closePreview();launchSeq('" + dayId + "')\">▶ Démarrer · tout est guidé</button></div>";
     sheet.innerHTML = html;
@@ -157,7 +246,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       $("rg-serie-info").textContent = "Série " + serie + " sur " + totalSeries;
       $("rg2-prog-fill").style.width = Math.round(((serie - 1) / totalSeries) * 100) + "%";
     }
-    $("rg2-cue").textContent = ex && ex.desc ? ex.desc : "";
+    var v = ex ? KineProgress.variant(seqCurrentDay, seqExIdx) : null;
+    $("rg2-cue").innerHTML = v ? "<strong>Variante de la semaine :</strong> " + esc(v) : ex && ex.desc ? esc(ex.desc) : "";
     var n = rgState.autoStartIn; rgState.autoStartIn = 0;
     if (!n) return;
     var id = rgState.runId;
@@ -193,13 +283,13 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     }
     var demo = document.createElement("div"); demo.className = "seq-next-demo";
     var info = document.createElement("div");
-    var meta = ex.phase === "work" ? "Série " + nx.serie + " sur " + seqTotalSeries + " · " + ex.repsLabel : ex.repsLabel;
+    var meta = ex.phase === "work" ? "Série " + nx.serie + " sur " + seqTotalSeries + " · " + KineProgress.repsLabel(ex) : ex.repsLabel;
     info.innerHTML = "<div class='seq-next-k'>Ensuite</div><div class='seq-next-name'>" + esc(ex.name) + "</div><div class='seq-next-meta'>" + esc(meta) + "</div>";
     box.appendChild(demo); box.appendChild(info);
     body.appendChild(box);
     if (!(window.KineAvatar && KineAvatar.supports(ex.name) && KineAvatar.show(demo, ex.name))) { demo.remove(); return; }
     // Démonstration en boucle, au tempo de l'exercice
-    var inf = KineAvatar.info(ex.name, ex.repsLabel, week()), cycle = 0;
+    var inf = KineAvatar.info(ex.name, KineProgress.repsLabel(ex), week()), cycle = 0;
     (function loop() {
       if (!demo.isConnected) { if (demo.querySelector("canvas")) KineAvatar.hide(); return; }
       cycle++;
@@ -226,7 +316,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     bilan = { day: day, duration: duration, done: done, total: total, pains: pains, borg: null, pain: null, chips: [] };
     var sheet = $("seq-bilan");
 
-    var borgBtns = ""; for (var b = 1; b <= 5; b++) borgBtns += "<button data-borg='" + b + "' aria-label='Effort " + b + " sur 5, " + BORG[b][0] + "'>" + BORG[b][1] + " " + b + "</button>";
+    var borgBtns = ""; for (var b = 1; b <= 5; b++) borgBtns += "<button data-borg='" + b + "' aria-label='Effort " + b + " sur 5, " + BORG[b][0] + "'>" + b + "</button>";
     var painBtns = ""; for (var p = 0; p <= 10; p++) painBtns += "<button data-pain='" + p + "' aria-label='Douleur " + p + " sur 10'>" + p + "</button>";
     var chips = CHIPS.map(function (c) { return "<button data-chip=\"" + esc(c) + "\">" + esc(c) + "</button>"; }).join("");
     var painNote = pains.length
@@ -271,7 +361,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var notes = bilan.chips.slice();
     if (bilan.pains.length) notes.push("Douleur pendant la séance : " + bilan.pains.map(function (x) { return x.zone.toLowerCase() + " " + x.intensite + "/10 (" + x.exercice + ")"; }).join(", "));
     if (txt) notes.push(txt);
-    var s = { id: Date.now(), date: new Date().toISOString().slice(0, 10), seance: bilan.day.label, semaine: "S" + week(),
+    var d0 = new Date(), localDate = d0.getFullYear() + "-" + ("0" + (d0.getMonth() + 1)).slice(-2) + "-" + ("0" + d0.getDate()).slice(-2);
+    var s = { id: Date.now(), date: localDate, seance: bilan.day.label, semaine: "S" + week(),
               borg: bilan.borg, completion: completion, douleur: bilan.pain, douleurs: bilan.pains, duree: bilan.duration,
               notes: notes.join(", "), ts: Date.now() };
     sessions.unshift(s);
@@ -282,7 +373,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     speak("Séance enregistrée. À bientôt !");
     $("seq-bilan").querySelector(".kf-sheet-body").innerHTML =
       "<div style='text-align:center;padding:40px 0;display:flex;flex-direction:column;gap:10px'>" +
-      "<div style='font-size:3rem'>✅</div><div class='kf-h1'>Séance enregistrée</div>" +
+      "<div style='color:var(--green);display:flex;justify-content:center'>" + (window.KFI ? KFI.check : "") + "</div><div class='kf-h1'>Séance enregistrée</div>" +
       "<div class='kf-sub'>Retrouvez-la dans votre suivi. Pensez à bien vous hydrater.</div></div>";
     $("kf-bilan-foot").innerHTML = "<button class='seq-btn-main' onclick=\"closeSeqBilan();showPage('home')\">Retour à l'accueil</button>";
   };
