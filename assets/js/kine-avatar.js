@@ -400,17 +400,25 @@
     return V(f.at).sub(new R.T.Vector3(0, -0.09, 0.12).applyQuaternion(footQuat(f.yaw, f.lift)));
   }
 
+  // Hauteur du bassin quand elle vaut "auto" : la jambe la plus contrainte est presque tendue
+  function autoY(p) {
+    var py = 9;
+    ["L", "R"].forEach(function (s) {
+      var f = p[s] && p[s].foot; if (!f) return;
+      var a = ankleFromBall(f), hx = (s === "L" ? 1 : -1) * LEN.hipX;
+      var dx = a.x - hx, dz = a.z - p.pelvis.p[2], reach = (LEN.thigh + LEN.shank) * 0.9985;
+      py = Math.min(py, a.y + Math.sqrt(Math.max(0.01, reach * reach - dx * dx - dz * dz)));
+    });
+    return py;
+  }
+  function withY(p) {
+    if (p.pelvis.p[1] !== "auto") return p;
+    var q = JSON.parse(JSON.stringify(p)); q.pelvis.p[1] = autoY(p); return q;
+  }
+
   function applyPose(p) {
     var T = R.T, py = p.pelvis.p[1];
-    if (py === "auto") { // hauteur du bassin : la jambe la plus contrainte est presque tendue
-      py = 9;
-      ["L", "R"].forEach(function (s) {
-        var f = p[s] && p[s].foot; if (!f) return;
-        var a = ankleFromBall(f), hx = (s === "L" ? 1 : -1) * LEN.hipX;
-        var dx = a.x - hx, dz = a.z - p.pelvis.p[2], reach = (LEN.thigh + LEN.shank) * 0.9985;
-        py = Math.min(py, a.y + Math.sqrt(Math.max(0.01, reach * reach - dx * dx - dz * dz)));
-      });
-    }
+    if (py === "auto") py = autoY(p);
     R.pelvis.position.set(p.pelvis.p[0], py, p.pelvis.p[2]);
     R.pelvis.rotation.set(p.pelvis.r[0] * D2R, p.pelvis.r[1] * D2R, p.pelvis.r[2] * D2R);
     var sp = p.spine || [0, 0, 0];
@@ -466,13 +474,16 @@
     return k < 0.5 ? a : b;
   }
   function blend(a, b, k) {
-    var p = lerp(a, b, k);
+    var bothAuto = a.pelvis.p[1] === "auto" && b.pelvis.p[1] === "auto";
+    // Hauteur du bassin convertie en nombre pour que la descente soit progressive
+    // (avant : la hauteur restait « auto » pendant tout le mouvement, donc jambes tendues jusqu'au dernier instant)
+    var p = lerp(withY(a), withY(b), k);
     ["L", "R"].forEach(function (s) { // un pied qui se déplace se lève (passe au-dessus de la marche)
       var fa = a[s] && a[s].foot, fb = b[s] && b[s].foot;
       if (fa && fb && Math.hypot(fa.at[0] - fb.at[0], fa.at[1] - fb.at[1], fa.at[2] - fb.at[2]) > 0.05)
         p[s].foot.at[1] += 4 * k * (1 - k) * 0.13;
     });
-    if (a.pelvis.p[1] === "auto" || b.pelvis.p[1] === "auto") p.pelvis.p[1] = "auto";
+    if (bothAuto) p.pelvis.p[1] = "auto";
     return p;
   }
 
@@ -537,12 +548,13 @@
     pause: function (on) { paused = !!on; },
 
     // Vue de profil pour contrôler les amplitudes : image + position des articulations à l'écran
-    debugView: function (name, poseName, side, px) {
+    debugView: function (name, poseName, side, px, fromPose, k) {
       var d = EX[name]; if (!d || !d.poses || !window.THREE) return null;
       if (!R) { R = build(); if (!R) return null; }
       var size = px || 700, T = R.T;
-      for (var k in R.props) R.props[k].visible = (d.props || []).indexOf(k) >= 0;
+      for (var k0 in R.props) R.props[k0].visible = (d.props || []).indexOf(k0) >= 0;
       var p = d.poses[poseName]; if (side === "R") p = mirror(p);
+      if (fromPose) { var f0 = d.poses[fromPose]; if (side === "R") f0 = mirror(f0); p = blend(f0, p, k); }
       applyPose(p); R.pelvis.updateMatrixWorld(true);
       R.renderer.setSize(size, size, false); R.camera.aspect = 1; R.camera.updateProjectionMatrix();
       var c = d.camera || {}, ty = c.ty != null ? c.ty : 0.8, tz = c.tz || 0, dist = (c.dist || 4.1) * 0.9;
