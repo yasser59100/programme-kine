@@ -93,6 +93,23 @@
               step("down", 3, "Descente lente", "On descend lentement", "down")]
     },
 
+    "Pont ischio-jambiers talons sur chaise": {
+      // Talons sur l'assise d'une chaise, genoux légèrement fléchis ; on décolle le bassin jusqu'à l'alignement
+      camera: { yaw: 1.25, pitch: 0.35, dist: 3.7, ty: 0.35, tz: 0.3 }, props: ["chair"], chair: { z: 0.78, turn: true },
+      start: "down", thumb: "up",
+      poses: {
+        down: merge({ pelvis: { p: [0, 0.12, 0.2], r: [-90, 0, 0] }, spine: [0, 0, 0], head: 0,
+                      L: { foot: { at: [0.12, 0.643, 1.048], yaw: 0, lift: -70, pole: [0.1, 1, 0] } },
+                      R: { foot: { at: [-0.12, 0.643, 1.048], yaw: 0, lift: -70, pole: [-0.1, 1, 0] } } }, SUPINE_HANDS),
+        up:   merge({ pelvis: { p: [0, 0.376, 0.128], r: [-121.5, 0, 0] }, spine: [0, 0, 0], head: 31,
+                      L: { foot: { at: [0.12, 0.643, 1.048], yaw: 0, lift: -70, pole: [0.1, 1, 0] } },
+                      R: { foot: { at: [-0.12, 0.643, 1.048], yaw: 0, lift: -70, pole: [-0.1, 1, 0] } } }, SUPINE_HANDS)
+      },
+      steps: [step("up", 1.5, "On monte", "On pousse dans les talons", "up"),
+              step("up", 2, "On tient", "On tient", "hold"),
+              step("down", 3, "Descente lente", "On descend lentement", "down")]
+    },
+
     "Élévation des talons": {
       camera: { yaw: 1.3 }, props: ["wall"], start: "down", thumb: "up",
       poses: {
@@ -738,8 +755,14 @@
   var def = null, current = null, tween = null, raf = 0, host = null, paused = false, lastNow = 0, curSide = "L";
   function curWeek() { try { return window.KineProgress ? KineProgress.week() : 1; } catch (e) { return 1; } }
   function startPose(d) { return d.easyUntil && curWeek() <= d.easyUntil && d.poses[d.start + "K"] ? d.start + "K" : d.start; }
+  function placeProps(d) {
+    if (!R) return;
+    var c = (d && d.chair) || { z: 0, turn: false };
+    R.props.chair.rotation.y = c.turn ? Math.PI : 0; R.props.chair.position.z = c.z || 0;
+  }
   function showLoad(d, side) {
     if (!R) return;
+    placeProps(d);
     R.props.wallSide.position.x = side === "R" ? 0.62 : -0.62;
     var arm = d && d.load ? (side === "R" ? (d.load === "R" ? "L" : "R") : d.load) : null;
     R.arms.L.load.visible = arm === "L"; R.arms.R.load.visible = arm === "R";
