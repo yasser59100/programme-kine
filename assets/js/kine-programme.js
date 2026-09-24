@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    KinéForce — Onglet Programme
-   Mon programme (semaine, 5 séances et leur statut) → une séance (exercices de la
-   semaine) → fiche d'exercice (démonstration, phrase clé, progression S1 → S4)
+   Mon programme (semaine, 5 séances et leur statut), puis une séance (exercices de la
+   semaine), puis fiche d'exercice (démonstration, phrase clé, progression S1, puis S4)
    + « Comprendre mon programme » (progression, effort, courbatures / alarme).
 ═══════════════════════════════════════════════════════════════ */
 (function () {
@@ -67,13 +67,13 @@
     }).join("");
     var rows = Object.keys(SEQ_DAYS).map(function (id) {
       var d = SEQ_DAYS[id], s = status(id), kit = window.KF ? KF.kitFor(d) : [];
-      var meta = (d.circuit ? "Circuit" : works(id).length + " exercices") + " · " + fmtMin(estimate(id)) + " · " + (kit.length ? kit.join(", ") : "sans matériel");
+      var meta = (d.circuit ? "Circuit" : works(id).length + " exercices") + ", " + fmtMin(estimate(id)) + ", " + (kit.length ? kit.join(", ") : "sans matériel");
       return "<button class='pg-day' onclick=\"KineProgram.open('" + id + "')\"><span class='pg-j'>" + esc(code(id)) + "</span>" +
         "<span class='pg-day-t'><b>" + esc(d.label.split(" — ")[1] || d.label) + "</b><span>" + esc(meta) + "</span></span>" +
         (s[0] ? "<span class='pg-st " + s[1] + "'>" + esc(s[0]) + "</span>" : "") + "</button>";
     }).join("");
     box.innerHTML =
-      "<div class='su-head'><div class='kf-h1'>Mon programme</div><div class='kf-sub'>4 semaines · 5 séances par semaine</div></div>" +
+      "<div class='su-head'><div class='kf-h1'>Mon programme</div><div class='kf-sub'>4 semaines, 5 séances par semaine</div></div>" +
       "<div class='su-card'><div class='su-card-h'><b>Semaine " + p.week + " sur 4</b><span>" + (st.start ? "jour " + Math.min(28, st.dayInCycle) : "pas encore commencé") + "</span></div>" +
         "<div class='pg-bars'>" + bars + "</div><div class='kf-sub' style='color:var(--text)'>" + esc(p.reason) + "</div></div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Les 5 séances</div>" + rows +
@@ -91,17 +91,17 @@
     var first = works(id)[0];
     var html = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineProgram.close()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + esc(d.label) + "</div><div class='kf-sub'>" + esc(focus(id)) + "</div></div>" +
-      "<div class='su-tags'><span class='pg-chip'>Semaine " + w + "</span><span>" + (d.circuit ? p.series + " tours · 40 s par exercice" : p.series + " séries" + (first ? " · " + esc(KineProgress.repsLabel(first)) : "")) + "</span><span>" + fmtMin(estimate(id)) + "</span></div>" +
+      "<div class='su-tags'><span class='pg-chip'>Semaine " + w + "</span><span>" + (d.circuit ? p.series + " tours, 40 s par exercice" : p.series + " séries" + (first ? ", " + esc(KineProgress.repsLabel(first)) : "")) + "</span><span>" + fmtMin(estimate(id)) + "</span></div>" +
       (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "");
     d.exercises.forEach(function (ex, i) {
       if (ex.phase !== "work") {
         var st = window.KineRoutine && KineRoutine.steps(ex.name), dur = st ? st.reduce(function (a, s) { return a + s.dur; }, 0) : 0;
-        html += "<button class='pg-rt' onclick=\"KineProgram.routine('" + id + "'," + i + ")\"><span><strong>" + (ex.phase === "warm" ? "Échauffement guidé" : "Étirements guidés") + "</strong>" + (st ? " · " + st.length + " étapes" : "") + "</span><span>" + (dur ? Math.round(dur / 60) + " min" : esc(ex.repsLabel)) + " ›</span></button>";
+        html += "<button class='pg-rt' onclick=\"KineProgram.routine('" + id + "'," + i + ")\"><span><strong>" + (ex.phase === "warm" ? "Échauffement guidé" : "Étirements guidés") + "</strong>" + (st ? ", " + st.length + " étapes" : "") + "</span><span>" + (dur ? Math.round(dur / 60) + " min" : esc(ex.repsLabel)) + " ›</span></button>";
         return;
       }
       var thumb = window.KineAvatar && KineAvatar.supports(ex.name) ? KineAvatar.snapshot(ex.name, 104) : null;
       var tt = window.KF ? KF.tempoText(ex) : "", v = KineProgress.variant(id, i);
-      var meta = (d.circuit ? KineProgress.repsLabel(ex) + " par tour" : p.series + " × " + KineProgress.repsLabel(ex)) + (tt ? " · " + tt : "");
+      var meta = (d.circuit ? KineProgress.repsLabel(ex) + " par tour" : p.series + " × " + KineProgress.repsLabel(ex)) + (tt ? ", " + tt : "");
       html += "<button class='pg-ex' onclick=\"openDemo('" + id + "'," + i + ")\">" +
         (thumb ? "<img src='" + thumb + "' alt=''>" : "<span class='pg-fig' aria-hidden='true'></span>") +
         "<span class='pg-day-t'><b>" + esc(ex.name) + "</b><span>" + esc(meta) + "</span>" + (v ? "<em>Variante : " + esc(v) + "</em>" : "") + "</span><span class='pg-chev' aria-hidden='true'>›</span></button>";
@@ -110,7 +110,7 @@
     var el = sheet(); el.innerHTML = html; el.classList.add("open"); el.scrollTop = 0;
   }
 
-  /* ════════ Écran 3 : progression S1 → S4 d'un exercice (dans la fiche) ════════ */
+  /* ════════ Écran 3 : progression S1, puis S4 d'un exercice (dans la fiche) ════════ */
   function weeksTable(ex, dayId, idx) {
     if (ex.phase !== "work" || !window.KineAvatar) return "";
     var cur = plan().week, circuit = SEQ_DAYS[dayId] && SEQ_DAYS[dayId].circuit;
@@ -126,7 +126,7 @@
       }
       var card = document.querySelector("#ex-" + dayId + "-" + idx + " .ex-variant"), vm = card && card.textContent.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
       if (vm && w >= +vm[1]) txt += " + variante";
-      if (ex.name === "Pike push-up") txt += w <= 2 ? " · genoux" : " · pieds";
+      if (ex.name === "Pike push-up") txt += w <= 2 ? ", genoux" : ", pieds";
       return "<div class='pg-w" + (w === cur ? " cur" : "") + "'><b>S" + w + "</b>" + esc(txt) + "</div>";
     }).join("");
     return "<div class='pg-weeks'>" + cells + "</div>";
@@ -152,7 +152,7 @@
   }
 
   window.KineProgram = {
-    render: render, open: openDay, understand: understand, weeksTable: weeksTable,
+    render: render, open: openDay, understand: understand, weeksTable: weeksTable, estimate: estimate, status: status,
     routine: function (id, i) { var ex = SEQ_DAYS[id].exercises[i]; if (window.KineRoutine && KineRoutine.has(ex.name)) KineRoutine.open(ex, null); },
     close: function () {
       var el = $("kf-prog"); if (el) el.classList.remove("open");

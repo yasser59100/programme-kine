@@ -274,8 +274,8 @@
            "<rect x='98' y='40' width='44' height='30' rx='12' fill='rgba(61,142,240,.2)' stroke='var(--blue)' stroke-width='2'/>" +
            "<path class='kr-lordose' d='M22 58 C 50 82, 80 80, 110 52' stroke='var(--amber)' stroke-width='6' fill='none' stroke-linecap='round'/>" +
            "<path class='kr-cyphose' d='M22 58 C 50 18, 80 16, 110 52' stroke='var(--amber)' stroke-width='6' fill='none' stroke-linecap='round'/>" +
-           "<text class='kr-lordose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos creux · inspirez</text>" +
-           "<text class='kr-cyphose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos rond · expirez</text></svg>",
+           "<text class='kr-lordose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos creux, inspirez</text>" +
+           "<text class='kr-cyphose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos rond, expirez</text></svg>",
     ankle: "<svg viewBox='0 0 120 120' width='120' height='120' aria-hidden='true'><rect x='44' y='8' width='16' height='66' rx='8' fill='var(--text2)'/><g class='kr-ankle'><path d='M40 74 L96 74 Q104 74 104 84 L104 88 L40 88 Z' fill='#e8e8e4'/></g><path d='M104 50 A40 40 0 0 1 104 110' stroke='var(--amber)' stroke-width='3' fill='none' stroke-dasharray='5 5'/></svg>"
   };
   var AID_LABEL = { spine: "Bas du dos (vue de profil)", breath: "Respiration", navel: "Nombril rentré à l'expiration", scapula: "Omoplates vers la colonne", grow: "Grandir", wrist: "Poignets", ankle: "Chevilles" };
@@ -316,10 +316,10 @@
     var st = stepAt(i), mv = MOVES[st.move] || {};
     $("kr-title").textContent = st.name;
     $("kr-cue").textContent = st.cue || "";
-    $("kr-prog").textContent = P.kind + " · étape " + (i + 1) + " sur " + P.steps.length;
+    $("kr-prog").textContent = P.kind + ", étape " + (i + 1) + " sur " + P.steps.length;
     $("kr-prog-fill").style.width = Math.round(i / P.steps.length * 100) + "%";
     var nx = stepAt(i + 1);
-    $("kr-next").textContent = nx ? "Ensuite : " + nx.name + " · " + fmt(nx.dur) : "Dernière étape";
+    $("kr-next").textContent = nx ? "Ensuite : " + nx.name + ", " + fmt(nx.dur) : "Dernière étape";
     var still = mv.loop && mv.loop.length === 1;
     $("kr-label").textContent = st.sides ? "Côté gauche" : (st.breath ? "Inspirez" : (still ? "Tenez la position" : "En mouvement"));
     var aidKey = mv.aid || (st.breath ? "breath" : null);
@@ -427,7 +427,7 @@
       if (!ex || (ex.phase !== "warm" && ex.phase !== "cool") || !R[ex.name]) return;
       var btn = document.querySelector("#seq-actions .seq-btn-main");
       if (!btn) return;
-      btn.textContent = "▶ Commencer · guidé pas à pas";
+      btn.textContent = "Commencer, guidé pas à pas";
       btn.onclick = function () { KineRoutine.open(ex, function () { seqExDone(); }); };
       var body = document.getElementById("seq-body");
       if (body && !body.querySelector(".kr-list")) {

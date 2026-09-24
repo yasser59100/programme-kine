@@ -67,7 +67,7 @@
     var week = ss.filter(function (s) { return s.date >= mon; }).length;
     var last = pp[0];
     box.innerHTML =
-      "<div class='su-head'><div class='kf-h1'>Mon suivi</div><div class='kf-sub'>Semaine " + st.week + " sur 4" + (st.start ? " · depuis le " + dateFr(st.start, false) : "") + "</div></div>" +
+      "<div class='su-head'><div class='kf-h1'>Mon suivi</div><div class='kf-sub'>Semaine " + st.week + " sur 4" + (st.start ? ", depuis le " + dateFr(st.start, false) : "") + "</div></div>" +
       "<div class='kf-stats'>" +
         "<div class='kf-stat'><b>" + cycle.length + "</b><span>séance" + (cycle.length > 1 ? "s" : "") + " faite" + (cycle.length > 1 ? "s" : "") + "</span></div>" +
         "<div class='kf-stat'><b>" + week + "/5</b><span>cette semaine</span></div>" +
@@ -75,7 +75,7 @@
       "</div>" +
       "<div class='su-card'><div class='su-card-h'><b>Douleur et effort</b><span>" + Math.min(6, ss.length) + " dernière" + (ss.length > 1 ? "s" : "") + " séance" + (ss.length > 1 ? "s" : "") + "</span></div>" + chart(ss) + "</div>" +
       (last ? "<button class='su-last' onclick='KineSuivi.open(\"douleurs\")'><div><div class='su-k'>Dernière douleur</div>" +
-        "<div><strong>" + esc(last.zone) + ", " + last.intensite + "/10</strong> · " + esc(last.exercice) + " · " + ago(last.date) + "</div>" +
+        "<div><strong>" + esc(last.zone) + ", " + last.intensite + "/10</strong>, " + esc(last.exercice) + ", " + ago(last.date) + "</div>" +
         "<div class='su-dec'>" + esc(cap(last.action)) + "</div></div><span aria-hidden='true'>›</span></button>" : "") +
       "<div class='v2-other'>" +
         "<button class='v2-row' onclick='KineSuivi.open(\"historique\")'><b>Historique des séances</b><span>›</span></button>" +
@@ -114,8 +114,8 @@
       var hurt = (s.douleur >= 5) || (s.douleurs && s.douleurs.length);
       var tags = [];
       if (s.duree) tags.push(s.duree + " min");
-      if (s.borg) tags.push("Effort " + s.borg + " · " + BORG[s.borg]);
-      if (s.completion) tags.push(String(s.completion).replace(" — ", " · "));
+      if (s.borg) tags.push("Effort " + s.borg + ", " + BORG[s.borg]);
+      if (s.completion) tags.push(String(s.completion).replace(" — ", ", "));
       if (s.douleur != null && s.douleur !== "") tags.push("<span class='" + (s.douleur >= 5 ? "su-red" : "") + "'>Douleur " + s.douleur + "/10</span>");
       html += "<div class='su-sess" + (hurt ? " hurt" : "") + "'><div class='su-sess-h'><b>" + esc(s.seance || "Séance") + "</b><span>" + dateFr(s.date) + "</span></div>" +
         "<div class='su-tags'>" + tags.map(function (t) { return "<span>" + t + "</span>"; }).join("") + "</div>" +
@@ -134,7 +134,7 @@
       return "<div class='su-bar'><span>" + esc(z) + "</span><i><em style='width:" + Math.round(zones[z] / max * 100) + "%'></em></i><b>" + zones[z] + "</b></div>"; }).join("");
     var eps = pp.map(function (p) {
       var strong = p.intensite >= 5 || p.vive;
-      return "<div class='su-sess" + (strong ? " hurt" : "") + "'><div class='su-sess-h'><b>" + esc(p.zone) + " · " + p.intensite + "/10" + (p.vive ? " · vive" : "") + "</b><span>" + dateFr(p.date) + "</span></div>" +
+      return "<div class='su-sess" + (strong ? " hurt" : "") + "'><div class='su-sess-h'><b>" + esc(p.zone) + ", " + p.intensite + "/10" + (p.vive ? ", vive" : "") + "</b><span>" + dateFr(p.date) + "</span></div>" +
         "<div>" + esc(p.exercice) + (p.serie ? ", série " + p.serie : "") + "</div><div class='" + (strong ? "su-dec" : "kf-sub") + "'>Décision : " + esc(p.action) + "</div></div>";
     }).join("");
     return frame("Douleurs signalées", "Pendant les exercices, avec le bouton « J'ai mal »",
@@ -149,7 +149,7 @@
     var ss = list().filter(function (s) { return s.date >= from; });
     var pp = pains().filter(function (p) { return String(p.date).slice(0, 10) >= from; });
     var L = [];
-    L.push("KinéForce" + (name ? " · " + name : ""));
+    L.push("KinéForce" + (name ? ", " + name : ""));
     L.push("Semaine " + st.week + " sur 4" + (st.start ? " (début le " + dateFr(st.start, false) + ")" : ""));
     L.push("");
     L.push(period === "week" ? "Séances cette semaine : " + ss.length + " sur 5" : "Séances depuis le début : " + ss.length);

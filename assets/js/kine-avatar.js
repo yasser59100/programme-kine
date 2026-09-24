@@ -8,11 +8,11 @@
       grâce à la cinématique inverse) ;
    3. l'API utilisée par le guide de répétitions :
 
-     KineAvatar.info(nom, repsLabel, semaine) → { mode, reps, seconds, sides, perSide }
-     KineAvatar.plan(nom, rep, info, semaine) → { steps: [...], announce, side }
-     KineAvatar.supports(nom)                 → l'avatar sait faire l'exercice
-     KineAvatar.show(conteneur, nom)          → affiche l'avatar (true / false)
-     KineAvatar.step(étape)                   → joue une étape du tempo
+     KineAvatar.info(nom, repsLabel, semaine), puis { mode, reps, seconds, sides, perSide }
+     KineAvatar.plan(nom, rep, info, semaine), puis { steps: [...], announce, side }
+     KineAvatar.supports(nom)                , puis l'avatar sait faire l'exercice
+     KineAvatar.show(conteneur, nom)         , puis affiche l'avatar (true / false)
+     KineAvatar.step(étape)                  , puis joue une étape du tempo
      KineAvatar.hide()
 ═══════════════════════════════════════════════════════════════ */
 (function () {
@@ -456,7 +456,7 @@
     }
     var shown = def && def.labelSwap ? (side === "L" ? "R" : "L") : side; // côté qui travaille
     if (announce && def && def.labelSwap) announce = "Changez de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : "droite");
-    var sideTxt = inf && inf.sides ? " · " + word + (shown === "L" ? "gauche" : "droite") : "";
+    var sideTxt = inf && inf.sides ? ", " + word + (shown === "L" ? "gauche" : "droite") : "";
     var sideSay = inf && inf.sides === "blocks" && rep === 1 ? (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : "droite") + ". " : "";
     var vIdx = def && def.variantBy === "serie" ? ((inf && inf.serie) || 1) - 1 : rep - 1;
     var variant = def && def.variants ? def.variants[vIdx % def.variants.length] : null;
@@ -466,7 +466,7 @@
         var pose = variant && def.poses && def.poses[s.pose + variant] ? s.pose + variant : s.pose;
         if (def && def.easyUntil && (week || 1) <= def.easyUntil && def.poses[pose + "K"]) pose = pose + "K";
         return { pose: pose, dur: s.dur, kind: s.kind, say: i === 0 && sideSay ? sideSay + (s.say || "") : s.say, side: side,
-                 label: s.label + (variant ? " · " + variant : "") + sideTxt };
+                 label: s.label + (variant ? ", " + variant : "") + sideTxt };
       })
     };
   }
@@ -548,7 +548,7 @@
     }
     paintShirt(); if (document.fonts) document.fonts.ready.then(paintShirt);
 
-    /* Squelette : bassin → colonne → tête / épaules → coudes ; bassin → hanches → genoux → chevilles */
+    /* Squelette : bassin, puis colonne, puis tête / épaules, puis coudes ; bassin, puis hanches, puis genoux, puis chevilles */
     var pelvis = group(scene); pelvis.rotation.order = "YXZ";
     var pm = mesh(new T.CylinderGeometry(0.155, 0.15, 0.16, 28), M.pants, pelvis); pm.scale.z = 0.72; pm.position.y = 0.03;
     var spine = group(pelvis); spine.rotation.order = "YXZ";

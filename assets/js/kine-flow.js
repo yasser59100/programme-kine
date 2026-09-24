@@ -1,18 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════
    KinéForce — Parcours de séance guidée
-   Accueil « séance du jour » → aperçu → exercices guidés enchaînés
-   → repos avec l'exercice suivant → bilan qui s'ouvre tout seul.
+   Accueil « séance du jour », puis aperçu, puis exercices guidés enchaînés
+  , puis repos avec l'exercice suivant, puis bilan qui s'ouvre tout seul.
    S'appuie sur les fonctions existantes de index.html (SEQ_DAYS,
    launchSeq, launchRepGuide, sessions, rgWeek…).
 ═══════════════════════════════════════════════════════════════ */
 
 /* ═══════════════════════════════════════════════════════════════
    PROGRESSION AUTOMATIQUE (règles de l'onglet Programme)
-   · Semaine calculée depuis le début du cycle (S1 → S4)
-   · Absence de plus d'une semaine → reprise en S1, sans exception
-   · S1 : 2 séries · S2 : 2 à 3 séries ou +2 répétitions (un seul paramètre)
-     · S3 : 3 séries · S4 : 3 séries + variante avancée
-   · Effort (Borg) à 4–5 sur les 2 dernières séances → on ne monte pas
+  , Semaine calculée depuis le début du cycle (S1, puis S4)
+  , Absence de plus d'une semaine, puis reprise en S1, sans exception
+  , S1 : 2 séries, S2 : 2 à 3 séries ou +2 répétitions (un seul paramètre)
+    , S3 : 3 séries, S4 : 3 séries + variante avancée
+  , Effort (Borg) à 4–5 sur les 2 dernières séances, puis on ne monte pas
 ═══════════════════════════════════════════════════════════════ */
 var KineProgress = (function () {
   "use strict";
@@ -62,10 +62,10 @@ var KineProgress = (function () {
     return { week: w, series: series, repsBonus: bonus, high: high, reason: reason, state: st };
   }
 
-  // « 12 répétitions » → « 14 répétitions » en S2 ; « 8 à 12 » → 8 (+2 en S2, sans dépasser 12)
+  // « 12 répétitions », puis « 14 répétitions » en S2 ; « 8 à 12 », puis 8 (+2 en S2, sans dépasser 12)
   function repsLabel(ex) {
     var label = String(ex && ex.repsLabel || "");
-    // Exercices en durée : durée de la semaine (ex. chaise 30 s → 45 s → 1 min, planche 20 → 40 s)
+    // Exercices en durée : durée de la semaine (ex. chaise 30 s, puis 45 s, puis 1 min, planche 20, puis 40 s)
     if (/seconde/i.test(label) && window.KineAvatar) {
       var inf = KineAvatar.info(ex.name, label, state().week);
       if (inf.mode === "timed") {
@@ -160,8 +160,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var inf = KineAvatar.info(ex.name, ex.repsLabel, week());
     if (inf.mode === "timed") return "";
     return KineAvatar.plan(ex.name, 1, inf, week()).steps
-      .map(function (s) { return s.label.replace(/ · (jambe |côté )?(gauche|droite)$/, "").toLowerCase() + " " + String(s.dur).replace(".", ",") + " s"; })
-      .join(" → ");
+      .map(function (s) { return s.label.replace(/, (jambe |côté )?(gauche|droite)$/, "").toLowerCase() + " " + String(s.dur).replace(".", ",") + " s"; })
+      .join(", puis ");
   }
   function mondayISO() {
     var d = new Date(); d.setHours(12, 0, 0, 0);
@@ -187,7 +187,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
 
     var targetId = todayId, kicker = "Séance du jour";
     if (!todayId) {
-      for (var i = 1; i <= 7; i++) { var n = DAY_OF_WEEK[(dow + i) % 7]; if (n) { targetId = n; kicker = "Aujourd'hui : repos · prochaine séance " + WEEKDAYS[(dow + i) % 7]; break; } }
+      for (var i = 1; i <= 7; i++) { var n = DAY_OF_WEEK[(dow + i) % 7]; if (n) { targetId = n; kicker = "Aujourd'hui : repos, prochaine séance " + WEEKDAYS[(dow + i) % 7]; break; } }
     }
     var day = SEQ_DAYS[targetId], code = day.label.split(" — ")[0];
     var doneToday = todayId && list.some(function (s) { return s.date === todayISO && String(s.seance || "").indexOf(code) === 0; });
@@ -211,15 +211,15 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     else if (st.cycleDone) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Cycle de 4 semaines terminé.</strong> Parlez-en à votre kinésithérapeute pour la suite.</div>";
     box.innerHTML = banner +
       "<div class='v2-hello'><span>" + WEEKDAYS[dow] + "</span><strong>Bonjour" + (name ? " " + esc(name) : "") + "</strong></div>" +
-      "<div class='v2-week'><div class='v2-week-top'><b>Semaine " + w + " sur 4" + (st.start ? " · jour " + Math.min(28, st.dayInCycle) : "") + "</b><span>" + doneWeek.length + " séance" + (doneWeek.length > 1 ? "s" : "") + " sur 5 faite" + (doneWeek.length > 1 ? "s" : "") + "</span></div>" +
+      "<div class='v2-week'><div class='v2-week-top'><b>Semaine " + w + " sur 4" + (st.start ? ", jour " + Math.min(28, st.dayInCycle) : "") + "</b><span>" + doneWeek.length + " séance" + (doneWeek.length > 1 ? "s" : "") + " sur 5 faite" + (doneWeek.length > 1 ? "s" : "") + "</span></div>" +
         "<div class='today-bar'>" + bar + "</div></div>" +
       "<div class='v2-card'>" +
         "<div><div class='today-kicker'>" + esc(kicker) + "</div><div class='today-title'>" + esc(day.label) + "</div></div>" +
         "<div class='today-pills'><span>~40 min</span><span>" + day.exercises.length + " exercices</span><span>" +
-          (kit.length ? esc(kit.map(function (x) { return x.replace(/^(une?|un) /, "").replace(" libre", ""); }).join(" · ")) : "Sans matériel") + "</span></div>" +
+          (kit.length ? esc(kit.map(function (x) { return x.replace(/^(une?|un) /, "").replace(" libre", ""); }).join(", ")) : "Sans matériel") + "</span></div>" +
         (doneToday
-          ? "<button class='today-go done' onclick=\"openPreview('" + targetId + "')\">✓ Faite aujourd'hui · la refaire</button>"
-          : "<button class='today-go' onclick=\"openPreview('" + targetId + "')\">▶ " + (todayId ? "Commencer la séance" : "Voir la prochaine séance") + "</button>") +
+          ? "<button class='today-go done' onclick=\"openPreview('" + targetId + "')\">✓ Faite aujourd'hui, la refaire</button>"
+          : "<button class='today-go' onclick=\"openPreview('" + targetId + "')\">" + (todayId ? "Commencer la séance" : "Voir la prochaine séance") + "</button>") +
         "<button class='v2-link' style='margin-top:-6px' onclick=\"openExplain('" + targetId + "')\">Voir les explications des exercices</button>" +
       "</div>" +
       "<div class='v2-h'>Cette semaine</div><div class='v2-days'>" + days + "</div>" +
@@ -234,7 +234,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var html = "<div class='kf-sheet-body'>" +
       "<button class='kf-back' onclick='closePreview()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + esc(day.label) + "</div>" +
-      "<div class='kf-sub'>Semaine " + KineProgress.week() + " · ~40 min · " + (day.circuit ? "circuit de " + nS + " tours : 40 s par exercice, 20 s de transition, 2 min entre les tours" : nS + " séries par exercice") + "</div></div>" +
+      "<div class='kf-sub'>Semaine " + KineProgress.week() + ", ~40 min, " + (day.circuit ? "circuit de " + nS + " tours : 40 s par exercice, 20 s de transition, 2 min entre les tours" : nS + " séries par exercice") + "</div></div>" +
       "<div class='kf-note'>" + esc(KineProgress.plan().reason) + "</div>" +
       (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "") +
       "<button class='v2-row' onclick=\"closePreview();openExplain('" + dayId + "')\"><b>Lire les explications des exercices</b><span>›</span></button>";
@@ -249,7 +249,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       html += "<div class='kf-ex' role='button' tabindex='0' onclick=\"closePreview();openExplain('" + dayId + "'," + i + ")\">" + thumb + "<div style='flex:1'><div class='kf-ex-name'>" + esc(ex.name) + "</div>" +
               "<div class='kf-ex-meta'>" + esc(meta) + (t ? "<br>" + esc(t).replace(/\n/g, "<br>") : "") + "</div></div><span class='kf-chev' aria-hidden='true'>›</span></div>";
     });
-    html += "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick=\"closePreview();launchSeq('" + dayId + "')\">▶ Démarrer · tout est guidé</button></div>";
+    html += "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick=\"closePreview();launchSeq('" + dayId + "')\">Démarrer la séance guidée</button></div>";
     sheet.innerHTML = html;
     sheet.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -278,14 +278,14 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     baseLaunch.apply(this, arguments);
     guideState("ready");
     rgSyncSound();
-    $("rg-main-btn").textContent = "▶ Démarrer";
+    $("rg-main-btn").textContent = "Démarrer";
     var inSeq = $("seq-overlay").classList.contains("open") && typeof SEQ_DAYS !== "undefined";
     var ex = inSeq ? SEQ_DAYS[seqCurrentDay].exercises[seqExIdx] : null;
     if (inSeq) {
       var nEx = SEQ_DAYS[seqCurrentDay].exercises.length;
       $("rg-serie-info").textContent = SEQ_DAYS[seqCurrentDay].circuit
-        ? "Tour " + serie + " sur " + totalSeries + " · Exercice " + (seqExIdx + 1) + " sur " + nEx
-        : "Exercice " + (seqExIdx + 1) + " sur " + nEx + " · Série " + serie + " sur " + totalSeries;
+        ? "Tour " + serie + " sur " + totalSeries + ", Exercice " + (seqExIdx + 1) + " sur " + nEx
+        : "Exercice " + (seqExIdx + 1) + " sur " + nEx + ", Série " + serie + " sur " + totalSeries;
       $("rg2-prog-fill").style.width = Math.round(((seqExIdx + (serie - 1) / totalSeries) / nEx) * 100) + "%";
     } else {
       $("rg-serie-info").textContent = "Série " + serie + " sur " + totalSeries;
@@ -333,7 +333,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     }
     var demo = document.createElement("div"); demo.className = "seq-next-demo";
     var info = document.createElement("div");
-    var meta = ex.phase === "work" ? (day.circuit ? "Tour " : "Série ") + nx.serie + " sur " + seqTotalSeries + " · " + KineProgress.repsLabel(ex) : ex.repsLabel;
+    var meta = ex.phase === "work" ? (day.circuit ? "Tour " : "Série ") + nx.serie + " sur " + seqTotalSeries + ", " + KineProgress.repsLabel(ex) : ex.repsLabel;
     info.innerHTML = "<div class='seq-next-k'>Ensuite</div><div class='seq-next-name'>" + esc(ex.name) + "</div><div class='seq-next-meta'>" + esc(meta) + "</div>";
     box.appendChild(demo); box.appendChild(info);
     body.appendChild(box);
@@ -353,7 +353,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   };
   window.seqRestPain = function () {
     seqTimerPaused = true;
-    var b = $("seq-rest-pause"); if (b) b.textContent = "▶ Reprendre";
+    var b = $("seq-rest-pause"); if (b) b.textContent = "Reprendre";
     rgOpenPain();
     rgPain.onResume = function () { seqTimerPaused = false; var b2 = $("seq-rest-pause"); if (b2) b2.textContent = "⏸ Pause"; };
   };
@@ -373,7 +373,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       ? "<div class='kf-note'>Pendant la séance : " + pains.map(function (x) { return "<strong>" + esc(x.zone.toLowerCase()) + ", " + x.intensite + "/10</strong> (" + esc(x.exercice) + ", " + esc(x.action) + ")"; }).join(" ; ") + "</div>" : "";
 
     sheet.innerHTML = "<div class='kf-sheet-body'>" +
-      "<div><div class='kf-h1'>Séance terminée, bravo</div><div class='kf-sub'>" + esc(day.label) + " · Semaine " + week() + "</div></div>" +
+      "<div><div class='kf-h1'>Séance terminée, bravo</div><div class='kf-sub'>" + esc(day.label) + ", Semaine " + week() + "</div></div>" +
       "<div class='kf-stats'>" +
         "<div class='kf-stat'><b>" + done + "/" + total + "</b><span>exercices</span></div>" +
         "<div class='kf-stat'><b>" + duration + " min</b><span>durée</span></div>" +
@@ -390,7 +390,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     sheet.querySelectorAll("[data-borg]").forEach(function (el) { el.onclick = function () {
       bilan.borg = +el.dataset.borg;
       sheet.querySelectorAll("[data-borg]").forEach(function (x) { x.classList.toggle("sel", x === el); });
-      $("kf-borg-hint").textContent = bilan.borg + " · " + BORG[bilan.borg][0];
+      $("kf-borg-hint").textContent = bilan.borg + ", " + BORG[bilan.borg][0];
     }; });
     sheet.querySelectorAll("[data-pain]").forEach(function (el) { el.onclick = function () {
       bilan.pain = +el.dataset.pain;
@@ -451,7 +451,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var t = tempoText(ex), v = KineProgress.variant(dayId, idx);
     sheet.innerHTML = "<div class='kf-sheet-body'>" +
       "<button class='kf-back' onclick='closeDemo()' aria-label='Fermer'>←</button>" +
-      "<div><div class='kf-h1'>" + esc(ex.name) + "</div><div class='kf-sub'>" + esc(KineProgress.repsLabel(ex)) + (t ? " · " + esc(t) : "") + "</div></div>" +
+      "<div><div class='kf-h1'>" + esc(ex.name) + "</div><div class='kf-sub'>" + esc(KineProgress.repsLabel(ex)) + (t ? ", " + esc(t) : "") + "</div></div>" +
       "<div class='v2-stage' style='min-height:340px'><div class='rg-phase-label up' id='kf-demo-label'>Démonstration</div><div id='kf-demo-stage' style='display:flex;justify-content:center;padding-top:30px'></div></div>" +
       (CUES[ex.name] ? "<div class='pg-cue'>" + esc(CUES[ex.name]) + "</div>" : "") +
       "<div class='pg-desc'>" + esc(ex.desc || "") + "</div>" +

@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════
    KinéForce — Communauté : partage avec accord explicite
-   · Rien n'est publié tant que le patient n'a pas accepté
-   · Publication sous pseudonyme, sans nom, photo, e-mail, douleurs ni remarques
-   · Le patient peut arrêter le partage et retirer ses publications à tout moment
+  , Rien n'est publié tant que le patient n'a pas accepté
+  , Publication sous pseudonyme, sans nom, photo, e-mail, douleurs ni remarques
+  , Le patient peut arrêter le partage et retirer ses publications à tout moment
 ═══════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";

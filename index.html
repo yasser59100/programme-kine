@@ -1024,6 +1024,8 @@ input,select,textarea{font-family:var(--font);}
 #kf-prog { z-index: 3500; }
 #kf-demo { z-index: 3620; }
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/kine-premium.css">
 </head>
 <body>
 
@@ -1089,7 +1091,7 @@ input,select,textarea{font-family:var(--font);}
   <div class="hero">
     <div class="hero-greeting">Bonjour</div>
     <div class="hero-name" id="hero-name">Mon programme</div>
-    <div class="hero-sub">Post-hospitalisation · 4 semaines · Poids du corps · Sans matériel</div>
+    <div class="hero-sub">Post-hospitalisation, 4 semaines, Poids du corps, Sans matériel</div>
     <div class="hero-stats">
       <div class="hstat"><div class="hstat-val" id="stat-seances">0</div><div class="hstat-label">Séances</div></div>
       <div class="hstat"><div class="hstat-val" id="stat-semaine">S1</div><div class="hstat-label">Cycle</div></div>
@@ -1110,33 +1112,33 @@ input,select,textarea{font-family:var(--font);}
   <div class="day-cards">
     <div class="day-card" style="--card-color:var(--blue)" onclick="showPage('day0')">
       <div class="day-card-num">J1</div><div class="day-card-name">Membres inférieurs</div>
-      <div class="day-card-meta">Quadriceps · Fessiers · Mollets · ~40 min</div>
+      <div class="day-card-meta">Quadriceps, Fessiers, Mollets, ~40 min</div>
       <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day0" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--blue)" onclick="event.stopPropagation();openPreview('day0')">▶ Lancer la séance</button>
+    <button class="seq-launch-btn" style="background:var(--blue)" onclick="event.stopPropagation();openPreview('day0')">Lancer la séance</button>
     </div>
     <div class="day-card" style="--card-color:var(--teal)" onclick="showPage('day1')">
       <div class="day-card-num">J2</div><div class="day-card-name">Membres supérieurs</div>
-      <div class="day-card-meta">Pectoraux · Épaules · Dos · ~40 min</div>
+      <div class="day-card-meta">Pectoraux, Épaules, Dos, ~40 min</div>
       <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day1" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--teal)" onclick="event.stopPropagation();openPreview('day1')">▶ Lancer la séance</button>
+    <button class="seq-launch-btn" style="background:var(--teal)" onclick="event.stopPropagation();openPreview('day1')">Lancer la séance</button>
     </div>
     <div class="day-card" style="--card-color:var(--amber)" onclick="showPage('day2')">
       <div class="day-card-num">J3</div><div class="day-card-name">Rachis & Gainage</div>
-      <div class="day-card-meta">Transverse · Multifides · ~40 min</div>
+      <div class="day-card-meta">Transverse, Multifides, ~40 min</div>
       <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day2" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--amber)" onclick="event.stopPropagation();openPreview('day2')">▶ Lancer la séance</button>
+    <button class="seq-launch-btn" style="background:var(--amber)" onclick="event.stopPropagation();openPreview('day2')">Lancer la séance</button>
     </div>
     <div class="day-card" style="--card-color:var(--purple)" onclick="showPage('day3')">
       <div class="day-card-num">J4</div><div class="day-card-name">Fessiers & Bassin</div>
-      <div class="day-card-meta">Grand/Moyen fessier · ~40 min</div>
+      <div class="day-card-meta">Grand/Moyen fessier, ~40 min</div>
       <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day3" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--purple)" onclick="event.stopPropagation();openPreview('day3')">▶ Lancer la séance</button>
+    <button class="seq-launch-btn" style="background:var(--purple)" onclick="event.stopPropagation();openPreview('day3')">Lancer la séance</button>
     </div>
     <div class="day-card" style="--card-color:var(--green);grid-column:span 2" onclick="showPage('day4')">
       <div class="day-card-num">J5</div><div class="day-card-name">Global fonctionnel</div>
-      <div class="day-card-meta">Corps entier · Coordination · Proprioception · ~40 min</div>
+      <div class="day-card-meta">Corps entier, Coordination, Proprioception, ~40 min</div>
       <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day4" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--green)" onclick="event.stopPropagation();openPreview('day4')">▶ Lancer la séance</button>
+    <button class="seq-launch-btn" style="background:var(--green)" onclick="event.stopPropagation();openPreview('day4')">Lancer la séance</button>
     </div>
   </div>
   <div class="sec-title">Mes badges</div>
@@ -1165,7 +1167,7 @@ input,select,textarea{font-family:var(--font);}
   <div class="sec-title">Progression 4 semaines</div>
   <div class="info-card">
     <h3>Surcharge progressive — un seul paramètre à la fois</h3>
-    <p style="margin-bottom:10px">Semaine 1 → toujours 2 séries, quelle que soit votre forme. Les 2 premières séances servent à vérifier la technique.</p>
+    <p style="margin-bottom:10px">Semaine 1, puis toujours 2 séries, quelle que soit votre forme. Les 2 premières séances servent à vérifier la technique.</p>
     <div class="prog-grid">
       <div class="prog-week pw-active"><h4>S1</h4><div class="prog-item">Séries<strong>2</strong></div><div class="prog-item">Objectif<strong>Apprentissage</strong></div></div>
       <div class="prog-week"><h4>S2</h4><div class="prog-item">Séries<strong>2–3</strong></div><div class="prog-item">Reps<strong>+2</strong></div></div>
@@ -1175,7 +1177,7 @@ input,select,textarea{font-family:var(--font);}
   </div>
   <div class="sec-title">Échelle d'effort (Borg)</div>
   <div class="info-card">
-    <h3>Zone cible : 2–3 · Réduire si vous atteignez régulièrement 4–5</h3>
+    <h3>Zone cible : 2–3, Réduire si vous atteignez régulièrement 4–5</h3>
     <div class="borg-scale">
       <div class="borg-row"><div class="borg-num b1">1</div><div class="borg-zone">Très léger</div><div class="borg-desc">Aucun essoufflement, conversation facile</div><div class="borg-target">S1</div></div>
       <div class="borg-row"><div class="borg-num b2">2</div><div class="borg-zone">Léger</div><div class="borg-desc">Légère chaleur musculaire</div><div class="borg-target">S1–S2</div></div>
@@ -1216,16 +1218,16 @@ input,select,textarea{font-family:var(--font);}
     <div class="dtags"><span class="dtag">Quadriceps</span><span class="dtag">Ischio-jambiers</span><span class="dtag">Mollets</span><span class="dtag">Stabilité cheville</span><span class="dtag hl">~40 min</span></div>
     <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day0" style="width:0%"></div></div><div class="day-prog-label" id="cnt-day0">0/7</div></div>
   </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Échauffement dynamique · 3 min</div>
+  <div class="slabel"><span class="slabel-dot amber"></span>Échauffement dynamique, 3 min</div>
   <div class="pbox amber">Étirements dynamiques uniquement — pas de maintien prolongé avant l'effort.</div>
   <div class="ex" id="ex-day0-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Mobilisation articulaire progressive MI</div><button class="ex-check-btn" onclick="toggleEx('day0',0)">✓</button></div>
-    <div class="ex-desc">Marche sur place à rythme croissant (50 s) → flexions-extensions actives des chevilles assis (25 s) → leg swings avant/arrière en appui mur (15 s × 2) → rotations de genoux debout (25 s) → squats dynamiques à faible amplitude (25 s) → rotations de hanches (25 s).</div>
+    <div class="ex-desc">Marche sur place à rythme croissant (50 s), puis flexions-extensions actives des chevilles assis (25 s), puis leg swings avant/arrière en appui mur (15 s × 2), puis rotations de genoux debout (25 s), puis squats dynamiques à faible amplitude (25 s), puis rotations de hanches (25 s).</div>
     <div class="ex-tags"><span class="tag amber">3 min continu</span><span class="tag blue">Dynamique — pas de maintien</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot"></span>Circuit de renforcement · 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 séries · <strong>S3–S4 :</strong> 3 séries — 12–15 reps — 30s repos inter-séries — 90s repos inter-exercices</div>
+  <div class="slabel"><span class="slabel-dot"></span>Circuit de renforcement, 28 min</div>
+  <div class="pbox"><strong>S1–S2 :</strong> 2 séries, <strong>S3–S4 :</strong> 3 séries — 12–15 reps — 30s repos inter-séries — 90s repos inter-exercices</div>
   <div class="ex" id="ex-day0-1"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Squat bilatéral en chaîne fermée</div><button class="ex-check-btn" onclick="toggleEx('day0',1)">✓</button></div>
     <div class="ex-desc">Pieds à largeur d'épaules, orteils légèrement vers l'extérieur. Flexion lente jusqu'à 80–90°, talons en appui permanent, rachis neutre. Contraction fessière complète à la remontée. Expirer à la remontée.</div>
@@ -1276,10 +1278,10 @@ input,select,textarea{font-family:var(--font);}
     <div class="ex-tip"><strong>Conseil :</strong> Excellent travail fonctionnel pour la montée des escaliers au quotidien.</div>
     <div class="ex-stop">Arrêt si : genou en valgus (vers l'intérieur) de façon incontrôlée à la montée.</div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs · 5 min</div>
+  <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs, 5 min</div>
   <div class="ex" id="ex-day0-7"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Protocole étirements membres inférieurs</div><button class="ex-check-btn" onclick="toggleEx('day0',7)">✓</button></div>
-    <div class="ex-desc">Quadriceps debout (40s × 2) → ischio-jambiers assis jambe tendue (40s × 2) → mollets en fente basse contre mur (30s × 2) → rotation hanche figure 4 (30s × 2) → respiration diaphragmatique de clôture (2 min : inspirer 4s, expirer 6s).</div>
+    <div class="ex-desc">Quadriceps debout (40s × 2), puis ischio-jambiers assis jambe tendue (40s × 2), puis mollets en fente basse contre mur (30s × 2), puis rotation hanche figure 4 (30s × 2), puis respiration diaphragmatique de clôture (2 min : inspirer 4s, expirer 6s).</div>
     <div class="ex-tags"><span class="tag teal">5 min — étirements passifs maintenus</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Étirements')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
   </div></div></div>
@@ -1299,15 +1301,15 @@ input,select,textarea{font-family:var(--font);}
     <div class="dtags"><span class="dtag">Pectoraux</span><span class="dtag">Deltoïdes</span><span class="dtag">Triceps</span><span class="dtag">Rhomboïdes</span><span class="dtag">Rotateurs ext.</span><span class="dtag hl">~40 min</span></div>
     <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day1" style="width:0%;background:var(--teal)"></div></div><div class="day-prog-label" id="cnt-day1">0/7</div></div>
   </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Échauffement dynamique · 3 min</div>
+  <div class="slabel"><span class="slabel-dot amber"></span>Échauffement dynamique, 3 min</div>
   <div class="ex" id="ex-day1-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Mobilisation active membres supérieurs + cage thoracique</div><button class="ex-check-btn" onclick="toggleEx('day1',0)">✓</button></div>
-    <div class="ex-desc">Pendules des bras en cercles progressifs (45 s) → rétropulsion/antépulsion scapulaires répétées (25 s) → rotations dynamiques des épaules (25 s) → flexions-extensions poignets et coudes (25 s) → 10 pompes contre mur à rythme lent (1 min).</div>
+    <div class="ex-desc">Pendules des bras en cercles progressifs (45 s), puis rétropulsion/antépulsion scapulaires répétées (25 s), puis rotations dynamiques des épaules (25 s), puis flexions-extensions poignets et coudes (25 s), puis 10 pompes contre mur à rythme lent (1 min).</div>
     <div class="ex-tags"><span class="tag amber">3 min</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Circuit de renforcement · 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 séries · <strong>S3–S4 :</strong> 3 séries — 8–12 reps — 30s repos inter-séries — 90s repos inter-exercices</div>
+  <div class="slabel"><span class="slabel-dot teal"></span>Circuit de renforcement, 28 min</div>
+  <div class="pbox"><strong>S1–S2 :</strong> 2 séries, <strong>S3–S4 :</strong> 3 séries — 8–12 reps — 30s repos inter-séries — 90s repos inter-exercices</div>
   <div class="ex" id="ex-day1-1"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Rotation externe d'épaule en décubitus latéral</div><button class="ex-check-btn" onclick="toggleEx('day1',1)">✓</button></div>
     <div class="ex-desc">Allongé sur le côté, coude du bras supérieur collé au flanc, fléchi à 90°. Lever l'avant-bras vers le plafond en rotation externe — sans décoller le coude. Descente lente 3 sec. Cible infra-épineux et petit rond.</div>
@@ -1348,10 +1350,10 @@ input,select,textarea{font-family:var(--font);}
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
     <div class="ex-tip"><strong>Conseil :</strong> La variante W cible davantage les rhomboïdes et trapèzes inférieurs — essentiels pour la posture.</div>
   </div></div></div>
-    <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs · 5 min</div>
+    <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs, 5 min</div>
   <div class="ex" id="ex-day1-6"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Protocole étirements membres supérieurs</div><button class="ex-check-btn" onclick="toggleEx('day1',6)">✓</button></div>
-    <div class="ex-desc">Pectoraux bras en croix contre mur, coude à 90° (40s × 2) → triceps coude derrière la tête (30s × 2) → auto-agrandissement cervical assis (1 min) → position de l'enfant bras tendus (1 min) → respiration abdominale (1 min).</div>
+    <div class="ex-desc">Pectoraux bras en croix contre mur, coude à 90° (40s × 2), puis triceps coude derrière la tête (30s × 2), puis auto-agrandissement cervical assis (1 min), puis position de l'enfant bras tendus (1 min), puis respiration abdominale (1 min).</div>
     <div class="ex-tags"><span class="tag teal">5 min</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Étirements')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
   </div></div></div>
@@ -1363,23 +1365,23 @@ input,select,textarea{font-family:var(--font);}
 <div class="content" style="--day-color:var(--amber);--day-color-dim:var(--amber-dim)">
   <div class="day-header">
     <div class="day-header-top"><div class="day-pill" style="color:var(--amber);border-color:var(--amber);background:var(--amber-dim)">J3</div><div><h2>Gainage & Stabilisation rachidienne</h2><p>Stabilisateurs profonds du tronc. Séance de récupération active — intensité modérée.</p></div></div>
-    <div class="dtags"><span class="dtag">Transverse</span><span class="dtag">Multifides</span><span class="dtag">Obliques</span><span class="dtag">Carré des lombes</span><span class="dtag hl">~40 min · modéré</span></div>
+    <div class="dtags"><span class="dtag">Transverse</span><span class="dtag">Multifides</span><span class="dtag">Obliques</span><span class="dtag">Carré des lombes</span><span class="dtag hl">~40 min, modéré</span></div>
     <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day2" style="width:0%;background:var(--amber)"></div></div><div class="day-prog-label" id="cnt-day2">0/7</div></div>
   </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Activation & mobilisation rachidienne · 3 min</div>
+  <div class="slabel"><span class="slabel-dot amber"></span>Activation & mobilisation rachidienne, 3 min</div>
   <div class="pbox amber">Démarre par du travail respiratoire — l'activation du transverse conditionne la qualité de tous les exercices qui suivent.</div>
   <div class="ex" id="ex-day2-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Respiration diaphragmatique + activation transverse</div><button class="ex-check-btn" onclick="toggleEx('day2',0)">✓</button></div>
-    <div class="ex-desc">Décubitus dorsal, genoux fléchis. Inspirer profondément (ventre se gonfle). À l'expiration, rentrer légèrement le nombril (activation transverse). Maintenir cette légère activation pendant la mobilisation. Respiration (1 min 10) → chat-vache à quatre pattes (56 s) → rotations de tronc assis (54 s).</div>
+    <div class="ex-desc">Décubitus dorsal, genoux fléchis. Inspirer profondément (ventre se gonfle). À l'expiration, rentrer légèrement le nombril (activation transverse). Maintenir cette légère activation pendant la mobilisation. Respiration (1 min 10), puis chat-vache à quatre pattes (56 s), puis rotations de tronc assis (54 s).</div>
     <div class="ex-tags"><span class="tag amber">3 min</span><span class="tag blue">Activation transverse à mémoriser pour tous les exercices</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Activation')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Circuit de gainage · 28 min</div>
+  <div class="slabel"><span class="slabel-dot amber"></span>Circuit de gainage, 28 min</div>
   <div class="pbox">Qualité d'exécution primée sur durée — 30s repos — 60s inter-exercices.</div>
   <div class="ex" id="ex-day2-1"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Gainage antérieur en appui avant-bras (Plank)</div><button class="ex-check-btn" onclick="toggleEx('day2',1)">✓</button></div>
     <div class="ex-desc">Appui sur avant-bras et orteils. Corps aligné — pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre et continue — ne jamais bloquer l'apnée.</div>
-    <div class="ex-tags"><span class="tag amber">S1:20s · S2:25s · S3:30s · S4:40s</span></div>
+    <div class="ex-tags"><span class="tag amber">S1:20s, S2:25s, S3:30s, S4:40s</span></div>
     <div class="ex-variant"><strong>Variante S4 :</strong> Plank avec soulèvement alterné d'un bras</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(20,'Plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 20s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos 30s</button></div>
     <div class="ex-tip"><strong>Conseil :</strong> Version allégée : appui sur genoux. L'arrêt = perte d'alignement rachidien, pas la fatigue.</div>
@@ -1396,7 +1398,7 @@ input,select,textarea{font-family:var(--font);}
   <div class="ex" id="ex-day2-3"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 3</div><div class="ex-name">Gainage latéral modifié (Side plank sur genoux)</div><button class="ex-check-btn" onclick="toggleEx('day2',3)">✓</button></div>
     <div class="ex-desc">Décubitus latéral, appui sur avant-bras et genou inférieur. Corps aligné épaule–hanche–genou. Lever les hanches jusqu'à alignement. Pas de rotation du bassin. Changer de côté.</div>
-    <div class="ex-tags"><span class="tag amber">S1–S2 : 20s/côté · S3–S4 : 30s/côté</span></div>
+    <div class="ex-tags"><span class="tag amber">S1–S2 : 20s/côté, S3–S4 : 30s/côté</span></div>
     <div class="ex-variant"><strong>Variante S4 :</strong> Appui sur orteils (jambes tendues)</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(20,'Side plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 20s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos</button></div>
   </div></div></div>
@@ -1414,13 +1416,13 @@ input,select,textarea{font-family:var(--font);}
     <div class="ex-tags"><span class="tag amber">3 × 8 reps / côté</span></div>
     <div class="ex-variant"><strong>Variante S3–S4 :</strong> Toucher coude et genou sous le ventre entre chaque rep</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(60,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1min</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> L'exercice clé de la rééducation lombaire. Si le bassin tourne → réduire l'amplitude.</div>
+    <div class="ex-tip"><strong>Conseil :</strong> L'exercice clé de la rééducation lombaire. Si le bassin tourne, puis réduire l'amplitude.</div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Cohérence cardiaque & étirements · 5 min</div>
+  <div class="slabel"><span class="slabel-dot teal"></span>Cohérence cardiaque & étirements, 5 min</div>
   <div class="ex" id="ex-day2-6"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Étirements rachidiens + cohérence cardiaque</div><button class="ex-check-btn" onclick="toggleEx('day2',6)">✓</button></div>
-    <div class="ex-desc">Cobra allongé (30s) → torsion lombaire décubitus dorsal (40s × 2) → position de l'enfant bras tendus (1 min) → <strong>cohérence cardiaque :</strong> inspirer 5s, expirer 5s — répéter pendant 3 min. Bénéfice validé sur la régulation du SNA.</div>
-    <div class="ex-tags"><span class="tag teal">5 min · Régulation neurovégétative</span></div>
+    <div class="ex-desc">Cobra allongé (30s), puis torsion lombaire décubitus dorsal (40s × 2), puis position de l'enfant bras tendus (1 min), puis <strong>cohérence cardiaque :</strong> inspirer 5s, expirer 5s — répéter pendant 3 min. Bénéfice validé sur la régulation du SNA.</div>
+    <div class="ex-tags"><span class="tag teal">5 min, Régulation neurovégétative</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Cohérence cardiaque')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
   </div></div></div>
 </div>
@@ -1434,15 +1436,15 @@ input,select,textarea{font-family:var(--font);}
     <div class="dtags"><span class="dtag">Grand fessier</span><span class="dtag">Moyen fessier</span><span class="dtag">Abducteurs</span><span class="dtag">Rotateurs ext.</span><span class="dtag hl">~40 min</span></div>
     <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day3" style="width:0%;background:var(--purple)"></div></div><div class="day-prog-label" id="cnt-day3">0/7</div></div>
   </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Activation ceinture pelvienne · 3 min</div>
+  <div class="slabel"><span class="slabel-dot amber"></span>Activation ceinture pelvienne, 3 min</div>
   <div class="ex" id="ex-day3-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Activation ceinture pelvienne</div><button class="ex-check-btn" onclick="toggleEx('day3',0)">✓</button></div>
-    <div class="ex-desc">Cercles de hanches debout, amplitude progressive (50 s) → abduction de hanche alternée en station debout contre mur (15 s × 2) → leg swings latéraux (15 s × 2) → rotations de hanche en décubitus dorsal (35 s) → marche genoux hauts avec élévation exagérée (35 s).</div>
+    <div class="ex-desc">Cercles de hanches debout, amplitude progressive (50 s), puis abduction de hanche alternée en station debout contre mur (15 s × 2), puis leg swings latéraux (15 s × 2), puis rotations de hanche en décubitus dorsal (35 s), puis marche genoux hauts avec élévation exagérée (35 s).</div>
     <div class="ex-tags"><span class="tag amber">3 min</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Activation')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot purple"></span>Circuit de renforcement · 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 séries · <strong>S3–S4 :</strong> 3 séries — 15 reps — 30s repos — 90s inter-exercices</div>
+  <div class="slabel"><span class="slabel-dot purple"></span>Circuit de renforcement, 28 min</div>
+  <div class="pbox"><strong>S1–S2 :</strong> 2 séries, <strong>S3–S4 :</strong> 3 séries — 15 reps — 30s repos — 90s inter-exercices</div>
   <div class="ex" id="ex-day3-1"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Squat sumo (adducteurs + grand fessier)</div><button class="ex-check-btn" onclick="toggleEx('day3',1)">✓</button></div>
     <div class="ex-desc">Pieds très écartés (~150% largeur épaules), orteils à 45°. Flexion en maintenant les genoux dans l'axe des orteils, bassin en légère rétroversion. Remontée par contraction simultanée fessiers et adducteurs.</div>
@@ -1488,10 +1490,10 @@ input,select,textarea{font-family:var(--font);}
     <div class="ex-variant"><strong>Variante S4 :</strong> Bras tendus dans le vide (déstabilisation)</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Étirements · 5 min</div>
+  <div class="slabel"><span class="slabel-dot teal"></span>Étirements, 5 min</div>
   <div class="ex" id="ex-day3-7"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Protocole étirements fessiers, piriforme et iliopsoas</div><button class="ex-check-btn" onclick="toggleEx('day3',7)">✓</button></div>
-    <div class="ex-desc">Figure 4 en décubitus (45s × 2 côtés) → fente basse au sol pour l'iliopsoas (40s × 2) → demi-grand écart assis pour les adducteurs (40s) → respiration abdominale de clôture (1 min).</div>
+    <div class="ex-desc">Figure 4 en décubitus (45s × 2 côtés), puis fente basse au sol pour l'iliopsoas (40s × 2), puis demi-grand écart assis pour les adducteurs (40s), puis respiration abdominale de clôture (1 min).</div>
     <div class="ex-tags"><span class="tag teal">5 min</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Étirements')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
   </div></div></div>
@@ -1503,18 +1505,18 @@ input,select,textarea{font-family:var(--font);}
 <div class="content" style="--day-color:var(--green);--day-color-dim:var(--green-dim)">
   <div class="day-header">
     <div class="day-header-top"><div class="day-pill" style="color:var(--green);border-color:var(--green);background:var(--green-dim)">J5</div><div><h2>Renforcement global fonctionnel</h2><p>Intégration corps entier en enchaînements fonctionnels avec composante cardio-respiratoire modérée.</p></div></div>
-    <div class="dtags"><span class="dtag">Corps entier</span><span class="dtag">Coordination</span><span class="dtag">Cardio modéré</span><span class="dtag">Proprioception</span><span class="dtag hl">~40 min · fin de cycle</span></div>
+    <div class="dtags"><span class="dtag">Corps entier</span><span class="dtag">Coordination</span><span class="dtag">Cardio modéré</span><span class="dtag">Proprioception</span><span class="dtag hl">~40 min, fin de cycle</span></div>
     <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day4" style="width:0%;background:var(--green)"></div></div><div class="day-prog-label" id="cnt-day4">0/7</div></div>
   </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Mise en route cardio-respiratoire · 3 min</div>
+  <div class="slabel"><span class="slabel-dot amber"></span>Mise en route cardio-respiratoire, 3 min</div>
   <div class="ex" id="ex-day4-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Échauffement global progressif</div><button class="ex-check-btn" onclick="toggleEx('day4',0)">✓</button></div>
-    <div class="ex-desc">Marche sur place genoux hauts, rythme croissant (45 s) → jumping jacks à rythme modéré (35 s) → rotations complètes de bas en haut : chevilles, genoux, hanches, tronc, épaules, nuque (1 min) → 5 grandes respirations de préparation (40 s).</div>
+    <div class="ex-desc">Marche sur place genoux hauts, rythme croissant (45 s), puis jumping jacks à rythme modéré (35 s), puis rotations complètes de bas en haut : chevilles, genoux, hanches, tronc, épaules, nuque (1 min), puis 5 grandes respirations de préparation (40 s).</div>
     <div class="ex-tags"><span class="tag amber">3 min</span><span class="tag blue">Cible Borg 2 en fin d'échauffement</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot green"></span>Circuit fonctionnel · 25 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours · <strong>S3–S4 :</strong> 3 tours — 40s travail / 20s transition — 2 min repos entre les tours. Adapter le rythme librement.</div>
+  <div class="slabel"><span class="slabel-dot green"></span>Circuit fonctionnel, 25 min</div>
+  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 40s travail / 20s transition — 2 min repos entre les tours. Adapter le rythme librement.</div>
   <div class="ex" id="ex-day4-1"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">A</div><div class="ex-name">Squat + élévation des membres supérieurs</div><button class="ex-check-btn" onclick="toggleEx('day4',1)">✓</button></div>
     <div class="ex-desc">Descente en squat, remontée avec élévation coordonnée des deux bras en antéflexion jusqu'à la verticale. Mouvement fluide MI–MS : la montée des bras accompagne la poussée des jambes.</div>
@@ -1523,7 +1525,7 @@ input,select,textarea{font-family:var(--font);}
   </div></div></div>
   <div class="ex" id="ex-day4-2"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">B</div><div class="ex-name">Inchworm + pompes (transition posturale)</div><button class="ex-check-btn" onclick="toggleEx('day4',2)">✓</button></div>
-    <div class="ex-desc">Debout → pencher le tronc → poser les mains au sol → marcher avec les mains jusqu'en position de planche → réaliser 2 pompes → revenir en marchant sur les mains → redressement lent. Travail de transition sol–debout essentiel pour l'autonomie fonctionnelle.</div>
+    <div class="ex-desc">Debout, puis pencher le tronc, puis poser les mains au sol, puis marcher avec les mains jusqu'en position de planche, puis réaliser 2 pompes, puis revenir en marchant sur les mains, puis redressement lent. Travail de transition sol–debout essentiel pour l'autonomie fonctionnelle.</div>
     <div class="ex-tags"><span class="tag green">40 sec</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Travail')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button></div>
   </div></div></div>
@@ -1535,7 +1537,7 @@ input,select,textarea{font-family:var(--font);}
   </div></div></div>
   <div class="ex" id="ex-day4-4"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">D</div><div class="ex-name">Burpee modifié sans saut (transition sol–debout)</div><button class="ex-check-btn" onclick="toggleEx('day4',4)">✓</button></div>
-    <div class="ex-desc">Descente progressive des mains au sol → reculer les pieds en position de planche → tenir 2 sec de gainage → ramener les pieds vers les mains → remontée debout lente et contrôlée. Rythme entièrement personnel — la qualité prime sur la vitesse.</div>
+    <div class="ex-desc">Descente progressive des mains au sol, puis reculer les pieds en position de planche, puis tenir 2 sec de gainage, puis ramener les pieds vers les mains, puis remontée debout lente et contrôlée. Rythme entièrement personnel — la qualité prime sur la vitesse.</div>
     <div class="ex-tags"><span class="tag green">40 sec</span><span class="tag red">Exercice le plus exigeant — réduire librement</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Travail')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button></div>
     <div class="ex-tip"><strong>Conseil :</strong> Simule la capacité à se relever du sol — compétence de vie quotidienne fondamentale.</div>
@@ -1548,10 +1550,10 @@ input,select,textarea{font-family:var(--font);}
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Équilibre')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button></div>
     <div class="ex-tip"><strong>Conseil :</strong> Très bénéfique pour la prévention des chutes.</div>
   </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Récupération & relaxation · 8 min</div>
+  <div class="slabel"><span class="slabel-dot teal"></span>Récupération & relaxation, 8 min</div>
   <div class="ex" id="ex-day4-6"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Étirements globaux + Savasana de clôture</div><button class="ex-check-btn" onclick="toggleEx('day4',6)">✓</button></div>
-    <div class="ex-desc">Étirements successifs de l'ensemble du corps (3 min, 30s par groupe). Puis décubitus dorsal — <strong>Savasana :</strong> relâchement progressif de bas en haut (pieds → mollets → cuisses → ventre → dos → bras → épaules → visage). Respiration libre. Prendre conscience des sensations positives générées par la séance (5 min).</div>
+    <div class="ex-desc">Étirements successifs de l'ensemble du corps (3 min, 30s par groupe). Puis décubitus dorsal — <strong>Savasana :</strong> relâchement progressif de bas en haut (pieds, puis mollets, puis cuisses, puis ventre, puis dos, puis bras, puis épaules, puis visage). Respiration libre. Prendre conscience des sensations positives générées par la séance (5 min).</div>
     <div class="ex-tags"><span class="tag teal">8 min — clôture du cycle hebdomadaire</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(480,'Savasana')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 8 min</button></div>
   </div></div></div>
@@ -1699,7 +1701,7 @@ input,select,textarea{font-family:var(--font);}
     </div>
   </div>
 
-  <div class="feedback-box" id="copy-fb"><strong>Copié !</strong> Ouvrez l'app Notes → "Mon programme kiné" → Appui long → Coller.</div>
+  <div class="feedback-box" id="copy-fb"><strong>Copié !</strong> Ouvrez l'app Notes, puis "Mon programme kiné", puis Appui long, puis Coller.</div>
 
   <div class="sec-title">Historique des séances</div>
   <div id="sessions-list"><p style="font-size:0.76rem;color:var(--text3);font-style:italic">Aucune séance enregistrée pour l'instant.</p></div>
@@ -1714,7 +1716,7 @@ input,select,textarea{font-family:var(--font);}
 <div class="content">
   <div class="community-header">
     <h2>Communauté</h2>
-    <p>Les séances de tous les patients du cabinet · Motivez-vous ensemble</p>
+    <p>Les séances de tous les patients du cabinet, Motivez-vous ensemble</p>
     <div class="community-stats">
       <div class="cs"><div class="cs-val" id="cs-members">—</div><div class="cs-lbl">Membres</div></div>
       <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances totales</div></div>
@@ -1759,7 +1761,7 @@ input,select,textarea{font-family:var(--font);}
   <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg></span><span>Communauté</span></button>
 </nav>
 
-<div class="signature">Programme établi par <strong>Yasser Ladraa, Kinésithérapeute</strong> · Renforcement musculaire poids du corps · Cycle 4 semaines · Usage thérapeutique post-hospitalisation</div>
+<div class="signature">Programme établi par <strong>Yasser Ladraa, Kinésithérapeute</strong>, Renforcement musculaire poids du corps, Cycle 4 semaines, Usage thérapeutique post-hospitalisation</div>
 
 <script>
 // Early global stubs — ensure onclick handlers work before full script loads
@@ -2288,7 +2290,7 @@ document.addEventListener('DOMContentLoaded',function(){
   </div>
 
   <div class="v2-actions">
-    <button class="v2-primary" id="rg-main-btn" onclick="repGuideNext()">▶ Démarrer</button>
+    <button class="v2-primary" id="rg-main-btn" onclick="repGuideNext()">Démarrer</button>
     <div class="v2-duo">
       <button class="v2-btn" id="rg-pause-btn" onclick="rgTogglePause()" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"></path></svg> Pause</button>
       <button class="v2-btn v2-pain" onclick="rgOpenPain()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"></path></svg> J'ai mal</button>
@@ -2831,7 +2833,7 @@ function renderSeqExercise() {
   var numEl = document.createElement("div");
   numEl.className = "seq-ex-num";
   numEl.style.color = phaseColor;
-  numEl.textContent = phaseLabel + " · " + (window.KineProgress ? KineProgress.repsLabel(ex) : ex.repsLabel);
+  numEl.textContent = phaseLabel + ", " + (window.KineProgress ? KineProgress.repsLabel(ex) : ex.repsLabel);
   inner.appendChild(numEl);
   var nameEl = document.createElement("div");
   nameEl.className = "seq-ex-name";
@@ -2887,10 +2889,10 @@ function renderSeqExercise() {
 
   var guided = ex.phase === "work" && ex.repsLabel && /\d/.test(ex.repsLabel);
   if (ex.phase === "work" && seqSerieIdx < seqTotalSeries - 1) {
-    actions.appendChild(makeBtn("seq-btn-main", guided ? "▶ Commencer la série " + (seqSerieIdx+1) : "✓ Série " + (seqSerieIdx+1) + " terminée", seqSeriesDone));
+    actions.appendChild(makeBtn("seq-btn-main", guided ? "Commencer la série " + (seqSerieIdx+1) : "✓ Série " + (seqSerieIdx+1) + " terminée", seqSeriesDone));
     actions.appendChild(makeBtn("seq-btn-secondary", "Passer cet exercice →", seqSkipExercise));
   } else if (seqExIdx < total - 1) {
-    var btnLabel = guided ? "▶ Commencer la série " + (seqSerieIdx+1) : ex.restAfter > 0
+    var btnLabel = guided ? "Commencer la série " + (seqSerieIdx+1) : ex.restAfter > 0
       ? "✓ Terminé — Repos " + (ex.restAfter >= 60 ? Math.floor(ex.restAfter/60)+"min" : ex.restAfter+"s")
       : "Exercice suivant →";
     actions.appendChild(makeBtn("seq-btn-main green", btnLabel, seqExDone));
@@ -3051,7 +3053,7 @@ window.seqSetRest = function(secs) {
 window.seqToggleRestPause = function() {
   seqTimerPaused = !seqTimerPaused;
   var btn = document.getElementById("seq-rest-pause");
-  if (btn) btn.textContent = seqTimerPaused ? "▶ Reprendre" : "⏸ Pause";
+  if (btn) btn.textContent = seqTimerPaused ? "Reprendre" : "⏸ Pause";
 };
 window.seqSkipRest = function() {
   stopSpeech();
@@ -3395,7 +3397,7 @@ function rgTogglePause(forceOn) {
     var el = document.getElementById("rg-phase-label");
     rgState.labelBeforePause = [el.textContent, el.className.replace("rg-phase-label", "").trim()];
     setPhaseLabel("En pause", "hold");
-    if (btn) btn.innerHTML = "▶ Reprendre";
+    if (btn) btn.innerHTML = "Reprendre";
   } else {
     rgState.pausedTotal = (rgState.pausedTotal || 0) + Date.now() - rgState.pauseStart;
     rgState.paused = false;
@@ -3518,7 +3520,7 @@ function launchRepGuide(exName, repsLabel, currentSerie, totalSeries, onComplete
     totalTxt = "secondes" + (info.sides === "blocks" ? " par côté" : "");
     sayTxt = info.seconds + " secondes" + (info.sides === "blocks" ? " de chaque côté" : "");
   } else {
-    totalTxt = "/ " + info.reps + (info.perSide ? " · " + info.perSide + " par côté" : "");
+    totalTxt = "/ " + info.reps + (info.perSide ? ", " + info.perSide + " par côté" : "");
     sayTxt = info.perSide ? info.perSide + " répétitions de chaque côté" : info.reps + " répétitions";
   }
   document.getElementById("rg-rep-total").textContent = totalTxt;
@@ -3528,7 +3530,7 @@ function launchRepGuide(exName, repsLabel, currentSerie, totalSeries, onComplete
   numEl.style.color = ""; numEl.style.fontSize = "";
 
   var mainBtn = document.getElementById("rg-main-btn");
-  mainBtn.textContent = "▶ Démarrer";
+  mainBtn.textContent = "Démarrer";
   mainBtn.className = "seq-btn-main";
   mainBtn.onclick = repGuideStart;
 
@@ -3561,7 +3563,7 @@ function repGuideStart() {
 }
 
 // ── ÉTAPES D'UNE RÉPÉTITION ──
-// Chaque étape vient des consignes de l'exercice (ex. pont : montée 1,5 s → tenir 2 s → descente 3 s).
+// Chaque étape vient des consignes de l'exercice (ex. pont : montée 1,5 s, puis tenir 2 s, puis descente 3 s).
 // Libellé, voix, barre de temps et avatar démarrent ensemble et durent exactement `dur` secondes.
 function runSteps(steps, i, ok, rep, done) {
   if (!ok()) return;
@@ -3635,7 +3637,7 @@ function runTimed(id) {
 
 function timedBlock(id, side, seconds, done) {
   var numEl = document.getElementById("rg-rep-num");
-  var sideTxt = side ? (side === "L" ? " · gauche" : " · droite") : "";
+  var sideTxt = side ? (side === "L" ? ", gauche" : ", droite") : "";
   var t0 = rgNow(), live = true, cues = (rgState.info.cues || []).slice();
   var ok = function() { return live && rgAlive(id); };
   numEl.textContent = seconds;
@@ -3664,7 +3666,7 @@ function timedBlock(id, side, seconds, done) {
       if (!ok()) return;
       cycle++;
       var p = rgPlan(cycle);
-      p.steps.forEach(function(s) { if (side) { s.side = side; s.label = s.label.replace(/ · (jambe |côté )?(gauche|droite)$/, "") + sideTxt; } });
+      p.steps.forEach(function(s) { if (side) { s.side = side; s.label = s.label.replace(/, (jambe |côté )?(gauche|droite)$/, "") + sideTxt; } });
       runSteps(p.steps, 0, ok, 1, loop);
     })();
   } else {
@@ -3765,7 +3767,7 @@ function seqCircuitNext(noRest) {
   if (pos < works.length - 1) {
     next = works[pos + 1]; nextTour = tour; rest = CIRCUIT_TRANSITION; title = "Transition";
   } else if (tour < seqTotalSeries - 1) {
-    next = works[0]; nextTour = tour + 1; rest = CIRCUIT_TOUR_REST; title = "Fin du tour " + (tour + 1) + " · récupération";
+    next = works[0]; nextTour = tour + 1; rest = CIRCUIT_TOUR_REST; title = "Fin du tour " + (tour + 1) + ", récupération";
     speak("Fin du tour " + (tour + 1) + ". Deux minutes de récupération.");
   } else {
     next = works[works.length - 1] + 1; nextTour = 0; rest = 0; auto = false;
@@ -4066,5 +4068,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-suivi.js" defer></script>
 <script src="assets/js/kine-community.js" defer></script>
 <script src="assets/js/kine-programme.js" defer></script>
+<script src="assets/js/kine-layout.js" defer></script>
 </body>
 </html>
