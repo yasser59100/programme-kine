@@ -423,8 +423,10 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     (function loop() {
       if (!stage.isConnected || !sheet.classList.contains("open")) return;
       cycle++;
-      var steps = inf.mode === "timed" ? [{ pose: "hold", dur: 2, label: "Position tenue" }, { pose: "hold", dur: 2.5, label: "Position tenue" }, { pose: "up", dur: 2, label: "Retour" }]
-                                       : KineAvatar.plan(ex.name, cycle, inf, week()).steps, i = 0;
+      var st0 = KineAvatar.startOf(ex.name);
+      var steps = inf.mode === "timed" && !KineAvatar.hasSteps(ex.name)
+        ? [{ pose: "hold", dur: 2, label: "Position tenue" }, { pose: "hold", dur: 2.5, label: "Position tenue" }, { pose: st0, dur: 2, label: "Retour" }]
+        : KineAvatar.plan(ex.name, cycle, inf, week()).steps, i = 0;
       (function next() {
         if (!stage.isConnected || !sheet.classList.contains("open")) return;
         if (i >= steps.length) { setTimeout(loop, 500); return; }
