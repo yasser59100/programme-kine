@@ -118,7 +118,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   function kitFor(day) {
     var txt = day.exercises.map(function (e) { return [e.name, e.desc, e.tip].join(" "); }).join(" ").toLowerCase();
     var kit = [];
-    [["chaise", "une chaise"], ["marche", "une marche"], ["mur", "un mur libre"], ["tapis", "un tapis"], ["serviette", "une serviette"], ["élastique", "un élastique"]]
+    [["haltère", "un haltère de 1 kg ou une bouteille d'eau"], ["chaise", "une chaise"], ["marche", "une marche"], ["mur", "un mur libre"], ["tapis", "un tapis"], ["serviette", "une serviette"], ["élastique", "un élastique"]]
       .forEach(function (k) { if (new RegExp("\\b" + k[0]).test(txt)) kit.push(k[1]); });
     return kit;
   }

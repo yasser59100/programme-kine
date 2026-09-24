@@ -869,6 +869,7 @@ input,select,textarea{font-family:var(--font);}
 .seq-btn-main.amber { background: #b7791f; }
 .seq-btn-secondary { min-height: 48px; border-radius: 14px; font-size: 0.95rem; }
 
+.kf-load { margin: 8px 0; padding: 9px 12px; border-radius: var(--r-md); background: var(--blue-dim); border: 1px solid rgba(61,142,240,0.35); font-size: 0.9rem; }
 /* ── Explications, démonstration, onglet Programme ── */
 .kf-ex { cursor: pointer; }
 .kf-chev { color: var(--text2); font-size: 1.4rem; padding-left: 4px; }
@@ -1168,7 +1169,16 @@ input,select,textarea{font-family:var(--font);}
   <div class="slabel"><span class="slabel-dot teal"></span>Circuit de renforcement · 28 min</div>
   <div class="pbox"><strong>S1–S2 :</strong> 2 séries · <strong>S3–S4 :</strong> 3 séries — 8–12 reps — 30s repos inter-séries — 90s repos inter-exercices</div>
   <div class="ex" id="ex-day1-1"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Pompes en appui sur genoux (push-up modifié)</div><button class="ex-check-btn" onclick="toggleEx('day1',1)">✓</button></div>
+    <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Rotation externe d'épaule en décubitus latéral</div><button class="ex-check-btn" onclick="toggleEx('day1',1)">✓</button></div>
+    <div class="ex-desc">Allongé sur le côté, coude du bras supérieur collé au flanc, fléchi à 90°. Lever l'avant-bras vers le plafond en rotation externe — sans décoller le coude. Descente lente 3 sec. Cible infra-épineux et petit rond.</div>
+    <div class="kf-load"><strong>Charge :</strong> un haltère de 1 kg ou une bouteille d'eau d'1 litre fait l'affaire.</div>
+    <div class="ex-tags"><span class="tag teal">3 × 15 reps / côté</span></div>
+    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
+    <div class="ex-tip"><strong>Conseil :</strong> Exercice clé en rééducation d'épaule. Amplitude souvent limitée au début — c'est normal.</div>
+    <div class="ex-stop">Arrêt si : douleur profonde dans l'épaule ou sensation de ressaut.</div>
+  </div></div></div>
+  <div class="ex" id="ex-day1-2"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
+    <div class="ex-head"><div class="ex-num-badge">Ex 2</div><div class="ex-name">Pompes en appui sur genoux (push-up modifié)</div><button class="ex-check-btn" onclick="toggleEx('day1',2)">✓</button></div>
     <div class="ex-desc">Mains légèrement plus larges que les épaules, corps aligné tête–hanches–genoux. Descente lente 3 sec jusqu'au quasi-contact. Coudes à 45° du tronc. Remontée en 1 sec.</div>
     <div class="ex-tags"><span class="tag teal">3 × 8–12 reps</span></div>
     <div class="ex-variant"><strong>Variante S3–S4 :</strong> Pompes complètes sur orteils</div>
@@ -1176,37 +1186,29 @@ input,select,textarea{font-family:var(--font);}
     <div class="ex-tip"><strong>Conseil :</strong> Version débutant : pompes contre un mur ou plan incliné. Plus le plan est incliné, plus c'est facile.</div>
     <div class="ex-stop">Arrêt si : douleur au poignet ou à l'avant de l'épaule.</div>
   </div></div></div>
-  <div class="ex" id="ex-day1-2"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 2</div><div class="ex-name">Dips sur chaise (triceps brachial)</div><button class="ex-check-btn" onclick="toggleEx('day1',2)">✓</button></div>
+  <div class="ex" id="ex-day1-3"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
+    <div class="ex-head"><div class="ex-num-badge">Ex 3</div><div class="ex-name">Dips sur chaise (triceps brachial)</div><button class="ex-check-btn" onclick="toggleEx('day1',3)">✓</button></div>
     <div class="ex-desc">Mains sur le bord d'une chaise stable, dos proche du siège. Descendre le bassin en fléchissant les coudes jusqu'à 90° max. Épaules basses et en arrière. Remonter en extension complète des coudes.</div>
     <div class="ex-tags"><span class="tag teal">3 × 10 reps</span></div>
     <div class="ex-variant"><strong>Variante S3–S4 :</strong> Pieds plus éloignés (augmente la charge)</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
     <div class="ex-stop">Arrêt si : douleur à l'arrière de l'épaule ou craquement douloureux du coude.</div>
   </div></div></div>
-  <div class="ex" id="ex-day1-3"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 3</div><div class="ex-name">Pike push-up (deltoïdes — faisceau antérieur et médian)</div><button class="ex-check-btn" onclick="toggleEx('day1',3)">✓</button></div>
+  <div class="ex" id="ex-day1-4"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
+    <div class="ex-head"><div class="ex-num-badge">Ex 4</div><div class="ex-name">Pike push-up (deltoïdes — faisceau antérieur et médian)</div><button class="ex-check-btn" onclick="toggleEx('day1',4)">✓</button></div>
     <div class="ex-desc">Position en V inversé (fessiers en l'air). Fléchir les coudes pour amener le sommet du crâne entre les mains, remonter. Analogue à un développé épaules en poids du corps.</div>
     <div class="ex-tags"><span class="tag teal">3 × 8 reps</span></div>
     <div class="ex-variant"><strong>Variante S4 :</strong> Pieds surélevés sur une chaise</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
   </div></div></div>
-  <div class="ex" id="ex-day1-4"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 4</div><div class="ex-name">Superman en Y et en W (grand dorsal, rhomboïdes)</div><button class="ex-check-btn" onclick="toggleEx('day1',4)">✓</button></div>
+  <div class="ex" id="ex-day1-5"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
+    <div class="ex-head"><div class="ex-num-badge">Ex 5</div><div class="ex-name">Superman en Y et en W (grand dorsal, rhomboïdes)</div><button class="ex-check-btn" onclick="toggleEx('day1',5)">✓</button></div>
     <div class="ex-desc">Décubitus ventral. <strong>Série A :</strong> bras en Y (45°), élever bras et jambes simultanément, tenir 2 sec. <strong>Série B :</strong> bras en W (coudes fléchis, omoplates rapprochées). Alterner A et B.</div>
     <div class="ex-tags"><span class="tag teal">3 × 12 reps (alternant Y et W)</span></div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
     <div class="ex-tip"><strong>Conseil :</strong> La variante W cible davantage les rhomboïdes et trapèzes inférieurs — essentiels pour la posture.</div>
   </div></div></div>
-  <div class="ex" id="ex-day1-5"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 5</div><div class="ex-name">Rotation externe d'épaule en décubitus latéral</div><button class="ex-check-btn" onclick="toggleEx('day1',5)">✓</button></div>
-    <div class="ex-desc">Allongé sur le côté, coude du bras supérieur collé au flanc, fléchi à 90°. Lever l'avant-bras vers le plafond en rotation externe — sans décoller le coude. Descente lente 3 sec. Cible infra-épineux et petit rond.</div>
-    <div class="ex-tags"><span class="tag teal">3 × 15 reps / côté</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Exercice clé en rééducation d'épaule. Amplitude souvent limitée au début — c'est normal.</div>
-    <div class="ex-stop">Arrêt si : douleur profonde dans l'épaule ou sensation de ressaut.</div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs · 5 min</div>
+    <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs · 5 min</div>
   <div class="ex" id="ex-day1-6"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-name">Protocole étirements membres supérieurs</div><button class="ex-check-btn" onclick="toggleEx('day1',6)">✓</button></div>
     <div class="ex-desc">Pectoraux bras en croix contre mur, coude à 90° (40s × 2) → triceps coude derrière la tête (30s × 2) → auto-agrandissement cervical assis (1 min) → position de l'enfant bras tendus (1 min) → respiration abdominale (1 min).</div>
@@ -2431,6 +2433,9 @@ var SEQ_DAYS = {
     exercises: [
       { name: "Mobilisation membres supérieurs", phase: "warm", series: 1, repsLabel: "7 minutes", restAfter: 0,
         desc: "Pendules des bras en cercles progressifs 2 min, rétropulsion scapulaire 1 min, rotations dynamiques épaules 1 min, flexions extensions poignets et coudes 1 min, 10 pompes contre mur 2 min." },
+      { name: "Rotation externe d'épaule", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
+        desc: "Allongé sur le côté, coude du bras du dessus collé au flanc, fléchi à 90 degrés. Lever l'avant-bras vers le plafond en rotation externe sans décoller le coude. Descente lente 3 secondes. Charge : un haltère de 1 kg ou une bouteille d'eau d'1 litre fait l'affaire.",
+        stop: "Arrêt si douleur profonde dans l'épaule." },
       { name: "Pompes sur genoux", phase: "work", series: 3, repsLabel: "8 à 12 répétitions", restAfter: 90,
         desc: "Mains légèrement plus larges que les épaules, corps aligné. Descente lente 3 secondes, coudes à 45 degrés du tronc. Remontée en 1 seconde.",
         tip: "Version débutant: pompes contre un mur ou plan incliné.",
@@ -2443,9 +2448,6 @@ var SEQ_DAYS = {
       { name: "Superman en Y et en W", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 90,
         desc: "Décubitus ventral. Série A bras en Y à 45 degrés, élever bras et jambes 2 secondes. Série B bras en W coudes fléchis, omoplates rapprochées. Alterner A et B.",
         tip: "La variante W cible les rhomboïdes et trapèzes, essentiels pour la posture." },
-      { name: "Rotation externe d'épaule", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
-        desc: "Allongé sur le côté, coude à 90 degrés collé au flanc. Lever l'avant-bras vers le plafond en rotation externe sans décoller le coude. Descente lente 3 secondes.",
-        stop: "Arrêt si douleur profonde dans l'épaule." },
       { name: "Étirements membres supérieurs", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
         desc: "Pectoraux bras en croix 40 secondes, triceps coude derrière la tête 30 secondes, auto-agrandissement cervical 1 minute, position de l'enfant 1 minute, respiration abdominale 1 minute." }
     ]
@@ -3338,6 +3340,7 @@ function rgPainAction(action) {
 // ── LAUNCH ──
 function launchRepGuide(exName, repsLabel, currentSerie, totalSeries, onComplete) {
   var info = rgInfo(exName, repsLabel);
+  info.serie = currentSerie;
   rgState.active = true;
   rgState.runId = (rgState.runId || 0) + 1;
   rgState.exName = exName;

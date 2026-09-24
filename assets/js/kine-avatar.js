@@ -134,14 +134,84 @@
               step("up", 1, "On monte", "On monte, fessiers serrés", "up")]
     },
 
-    /* ── Tempos seuls pour l'instant (avatar à venir) : le guide suit déjà les consignes ── */
-    "Pompes sur genoux": { steps: [step(0, 3, "Descente lente", "On descend", "down"), step(0, 1, "On pousse", "On pousse", "up")] },
-    "Dips sur chaise": { steps: [step(0, 2, "On descend", "On descend", "down"), step(0, 1, "On pousse", "On pousse", "up")] },
-    "Pike push-up": { steps: [step(0, 2, "On descend", "On descend", "down"), step(0, 1, "On pousse", "On pousse", "up")] },
-    "Superman en Y et en W": { variants: ["Y", "W"],
-      steps: [step(0, 1, "On lève", "On lève", "up"), step(0, 2, "On tient", "On tient", "hold"), step(0, 1.5, "On repose", "On repose", "down")] },
-    "Rotation externe d'épaule": { sides: "blocks",
-      steps: [step(0, 1.5, "On ouvre", "On ouvre", "up"), step(0, 3, "Descente lente", "On redescend", "down")] },
+    /* ── J2 — Membres supérieurs ── */
+    "Rotation externe d'épaule": {
+      // Allongé sur le côté gauche, bras du dessus (droit) : coude fléchi à 90° collé au flanc, charge dans la main
+      // Les deux épaules : 15 épaule droite (allongé sur le côté gauche), puis 15 épaule gauche
+      sides: "blocks", snapSideChange: true, load: "R", sideWord: "épaule", labelSwap: true, camera: { yaw: 0.05, pitch: 0.3, dist: 3.1, ty: 0.28 }, start: "down", thumb: "up",
+      poses: {
+        down: { pelvis: { p: [0, 0.2, 0], r: [0, 0, -90] }, spine: [0, 0, 0], head: 0,
+                L: { ang: [30, 0, 0, 60, 0] }, R: { ang: [30, 0, 0, 60, 0] },
+                LA: { ang: [168, 0, 0, 20] }, RA: { ang: [0, 4, -50, 90] } },
+        up:   { pelvis: { p: [0, 0.2, 0], r: [0, 0, -90] }, spine: [0, 0, 0], head: 0,
+                L: { ang: [30, 0, 0, 60, 0] }, R: { ang: [30, 0, 0, 60, 0] },
+                LA: { ang: [168, 0, 0, 20] }, RA: { ang: [0, 4, 75, 90] } }
+      },
+      steps: [step("up", 1.5, "On ouvre", "On ouvre", "up"), step("down", 3, "Descente lente", "On redescend lentement", "down")]
+    },
+
+    "Pompes sur genoux": {
+      // Corps aligné tête-hanches-genoux, mains un peu plus larges que les épaules, coudes à 45° du tronc
+      camera: { yaw: 1.25, pitch: 0.25, dist: 3.5, ty: 0.3, tz: 0.45 }, start: "up", thumb: "down",
+      poses: {
+        up:   { pelvis: { p: [0, 0.309, 0.367], r: [56.4, 0, 0] }, spine: [0, 0, 0], head: 0,
+                L: { ang: [0, 5, 0, 100, -30] }, R: { ang: [0, 5, 0, 100, -30] },
+                LA: { hand: { at: [0.27, 0.047, 0.84], pole: [0.7, 0.3, -0.7] } }, RA: { hand: { at: [-0.27, 0.047, 0.84], pole: [-0.7, 0.3, -0.7] } } },
+        down: { pelvis: { p: [0, 0.167, 0.428], r: [76.7, 0, 0] }, spine: [0, 0, 0], head: 0,
+                L: { ang: [0, 5, 0, 100, -30] }, R: { ang: [0, 5, 0, 100, -30] },
+                LA: { hand: { at: [0.27, 0.047, 0.84], pole: [0.7, 0.3, -0.7] } }, RA: { hand: { at: [-0.27, 0.047, 0.84], pole: [-0.7, 0.3, -0.7] } } }
+      },
+      steps: [step("down", 3, "Descente lente", "On descend", "down"), step("up", 1, "On pousse", "On pousse", "up")]
+    },
+
+    "Dips sur chaise": {
+      // Mains sur le bord de la chaise, dos proche du siège, coudes fléchis jusqu'à 90° maximum
+      camera: { yaw: 1.3, pitch: 0.18, dist: 3.9, ty: 0.55, tz: 0.1 }, props: ["chair"], start: "up", thumb: "down",
+      poses: {
+        up:   { pelvis: { p: [0, 0.51, 0.0], r: [0, 0, 0] }, spine: [0, 0, 0], head: 0,
+                L: { foot: { at: [0.12, 0, 0.62], yaw: 0 } }, R: { foot: { at: [-0.12, 0, 0.62], yaw: 0 } },
+                LA: { hand: { at: [0.2, 0.49, -0.17], pole: [0.25, 0, -1] } }, RA: { hand: { at: [-0.2, 0.49, -0.17], pole: [-0.25, 0, -1] } } },
+        down: { pelvis: { p: [0, 0.27, 0.1], r: [0, 0, 0] }, spine: [0, 0, 0], head: 0,
+                L: { foot: { at: [0.12, 0, 0.62], yaw: 0 } }, R: { foot: { at: [-0.12, 0, 0.62], yaw: 0 } },
+                LA: { hand: { at: [0.2, 0.49, -0.17], pole: [0.25, 0, -1] } }, RA: { hand: { at: [-0.2, 0.49, -0.17], pole: [-0.25, 0, -1] } } }
+      },
+      steps: [step("down", 2, "On descend", "On descend", "down"), step("up", 1, "On pousse", "On pousse", "up")]
+    },
+
+    "Pike push-up": {
+      // V inversé, fessiers en l'air ; les coudes fléchissent pour amener le crâne entre les mains
+      camera: { yaw: 1.4, pitch: 0.2, dist: 3.7, ty: 0.45, tz: 0.1 }, start: "up", thumb: "down",
+      poses: {
+        up:   { pelvis: { p: [0, 0.86, -0.03], r: [140, 0, 0] }, spine: [0, 0, 0], head: 0,
+                L: { foot: { at: [0.12, 0, -0.46], yaw: 0, lift: 35 } }, R: { foot: { at: [-0.12, 0, -0.46], yaw: 0, lift: 35 } },
+                LA: { hand: { at: [0.24, 0.047, 0.6], pole: [0.6, 0.4, -0.7] } }, RA: { hand: { at: [-0.24, 0.047, 0.6], pole: [-0.6, 0.4, -0.7] } } },
+        down: { pelvis: { p: [0, 0.78, 0.06], r: [152, 0, 0] }, spine: [0, 0, 0], head: 0,
+                L: { foot: { at: [0.12, 0, -0.46], yaw: 0, lift: 35 } }, R: { foot: { at: [-0.12, 0, -0.46], yaw: 0, lift: 35 } },
+                LA: { hand: { at: [0.24, 0.047, 0.6], pole: [0.6, 0.4, -0.7] } }, RA: { hand: { at: [-0.24, 0.047, 0.6], pole: [-0.6, 0.4, -0.7] } } }
+      },
+      steps: [step("down", 2, "On descend", "On descend", "down"), step("up", 1, "On pousse", "On pousse", "up")]
+    },
+
+    "Superman en Y et en W": {
+      // Décubitus ventral. Série A : bras en Y, on élève bras et jambes. Série B : bras en W, omoplates rapprochées
+      variants: ["Y", "W"], variantBy: "serie", camera: { yaw: 0.95, pitch: 0.5, dist: 3.4, ty: 0.15, tz: 0.25 }, start: "down", thumb: "up",
+      poses: {
+        down:  { pelvis: { p: [0, 0.12, 0], r: [90, 0, 0] }, spine: [0, 0, 0], head: -12,
+                 L: { ang: [0, 4, 0, 0, -60] }, R: { ang: [0, 4, 0, 0, -60] },
+                 LA: { hand: { at: [0.47, 0.06, 0.98], pole: [1, -0.2, 0] } }, RA: { hand: { at: [-0.47, 0.06, 0.98], pole: [-1, -0.2, 0] } } },
+        up:    { pelvis: { p: [0, 0.12, 0], r: [90, 0, 0] }, spine: [-8, 0, 0], head: -18,
+                 L: { ang: [-14, 4, 0, 0, -60] }, R: { ang: [-14, 4, 0, 0, -60] },
+                 LA: { hand: { at: [0.47, 0.36, 1.0], pole: [1, 0.2, 0] } }, RA: { hand: { at: [-0.47, 0.36, 1.0], pole: [-1, 0.2, 0] } } },
+        downW: { pelvis: { p: [0, 0.12, 0], r: [90, 0, 0] }, spine: [0, 0, 0], head: -12,
+                 L: { ang: [0, 4, 0, 0, -60] }, R: { ang: [0, 4, 0, 0, -60] },
+                 LA: { hand: { at: [0.42, 0.06, 0.78], pole: [1, -0.3, -0.3] } }, RA: { hand: { at: [-0.42, 0.06, 0.78], pole: [-1, -0.3, -0.3] } } },
+        upW:   { pelvis: { p: [0, 0.12, 0], r: [90, 0, 0] }, spine: [-6, 0, 0], head: -16,
+                 L: { ang: [0, 4, 0, 0, -60] }, R: { ang: [0, 4, 0, 0, -60] },
+                 LA: { hand: { at: [0.42, 0.24, 0.74], pole: [0.8, 0.6, -0.4] } }, RA: { hand: { at: [-0.42, 0.24, 0.74], pole: [-0.8, 0.6, -0.4] } } }
+      },
+      steps: [step("up", 1, "On lève", "On lève", "up"), step("up", 2, "On tient", "On tient", "hold"), step("down", 1.5, "On repose", "On repose", "down")]
+    },
+
     "Plank — gainage avant-bras": { timed: { byWeek: [20, 25, 30, 40] } },
     "Dead bug": { sides: "alternate",
       steps: [step(0, 2, "On allonge", "On allonge", "down"), step(0, 2, "On revient", "On revient", "up")] },
@@ -209,13 +279,17 @@
       side = rep <= inf.perSide ? first : other;
       if (rep === inf.perSide + 1) announce = "Changez de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (side === "L" ? "gauche" : "droite");
     }
-    var sideTxt = inf && inf.sides ? " · " + word + (side === "L" ? "gauche" : "droite") : "";
-    var sideSay = inf && inf.sides === "blocks" && rep === 1 ? (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (side === "L" ? "gauche" : "droite") + ". " : "";
-    var variant = def && def.variants ? def.variants[(rep - 1) % def.variants.length] : null;
+    var shown = def && def.labelSwap ? (side === "L" ? "R" : "L") : side; // côté qui travaille
+    if (announce && def && def.labelSwap) announce = "Changez de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : "droite");
+    var sideTxt = inf && inf.sides ? " · " + word + (shown === "L" ? "gauche" : "droite") : "";
+    var sideSay = inf && inf.sides === "blocks" && rep === 1 ? (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : "droite") + ". " : "";
+    var vIdx = def && def.variantBy === "serie" ? ((inf && inf.serie) || 1) - 1 : rep - 1;
+    var variant = def && def.variants ? def.variants[vIdx % def.variants.length] : null;
     return {
       announce: announce, side: side,
       steps: base.map(function (s, i) {
-        return { pose: s.pose, dur: s.dur, kind: s.kind, say: i === 0 && sideSay ? sideSay + (s.say || "") : s.say, side: side,
+        var pose = variant && def.poses && def.poses[s.pose + variant] ? s.pose + variant : s.pose;
+        return { pose: pose, dur: s.dur, kind: s.kind, say: i === 0 && sideSay ? sideSay + (s.say || "") : s.say, side: side,
                  label: s.label + (variant ? " · " + variant : "") + sideTxt };
       })
     };
@@ -275,7 +349,9 @@
     var mat = function (c, r) { return new T.MeshStandardMaterial({ color: lin(c), roughness: r || 0.85, side: T.DoubleSide }); };
     var M = { skin: mat(AVATAR.skin), hair: mat(AVATAR.hair), fade: mat(AVATAR.fade), pants: mat(AVATAR.pants),
               shirt: mat(AVATAR.shirt), shoes: mat(AVATAR.shoes), sole: mat(AVATAR.sole), lips: mat(AVATAR.lips),
-              eyes: mat(AVATAR.eyes), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95) };
+              eyes: mat(AVATAR.eyes), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95),
+              load: new T.MeshStandardMaterial({ color: lin("#7cc4ff"), roughness: 0.2, transparent: true, opacity: 0.75 }),
+              cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75) };
     function mesh(geo, m, parent) { var o = new T.Mesh(geo, m); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
     function ball(r, m, parent) { return mesh(new T.SphereGeometry(r, 24, 16), m, parent); }
     function bone(r, len, m, parent) { var o = mesh(new T.CylinderGeometry(r, r, len, 20), m, parent); o.position.y = -len / 2; return o; }
@@ -332,7 +408,10 @@
       var el = group(sh, 0, -LEN.upper, 0);
       ball(0.044, M.skin, el); bone(0.04, LEN.fore, M.skin, el);
       ball(0.047, M.skin, el).position.y = -LEN.fore;
-      return { side: side, sh: sh, el: el };
+      var load = new T.Group(); load.position.y = -LEN.fore; el.add(load); load.visible = false;
+      var bottle = mesh(new T.CylinderGeometry(0.036, 0.036, 0.19, 20), M.load, load); bottle.rotation.z = Math.PI / 2;
+      var cap = mesh(new T.CylinderGeometry(0.016, 0.016, 0.03, 12), M.cap, load); cap.rotation.z = Math.PI / 2; cap.position.x = 0.11;
+      return { side: side, sh: sh, el: el, load: load };
     }
     function makeLeg(side) {
       var hip = group(pelvis, side * LEN.hipX, 0, 0); hip.rotation.order = "XZY";
@@ -352,8 +431,15 @@
     var props = {
       step: mesh(new T.BoxGeometry(0.7, 0.18, 0.34), M.prop, scene),
       wall: mesh(new T.BoxGeometry(1.2, 2.1, 0.05), M.wall, scene),
-      wallBack: mesh(new T.BoxGeometry(1.2, 2.1, 0.05), M.wall, scene)
+      wallBack: mesh(new T.BoxGeometry(1.2, 2.1, 0.05), M.wall, scene),
+      chair: new T.Group()
     };
+    scene.add(props.chair);
+    mesh(new T.BoxGeometry(0.5, 0.05, 0.42), M.wood, props.chair).position.set(0, 0.425, -0.36);
+    [[-0.22, -0.17], [0.22, -0.17], [-0.22, -0.55], [0.22, -0.55]].forEach(function (c) {
+      mesh(new T.BoxGeometry(0.035, 0.42, 0.035), M.wood, props.chair).position.set(c[0], 0.2, c[1]);
+    });
+    mesh(new T.BoxGeometry(0.5, 0.45, 0.035), M.wood, props.chair).position.set(0, 0.67, -0.56);
     props.wallBack.position.set(0, 1.05, -0.585);
     props.step.position.set(0, 0.09, 0.42);
     props.wall.position.set(0, 1.05, 0.585);
@@ -488,7 +574,12 @@
   }
 
   /* ── Lecture ── */
-  var def = null, current = null, tween = null, raf = 0, host = null, paused = false, lastNow = 0;
+  var def = null, current = null, tween = null, raf = 0, host = null, paused = false, lastNow = 0, curSide = "L";
+  function showLoad(d, side) {
+    if (!R) return;
+    var arm = d && d.load ? (side === "R" ? (d.load === "R" ? "L" : "R") : d.load) : null;
+    R.arms.L.load.visible = arm === "L"; R.arms.R.load.visible = arm === "R";
+  }
   var easeInOut = function (x) { return 0.5 - 0.5 * Math.cos(Math.PI * x); };
 
   function frame(now) {
@@ -529,7 +620,7 @@
       if (!d || !d.poses || !window.THREE) { loadThree().catch(function () {}); return false; }
       if (!R) { R = build(); if (!R) return false; }
       if (host === container && def === d && raf) return true;
-      def = d; current = d.poses[d.start]; tween = null;
+      def = d; current = d.poses[d.start]; tween = null; curSide = "L"; showLoad(d, "L");
       for (var k in R.props) R.props[k].visible = (d.props || []).indexOf(k) >= 0;
       R.view.yaw = R.view.yawGoal = d.camera && d.camera.yaw != null ? d.camera.yaw : 0.6;
       container.innerHTML = ""; container.appendChild(R.canvas); host = container;
@@ -541,14 +632,16 @@
     // L'avatar atteint la pose de l'étape en exactement `dur` secondes
     step: function (s) {
       if (!def || !raf || !s || !s.pose || !def.poses[s.pose]) return;
-      var to = def.poses[s.pose];
-      tween = { from: current, to: s.side === "R" ? mirror(to) : to, start: performance.now(), dur: Math.max(0.05, s.dur) * 1000 };
+      var to = def.poses[s.pose], side = s.side === "R" ? "R" : "L";
+      var dur = def.snapSideChange && side !== curSide ? 0.05 : s.dur;
+      curSide = side; showLoad(def, side);
+      tween = { from: current, to: side === "R" ? mirror(to) : to, start: performance.now(), dur: Math.max(0.05, dur) * 1000 };
     },
 
     pause: function (on) { paused = !!on; },
 
     // Vue de profil pour contrôler les amplitudes : image + position des articulations à l'écran
-    debugView: function (name, poseName, side, px, fromPose, k) {
+    debugView: function (name, poseName, side, px, fromPose, k, natural) {
       var d = EX[name]; if (!d || !d.poses || !window.THREE) return null;
       if (!R) { R = build(); if (!R) return null; }
       var size = px || 700, T = R.T;
@@ -558,17 +651,27 @@
       applyPose(p); R.pelvis.updateMatrixWorld(true);
       R.renderer.setSize(size, size, false); R.camera.aspect = 1; R.camera.updateProjectionMatrix();
       var c = d.camera || {}, ty = c.ty != null ? c.ty : 0.8, tz = c.tz || 0, dist = (c.dist || 4.1) * 0.9;
-      R.camera.position.set(dist, ty + 0.05, tz); R.camera.lookAt(0, ty, tz);
+      if (natural) placeCamera(d, c.yaw != null ? c.yaw : 0.6); else { R.camera.position.set(dist, ty + 0.05, tz); R.camera.lookAt(0, ty, tz); }
       R.camera.updateMatrixWorld(true);
       R.renderer.render(R.scene, R.camera);
       var pt = function (g) { var v = new T.Vector3(); g.getWorldPosition(v); v.project(R.camera); return [(v.x + 1) / 2 * size, (1 - v.y) / 2 * size]; };
       var sh = new T.Vector3(); R.arms.L.sh.getWorldPosition(sh); sh.x = 0; var shp = sh.clone().project(R.camera);
       var legs = {};
       ["L", "R"].forEach(function (s2) { legs[s2] = { hip: pt(R.legs[s2].hip), knee: pt(R.legs[s2].knee), ankle: pt(R.legs[s2].ankle) }; });
+      var armsPts = {};
+      ["L", "R"].forEach(function (s2) {
+        var a = R.arms[s2], hq = new T.Quaternion(); a.el.getWorldQuaternion(hq);
+        var E = new T.Vector3(); a.el.getWorldPosition(E);
+        var Hn = new T.Vector3(0, -LEN.fore, 0).applyQuaternion(hq).add(E), S = new T.Vector3(); a.sh.getWorldPosition(S);
+        var q3 = function (v) { var c = v.clone().project(R.camera); return [(c.x + 1) / 2 * size, (1 - c.y) / 2 * size]; };
+        armsPts[s2] = { sh: q3(S), el: q3(E), hand: q3(Hn) };
+      });
+      showLoad(d, side === "R" ? "R" : "L");
+      R.renderer.render(R.scene, R.camera);
       var url = R.canvas.toDataURL("image/png");
-      if (def) { for (var k2 in R.props) R.props[k2].visible = (def.props || []).indexOf(k2) >= 0; applyPose(current); }
+      if (def) { for (var k2 in R.props) R.props[k2].visible = (def.props || []).indexOf(k2) >= 0; showLoad(def, curSide); applyPose(current); }
       if (host) resize();
-      return { img: url, legs: legs, shoulder: [(shp.x + 1) / 2 * size, (1 - shp.y) / 2 * size] };
+      return { img: url, legs: legs, arms: armsPts, shoulder: [(shp.x + 1) / 2 * size, (1 - shp.y) / 2 * size] };
     },
 
     // Mesure des angles articulaires d'une pose (contrôle des amplitudes)
@@ -590,6 +693,15 @@
         var foot = new T.Vector3(0, 0, 1).applyQuaternion(aq);
         out[s2] = { hanche: hip, genou: deg(thigh, shank), cheville: 90 - deg(shank.clone().negate(), foot),
                     genouSol: Math.round((K.y - 0.066) * 100) + " cm" };
+      });
+      ["L", "R"].forEach(function (s2) {
+        var a = R.arms[s2], S = w(a.sh), E = w(a.el);
+        var hq = new T.Quaternion(); a.el.getWorldQuaternion(hq);
+        var Hn = new T.Vector3(0, -LEN.fore, 0).applyQuaternion(hq).add(E);
+        var upper = E.clone().sub(S), fore = Hn.clone().sub(E);
+        out[s2].coude = deg(upper, fore);
+        out[s2].avantBrasVertical = deg(fore, new T.Vector3(0, 1, 0));
+        out[s2].brasTronc = deg(upper, up.clone().negate());
       });
       if (def) applyPose(current);
       return out;
