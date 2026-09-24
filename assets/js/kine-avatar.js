@@ -687,7 +687,7 @@
     R.pelvis.rotation.set(p.pelvis.r[0] * D2R, p.pelvis.r[1] * D2R, p.pelvis.r[2] * D2R);
     var sp = p.spine || [0, 0, 0];
     R.spine.rotation.set(sp[0] * D2R, sp[2] * D2R, sp[1] * D2R);
-    R.head.rotation.x = (p.head || 0) * D2R;
+    R.head.rotation.set((p.head || 0) * D2R, (p.headY || 0) * D2R, (p.headZ || 0) * D2R);
     R.pelvis.updateMatrixWorld(true);
 
     ["L", "R"].forEach(function (s) {
@@ -724,6 +724,7 @@
     sw("L", "R"); sw("LA", "RA");
     m.pelvis.p[0] = -m.pelvis.p[0]; m.pelvis.r[1] = -m.pelvis.r[1]; m.pelvis.r[2] = -m.pelvis.r[2];
     if (m.spine) { m.spine[1] = -m.spine[1]; m.spine[2] = -m.spine[2]; }
+    if (m.headY) m.headY = -m.headY; if (m.headZ) m.headZ = -m.headZ;
     ["L", "R", "LA", "RA"].forEach(function (k) {
       var e = m[k]; if (!e) return;
       var t = e.foot || e.hand;
@@ -801,6 +802,10 @@
     plan: plan,
     supports: function (name) { return !!(EX[name] && EX[name].poses); },
     hasSteps: function (name) { return !!(EX[name] && EX[name].steps); },
+    // Mouvements supplémentaires (échauffements, étirements) déclarés par kine-routines.js
+    register: function (name, d) { EX[name] = d; },
+    lib: { merge: merge, STAND: STAND, feet: feet, step: step, QUAD: QUAD, FOREARMS: FOREARMS,
+           SUPINE_FEET: SUPINE_FEET, SUPINE_HANDS: SUPINE_HANDS, BRIDGE_DOWN: BRIDGE_DOWN },
     startOf: function (name) { var d = EX[name]; return d && d.poses ? startPose(d) : null; },
 
     show: function (container, name) {

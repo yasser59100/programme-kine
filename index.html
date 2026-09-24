@@ -883,6 +883,31 @@ input,select,textarea{font-family:var(--font);}
 .kf-acc[open] > summary::after { transform: rotate(90deg); }
 .kf-acc > .info-card { margin: 0; border: none; border-top: 1px solid var(--border); border-radius: 0; }
 #page-guide .notice-bar { margin-bottom: 16px; }
+
+/* ── Échauffements et étirements guidés ── */
+#kf-routine { z-index: 3550; }
+.kr-aid { position: absolute; right: 10px; bottom: 10px; display: none; flex-direction: column; align-items: center; gap: 4px; padding: 8px; border-radius: 16px; background: rgba(8,14,23,.72); border: 1px solid var(--border2); }
+[data-theme="light"] .kr-aid { background: rgba(255,255,255,.85); }
+.kr-aid-t { font-size: 0.72rem; font-weight: 700; color: var(--text2); max-width: 130px; text-align: center; line-height: 1.2; }
+.kr-aid .kr-scap-l, .kr-aid .kr-scap-r, .kr-aid .kr-wrist, .kr-aid .kr-ankle, .kr-aid .kr-navel, .kr-aid .kr-grow, .kr-aid .kr-arrow { transition: transform 1s ease, opacity .4s; transform-box: fill-box; }
+.kr-aid[data-phase="in"] .kr-scap-l { transform: translateX(9px); }
+.kr-aid[data-phase="in"] .kr-scap-r { transform: translateX(-9px); }
+.kr-aid[data-phase="out"] .kr-scap-l { transform: translateX(-6px); }
+.kr-aid[data-phase="out"] .kr-scap-r { transform: translateX(6px); }
+.kr-aid[data-aid="scapula"][data-phase="out"] .kr-arrow { transform: scaleX(-1); transform-origin: center; }
+.kr-aid .kr-wrist { transform-origin: left center; }
+.kr-aid[data-phase="b"] .kr-wrist { transform: rotate(45deg); }
+.kr-aid[data-phase="a"] .kr-wrist { transform: rotate(-35deg); }
+.kr-aid .kr-ankle { transform-origin: 12% 50%; }
+.kr-aid[data-phase="up"] .kr-ankle { transform: rotate(-22deg); }
+.kr-aid[data-phase="down"] .kr-ankle { transform: rotate(28deg); }
+.kr-aid[data-aid="navel"] .kr-navel { opacity: 0; }
+.kr-aid[data-aid="navel"][data-phase="out"] .kr-navel { opacity: 1; transform: translateY(-4px); }
+.kr-aid .kr-grow { animation: krGrow 2.4s ease-in-out infinite; }
+@keyframes krGrow { 0%,100% { transform: translateY(4px); } 50% { transform: translateY(-4px); } }
+.kr-list { margin-top: 14px; padding: 12px 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.kr-row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.9rem; }
+.kr-row b { color: var(--text2); font-weight: 600; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -3925,5 +3950,6 @@ window.fbPostMessage = async function(text, extra) {
 <div class="kf-sheet" id="seq-bilan" role="dialog" aria-modal="true" aria-label="Bilan de séance"></div>
 <script src="assets/js/kine-flow.js" defer></script>
 <script src="assets/js/kine-avatar.js" defer></script>
+<script src="assets/js/kine-routines.js" defer></script>
 </body>
 </html>
