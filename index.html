@@ -912,6 +912,42 @@ input,select,textarea{font-family:var(--font);}
 .kr-list { margin-top: 14px; padding: 12px 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
 .kr-row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.9rem; }
 .kr-row b { color: var(--text2); font-weight: 600; white-space: nowrap; }
+
+/* ── Onglet Suivi (maquette) ── */
+#page-suivi.v2 .streak-card, #page-suivi.v2 .chart-card, #page-suivi.v2 .content > .sec-title, #page-suivi.v2 #sessions-list, #page-suivi.v2 #clear-wrap { display: none !important; }
+#suivi-v2 { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px; }
+.su-head { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.su-card { padding: 16px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border2); display: flex; flex-direction: column; gap: 10px; }
+.su-card-h { display: flex; justify-content: space-between; align-items: baseline; }
+.su-card-h span { color: var(--text2); font-size: 0.85rem; }
+.su-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.82rem; color: var(--text2); }
+.su-legend span { display: flex; align-items: center; gap: 6px; }
+.su-legend i { width: 16px; height: 3px; display: inline-block; }
+.su-last { width: 100%; text-align: left; padding: 14px 16px; border-radius: 16px; background: var(--red-dim); border: 1px solid rgba(248,113,113,.5); color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 12px; font: inherit; font-size: 0.95rem; }
+.su-last > span { font-size: 1.4rem; color: #ff9b9b; }
+.su-k { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #ff9b9b; }
+.su-dec { color: #ffc4c4; font-size: 0.88rem; }
+[data-theme="light"] .su-dec, [data-theme="light"] .su-k, [data-theme="light"] .su-red { color: #b42323; }
+.su-send { width: 100%; }
+.su-sess { padding: 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; font-size: 0.92rem; }
+.su-sess.hurt { border-color: rgba(248,113,113,.55); }
+.su-sess-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.su-sess-h span { color: var(--text2); font-size: 0.85rem; white-space: nowrap; }
+.su-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.su-tags > span { padding: 4px 10px; border-radius: 12px; background: var(--surface2); font-size: 0.82rem; }
+.su-red { color: #ff9b9b; font-weight: 700; }
+.su-pain-line { color: #ffc4c4; font-size: 0.88rem; }
+.su-bar { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+.su-bar > span { width: 90px; }
+.su-bar i { flex: 1; height: 10px; border-radius: 5px; background: var(--surface3); overflow: hidden; }
+.su-bar em { display: block; height: 100%; background: var(--red); border-radius: 5px; }
+.su-bar b { width: 22px; text-align: right; }
+.su-pre { margin: 0; white-space: pre-wrap; font: inherit; font-size: 0.9rem; line-height: 1.55; }
+.su-label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 0.95rem; }
+.su-input { min-height: 48px !important; }
+.su-need { border-color: var(--red) !important; box-shadow: 0 0 0 3px var(--red-dim); }
+#kf-suivi { z-index: 3500; }
+.su-ql { margin-top: 18px; }
 </style>
 </head>
 <body>
@@ -3955,5 +3991,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-flow.js" defer></script>
 <script src="assets/js/kine-avatar.js" defer></script>
 <script src="assets/js/kine-routines.js" defer></script>
+<script src="assets/js/kine-suivi.js" defer></script>
 </body>
 </html>
