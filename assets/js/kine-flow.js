@@ -418,6 +418,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     saveSessions();
     if (typeof renderAll === "function") renderAll();
     if (typeof checkBadges === "function") checkBadges();
+    // Compteur collectif : chaque séance faite en entier avec l'appli, pour tout le monde, sans donnée personnelle
+    if (/^100/.test(completion) && window.fbCountSession) window.fbCountSession((bilan.day.label.match(/J\d/) || [""])[0]);
     if (window.fbUser && typeof postSessionToFeed === "function") postSessionToFeed(s);
     speak("Séance enregistrée. À bientôt !");
     $("seq-bilan").querySelector(".kf-sheet-body").innerHTML =

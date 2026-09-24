@@ -10,7 +10,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCI7fwNeTl-2kYNnlpjr0IatLvQbppsUgg",
@@ -86,6 +86,11 @@ window.fbDeleteMessage = async function(docId) {
   await deleteDoc(doc(db, "messages", docId));
 };
 
+// ── COMPTEUR ANONYME DES SÉANCES TERMINÉES (aucune donnée personnelle : ni compte, ni nom) ──
+window.fbCountSession = async function(j) {
+  try { await addDoc(collection(db, "completions"), { j: j || "", timestamp: serverTimestamp() }); } catch (e) { console.log("Compteur indisponible", e); }
+};
+
 // ── RETIRER SES PUBLICATIONS (patient) ──
 window.fbDeleteMine = async function() {
   if (!window.fbUser) return 0;
@@ -113,8 +118,12 @@ window.fbGetStats = async function() {
     usersSnap.forEach(function(d) { uids.add(d.data().uid); });
     var now = new Date();
     var mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay()+6)%7)); mon.setHours(0,0,0,0);
-    var weekSnap = await getDocs(query(collection(db, "messages"), where("timestamp", ">=", mon)));
-    return { members: uids.size, total: usersSnap.size, week: weekSnap.size };
+    var total = 0, week = 0;
+    try {
+      total = (await getCountFromServer(collection(db, "completions"))).data().count;
+      week = (await getCountFromServer(query(collection(db, "completions"), where("timestamp", ">=", mon)))).data().count;
+    } catch (e2) { console.log("Compteur indisponible", e2); }
+    return { members: uids.size, total: total, week: week };
   } catch(e) { return { members: 0, total: 0, week: 0 }; }
 };
 </script>
@@ -1667,7 +1676,7 @@ input,select,textarea{font-family:var(--font);}
     <p>Les séances de tous les patients du cabinet · Motivez-vous ensemble</p>
     <div class="community-stats">
       <div class="cs"><div class="cs-val" id="cs-members">—</div><div class="cs-lbl">Membres</div></div>
-      <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances totales</div></div>
+      <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances complètes</div></div>
       <div class="cs"><div class="cs-val" id="cs-week">—</div><div class="cs-lbl">Cette semaine</div></div>
     </div>
   </div>
