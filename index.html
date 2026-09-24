@@ -790,6 +790,13 @@ input,select,textarea{font-family:var(--font);}
 .v2-count .rg-rep-total { font-size: 1.25rem; color: var(--text2); letter-spacing: 0; }
 .v2-cue { padding: 12px 14px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--border); font-size: 0.98rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .v2-cue:empty { display: none; }
+.v2-cue { cursor: pointer; }
+.v2-cue { display: block !important; -webkit-line-clamp: unset !important; max-height: none !important; }
+.v2-cue .cue-more { display: block; margin-top: 6px; font-size: 0.85rem; font-weight: 700; color: var(--blue); }
+.v2-cue .cue-full { display: none; }
+.v2-cue.open { -webkit-line-clamp: unset; max-height: none; display: block; }
+.v2-cue.open .cue-full { display: block; margin-top: 8px; color: var(--text2); }
+.v2-cue.open .cue-more { display: none; }
 .v2-mid .rg-rep-dots { display: none !important; }
 .v2-cue { max-height: calc(1.45em * 3 + 24px); }
 .v2-actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; }

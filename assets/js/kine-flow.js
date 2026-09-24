@@ -103,6 +103,38 @@ var seqSkipped = 0;       // exercices passés pendant la séance
 (function () {
   "use strict";
 
+  // Phrase clé affichée pendant l'exercice (validée par le kiné)
+  var CUES = {
+    "Squat bilatéral": "Talons au sol, genoux dans l'axe des pieds, dos neutre. Serrez les fessiers en remontant.",
+    "Fentes avant unilatérales": "Genou avant au-dessus du pied, genou arrière vers le sol, buste droit.",
+    "Chaise contre le mur": "Dos plaqué au mur, genoux au-dessus des chevilles, respirez normalement.",
+    "Pont ischio-jambiers talons sur chaise": "Poussez dans les talons jusqu'à aligner épaules, hanches et genoux.",
+    "Élévation des talons": "Montez le plus haut possible, redescendez lentement.",
+    "Step-up sur marche": "Poussez sur le pied posé sur la marche, sans vous aider de l'autre jambe.",
+    "Rotation externe d'épaule": "Coude collé au flanc, l'avant-bras monte vers le plafond.",
+    "Pompes sur genoux": "Corps aligné, coudes à 45° du tronc, descente lente.",
+    "Dips sur chaise": "Épaules basses et en arrière, coudes à 90° maximum.",
+    "Pike push-up": "Hanches hautes, amenez la tête entre les mains.",
+    "Superman en Y et en W": "Y : levez bras et jambes. W : rapprochez les omoplates.",
+    "Plank — gainage avant-bras": "Corps aligné, ni cambré ni fessiers relevés, respiration libre.",
+    "Dead bug": "Le bas du dos reste collé au sol.",
+    "Side plank sur genoux": "Levez les hanches jusqu'à aligner épaule, hanche et genou.",
+    "Crunch abdominal contrôlé": "Épaules décollées à 30°, expirez en montant, sans tirer sur la nuque.",
+    "Bird-dog": "Bassin strictement horizontal ; s'il tourne, réduisez l'amplitude.",
+    "Squat sumo": "Genoux dans l'axe des orteils, remontée en serrant fessiers et adducteurs.",
+    "Donkey kick": "La cuisse monte vers le plafond, le bassin ne tourne pas.",
+    "Pont de hanche": "Alignez épaules, hanches et genoux, sans cambrer le bas du dos.",
+    "Clamshell": "Pieds joints, ouvrez le genou, bassin immobile.",
+    "Abduction hanche debout": "Jambe tendue sur le côté, sans pencher le buste.",
+    "Pont fessier unilatéral": "Poussez avec le fessier de la jambe au sol, bassin horizontal.",
+    "Squat + élévation bras": "Remontez en levant les deux bras jusqu'à la verticale.",
+    "Inchworm et pompes": "Marchez avec les mains jusqu'en planche, dos gainé.",
+    "Fente latérale avec toucher sol": "Genou porteur fléchi, touchez le sol avec la main opposée.",
+    "Burpee modifié sans saut": "La qualité prime sur la vitesse, planche gainée 2 secondes.",
+    "Équilibre unipodal": "Fixez un point devant vous, bougez doucement les bras."
+  };
+  window.KF_CUES = CUES;
+
   var DAY_OF_WEEK = { 1: "day0", 2: "day1", 3: "day2", 5: "day3", 6: "day4" }; // Lun J1 … Sam J5
   var WEEKDAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   var PHASES = { warm: ["Échauffement", "var(--amber)"], work: ["Renforcement", "var(--blue)"], cool: ["Retour au calme", "var(--green)"] };
@@ -259,7 +291,12 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       $("rg2-prog-fill").style.width = Math.round(((serie - 1) / totalSeries) * 100) + "%";
     }
     var v = ex ? KineProgress.variant(seqCurrentDay, seqExIdx) : null;
-    $("rg2-cue").innerHTML = v ? "<strong>Variante de la semaine :</strong> " + esc(v) : ex && ex.desc ? esc(ex.desc) : "";
+    var cue = CUES[exName] || (ex && ex.desc) || "";
+    var cueEl = $("rg2-cue");
+    cueEl.classList.remove("open");
+    cueEl.innerHTML = (v ? "<strong>Variante de la semaine :</strong> " + esc(v) + "<br>" : "") + esc(cue) +
+      (ex && ex.desc && CUES[exName] ? "<span class='cue-more'>Consigne complète ›</span><span class='cue-full'>" + esc(ex.desc) + (ex.tip ? "<br><strong>Conseil :</strong> " + esc(ex.tip) : "") + "</span>" : "");
+    cueEl.onclick = function () { cueEl.classList.toggle("open"); };
     var n = rgState.autoStartIn; rgState.autoStartIn = 0;
     if (!n) return;
     var id = rgState.runId;
