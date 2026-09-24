@@ -905,6 +905,10 @@ input,select,textarea{font-family:var(--font);}
 .kr-aid[data-aid="navel"][data-phase="out"] .kr-navel { opacity: 1; transform: translateY(-4px); }
 .kr-aid .kr-grow { animation: krGrow 2.4s ease-in-out infinite; }
 @keyframes krGrow { 0%,100% { transform: translateY(4px); } 50% { transform: translateY(-4px); } }
+.kr-aid .kr-lordose, .kr-aid .kr-cyphose { transition: opacity .8s; }
+.kr-aid .kr-cyphose { opacity: 0; }
+.kr-aid[data-phase="cat"] .kr-cyphose, .kr-aid[data-phase="out"] .kr-cyphose { opacity: 1; }
+.kr-aid[data-phase="cat"] .kr-lordose, .kr-aid[data-phase="out"] .kr-lordose { opacity: 0; }
 .kr-list { margin-top: 14px; padding: 12px 14px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
 .kr-row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.9rem; }
 .kr-row b { color: var(--text2); font-weight: 600; white-space: nowrap; }

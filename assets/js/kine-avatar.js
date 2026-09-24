@@ -552,7 +552,8 @@
     var pelvis = group(scene); pelvis.rotation.order = "YXZ";
     var pm = mesh(new T.CylinderGeometry(0.155, 0.15, 0.16, 28), M.pants, pelvis); pm.scale.z = 0.72; pm.position.y = 0.03;
     var spine = group(pelvis); spine.rotation.order = "YXZ";
-    var shirt = mesh(new T.CylinderGeometry(0.185, 0.16, 0.46, 40, 1, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.9 }), spine);
+    var shirt = mesh(new T.CylinderGeometry(0.185, 0.16, 0.46, 40, 16, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.9 }), spine);
+    shirt.userData.base = shirt.geometry.attributes.position.array.slice();
     shirt.scale.z = 0.66; shirt.position.y = 0.29;
     var chestTop = mesh(new T.SphereGeometry(0.185, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), M.shirt, spine);
     chestTop.scale.set(1, 0.28, 0.66); chestTop.position.y = 0.52;
@@ -629,7 +630,7 @@
     window.addEventListener("pointerup", function () { drag = null; });
     window.addEventListener("pointercancel", function () { drag = null; });
 
-    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine,
+    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0,
              head: head, legs: legs, arms: arms, props: props, view: view };
   }
 
@@ -688,6 +689,16 @@
     var sp = p.spine || [0, 0, 0];
     R.spine.rotation.set(sp[0] * D2R, sp[2] * D2R, sp[1] * D2R);
     R.head.rotation.set((p.head || 0) * D2R, (p.headY || 0) * D2R, (p.headZ || 0) * D2R);
+    // Courbure du dos : + = cyphose (dos rond), − = lordose (dos creux)
+    var cv = p.curve || 0;
+    if (Math.abs(cv - R.curveNow) > 0.002) {
+      var pos = R.shirt.geometry.attributes.position, b = R.shirt.userData.base;
+      for (var i = 0; i < pos.count; i++) {
+        var y = b[i * 3 + 1], u = y / 0.23;
+        pos.setZ(i, b[i * 3 + 2] - cv * 0.095 * (1 - u * u));
+      }
+      pos.needsUpdate = true; R.shirt.geometry.computeVertexNormals(); R.curveNow = cv;
+    }
     R.pelvis.updateMatrixWorld(true);
 
     ["L", "R"].forEach(function (s) {

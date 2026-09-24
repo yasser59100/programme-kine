@@ -126,10 +126,12 @@
       hold: merge(SEATED, { spine: [-2, 0, 0], head: 6, LA: { hand: { at: [0.15, 0.58, 0.2], pole: [1, 0, -0.5] } }, RA: { hand: { at: [-0.15, 0.58, 0.2], pole: [-1, 0, -0.5] } } }) },
       loop: loop("hold", 3) },
     "childPose": { camera: CAM_FLOOR_SIDE, start: "hold", poses: { hold: CHILD }, loop: loop("hold", 3) },
-    "catCow": { camera: { yaw: 1.3, pitch: 0.25, dist: 3.7, ty: 0.45, tz: 0.15 }, start: "cow", poses: {
-      cat: merge(L.QUAD, { pelvis: { p: [0, 0.506, 0], r: [90, 0, 0] }, spine: [24, 0, 0], head: 22, L: { ang: [90, 3, 0, 90, -60] }, R: { ang: [90, 3, 0, 90, -60] } }),
-      cow: merge(L.QUAD, { pelvis: { p: [0, 0.506, 0], r: [70, 0, 0] }, spine: [-18, 0, 0], head: -25, L: { ang: [70, 3, 0, 90, -60] }, R: { ang: [70, 3, 0, 90, -60] } }) },
-      loop: loop("cat", 2.5, "cow", 2.5) },
+    // Vache (inspiration) : bascule antérieure du bassin + lordose lombaire, regard devant
+    // Chat (expiration) : rétroversion du bassin + cyphose lombaire, tête rentrée
+    "catCow": { camera: { yaw: 1.45, pitch: 0.18, dist: 3.6, ty: 0.45, tz: 0.2 }, start: "cow", aid: "spine", poses: {
+      cat: merge(L.QUAD, { pelvis: { p: [0, 0.506, 0], r: [93, 0, 0] }, spine: [-11, 0, 0], head: 28, curve: 1, L: { ang: [93, 3, 0, 90, -60] }, R: { ang: [93, 3, 0, 90, -60] } }),
+      cow: merge(L.QUAD, { pelvis: { p: [0, 0.506, 0], r: [67, 0, 0] }, spine: [13, 0, 0], head: -30, curve: -1, L: { ang: [67, 3, 0, 90, -60] }, R: { ang: [67, 3, 0, 90, -60] } }) },
+      loop: loop("cow", 4, "cat", 4) },
     "trunkRotSeated": { camera: { yaw: 0.5, ty: 0.85 }, props: ["chair"], chair: { z: 0.3 }, start: "l", poses: {
       l: merge(SEATED, { spine: [0, 0, 38], headY: 15, LA: { ang: [60, -35, 0, 125] }, RA: { ang: [60, -35, 0, 125] } }),
       r: merge(SEATED, { spine: [0, 0, -38], headY: -15, LA: { ang: [60, -35, 0, 125] }, RA: { ang: [60, -35, 0, 125] } }) },
@@ -218,7 +220,7 @@
       { name: "Respiration abdominale", dur: 60, move: "breathSupine", breath: [4, 6], cue: "Main sur le ventre : il se gonfle puis se vide." }],
     "Activation transverse et mobilisation": [
       { name: "Respiration diaphragmatique et activation du transverse", dur: 180, move: "breathTransverse", breath: [4, 6], cue: "Inspirez en gonflant le ventre. À l'expiration, rentrez légèrement le nombril." },
-      { name: "Chat-vache à quatre pattes", dur: 120, move: "catCow", cue: "Dos rond en expirant, dos creux en inspirant." },
+      { name: "Chat-vache à quatre pattes", dur: 120, move: "catCow", breath: [4, 4], cue: "Inspirez en creusant le bas du dos (bassin basculé vers l'avant, regard devant). Expirez en arrondissant le bas du dos (bassin rentré, tête vers le sol)." },
       { name: "Rotations du tronc, assis", dur: 120, move: "trunkRotSeated", cue: "Bras croisés, tournez le buste à droite puis à gauche, bassin immobile." }],
     "Étirements rachidiens et cohérence cardiaque": [
       { name: "Cobra allongé", dur: 30, move: "cobra", cue: "Bassin au sol, poussez sur les mains, épaules basses." },
@@ -267,9 +269,16 @@
              "<path class='kr-arrow' d='M16 58 L36 58 M30 52 L36 58 L30 64 M124 58 L104 58 M110 52 L104 58 L110 64' stroke='var(--amber)' stroke-width='4' fill='none' stroke-linecap='round'/></svg>",
     grow: "<svg viewBox='0 0 120 120' width='120' height='120' aria-hidden='true'><circle cx='60' cy='78' r='22' fill='none' stroke='var(--text2)' stroke-width='3'/><path class='kr-grow' d='M60 48 L60 8 M50 18 L60 8 L70 18' stroke='var(--amber)' stroke-width='4' fill='none' stroke-linecap='round'/></svg>",
     wrist: "<svg viewBox='0 0 120 120' width='120' height='120' aria-hidden='true'><rect x='10' y='54' width='60' height='14' rx='7' fill='var(--text2)'/><g class='kr-wrist'><rect x='66' y='50' width='40' height='22' rx='9' fill='#B07A52'/></g><path d='M92 24 A30 30 0 0 1 92 98' stroke='var(--amber)' stroke-width='3' fill='none' stroke-dasharray='5 5'/></svg>",
+    spine: "<svg viewBox='0 0 150 110' width='150' height='110' aria-hidden='true'>" +
+           "<rect x='8' y='52' width='26' height='34' rx='10' fill='rgba(52,211,153,.25)' stroke='var(--green)' stroke-width='2'/>" +
+           "<rect x='98' y='40' width='44' height='30' rx='12' fill='rgba(61,142,240,.2)' stroke='var(--blue)' stroke-width='2'/>" +
+           "<path class='kr-lordose' d='M22 58 C 50 82, 80 80, 110 52' stroke='var(--amber)' stroke-width='6' fill='none' stroke-linecap='round'/>" +
+           "<path class='kr-cyphose' d='M22 58 C 50 18, 80 16, 110 52' stroke='var(--amber)' stroke-width='6' fill='none' stroke-linecap='round'/>" +
+           "<text class='kr-lordose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos creux · inspirez</text>" +
+           "<text class='kr-cyphose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos rond · expirez</text></svg>",
     ankle: "<svg viewBox='0 0 120 120' width='120' height='120' aria-hidden='true'><rect x='44' y='8' width='16' height='66' rx='8' fill='var(--text2)'/><g class='kr-ankle'><path d='M40 74 L96 74 Q104 74 104 84 L104 88 L40 88 Z' fill='#e8e8e4'/></g><path d='M104 50 A40 40 0 0 1 104 110' stroke='var(--amber)' stroke-width='3' fill='none' stroke-dasharray='5 5'/></svg>"
   };
-  var AID_LABEL = { breath: "Respiration", navel: "Nombril rentré à l'expiration", scapula: "Omoplates vers la colonne", grow: "Grandir", wrist: "Poignets", ankle: "Chevilles" };
+  var AID_LABEL = { spine: "Bas du dos (vue de profil)", breath: "Respiration", navel: "Nombril rentré à l'expiration", scapula: "Omoplates vers la colonne", grow: "Grandir", wrist: "Poignets", ankle: "Chevilles" };
 
   /* ════════ 4. LECTEUR ════════ */
   var P = null; // état du lecteur
@@ -313,7 +322,7 @@
     $("kr-next").textContent = nx ? "Ensuite : " + nx.name + " · " + fmt(nx.dur) : "Dernière étape";
     var still = mv.loop && mv.loop.length === 1;
     $("kr-label").textContent = st.sides ? "Côté gauche" : (st.breath ? "Inspirez" : (still ? "Tenez la position" : "En mouvement"));
-    var aidKey = st.breath ? (mv.aid === "navel" ? "navel" : "breath") : mv.aid;
+    var aidKey = mv.aid || (st.breath ? "breath" : null);
     var aid = $("kr-aid");
     aid.innerHTML = aidKey ? AIDS[aidKey] + "<div class='kr-aid-t' id='kr-aid-t'>" + AID_LABEL[aidKey] + "</div>" : "";
     aid.style.display = aidKey ? "flex" : "none";
