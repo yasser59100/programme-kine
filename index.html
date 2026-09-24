@@ -2513,6 +2513,7 @@ var SEQ_DAYS = {
   },
   day4: {
     label: "J5 — Global fonctionnel",
+    circuit: true, // circuit : les exercices s'enchaînent, 40 s de travail, 20 s de transition, 2 min entre les tours
     color: "var(--green)",
     exercises: [
       { name: "Échauffement global progressif", phase: "warm", series: 1, repsLabel: "7 minutes", restAfter: 0,
@@ -2720,7 +2721,7 @@ function renderSeqExercise() {
     sw.className = "seq-series-wrap";
     var sl = document.createElement("div");
     sl.className = "seq-series-label";
-    sl.textContent = "Séries — " + seqTotalSeries + " séries au programme";
+    sl.textContent = SEQ_DAYS[seqCurrentDay].circuit ? "Circuit — tour " + (seqSerieIdx + 1) + " sur " + seqTotalSeries : "Séries — " + seqTotalSeries + " séries au programme";
     sw.appendChild(sl);
     var dotsWrap = document.createElement("div");
     dotsWrap.className = "seq-series-dots";
@@ -2850,13 +2851,14 @@ function renderSeqRest(secs, onDone) {
   var block = document.createElement("div");
   block.className = "v2-rest";
   block.innerHTML =
-    "<div class='v2-rest-k'>Récupération</div>" +
+    "<div class='v2-rest-k'>" + (window.seqRestTitle || "Récupération") + "</div>" +
     "<div class='v2-ring'><svg width='220' height='220' viewBox='0 0 220 220'>" +
       "<circle cx='110' cy='110' r='96' fill='none' stroke='var(--surface3)' stroke-width='12'></circle>" +
       "<circle id='seq-t-fg' cx='110' cy='110' r='96' fill='none' stroke='var(--green)' stroke-width='12' stroke-linecap='round' stroke-dasharray='" + C + "' stroke-dashoffset='0' transform='rotate(-90 110 110)'></circle></svg>" +
       "<div class='v2-ring-in'><div class='v2-ring-num' id='seq-t-num'>" + fmt(secs) + "</div><div class='v2-ring-sub' id='seq-t-sub'>sur " + fmt(secs) + "</div></div></div>" +
     "<div class='v2-rest-msg'>Respirez calmement. Buvez un peu d'eau si besoin.</div>";
   body.appendChild(block);
+  window.seqRestTitle = null;
   seqRenderRestNext(body);
 
   var actions = document.getElementById("seq-actions");
@@ -3605,6 +3607,48 @@ seqExDone = function() {
   if (!tryLaunchRepGuide(ex, seqSerieIdx + 1, _baseSeqExDone)) {
     _baseSeqExDone();
   }
+};
+
+// ── Séance en circuit (J5) : tour 1 = tous les exercices à la suite, puis tour 2… ──
+// 20 s de transition entre les exercices, 2 min de repos entre les tours (consignes J5)
+var CIRCUIT_TRANSITION = 20, CIRCUIT_TOUR_REST = 120;
+var _seqSeriesDoneStd = _baseSeqSeriesDone, _seqExDoneStd = _baseSeqExDone, _seqSkipStd = seqSkipExercise;
+function seqIsCircuitWork() {
+  var d = SEQ_DAYS[seqCurrentDay];
+  return !!(d && d.circuit && d.exercises[seqExIdx] && d.exercises[seqExIdx].phase === "work");
+}
+function seqCircuitNext(noRest) {
+  var d = SEQ_DAYS[seqCurrentDay], works = [];
+  d.exercises.forEach(function(e, i) { if (e.phase === "work") works.push(i); });
+  var pos = works.indexOf(seqExIdx), tour = seqSerieIdx, next, nextTour, rest, title, auto = true;
+  if (pos < works.length - 1) {
+    next = works[pos + 1]; nextTour = tour; rest = CIRCUIT_TRANSITION; title = "Transition";
+  } else if (tour < seqTotalSeries - 1) {
+    next = works[0]; nextTour = tour + 1; rest = CIRCUIT_TOUR_REST; title = "Fin du tour " + (tour + 1) + " · récupération";
+    speak("Fin du tour " + (tour + 1) + ". Deux minutes de récupération.");
+  } else {
+    next = works[works.length - 1] + 1; nextTour = 0; rest = 0; auto = false;
+    speak("Circuit terminé. Place aux étirements.");
+  }
+  var go = function() {
+    seqExIdx = next; seqSerieIdx = nextTour;
+    if (seqExIdx >= d.exercises.length) { seqFinish(); return; }
+    renderSeqExercise();
+    if (auto) seqAutoNext(3);
+  };
+  if (noRest || !rest) { go(); return; }
+  seqRestNext = { exIdx: next, serie: nextTour + 1 };
+  window.seqRestTitle = title;
+  renderSeqRest(rest, go);
+}
+_baseSeqSeriesDone = function() { if (seqIsCircuitWork()) seqCircuitNext(); else _seqSeriesDoneStd(); };
+_baseSeqExDone = function() { if (seqIsCircuitWork()) seqCircuitNext(); else _seqExDoneStd(); };
+seqSkipExercise = function() {
+  if (!seqIsCircuitWork()) return _seqSkipStd.apply(this, arguments);
+  stopSpeech();
+  if (seqTimerInterval) { clearInterval(seqTimerInterval); seqTimerInterval = null; }
+  seqSkipped = (seqSkipped || 0) + 1;
+  seqCircuitNext(true);
 };
 
 // ═══════════════════════════════════════════════════════
