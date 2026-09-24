@@ -134,6 +134,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     "Équilibre unipodal": "Fixez un point devant vous, bougez doucement les bras."
   };
   window.KF_CUES = CUES;
+  window.KF = { kitFor: function (d) { return kitFor(d); }, tempoText: function (e) { return tempoText(e); }, get DAY_OF_WEEK() { return DAY_OF_WEEK; }, week: function () { return week(); } };
 
   var DAY_OF_WEEK = { 1: "day0", 2: "day1", 3: "day2", 5: "day3", 6: "day4" }; // Lun J1 … Sam J5
   var WEEKDAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
@@ -452,7 +453,9 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       "<button class='kf-back' onclick='closeDemo()' aria-label='Fermer'>←</button>" +
       "<div><div class='kf-h1'>" + esc(ex.name) + "</div><div class='kf-sub'>" + esc(KineProgress.repsLabel(ex)) + (t ? " · " + esc(t) : "") + "</div></div>" +
       "<div class='v2-stage' style='min-height:340px'><div class='rg-phase-label up' id='kf-demo-label'>Démonstration</div><div id='kf-demo-stage' style='display:flex;justify-content:center;padding-top:30px'></div></div>" +
-      "<div class='kf-note'>" + esc(ex.desc || "") + "</div>" +
+      (CUES[ex.name] ? "<div class='pg-cue'>" + esc(CUES[ex.name]) + "</div>" : "") +
+      "<div class='pg-desc'>" + esc(ex.desc || "") + "</div>" +
+      (window.KineProgram ? KineProgram.weeksTable(ex, dayId, idx) : "") +
       (v ? "<div class='kf-note'><strong>Variante de la semaine :</strong> " + esc(v) + "</div>" : "") +
       (ex.tip ? "<div class='kf-note'><strong>Conseil :</strong> " + esc(ex.tip) + "</div>" : "") +
       (ex.stop ? "<div class='kf-note' style='border-color:rgba(248,113,113,.45)'>" + esc(ex.stop) + "</div>" : "") +

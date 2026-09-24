@@ -982,6 +982,47 @@ input,select,textarea{font-family:var(--font);}
 .sh-actions button { min-height: 40px; padding: 0 14px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font: 600 0.88rem var(--font); }
 .sh-actions button.danger { border-color: rgba(248,113,113,.5); color: #ff9b9b; }
 .sh-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 0.95rem; }
+
+/* ── Onglet Programme (maquette) ── */
+#page-guide.v2 #prog-more { display: none; }
+#prog-v2 { display: flex; flex-direction: column; gap: 12px; }
+.pg-bars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.pg-bar { height: 8px; border-radius: 4px; background: var(--surface3); overflow: hidden; display: block; }
+.pg-bar em { display: block; height: 100%; background: var(--blue); }
+.pg-day, .pg-ex { width: 100%; text-align: left; padding: 12px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; gap: 12px; font: inherit; }
+.pg-j { width: 44px; height: 44px; border-radius: 12px; background: var(--blue-dim); color: #6fb0ff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pg-day-t { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pg-day-t b { font-size: 1rem; }
+.pg-day-t span { font-size: 0.82rem; color: var(--text2); }
+.pg-day-t em { font-style: normal; font-size: 0.78rem; color: var(--amber); }
+.pg-st { font-size: 0.75rem; font-weight: 700; padding: 4px 9px; border-radius: 10px; white-space: nowrap; background: var(--surface2); color: var(--text2); }
+.pg-st.done { background: var(--green-dim); color: #6ee7b7; }
+.pg-st.today { background: var(--blue-dim); color: #9cc8ff; }
+.pg-st.late { background: var(--amber-dim); color: #fbbf24; }
+.pg-ex img, .pg-fig { width: 52px; height: 52px; border-radius: 12px; background: var(--surface2); object-fit: cover; flex-shrink: 0; }
+.pg-chev { color: var(--text2); font-size: 1.3rem; }
+.pg-chip { background: var(--blue-dim) !important; color: #9cc8ff; font-weight: 700; }
+.pg-rt { width: 100%; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); display: flex; justify-content: space-between; align-items: center; font: inherit; font-size: 0.95rem; }
+.pg-rt span:last-child { color: var(--text2); }
+.pg-cue { padding: 12px 14px; border-radius: 14px; background: var(--blue-dim); border: 1px solid rgba(61,142,240,.45); font-size: 1rem; font-weight: 600; line-height: 1.4; }
+.pg-desc { font-size: 0.92rem; color: var(--text2); line-height: 1.5; }
+.pg-weeks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.pg-w { padding: 8px 6px; border-radius: 12px; background: var(--surface2); font-size: 0.78rem; line-height: 1.35; text-align: center; }
+.pg-w b { display: block; font-size: 0.9rem; }
+.pg-w.cur { background: var(--blue-dim); border: 1px solid var(--blue); }
+.pg-effs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.pg-eff { padding: 8px 2px; border-radius: 12px; background: var(--surface2); text-align: center; font-size: 0.7rem; }
+.pg-eff b { display: block; font-size: 1.1rem; }
+.pg-eff.ok { background: var(--green-dim); outline: 2px solid rgba(110,231,183,.7); }
+.pg-eff.warn { background: var(--amber-dim); }
+.pg-eff.bad { background: var(--red-dim); }
+.pg-duo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pg-ok, .pg-bad { padding: 12px; border-radius: 16px; font-size: 0.85rem; line-height: 1.4; display: flex; flex-direction: column; gap: 6px; }
+.pg-ok { background: var(--green-dim); border: 1px solid rgba(52,211,153,.4); }
+.pg-bad { background: var(--red-dim); border: 1px solid rgba(248,113,113,.45); }
+.pg-ok b { color: #6ee7b7; } .pg-bad b { color: #ff9b9b; }
+#kf-prog { z-index: 3500; }
+#kf-demo { z-index: 3620; }
 </style>
 </head>
 <body>
@@ -1676,7 +1717,7 @@ input,select,textarea{font-family:var(--font);}
     <p>Les séances de tous les patients du cabinet · Motivez-vous ensemble</p>
     <div class="community-stats">
       <div class="cs"><div class="cs-val" id="cs-members">—</div><div class="cs-lbl">Membres</div></div>
-      <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances complètes</div></div>
+      <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances totales</div></div>
       <div class="cs"><div class="cs-val" id="cs-week">—</div><div class="cs-lbl">Cette semaine</div></div>
     </div>
   </div>
@@ -4024,5 +4065,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-routines.js" defer></script>
 <script src="assets/js/kine-suivi.js" defer></script>
 <script src="assets/js/kine-community.js" defer></script>
+<script src="assets/js/kine-programme.js" defer></script>
 </body>
 </html>
