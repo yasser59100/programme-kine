@@ -122,6 +122,7 @@
     },
 
     "Step-up sur marche": {
+      isoAfter: 1, // isométrique en haut, en appui sur la jambe posée sur la marche
       sides: "alternate", camera: { yaw: 1.0 }, props: ["step"], start: "floor", thumb: "place",
       poses: {
         floor: merge(STAND(0.1, 0), { pelvis: { p: [0, "auto", -0.02], r: [0, 0, 0] } }),
@@ -442,6 +443,36 @@
     return { mode: "reps", reps: perSide ? n * 2 : n, perSide: perSide ? n : 0, sides: sides };
   }
 
+  /* Phases isométriques (consigne du kiné) :
+     · exercice bilatéral : 2 par série, à la moitié (arrondie en dessous) et à la dernière répétition,
+       on tient autant de secondes que le numéro de la répétition (12 rép. : 6 s à la 6e, 12 s à la 12e) ;
+     · exercice d'un côté puis de l'autre : 1 par côté, à la dernière répétition (8 par jambe : 8 s).
+     Pas sur les exercices en durée (chaise, planche, circuit J5). Maintien dans la position la plus difficile. */
+  function isoFor(name, rep, inf) {
+    var def = EX[name];
+    if (!def || def.noIso || def.timed || !inf || inf.mode !== "reps") return 0;
+    if (inf.perSide) {
+      var k = inf.perSide;
+      if (inf.sides === "blocks") return rep === k || rep === 2 * k ? k : 0;
+      return rep === 2 * k - 1 || rep === 2 * k ? k : 0;
+    }
+    var n = inf.reps, h = Math.floor(n / 2);
+    if (rep === n) return n;
+    return h >= 1 && rep === h ? h : 0;
+  }
+  function isoText(name, repsLabel, week) {
+    var inf = info(name, repsLabel, week);
+    if (!EX[name] || EX[name].noIso || inf.mode !== "reps") return "";
+    if (inf.perSide) return "isométrique de " + inf.perSide + " s à la dernière répétition de chaque côté";
+    var n = inf.reps, h = Math.floor(n / 2);
+    return "isométrique de " + h + " s à la " + h + "e répétition et de " + n + " s à la " + n + "e";
+  }
+  function isoTotal(name, repsLabel, week) {
+    var inf = info(name, repsLabel, week);
+    if (!EX[name] || EX[name].noIso || inf.mode !== "reps") return 0;
+    return inf.perSide ? 2 * inf.perSide : inf.reps + Math.floor(inf.reps / 2);
+  }
+
   function plan(name, rep, inf, week) {
     var def = EX[name];
     var base = def && def.steps ? (week >= 4 && def.stepsS4 ? def.stepsS4 : def.steps)
@@ -460,15 +491,22 @@
     var sideSay = inf && inf.sides === "blocks" && rep === 1 ? (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : "droite") + ". " : "";
     var vIdx = def && def.variantBy === "serie" ? ((inf && inf.serie) || 1) - 1 : rep - 1;
     var variant = def && def.variants ? def.variants[vIdx % def.variants.length] : null;
-    return {
-      announce: announce, side: side,
-      steps: base.map(function (s, i) {
-        var pose = variant && def.poses && def.poses[s.pose + variant] ? s.pose + variant : s.pose;
-        if (def && def.easyUntil && (week || 1) <= def.easyUntil && def.poses[pose + "K"]) pose = pose + "K";
-        return { pose: pose, dur: s.dur, kind: s.kind, say: i === 0 && sideSay ? sideSay + (s.say || "") : s.say, side: side,
-                 label: s.label + (variant ? ", " + variant : "") + sideTxt };
-      })
-    };
+    var steps = base.map(function (s, i) {
+      var pose = variant && def.poses && def.poses[s.pose + variant] ? s.pose + variant : s.pose;
+      if (def && def.easyUntil && (week || 1) <= def.easyUntil && def.poses[pose + "K"]) pose = pose + "K";
+      return { pose: pose, dur: s.dur, kind: s.kind, say: i === 0 && sideSay ? sideSay + (s.say || "") : s.say, side: side,
+               label: s.label + (variant ? ", " + variant : "") + sideTxt };
+    });
+    var iso = isoFor(name, rep, inf);
+    if (iso && steps.length) {
+      var at = def && def.isoAfter != null ? def.isoAfter : 0, ref = steps[at];
+      var hold = { pose: ref.pose, dur: iso, kind: "hold", iso: iso, side: side,
+                   say: "Isométrique, on tient " + iso + " secondes", label: "Tenez" };
+      var nx = steps[at + 1];
+      if (nx && nx.kind === "hold" && nx.pose === ref.pose) steps[at + 1] = hold; // remplace le maintien habituel
+      else steps.splice(at + 1, 0, hold);
+    }
+    return { announce: announce, side: side, iso: iso, steps: steps };
   }
 
   /* ════════════════ 3. RENDU 3D ════════════════ */
@@ -810,7 +848,7 @@
 
   window.KineAvatar = {
     info: info,
-    plan: plan,
+    plan: plan, isoFor: isoFor, isoText: isoText, isoTotal: isoTotal,
     supports: function (name) { return !!(EX[name] && EX[name].poses); },
     hasSteps: function (name) { return !!(EX[name] && EX[name].steps); },
     // Mouvements supplémentaires (échauffements, étirements) déclarés par kine-routines.js

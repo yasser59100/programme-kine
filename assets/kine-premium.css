@@ -151,3 +151,6 @@ html:not([data-theme="light"]) #kf-routine .v2-cue { background: none !important
 html:not([data-theme="light"]) #kf-routine #kr-time { background: linear-gradient(180deg, #fff, #00F2FE 60%, #4FACFE); -webkit-background-clip: text; background-clip: text; color: transparent !important; -webkit-text-fill-color: transparent; }
 html:not([data-theme="light"]) .kr-aid { background: rgba(11, 15, 23, 0.6) !important; }
 html:not([data-theme="light"]) :is([class*="badge"], .hstat-lbl, .hstat-label, .cs-lbl, .wday-label, .dtag, .slabel) { text-transform: none !important; letter-spacing: 0 !important; }
+
+#rep-guide.lx .v2-count, #rep-guide.lx .lx-countrow .rg-phase-label { white-space: nowrap; }
+#rep-guide.lx .lx-countrow .rg-phase-label.hold { color: #00F2FE !important; }

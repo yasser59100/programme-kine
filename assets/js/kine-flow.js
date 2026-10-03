@@ -161,7 +161,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     if (inf.mode === "timed") return "";
     return KineAvatar.plan(ex.name, 1, inf, week()).steps
       .map(function (s) { return s.label.replace(/, (jambe |côté )?(gauche|droite)$/, "").toLowerCase() + " " + String(s.dur).replace(".", ",") + " s"; })
-      .join(", puis ");
+      .join(", puis ") + (KineAvatar.isoText && KineAvatar.isoText(ex.name, KineProgress.repsLabel(ex), week()) ? ". " + KineAvatar.isoText(ex.name, KineProgress.repsLabel(ex), week()).replace(/^i/, "I") : "");
   }
   function mondayISO() {
     var d = new Date(); d.setHours(12, 0, 0, 0);

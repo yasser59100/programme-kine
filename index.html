@@ -3577,7 +3577,20 @@ function runSteps(steps, i, ok, rep, done) {
   if (i === 0 && rep > 1) say = st.dur >= 2 && st.say ? rep + ". " + st.say : String(rep);
   if (say) speak(say);
   playBeep(st.kind === "up" ? 520 : st.kind === "hold" ? 300 : 440, 0.05, 0.15);
+  var isoTick = null;
+  if (st.iso) {
+    // Phase isométrique : compte à rebours affiché, 3-2-1 à la voix
+    var t0 = rgNow(), base = st.label, lastSaid = null;
+    setPhaseLabel(base + " " + st.iso + " s", "hold");
+    isoTick = setInterval(function() {
+      if (!ok()) { clearInterval(isoTick); return; }
+      var left = Math.max(0, Math.ceil(st.iso - (rgNow() - t0) / 1000));
+      setPhaseLabel(base + " " + left + " s", "hold");
+      if (left <= 3 && left >= 1 && left !== lastSaid && st.iso >= 5) { lastSaid = left; speak(String(left)); }
+    }, 200);
+  }
   startTimingBar(st.dur, st.kind === "up" ? "up-color" : "down-color", function() {
+    if (isoTick) { clearInterval(isoTick); playBeep(660, 0.08, 0.2); }
     runSteps(steps, i + 1, ok, rep, done);
   });
 }

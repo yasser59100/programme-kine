@@ -27,7 +27,7 @@
       var inf = window.KineAvatar ? KineAvatar.info(ex.name, KineProgress.repsLabel(ex), w) : { mode: "reps", reps: 12 };
       var per = 30;
       if (inf.mode === "timed") per = inf.seconds * (inf.sides ? 2 : 1);
-      else if (window.KineAvatar && KineAvatar.hasSteps(ex.name)) { var st2 = KineAvatar.plan(ex.name, 1, inf, w).steps; per = st2.reduce(function (a, s) { return a + s.dur; }, 0) * (inf.reps || 12); }
+      else if (window.KineAvatar && KineAvatar.hasSteps(ex.name)) { var st2 = KineAvatar.plan(ex.name, 1, inf, w).steps; per = st2.reduce(function (a, s) { return a + s.dur; }, 0) * (inf.reps || 12) + (KineAvatar.isoTotal ? KineAvatar.isoTotal(ex.name, KineProgress.repsLabel(ex), w) : 0); }
       else per = (inf.reps || 12) * 3;
       tot += d.circuit ? 60 * p.series : p.series * per + (p.series - 1) * 30 + 60;
     });
