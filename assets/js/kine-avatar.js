@@ -295,6 +295,53 @@
       steps: [step("up", 1, "On monte", "On monte, on expire", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 3, "Descente lente", "On descend", "down")]
     },
 
+    "Portefeuille (V-up)": {
+      // Allongé sur le dos, bras tendus derrière la tête ; jambes tendues et buste se lèvent ensemble, les mains rejoignent les pieds
+      camera: { yaw: 1.4, pitch: 0.25, dist: 3.6, ty: 0.3, tz: 0.1 }, start: "down", thumb: "up",
+      poses: {
+        down: { pelvis: { p: [0, 0.12, 0], r: [-90, 0, 0] }, spine: [0, 0, 0], head: 0,
+                L: { ang: [12, 3, 0, 0, -20] }, R: { ang: [12, 3, 0, 0, -20] },
+                LA: { ang: [170, 8, 0, 0] }, RA: { ang: [170, 8, 0, 0] } },
+        up:   { pelvis: { p: [0, 0.12, 0], r: [-90, 0, 0] }, spine: [50, 0, 0], head: 12,
+                L: { ang: [62, 3, 0, 0, -20] }, R: { ang: [62, 3, 0, 0, -20] },
+                LA: { ang: [62, 8, 0, 0] }, RA: { ang: [62, 8, 0, 0] } }
+      },
+      steps: [step("up", 1.5, "On monte", "On monte, on expire", "up"), step("down", 2, "Descente lente", "On descend lentement", "down")]
+    },
+
+    "Superman quadrupédique en gainage": {
+      // À quatre pattes, dos plat : main droite et jambe gauche tendues, tenues ; puis main gauche et jambe droite
+      timed: { byWeek: [30, 45, 60, 60] }, sides: "blocks", snapSideChange: false,
+      holdSay: { L: "Main droite et jambe gauche", R: "Main gauche et jambe droite" },
+      camera: { yaw: 0.85, pitch: 0.3, dist: 3.8, ty: 0.45, tz: 0.15 }, start: "rest", thumb: "hold",
+      poses: {
+        rest: QUAD,
+        hold: merge(QUAD, { RA: { hand: { at: [-0.205, 0.64, 1.03], pole: [0, 1, 0] } }, L: { ang: [-10, 0, 0, 0, -20] } })
+      }
+    },
+
+    "Ciseaux et vélo": {
+      // Allongé sur le dos, jambes levées : ciseaux (battements haut-bas jambes tendues) puis vélo (pédalage), en alternance toutes les 5 s
+      timed: { byWeek: [30, 45, 60, 60] },
+      cues: (function () { var c = []; for (var t = 0; t < 60; t += 5) c.push(t % 10 === 0 ? { at: t, label: "Ciseaux", say: "Ciseaux" } : { at: t, label: "Vélo", say: "Vélo" }); return c; })(),
+      camera: { yaw: 1.35, pitch: 0.25, dist: 3.6, ty: 0.3, tz: 0.15 }, start: "sA", thumb: "bA",
+      poses: (function () {
+        var base = merge({ pelvis: { p: [0, 0.12, 0], r: [-90, 0, 0] }, spine: [0, 0, 0], head: 8 }, SUPINE_HANDS);
+        function legs(l, r) { return merge(base, { L: { ang: l }, R: { ang: r } }); }
+        return {
+          sA: legs([60, 3, 0, 0, -25], [30, 3, 0, 0, -25]), sB: legs([30, 3, 0, 0, -25], [60, 3, 0, 0, -25]),
+          bA: legs([95, 3, 0, 100, -10], [45, 3, 0, 15, -20]), bB: legs([70, 3, 0, 45, -15], [70, 3, 0, 60, -15]),
+          bC: legs([45, 3, 0, 15, -20], [95, 3, 0, 100, -10]), bD: legs([70, 3, 0, 60, -15], [70, 3, 0, 45, -15])
+        };
+      })(),
+      steps: (function () {
+        var a = [];
+        for (var i = 0; i < 4; i++) { a.push(step("sA", 0.625, "Ciseaux", null, "up")); a.push(step("sB", 0.625, "Ciseaux", null, "down")); }
+        for (var j = 0; j < 2; j++) ["bA", "bB", "bC", "bD"].forEach(function (k) { a.push(step(k, 0.625, "Vélo", null, "up")); });
+        return a;
+      })()
+    },
+
     "Bird-dog": {
       // À quatre pattes, dos plat ; on étend le bras gauche et la jambe droite, bassin horizontal
       sides: "alternate", camera: { yaw: 0.85, pitch: 0.3, dist: 3.8, ty: 0.45, tz: 0.15 }, start: "down", thumb: "up",
@@ -848,6 +895,7 @@
 
   window.KineAvatar = {
     info: info,
+    holdSay: function (name, side) { var d = EX[name]; return d && d.holdSay ? d.holdSay[side === "R" ? "R" : "L"] : null; },
     plan: plan, isoFor: isoFor, isoText: isoText, isoTotal: isoTotal,
     supports: function (name) { return !!(EX[name] && EX[name].poses); },
     hasSteps: function (name) { return !!(EX[name] && EX[name].steps); },
