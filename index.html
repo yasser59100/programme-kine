@@ -2786,6 +2786,27 @@ if (window.speechSynthesis && "onvoiceschanged" in window.speechSynthesis) {
   window.speechSynthesis.onvoiceschanged = function () { kfVoiceCache = null; };
 }
 
+// Banque de phrases : la voix varie ce qu'elle dit, sans répéter deux fois de suite la même
+var KF_LINES = {
+  start: ["On y va.", "C'est parti.", "Allez, en piste !", "Prêt ? On attaque.", "Top départ, en douceur.", "On s'y met, tranquillement."],
+  mid: ["Belle exécution.", "C'est propre, continuez comme ça.", "Vous gérez.", "On garde ce rythme, c'est parfait.", "Respirez, ça roule.", "Très bien, le mouvement est contrôlé.", "Vous êtes dans le bon tempo.", "Joli, on continue."],
+  three: ["plus que trois", "encore trois, on lâche rien", "trois dernières, on finit fort", "plus que trois, vous y êtes presque"],
+  last: ["Dernière !", "La dernière, la plus belle.", "Dernière, on termine en beauté.", "Et la dernière !"],
+  isoMid: ["On tient, vous êtes solide.", "Respirez, ne bloquez pas.", "C'est là que le muscle travaille.", "Encore un peu, vous tenez bon.", "Solide comme un roc."],
+  holdMid: ["La moitié, on tient.", "Mi-temps ! Respirez calmement.", "Déjà la moitié, bravo.", "Vous êtes solide, on continue."],
+  holdEnd: ["Plus que dix secondes.", "Dix secondes, on serre les dents.", "Dix dernières secondes, vous y êtes."],
+  serieDone: ["Série terminée. Bravo !", "Et voilà, série bouclée !", "Série terminée, joli travail.", "Fini ! Soufflez un coup.", "Une série de plus au compteur, bravo."],
+  restEnd: ["Allez !", "C'est reparti !", "On y retourne.", "Pause terminée, on repart."],
+  sessionEnd: ["Bravo ! Séance terminée. Prenez une minute pour votre bilan.", "Et c'est fini ! Super séance. Prenez une minute pour votre bilan.", "Séance bouclée, bravo à vous ! Prenez une minute pour votre bilan."]
+};
+var kfLastLine = {};
+function kfSay(cat) {
+  var l = KF_LINES[cat] || [""], pick;
+  do { pick = l[Math.floor(Math.random() * l.length)]; } while (l.length > 1 && pick === kfLastLine[cat]);
+  kfLastLine[cat] = pick;
+  return pick;
+}
+
 function processSpeechQueue() {
   if (!speechQueue.length) { isSpeaking = false; return; }
   isSpeaking = true;
@@ -3088,7 +3109,7 @@ function renderSeqRest(secs, onDone) {
         clearInterval(seqTimerInterval); seqTimerInterval = null;
         playDoneBeep();
         try { if (navigator.vibrate) navigator.vibrate([200,100,200]); } catch(e){}
-        speak("Allez !");
+        speak(kfSay("restEnd"));
         setTimeout(function() { if (window._seqRestDone) window._seqRestDone(); }, 800);
       }
     }
@@ -3129,7 +3150,7 @@ function seqFinish() {
   for (var k = 0; k < day.exercises.length; k++) exState[seqCurrentDay + "-" + k] = true;
   saveExState();
   renderAllDays();
-  speak("Bravo ! Séance terminée. Prenez une minute pour votre bilan.");
+  speak(kfSay("sessionEnd"));
   renderSeqBilan(duration);
   return;
 
@@ -3608,7 +3629,7 @@ function repGuideStart() {
   var mainBtn = document.getElementById("rg-main-btn");
   mainBtn.textContent = "En cours...";
   mainBtn.onclick = null;
-  speak(["On y va.", "C'est parti.", "Allez, on commence."][Math.floor(Math.random() * 3)]);
+  speak(kfSay("start"));
   rgState.phase = "running";
   var pb = document.getElementById("rg-pause-btn");
   if (pb) pb.disabled = false;
@@ -3633,9 +3654,10 @@ function runSteps(steps, i, ok, rep, done) {
   var say = st.say;
   if (i === 0 && rep > 1) {
     var tot = rgState.totalReps || 0, lead = String(rep);
-    if (tot >= 6 && rep === tot) lead = "Dernière";
-    else if (tot >= 8 && rep === tot - 2) lead = rep + ", plus que trois";
-    else if (tot >= 10 && rep === Math.ceil(tot / 2) + 1 && !st.iso) lead = rep + ", c'est bien, continuez";
+    if (tot >= 6 && rep === tot) lead = kfSay("last").replace(/[.!]$/, "");
+    else if (tot >= 8 && rep === tot - 2) lead = rep + ", " + kfSay("three");
+    else if (tot >= 10 && rep === Math.ceil(tot / 2) + 2 && Math.random() < 0.7) lead = rep + ". " + kfSay("mid").replace(/[.!]$/, "");
+    else if (tot >= 12 && rep === 3 && Math.random() < 0.4) lead = rep + ". " + kfSay("mid").replace(/[.!]$/, "");
     say = st.dur >= 2 && st.say ? lead + ". " + st.say : lead;
   }
   if (say) speak(say);
@@ -3650,6 +3672,7 @@ function runSteps(steps, i, ok, rep, done) {
       var left = Math.max(0, Math.ceil(st.iso - (rgNow() - t0) / 1000));
       setPhaseLabel(base + " " + left + " s", "hold");
       if (left <= 3 && left >= 1 && left !== lastSaid && st.iso >= 5) { lastSaid = left; speak(String(left)); }
+      else if (st.iso >= 10 && left === Math.ceil(st.iso / 2) && lastSaid !== "mid") { lastSaid = "mid"; speak(kfSay("isoMid")); }
     }, 200);
   }
   startTimingBar(st.dur, st.kind === "up" ? "up-color" : "down-color", function() {
@@ -3715,6 +3738,7 @@ function timedBlock(id, side, seconds, done) {
   var numEl = document.getElementById("rg-rep-num");
   var sideTxt = side ? (side === "L" ? ", gauche" : ", droite") : "";
   var t0 = rgNow(), live = true, cues = (rgState.info.cues || []).slice();
+  var talk = !cues.length && seconds >= 30, saidMid = false, saidEnd = false;
   var ok = function() { return live && rgAlive(id); };
   numEl.textContent = seconds;
 
@@ -3727,6 +3751,8 @@ function timedBlock(id, side, seconds, done) {
       setPhaseLabel(c.label + sideTxt, "hold");
       if (c.say) speak(c.say);
     }
+    if (talk && !saidMid && el >= seconds / 2) { saidMid = true; speak(kfSay("holdMid")); }
+    if (talk && !saidEnd && seconds - el <= 10.5 && seconds - el > 4) { saidEnd = true; speak(kfSay("holdEnd")); }
     if (el >= seconds) {
       clearInterval(tick); live = false;
       playBeep(660, 0.08, 0.2);
@@ -3776,7 +3802,7 @@ function finishSerie() {
   setPhaseLabel("Série terminée !", "up");
   playDoneBeep();
   try { if (navigator.vibrate) navigator.vibrate([150, 80, 150]); } catch(e) {}
-  speak("Série terminée. Bravo !");
+  speak(kfSay("serieDone"));
 
   // Auto-trigger onSerieComplete after 1.5s — no button needed, straight to rest
   setTimeout(function() {

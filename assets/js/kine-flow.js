@@ -326,7 +326,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   function showTuto(ex, exName, cue, autoN) {
     var g = $("rep-guide"), old = $("kf-tuto"); if (old) old.remove();
     var t = tempoText(ex), side = KineAvatar && KineAvatar.info ? KineAvatar.info(exName, KineProgress.repsLabel(ex), week()) : null;
-    var stop = ex.stop ? ex.stop.replace(/^Arr[êe]t(ez)?(-vous)?\s+si\s*:?\s*/i, "Si ").replace(/\.?$/, ", ou si la douleur dépasse 3 sur 10.") : "Si la douleur dépasse 3 sur 10, ou si elle augmente d'une série à l'autre.";
+    var stop = ex.stop ? ex.stop.replace(/^Arr[êe]t(ez)?(-vous)?\s+si\s*:?\s*/i, "Si ").replace(/\.?$/, ", ou si la douleur atteint 5 sur 10.") : "Si la douleur atteint 5 sur 10, ou si elle augmente d'une série à l'autre.";
     var pts = [
       ["Position et consigne", cue || ex.desc || ""],
       ["Rythme", (t ? t.charAt(0).toUpperCase() + t.slice(1) : (side && side.mode === "timed" ? "Position tenue, respirez normalement sans bloquer." : "Mouvement lent et contrôlé.")) +
