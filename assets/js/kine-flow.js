@@ -452,7 +452,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     sheet.innerHTML = "<div class='kf-sheet-body'>" +
       "<button class='kf-back' onclick='closeDemo()' aria-label='Fermer'>←</button>" +
       "<div><div class='kf-h1'>" + esc(ex.name) + "</div><div class='kf-sub'>" + esc(KineProgress.repsLabel(ex)) + (t ? ", " + esc(t) : "") + "</div></div>" +
-      "<div class='v2-stage' style='min-height:340px'><div class='rg-phase-label up' id='kf-demo-label'>Démonstration</div><div id='kf-demo-stage' style='display:flex;justify-content:center;padding-top:30px'></div></div>" +
+      "<div class='v2-stage' style='min-height:340px'><div class='rg-phase-label up' id='kf-demo-label'>Démonstration</div><div id='kf-demo-stage' style='display:flex;justify-content:center;padding-top:30px'></div>" + angleBtn() + "</div>" +
       (CUES[ex.name] ? "<div class='pg-cue'>" + esc(CUES[ex.name]) + "</div>" : "") +
       "<div class='pg-desc'>" + esc(ex.desc || "") + "</div>" +
       (window.KineProgram ? KineProgram.weeksTable(ex, dayId, idx) : "") +
@@ -479,6 +479,17 @@ var seqSkipped = 0;       // exercices passés pendant la séance
         setTimeout(next, st.dur * 1000);
       })();
     })();
+  };
+  // Bouton « Angles » : affiche les vrais angles mesurés sur l'avatar
+  function angleBtn() {
+    var on = window.KineAvatar && KineAvatar.angles && KineAvatar.angles();
+    return "<button type='button' class='ka-toggle' aria-pressed='" + (on ? "true" : "false") + "' onclick='kfToggleAngles(this)'>Angles</button>";
+  }
+  window.kfAngleBtn = angleBtn;
+  window.kfToggleAngles = function (btn) {
+    if (!window.KineAvatar || !KineAvatar.angles) return;
+    var on = KineAvatar.angles(!KineAvatar.angles());
+    document.querySelectorAll(".ka-toggle").forEach(function (b) { b.setAttribute("aria-pressed", on ? "true" : "false"); });
   };
   window.closeDemo = function () {
     var sheet = $("kf-demo"); if (!sheet) return;

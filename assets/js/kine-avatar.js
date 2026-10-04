@@ -612,7 +612,7 @@
               shirt: mat(AVATAR.shirt), shoes: mat(AVATAR.shoes), sole: mat(AVATAR.sole), lips: mat(AVATAR.lips),
               eyes: mat(AVATAR.eyes), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95),
               load: new T.MeshStandardMaterial({ color: lin("#7cc4ff"), roughness: 0.2, transparent: true, opacity: 0.75 }),
-              cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75) };
+              cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75), trim: mat(AVATAR.print, 0.8) };
     function mesh(geo, m, parent) { var o = new T.Mesh(geo, m); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
     function ball(r, m, parent) { return mesh(new T.SphereGeometry(r, 24, 16), m, parent); }
     function bone(r, len, m, parent) { var o = mesh(new T.CylinderGeometry(r, r, len, 20), m, parent); o.position.y = -len / 2; return o; }
@@ -643,6 +643,8 @@
     var chestTop = mesh(new T.SphereGeometry(0.185, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), M.shirt, spine);
     chestTop.scale.set(1, 0.28, 0.66); chestTop.position.y = 0.52;
     mesh(new T.CylinderGeometry(0.048, 0.052, 0.11, 20), M.skin, spine).position.y = 0.58;
+    var collar = mesh(new T.TorusGeometry(0.058, 0.011, 10, 36), M.trim, spine); // col côtelé bleu
+    collar.rotation.x = Math.PI / 2; collar.scale.set(1.08, 0.82, 1); collar.position.y = 0.548;
 
     var head = group(spine, 0, 0.72, 0);
     ball(0.12, M.skin, head).scale.set(0.92, 1.08, 1);
@@ -667,6 +669,7 @@
     function makeArm(side) {
       var sh = group(spine, side * LEN.shX, LEN.shY, 0); sh.rotation.order = "XZY";
       ball(0.068, M.shirt, sh); bone(0.06, 0.12, M.shirt, sh); bone(0.045, LEN.upper, M.skin, sh);
+      mesh(new T.CylinderGeometry(0.0615, 0.0615, 0.02, 24), M.trim, sh).position.y = -0.112; // bord de manche bleu
       var el = group(sh, 0, -LEN.upper, 0);
       ball(0.044, M.skin, el); bone(0.04, LEN.fore, M.skin, el);
       ball(0.047, M.skin, el).position.y = -LEN.fore;
@@ -864,14 +867,14 @@
     var arm = d && d.load ? (side === "R" ? (d.load === "R" ? "L" : "R") : d.load) : null;
     R.arms.L.load.visible = arm === "L"; R.arms.R.load.visible = arm === "R";
   }
-  var easeInOut = function (x) { return 0.5 - 0.5 * Math.cos(Math.PI * x); };
+  var easeInOut = function (x) { return x * x * x * (10 + x * (6 * x - 15)); }; // minimum jerk
 
   function frame(now) {
     raf = requestAnimationFrame(frame);
     if (paused && tween) tween.start += now - lastNow; // figé pendant la pause
     lastNow = now;
     if (tween) {
-      var k = Math.min(1, (now - tween.start) / tween.dur);
+      var k = Math.max(0, Math.min(1, (now - tween.start) / tween.dur)); // borné : pas d'extrapolation au-delà des poses
       current = blend(tween.from, tween.to, easeInOut(k));
       if (k >= 1) { current = tween.to; tween = null; }
     }
@@ -880,6 +883,81 @@
     v.yaw += (v.yawGoal - v.yaw) * 0.12;
     placeCamera(def, v.yaw);
     R.renderer.render(R.scene, R.camera);
+    if (anglesOn) drawAngles();
+  }
+
+  /* ── Vrais angles mesurés sur l'avatar, dessinés par-dessus (arcs + valeurs) ── */
+  var anglesOn = (function () { try { return localStorage.getItem("kf-angles") === "1"; } catch (e) { return false; } })(), angleSvg = null, angleJoints = [];
+  var JOINT_LABEL = { hip: "Hanche", knee: "Genou", elbow: "Coude", shoulder: "Épaule" };
+  function jointGeo(side) {
+    var T = R.T, w = function (g) { var v = new T.Vector3(); g.getWorldPosition(v); return v; };
+    var q = new T.Quaternion(); R.spine.getWorldQuaternion(q);
+    var up = new T.Vector3(0, 1, 0).applyQuaternion(q);
+    var g = R.legs[side], a = R.arms[side];
+    var H = w(g.hip), K = w(g.knee), A = w(g.ankle), S = w(a.sh), E = w(a.el);
+    var hq = new T.Quaternion(); a.el.getWorldQuaternion(hq);
+    var Hn = new T.Vector3(0, -LEN.fore, 0).applyQuaternion(hq).add(E);
+    var Up = H.clone().add(up.clone().multiplyScalar(0.35)); // repère du tronc au-dessus de la hanche
+    var Dn = S.clone().add(up.clone().multiplyScalar(-0.35)); // repère du tronc sous l'épaule
+    var deg = function (a1, b1) { return Math.round(a1.angleTo(b1) * 180 / Math.PI); };
+    return {
+      hip: { o: H, a: Up, b: K, v: 180 - deg(Up.clone().sub(H), K.clone().sub(H)) },
+      knee: { o: K, a: H, b: A, v: 180 - deg(H.clone().sub(K), A.clone().sub(K)) },
+      shoulder: { o: S, a: Dn, b: E, v: deg(Dn.clone().sub(S), E.clone().sub(S)) },
+      elbow: { o: E, a: S, b: Hn, v: 180 - deg(S.clone().sub(E), Hn.clone().sub(E)) }
+    };
+  }
+  function pickJoints(d) { // articulations qui bougent vraiment dans l'exercice (amplitude ≥ 25°)
+    var names = Object.keys(d.poses), min = {}, max = {};
+    if (d.easyUntil) { var useK = curWeek() <= d.easyUntil; names = names.filter(function (n) { var k = /K$/.test(n) && d.poses[n.slice(0, -1)]; return useK ? (k || !d.poses[n + "K"]) : !k; }); }
+    names.forEach(function (n) {
+      applyPose(d.poses[n]); R.pelvis.updateMatrixWorld(true);
+      ["L", "R"].forEach(function (sd) { var j = jointGeo(sd); for (var k in j) { var key = k + sd; min[key] = Math.min(min[key] == null ? 999 : min[key], j[k].v); max[key] = Math.max(max[key] == null ? -999 : max[key], j[k].v); } });
+    });
+    if (current) applyPose(current);
+    var range = function (k) { return Math.max(max[k + "L"] - min[k + "L"], max[k + "R"] - min[k + "R"]); }; // amplitude d'un même côté
+    return ["hip", "knee", "shoulder", "elbow"].filter(function (k) { return range(k) >= 25; })
+      .sort(function (x, y) { return range(y) - range(x); }).slice(0, 2); // les 2 qui bougent le plus
+  }
+  function drawAngles() {
+    if (!angleSvg || !host) return;
+    var W = R.canvas.clientWidth, Hh = R.canvas.clientHeight; if (!W) return;
+    R.pelvis.updateMatrixWorld(true); R.camera.updateMatrixWorld(true);
+    var pr = function (v) { var c = v.clone().project(R.camera); return [(c.x + 1) / 2 * W, (1 - c.y) / 2 * Hh, c.z]; };
+    var gL = jointGeo("L"), gR = jointGeo("R");
+    var html = "", placed = [];
+    angleJoints.forEach(function (k) {
+      var jL = gL[k], jR = gR[k], j = pr(jL.o)[2] <= pr(jR.o)[2] ? jL : jR; // côté le plus proche de la caméra
+      var o = pr(j.o), a = pr(j.a), b = pr(j.b), r = 26;
+      var a1 = Math.atan2(a[1] - o[1], a[0] - o[0]), a2 = Math.atan2(b[1] - o[1], b[0] - o[0]);
+      var d = a2 - a1; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+      var p1 = [o[0] + r * Math.cos(a1), o[1] + r * Math.sin(a1)], p2 = [o[0] + r * Math.cos(a1 + d), o[1] + r * Math.sin(a1 + d)];
+      if (Math.abs(j.v) < 12) return; // articulation quasi tendue : rien à montrer
+      var mid = a1 + d / 2, lx = o[0] + (r + 34) * Math.cos(mid), ly = o[1] + (r + 34) * Math.sin(mid);
+      placed.forEach(function (q) { if (Math.abs(q[0] - lx) < 70 && Math.abs(q[1] - ly) < 18) ly = q[1] + (ly >= q[1] ? 18 : -18); });
+      placed.push([lx, ly]);
+      html += "<line x1='" + o[0] + "' y1='" + o[1] + "' x2='" + a[0] + "' y2='" + a[1] + "' class='ka-seg'/><line x1='" + o[0] + "' y1='" + o[1] + "' x2='" + b[0] + "' y2='" + b[1] + "' class='ka-seg'/>" +
+        "<path d='M" + p1[0] + " " + p1[1] + " A" + r + " " + r + " 0 0 " + (d > 0 ? 1 : 0) + " " + p2[0] + " " + p2[1] + "' class='ka-arc'/>" +
+        "<circle cx='" + o[0] + "' cy='" + o[1] + "' r='4' class='ka-dot'/>" +
+        "<text x='" + lx + "' y='" + ly + "' class='ka-txt'>" + JOINT_LABEL[k] + " " + Math.max(0, Math.round(j.v)) + "°</text>";
+    });
+    angleSvg.setAttribute("viewBox", "0 0 " + W + " " + Hh);
+    angleSvg.innerHTML = html;
+  }
+  function attachAngleSvg() {
+    if (!host) return;
+    if (!angleSvg) {
+      angleSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      angleSvg.setAttribute("class", "ka-angles"); angleSvg.setAttribute("aria-hidden", "true");
+      var st = document.createElement("style");
+      st.textContent = ".ka-host{position:relative}.ka-angles{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}" +
+        ".ka-seg{stroke:rgba(255,255,255,.55);stroke-width:2;stroke-dasharray:4 4}.ka-arc{fill:none;stroke:#FFC56B;stroke-width:3}.ka-dot{fill:#FFC56B}" +
+        ".ka-txt{fill:#fff;font:700 13px system-ui,sans-serif;text-anchor:middle;dominant-baseline:middle;paint-order:stroke;stroke:rgba(0,0,0,.65);stroke-width:4px}";
+      document.head.appendChild(st);
+    }
+    host.classList.add("ka-host");
+    if (angleSvg.parentNode !== host) host.appendChild(angleSvg);
+    angleSvg.style.display = anglesOn ? "" : "none";
   }
   function placeCamera(d0, yaw) {
     var c = d0.camera || {};
@@ -914,7 +992,8 @@
       for (var k in R.props) R.props[k].visible = (d.props || []).indexOf(k) >= 0;
       R.view.yaw = R.view.yawGoal = d.camera && d.camera.yaw != null ? d.camera.yaw : 0.6;
       container.innerHTML = ""; container.appendChild(R.canvas); host = container;
-      resize();
+      angleJoints = pickJoints(d);
+      resize(); attachAngleSvg();
       if (!raf) raf = requestAnimationFrame(frame);
       return true;
     },
@@ -929,6 +1008,13 @@
     },
 
     pause: function (on) { paused = !!on; },
+    angleJoints: function () { return angleJoints.slice(); },
+    angles: function (on) {
+      if (on === undefined) return anglesOn;
+      anglesOn = !!on; try { localStorage.setItem("kf-angles", anglesOn ? "1" : "0"); } catch (e) {}
+      attachAngleSvg(); if (!anglesOn && angleSvg) angleSvg.innerHTML = "";
+      return anglesOn;
+    },
 
     // Vue de profil pour contrôler les amplitudes : image + position des articulations à l'écran
     debugView: function (name, poseName, side, px, fromPose, k, natural) {

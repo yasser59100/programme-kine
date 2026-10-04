@@ -2300,6 +2300,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <div class="v2-stage">
     <div class="rg-phase-label up" id="rg-phase-label">Prêt ?</div>
     <div id="rg-image-container"></div>
+    <button type="button" class="ka-toggle" aria-pressed="false" onclick="kfToggleAngles(this)">Angles</button>
   </div>
 
   <div class="v2-mid">
@@ -3528,6 +3529,7 @@ function rgPainAction(action) {
 
 // ── LAUNCH ──
 function launchRepGuide(exName, repsLabel, currentSerie, totalSeries, onComplete) {
+  document.querySelectorAll(".ka-toggle").forEach(function (b) { b.setAttribute("aria-pressed", window.KineAvatar && KineAvatar.angles && KineAvatar.angles() ? "true" : "false"); });
   var info = rgInfo(exName, repsLabel);
   info.serie = currentSerie;
   rgState.active = true;

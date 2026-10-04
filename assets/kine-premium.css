@@ -154,3 +154,9 @@ html:not([data-theme="light"]) :is([class*="badge"], .hstat-lbl, .hstat-label, .
 
 #rep-guide.lx .v2-count, #rep-guide.lx .lx-countrow .rg-phase-label { white-space: nowrap; }
 #rep-guide.lx .lx-countrow .rg-phase-label.hold { color: #00F2FE !important; }
+
+/* Bouton d'affichage des angles sur l'avatar */
+.v2-stage { position: relative; }
+.ka-toggle { position: absolute; top: 12px; right: 12px; z-index: 3; min-height: 36px; padding: 0 12px; border-radius: 18px;
+  border: 1px solid var(--border2); background: rgba(11, 15, 23, 0.6); color: var(--text2); font: 600 0.82rem var(--font); cursor: pointer; }
+.ka-toggle[aria-pressed="true"] { color: #FFC56B; border-color: rgba(255, 197, 107, 0.6); }
