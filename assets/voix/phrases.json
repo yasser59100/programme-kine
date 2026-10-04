@@ -1,0 +1,1422 @@
+[
+{
+"cat": "Chiffres",
+"text": "1"
+},
+{
+"cat": "Chiffres",
+"text": "2"
+},
+{
+"cat": "Chiffres",
+"text": "3"
+},
+{
+"cat": "Chiffres",
+"text": "4"
+},
+{
+"cat": "Chiffres",
+"text": "5"
+},
+{
+"cat": "Chiffres",
+"text": "6"
+},
+{
+"cat": "Chiffres",
+"text": "7"
+},
+{
+"cat": "Chiffres",
+"text": "8"
+},
+{
+"cat": "Chiffres",
+"text": "9"
+},
+{
+"cat": "Chiffres",
+"text": "10"
+},
+{
+"cat": "Chiffres",
+"text": "11"
+},
+{
+"cat": "Chiffres",
+"text": "12"
+},
+{
+"cat": "Chiffres",
+"text": "13"
+},
+{
+"cat": "Chiffres",
+"text": "14"
+},
+{
+"cat": "Chiffres",
+"text": "15"
+},
+{
+"cat": "Chiffres",
+"text": "16"
+},
+{
+"cat": "Chiffres",
+"text": "17"
+},
+{
+"cat": "Chiffres",
+"text": "18"
+},
+{
+"cat": "Chiffres",
+"text": "19"
+},
+{
+"cat": "Chiffres",
+"text": "20"
+},
+{
+"cat": "Chiffres",
+"text": "21"
+},
+{
+"cat": "Chiffres",
+"text": "22"
+},
+{
+"cat": "Chiffres",
+"text": "23"
+},
+{
+"cat": "Chiffres",
+"text": "24"
+},
+{
+"cat": "Chiffres",
+"text": "25"
+},
+{
+"cat": "Chiffres",
+"text": "26"
+},
+{
+"cat": "Chiffres",
+"text": "27"
+},
+{
+"cat": "Chiffres",
+"text": "28"
+},
+{
+"cat": "Chiffres",
+"text": "29"
+},
+{
+"cat": "Chiffres",
+"text": "30"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On descend"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On monte, on expire"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Pause"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Jambe droite"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On pousse, on revient"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On pousse dans les talons"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On tient"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On descend lentement"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On monte"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Pied sur la marche"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On pousse sur la jambe"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On redescend doucement"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Épaule droite"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On ouvre"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On redescend lentement"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On pousse"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On lève"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On repose"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On allonge"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On revient"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On monte, fessiers serrés"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Côté gauche"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On serre"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On redescend"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On referme"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Mains au sol"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On avance les mains"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Une"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Deux"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On se redresse lentement"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Pieds en arrière"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Pieds vers les mains"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On se relève lentement"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Ciseaux"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Vélo"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Yeux ouverts"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Fermez les yeux"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Côté droit"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Changez de côté"
+},
+{
+"cat": "Consignes de rythme",
+"text": "On reprend"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Main droite et jambe gauche"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Main gauche et jambe droite"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 6 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 12 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 8 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 7 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 15 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 10 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 4 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 5 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 16 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 20 secondes"
+},
+{
+"cat": "Isométriques",
+"text": "Isométrique, on tient 30 secondes"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Jambe gauche"
+},
+{
+"cat": "Consignes de rythme",
+"text": "Épaule gauche"
+},
+{
+"cat": "Encouragements",
+"text": "On y va."
+},
+{
+"cat": "Encouragements",
+"text": "C'est parti."
+},
+{
+"cat": "Encouragements",
+"text": "Allez, en piste !"
+},
+{
+"cat": "Encouragements",
+"text": "Prêt ? On attaque."
+},
+{
+"cat": "Encouragements",
+"text": "Top départ, en douceur."
+},
+{
+"cat": "Encouragements",
+"text": "On s'y met, tranquillement."
+},
+{
+"cat": "Encouragements",
+"text": "Belle exécution."
+},
+{
+"cat": "Encouragements",
+"text": "C'est propre, continuez comme ça."
+},
+{
+"cat": "Encouragements",
+"text": "Vous gérez."
+},
+{
+"cat": "Encouragements",
+"text": "On garde ce rythme, c'est parfait."
+},
+{
+"cat": "Encouragements",
+"text": "Respirez, ça roule."
+},
+{
+"cat": "Encouragements",
+"text": "Très bien, le mouvement est contrôlé."
+},
+{
+"cat": "Encouragements",
+"text": "Vous êtes dans le bon tempo."
+},
+{
+"cat": "Encouragements",
+"text": "Joli, on continue."
+},
+{
+"cat": "Encouragements",
+"text": "Plus que trois"
+},
+{
+"cat": "Encouragements",
+"text": "Encore trois, on lâche rien"
+},
+{
+"cat": "Encouragements",
+"text": "Trois dernières, on finit fort"
+},
+{
+"cat": "Encouragements",
+"text": "Plus que trois, vous y êtes presque"
+},
+{
+"cat": "Encouragements",
+"text": "Dernière !"
+},
+{
+"cat": "Encouragements",
+"text": "La dernière, la plus belle."
+},
+{
+"cat": "Encouragements",
+"text": "Dernière, on termine en beauté."
+},
+{
+"cat": "Encouragements",
+"text": "Et la dernière !"
+},
+{
+"cat": "Encouragements",
+"text": "On tient, vous êtes solide."
+},
+{
+"cat": "Encouragements",
+"text": "Respirez, ne bloquez pas."
+},
+{
+"cat": "Encouragements",
+"text": "C'est là que le muscle travaille."
+},
+{
+"cat": "Encouragements",
+"text": "Encore un peu, vous tenez bon."
+},
+{
+"cat": "Encouragements",
+"text": "Solide comme un roc."
+},
+{
+"cat": "Encouragements",
+"text": "La moitié, on tient."
+},
+{
+"cat": "Encouragements",
+"text": "Mi-temps ! Respirez calmement."
+},
+{
+"cat": "Encouragements",
+"text": "Déjà la moitié, bravo."
+},
+{
+"cat": "Encouragements",
+"text": "Vous êtes solide, on continue."
+},
+{
+"cat": "Encouragements",
+"text": "Plus que dix secondes."
+},
+{
+"cat": "Encouragements",
+"text": "Dix secondes, on serre les dents."
+},
+{
+"cat": "Encouragements",
+"text": "Dix dernières secondes, vous y êtes."
+},
+{
+"cat": "Encouragements",
+"text": "Série terminée. Bravo !"
+},
+{
+"cat": "Encouragements",
+"text": "Et voilà, série bouclée !"
+},
+{
+"cat": "Encouragements",
+"text": "Série terminée, joli travail."
+},
+{
+"cat": "Encouragements",
+"text": "Fini ! Soufflez un coup."
+},
+{
+"cat": "Encouragements",
+"text": "Une série de plus au compteur, bravo."
+},
+{
+"cat": "Encouragements",
+"text": "Allez !"
+},
+{
+"cat": "Encouragements",
+"text": "C'est reparti !"
+},
+{
+"cat": "Encouragements",
+"text": "On y retourne."
+},
+{
+"cat": "Encouragements",
+"text": "Pause terminée, on repart."
+},
+{
+"cat": "Encouragements",
+"text": "Bravo ! Séance terminée. Prenez une minute pour votre bilan."
+},
+{
+"cat": "Encouragements",
+"text": "Et c'est fini ! Super séance. Prenez une minute pour votre bilan."
+},
+{
+"cat": "Encouragements",
+"text": "Séance bouclée, bravo à vous ! Prenez une minute pour votre bilan."
+},
+{
+"cat": "Annonces",
+"text": "Série 1 sur 2"
+},
+{
+"cat": "Annonces",
+"text": "Série 1 sur 3"
+},
+{
+"cat": "Annonces",
+"text": "Série 2 sur 2"
+},
+{
+"cat": "Annonces",
+"text": "Série 2 sur 3"
+},
+{
+"cat": "Annonces",
+"text": "Série 3 sur 3"
+},
+{
+"cat": "Annonces",
+"text": "12 répétitions"
+},
+{
+"cat": "Annonces",
+"text": "8 répétitions de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "30 secondes"
+},
+{
+"cat": "Annonces",
+"text": "45 secondes"
+},
+{
+"cat": "Annonces",
+"text": "60 secondes"
+},
+{
+"cat": "Annonces",
+"text": "15 répétitions"
+},
+{
+"cat": "Annonces",
+"text": "10 répétitions de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "15 répétitions de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "8 répétitions"
+},
+{
+"cat": "Annonces",
+"text": "10 répétitions"
+},
+{
+"cat": "Annonces",
+"text": "30 secondes de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "45 secondes de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "60 secondes de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "20 secondes"
+},
+{
+"cat": "Annonces",
+"text": "25 secondes"
+},
+{
+"cat": "Annonces",
+"text": "40 secondes"
+},
+{
+"cat": "Annonces",
+"text": "20 secondes de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "40 secondes de chaque côté"
+},
+{
+"cat": "Annonces",
+"text": "Repos 30 secondes"
+},
+{
+"cat": "Annonces",
+"text": "Repos 60 secondes"
+},
+{
+"cat": "Annonces",
+"text": "Repos 90 secondes"
+},
+{
+"cat": "Annonces",
+"text": "Repos 120 secondes"
+},
+{
+"cat": "Annonces",
+"text": "Série terminée"
+},
+{
+"cat": "Annonces",
+"text": "Exercice terminé"
+},
+{
+"cat": "Annonces",
+"text": "Exercice suivant"
+},
+{
+"cat": "Annonces",
+"text": "Première fois sur cet exercice"
+},
+{
+"cat": "Annonces",
+"text": "Séance enregistrée. À bientôt !"
+},
+{
+"cat": "Annonces",
+"text": "Séance arrêtée. Pensez à prévenir votre kinésithérapeute."
+},
+{
+"cat": "Annonces",
+"text": "Circuit terminé. Place aux étirements."
+},
+{
+"cat": "Annonces",
+"text": "Deux minutes de récupération"
+},
+{
+"cat": "Annonces",
+"text": "Fin du tour 1"
+},
+{
+"cat": "Annonces",
+"text": "Fin du tour 2"
+},
+{
+"cat": "Annonces",
+"text": "Fin du tour 3"
+},
+{
+"cat": "Annonces",
+"text": "Échauffement terminé"
+},
+{
+"cat": "Annonces",
+"text": "Étirements terminés"
+},
+{
+"cat": "Annonces",
+"text": "Inspirez"
+},
+{
+"cat": "Annonces",
+"text": "Expirez"
+},
+{
+"cat": "Annonces",
+"text": "On commence !"
+},
+{
+"cat": "Annonces",
+"text": "Bravo ! Séance terminée. Vous avez réalisé tous les exercices. Pensez à vous hydrater."
+},
+{
+"cat": "Annonces",
+"text": "Séance J1 — Membres inférieurs"
+},
+{
+"cat": "Annonces",
+"text": "Séance J2 — Membres supérieurs"
+},
+{
+"cat": "Annonces",
+"text": "Séance J3 — Gainage rachidien"
+},
+{
+"cat": "Annonces",
+"text": "Séance J4 — Fessiers et bassin"
+},
+{
+"cat": "Annonces",
+"text": "Séance J5 — Global fonctionnel"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Mobilisation articulaire progressive"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Squat bilatéral"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Fentes avant unilatérales"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Chaise contre le mur"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Pont ischio-jambiers talons sur chaise"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Élévation des talons"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Step-up sur marche"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Étirements membres inférieurs"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Mobilisation membres supérieurs"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Rotation externe d'épaule"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Pompes sur genoux"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Dips sur chaise"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Pike push-up"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Superman en Y et en W"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Étirements membres supérieurs"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Activation transverse et mobilisation"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Crunch abdominal contrôlé"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Portefeuille (V-up)"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Dead bug"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Superman quadrupédique en gainage"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Ciseaux et vélo"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Plank — gainage avant-bras"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Side plank sur genoux"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Étirements rachidiens et cohérence cardiaque"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Activation ceinture pelvienne"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Squat sumo"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Donkey kick"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Pont de hanche"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Clamshell"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Abduction hanche debout"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Pont fessier unilatéral"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Étirements fessiers et iliopsoas"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Échauffement global progressif"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Squat + élévation bras"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Inchworm et pompes"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Fente latérale avec toucher sol"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Burpee modifié sans saut"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Équilibre unipodal"
+},
+{
+"cat": "Noms d'exercices",
+"text": "Étirements globaux et Savasana"
+},
+{
+"cat": "Consignes des exercices",
+"text": "Talons au sol, genoux dans l'axe des pieds, dos neutre. Serrez les fessiers en remontant."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Genou avant au-dessus du pied, genou arrière vers le sol, buste droit."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Dos plaqué au mur, genoux au-dessus des chevilles, respirez normalement."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Poussez dans les talons jusqu'à aligner épaules, hanches et genoux."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Montez le plus haut possible, redescendez lentement."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Poussez sur le pied posé sur la marche, sans vous aider de l'autre jambe."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Coude collé au flanc, l'avant-bras monte vers le plafond."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Corps aligné, coudes à 45° du tronc, descente lente."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Épaules basses et en arrière, coudes à 90° maximum."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Hanches hautes, amenez la tête entre les mains."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Y : levez bras et jambes. W : rapprochez les omoplates."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Épaules décollées à 30°, expirez en montant, sans tirer sur la nuque."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Le bas du dos reste collé au sol."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Corps aligné, ni cambré ni fessiers relevés, respiration libre."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Levez les hanches jusqu'à aligner épaule, hanche et genou."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Genoux dans l'axe des orteils, remontée en serrant fessiers et adducteurs."
+},
+{
+"cat": "Consignes des exercices",
+"text": "La cuisse monte vers le plafond, le bassin ne tourne pas."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Alignez épaules, hanches et genoux, sans cambrer le bas du dos."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Pieds joints, ouvrez le genou, bassin immobile."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Jambe tendue sur le côté, sans pencher le buste."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Poussez avec le fessier de la jambe au sol, bassin horizontal."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Remontez en levant les deux bras jusqu'à la verticale."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Marchez avec les mains jusqu'en planche, dos gainé."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Genou porteur fléchi, touchez le sol avec la main opposée."
+},
+{
+"cat": "Consignes des exercices",
+"text": "La qualité prime sur la vitesse, planche gainée 2 secondes."
+},
+{
+"cat": "Consignes des exercices",
+"text": "Fixez un point devant vous, bougez doucement les bras."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Marche sur place, rythme croissant"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Commencez doucement, puis accélérez progressivement."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Flexions-extensions des chevilles, assis"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Pointes de pied vers vous, puis vers le sol."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Leg swings avant / arrière, appui au mur"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Balancez la jambe d'avant en arrière, buste droit."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations des genoux, debout"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Pieds joints, mains sur les genoux, petits cercles."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Squats dynamiques à faible amplitude"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Petite flexion, talons au sol, rythme régulier."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations de hanches"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Mains sur les hanches, grands cercles avec le bassin."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Étirement des quadriceps, debout"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Talon vers la fesse, genoux serrés, main sur le mur."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Ischio-jambiers, assis jambe tendue"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Dos droit, penchez-vous vers le pied sans forcer."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Mollets en fente basse contre le mur"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Jambe arrière tendue, talon au sol."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotation de hanche en figure 4"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Cheville sur le genou opposé, tirez la cuisse vers vous."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Respiration diaphragmatique de clôture"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Le ventre se gonfle à l'inspiration, se vide à l'expiration."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Pendules des bras en cercles progressifs"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Buste penché, bras relâchés : petits cercles qui s'agrandissent."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rétropulsion et antépulsion des omoplates"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Serrez les omoplates vers la colonne, puis écartez-les."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations dynamiques des épaules"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Grands cercles de bras, sans forcer en haut."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Flexions-extensions des poignets et des coudes"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Pliez et tendez les coudes, puis les poignets."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "10 pompes contre le mur, rythme lent"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Corps aligné, descente lente vers le mur."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Pectoraux contre le mur, coude à 90°"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Avant-bras sur le mur, tournez le buste à l'opposé."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Triceps, coude derrière la tête"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "L'autre main pousse doucement le coude."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Auto-agrandissement cervical, assis"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Grandissez-vous comme si un fil tirait le sommet du crâne."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Position de l'enfant, bras tendus"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Assis sur les talons, front vers le sol, bras loin devant."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Respiration abdominale"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Main sur le ventre : il se gonfle puis se vide."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Respiration diaphragmatique et activation du transverse"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Inspirez en gonflant le ventre. À l'expiration, rentrez légèrement le nombril."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Chat-vache à quatre pattes"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Inspirez en creusant le bas du dos (bassin basculé vers l'avant, regard devant). Expirez en arrondissant le bas du dos (bassin rentré, tête vers le sol)."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations du tronc, assis"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Bras croisés, tournez le buste à droite puis à gauche, bassin immobile."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Cobra allongé"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Bassin au sol, poussez sur les mains, épaules basses."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Torsion lombaire, allongé sur le dos"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Genoux vers le sol d'un côté, épaules à plat."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Cohérence cardiaque"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Inspirez 5 secondes, expirez 5 secondes, en suivant le cercle."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Cercles de hanches, amplitude progressive"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Mains sur les hanches, cercles de plus en plus grands."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Abduction de hanche alternée, contre le mur"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Jambe tendue sur le côté, buste droit."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Leg swings latéraux"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Mains au mur, balancez la jambe de côté."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations de hanche, allongé sur le dos"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Genoux fléchis, laissez-les basculer d'un côté puis de l'autre."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Marche genoux hauts, élévation exagérée"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Montez les genoux haut, bras coordonnés."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Figure 4 en décubitus"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Fente basse au sol pour l'iliopsoas"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Genou arrière au sol, avancez le bassin, buste droit."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Demi-grand écart assis, adducteurs"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Jambes écartées, dos droit, penchez-vous légèrement."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Respiration abdominale de clôture"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Marche sur place genoux hauts, rythme croissant"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Commencez doucement, puis accélérez."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Jumping jacks à rythme modéré"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Écartez pieds et bras ensemble, sans sauter si besoin."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations des chevilles"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Petits cercles avec le pied."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations des genoux"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Mains sur les genoux, petits cercles."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations des hanches"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Mains sur les hanches, grands cercles."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations du tronc"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Tournez le buste d'un côté puis de l'autre."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations des épaules"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Grands cercles de bras."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Rotations de la nuque"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Lentement, sans forcer en arrière."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "5 grandes respirations de préparation"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Levez les bras en inspirant, descendez-les en expirant."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Étirement des quadriceps"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Talon vers la fesse, main sur le mur."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Étirement des ischio-jambiers"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Jambe tendue, dos droit."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Étirement des mollets"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Étirement des fessiers (figure 4)"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Cheville sur le genou opposé."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Étirement des pectoraux"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Avant-bras sur le mur, buste tourné à l'opposé."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Étirement du dos (position de l'enfant)"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Assis sur les talons, bras loin devant."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Savasana"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Allongé, respiration libre. Relâchez chaque partie du corps."
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez les pieds"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez les mollets"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez les cuisses"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez le ventre"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez le dos"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez les bras"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez les épaules"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Relâchez le visage"
+},
+{
+"cat": "Échauffements et étirements",
+"text": "Prenez conscience des sensations positives de la séance"
+}
+]

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Enregistrer ma voix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root { --bg:#080e17; --card:#0f1923; --line:#1e2e40; --line2:#243547; --tx:#e8f0fe; --mut:#a9b8cc; --acc:#00d4e6; --blue:#2b6bd1; --red:#f05252; --green:#34d399; }
+[hidden] { display: none !important; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--tx); font-family: Outfit, system-ui, sans-serif; }
+body { min-height: 100dvh; display: flex; flex-direction: column; padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); max-width: 560px; margin: 0 auto; gap: 14px; }
+h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+.sub { color: var(--mut); font-size: 14px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.bar { height: 8px; border-radius: 4px; background: #162030; overflow: hidden; }
+.bar > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--acc), var(--blue)); transition: width .3s; }
+.chip { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); background: rgba(0,242,254,.1); padding: 4px 10px; border-radius: 10px; }
+.card { background: var(--card); border: 1px solid var(--line2); border-radius: 22px; padding: 22px 18px; display: flex; flex-direction: column; gap: 12px; min-height: 210px; justify-content: center; }
+.phrase { font-size: 27px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+.phrase.long { font-size: 21px; }
+.hint { color: var(--mut); font-size: 14px; }
+.rec-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 6px 0; }
+.rec { width: 104px; height: 104px; border-radius: 52px; border: 0; background: var(--red); color: #fff; font: inherit; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px rgba(240,82,82,.35); }
+.rec .dot { width: 34px; height: 34px; border-radius: 17px; background: #fff; }
+.rec.on { animation: pulse 1.1s infinite; }
+.rec.on .dot { border-radius: 6px; width: 30px; height: 30px; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(240,82,82,.55); } 50% { box-shadow: 0 0 0 18px rgba(240,82,82,0); } }
+.level { width: 160px; height: 6px; border-radius: 3px; background: #162030; overflow: hidden; }
+.level > div { height: 100%; width: 0; background: var(--green); transition: width .08s; }
+.status { font-size: 15px; color: var(--mut); min-height: 20px; text-align: center; }
+.row { display: flex; gap: 8px; }
+.btn { flex: 1; min-height: 50px; border-radius: 14px; border: 1px solid var(--line2); background: var(--card); color: var(--tx); font: inherit; font-size: 15px; font-weight: 600; }
+.btn:disabled { opacity: .4; }
+.btn.main { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 700; }
+.done-mark { color: var(--green); font-weight: 700; font-size: 14px; }
+details { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+summary { font-weight: 600; cursor: pointer; }
+.cats { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.cats button { display: flex; justify-content: space-between; min-height: 44px; align-items: center; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: #0b141f; color: var(--tx); font: inherit; font-size: 14px; }
+.cats button span:last-child { color: var(--mut); }
+.cats button.full span:last-child { color: var(--green); }
+.intro { background: var(--card); border: 1px solid var(--line2); border-radius: 22px; padding: 20px 18px; display: flex; flex-direction: column; gap: 12px; }
+.intro ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; color: #c9d6e6; line-height: 1.45; }
+.foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+</style>
+</head>
+<body>
+<div class="top"><div><h1>Enregistrer ma voix</h1><div class="sub" id="count">Chargement…</div></div><span class="chip" id="cat">…</span></div>
+<div class="bar"><div id="prog"></div></div>
+
+<div class="intro" id="intro">
+  <div style="font-size:18px;font-weight:700">Avant de commencer</div>
+  <ol>
+    <li>Mets-toi dans une pièce calme, le téléphone à environ 20 cm de la bouche.</li>
+    <li>Lis chaque phrase comme si tu parlais à ton patient pendant la séance : naturel, énergique, sans te presser.</li>
+    <li>Appuie sur le bouton rouge et parle. L'enregistrement s'arrête tout seul quand tu as fini, puis la phrase suivante s'affiche.</li>
+    <li>Tu peux t'arrêter quand tu veux : tout est gardé sur ce téléphone. Quand tu as fini (ou fini une partie), appuie sur « Envoyer mes enregistrements ».</li>
+  </ol>
+  <button class="btn main" id="go">C'est parti</button>
+</div>
+
+<div id="work" hidden style="flex-direction:column;gap:14px;flex:1">
+  <div class="card">
+    <div class="hint" id="num"></div>
+    <div class="phrase" id="phrase"></div>
+    <div class="done-mark" id="have" hidden>Déjà enregistrée</div>
+  </div>
+  <div class="rec-wrap">
+    <button class="rec" id="rec" aria-label="Enregistrer"><span class="dot"></span></button>
+    <div class="level"><div id="lvl"></div></div>
+    <div class="status" id="status">Appuie et parle</div>
+  </div>
+  <div class="row">
+    <button class="btn" id="prev">Précédente</button>
+    <button class="btn" id="play">Réécouter</button>
+    <button class="btn" id="next">Suivante</button>
+  </div>
+  <label class="sub" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="auto" checked> Passer seul à la phrase suivante</label>
+  <details>
+    <summary>Aller à une partie</summary>
+    <div class="cats" id="cats"></div>
+  </details>
+  <div class="foot">
+    <button class="btn main" id="send">Envoyer mes enregistrements</button>
+    <div class="sub" style="text-align:center">Le fichier est à me renvoyer dans notre conversation.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var L = [], i = 0, db = null, have = {}, stream = null, actx = null, an = null, rec = null, chunks = [], recOn = false, vadT = null, curAudio = null;
+  var MIME = window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus"
+    : (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "");
+  var EXT = MIME.indexOf("mp4") >= 0 ? "m4a" : "webm";
+  function say(t) { return t.replace(/\s+—\s+/g, ", "); }
+
+  // ── stockage local (IndexedDB) ──
+  function openDb() {
+    return new Promise(function (ok) {
+      var r = indexedDB.open("kf-voix", 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore("clips"); };
+      r.onsuccess = function () { db = r.result; ok(); };
+      r.onerror = function () { ok(); };
+    });
+  }
+  function put(k, v) { return new Promise(function (ok) { if (!db) return ok(); var t = db.transaction("clips", "readwrite"); t.objectStore("clips").put(v, k); t.oncomplete = ok; t.onerror = ok; }); }
+  function get(k) { return new Promise(function (ok) { if (!db) return ok(null); var r = db.transaction("clips").objectStore("clips").get(k); r.onsuccess = function () { ok(r.result || null); }; r.onerror = function () { ok(null); }; }); }
+  function keys() { return new Promise(function (ok) { if (!db) return ok([]); var r = db.transaction("clips").objectStore("clips").getAllKeys(); r.onsuccess = function () { ok(r.result || []); }; r.onerror = function () { ok([]); }; }); }
+
+  function render() {
+    var x = L[i]; if (!x) return;
+    var n = Object.keys(have).length;
+    $("count").textContent = n + (n > 1 ? " phrases enregistrées" : " phrase enregistrée") + " sur " + L.length;
+    $("prog").style.width = Math.round(n / L.length * 100) + "%";
+    $("cat").textContent = x.cat;
+    $("num").textContent = "Phrase " + (i + 1) + " sur " + L.length;
+    $("phrase").textContent = say(x.text);
+    $("phrase").className = "phrase" + (x.text.length > 70 ? " long" : "");
+    $("have").hidden = !have[x.k];
+    $("play").disabled = !have[x.k];
+    $("prev").disabled = i === 0;
+    $("next").disabled = i >= L.length - 1;
+    renderCats();
+    try { localStorage.setItem("kf-voix-i", i); } catch (e) {}
+  }
+  function renderCats() {
+    var box = $("cats"), seen = {}, html = "";
+    L.forEach(function (x, j) { if (!seen[x.cat]) seen[x.cat] = { first: j, n: 0, d: 0 }; seen[x.cat].n++; if (have[x.k]) seen[x.cat].d++; });
+    Object.keys(seen).forEach(function (c) {
+      var s = seen[c];
+      html += "<button data-j='" + s.first + "' class='" + (s.d === s.n ? "full" : "") + "'><span>" + c + "</span><span>" + s.d + " / " + s.n + "</span></button>";
+    });
+    box.innerHTML = html;
+    Array.prototype.forEach.call(box.querySelectorAll("button"), function (b) { b.onclick = function () { i = +b.dataset.j; render(); }; });
+  }
+
+  // ── micro ──
+  function ensureMic() {
+    if (stream) return Promise.resolve();
+    return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true } }).then(function (s) {
+      stream = s;
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      an = actx.createAnalyser(); an.fftSize = 1024;
+      actx.createMediaStreamSource(s).connect(an);
+    });
+  }
+  function level() {
+    var a = new Uint8Array(an.fftSize); an.getByteTimeDomainData(a);
+    var m = 0; for (var j = 0; j < a.length; j++) { var v = Math.abs(a[j] - 128); if (v > m) m = v; }
+    return m / 128;
+  }
+  function start() {
+    if (curAudio) { curAudio.pause(); curAudio = null; }
+    ensureMic().then(function () {
+      if (actx.state === "suspended") actx.resume();
+      chunks = [];
+      rec = MIME ? new MediaRecorder(stream, { mimeType: MIME }) : new MediaRecorder(stream);
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop = saved;
+      rec.start();
+      recOn = true; $("rec").classList.add("on"); $("status").textContent = "Je t'écoute…";
+      var t0 = Date.now(), spoke = false, lastLoud = 0;
+      clearInterval(vadT);
+      vadT = setInterval(function () {
+        var lv = level(), now = Date.now();
+        $("lvl").style.width = Math.min(100, lv * 220) + "%";
+        if (lv > 0.12) { spoke = true; lastLoud = now; }
+        // arrêt automatique : 0,9 s de silence après avoir parlé, ou 20 s au maximum
+        if ((spoke && now - lastLoud > 900) || now - t0 > 20000) stop();
+        else if (!spoke && now - t0 > 7000) { stop(true); }
+      }, 50);
+    }).catch(function () { $("status").textContent = "Micro refusé : autorise le micro pour cette page dans les réglages."; });
+  }
+  var discard = false;
+  function stop(nothing) {
+    clearInterval(vadT); $("lvl").style.width = "0";
+    if (!recOn) return;
+    recOn = false; discard = !!nothing; $("rec").classList.remove("on");
+    try { rec.stop(); } catch (e) {}
+  }
+  function saved() {
+    if (discard) { $("status").textContent = "Je n'ai rien entendu. Réessaie un peu plus fort."; return; }
+    var blob = new Blob(chunks, { type: rec.mimeType || MIME || "audio/webm" }), x = L[i];
+    put(x.k, { blob: blob, text: x.text, ext: EXT, at: Date.now() }).then(function () {
+      have[x.k] = true;
+      $("status").textContent = "Enregistrée";
+      if ($("auto").checked && i < L.length - 1) {
+        playBlob(blob, function () { i++; render(); $("status").textContent = "Appuie et parle"; });
+      } else { render(); playBlob(blob); }
+    });
+  }
+  function playBlob(b, done) {
+    var a = new Audio(URL.createObjectURL(b)); curAudio = a;
+    a.onended = function () { curAudio = null; if (done) done(); };
+    a.play().catch(function () { if (done) done(); });
+  }
+
+  // ── envoi ──
+  function send() {
+    var btn = $("send"); btn.disabled = true; btn.textContent = "Préparation…";
+    keys().then(function (ks) {
+      if (!ks.length) { btn.disabled = false; btn.textContent = "Envoyer mes enregistrements"; alert("Aucune phrase enregistrée pour l'instant."); return; }
+      var zip = new JSZip(), index = [];
+      return Promise.all(ks.map(function (k) { return get(k).then(function (v) { if (!v) return; var j = L.findIndex(function (x) { return x.k === k; }); var name = String(j + 1).padStart(3, "0") + "." + v.ext; zip.file(name, v.blob); index.push({ file: name, text: v.text }); }); }))
+        .then(function () { zip.file("index.json", JSON.stringify(index, null, 1)); return zip.generateAsync({ type: "blob" }); })
+        .then(function (z) {
+          var f = new File([z], "voix-kineforce.zip", { type: "application/zip" });
+          btn.disabled = false; btn.textContent = "Envoyer mes enregistrements";
+          if (navigator.canShare && navigator.canShare({ files: [f] })) navigator.share({ files: [f], title: "Voix KinéForce" }).catch(function () {});
+          else { var a = document.createElement("a"); a.href = URL.createObjectURL(f); a.download = f.name; a.click(); }
+        });
+    });
+  }
+
+  $("go").onclick = function () { $("intro").hidden = true; $("work").hidden = false; $("work").style.display = "flex"; try { localStorage.setItem("kf-voix-intro", "1"); } catch (e) {} ensureMic().catch(function () {}); };
+  $("rec").onclick = function () { recOn ? stop() : start(); };
+  $("prev").onclick = function () { if (i > 0) { i--; render(); } };
+  $("next").onclick = function () { if (i < L.length - 1) { i++; render(); } };
+  $("play").onclick = function () { get(L[i].k).then(function (v) { if (v) playBlob(v.blob); }); };
+  $("send").onclick = send;
+
+  fetch("assets/voix/phrases.json", { cache: "no-cache" }).then(function (r) { return r.json(); }).then(function (list) {
+    L = list.map(function (x) { return { cat: x.cat, text: x.text, k: x.text }; });
+    return openDb().then(keys).then(function (ks) {
+      ks.forEach(function (k) { have[k] = true; });
+      var saved = 0; try { saved = +localStorage.getItem("kf-voix-i") || 0; } catch (e) {}
+      i = Math.min(saved, L.length - 1);
+      var intro = false; try { intro = localStorage.getItem("kf-voix-intro") === "1"; } catch (e) {}
+      if (intro) $("go").onclick();
+      render();
+    });
+  });
+  if (!window.MediaRecorder) $("status").textContent = "Ce navigateur ne permet pas d'enregistrer. Ouvre la page dans Safari ou Chrome.";
+})();
+</script>
+</body>
+</html>
