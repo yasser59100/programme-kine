@@ -95,9 +95,6 @@ summary { font-weight: 600; cursor: pointer; }
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var L = [], i = 0, db = null, have = {}, stream = null, actx = null, an = null, rec = null, chunks = [], recOn = false, vadT = null, curAudio = null;
-  var MIME = window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus"
-    : (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "");
-  var EXT = MIME.indexOf("mp4") >= 0 ? "m4a" : "webm";
   function say(t) { return t.replace(/\s+—\s+/g, ", "); }
 
   // ── stockage local (IndexedDB) ──
@@ -141,53 +138,82 @@ summary { font-weight: 600; cursor: pointer; }
   }
 
   // ── micro ──
+  // Le micro écoute en continu dès le début : on garde toujours la dernière demi-seconde,
+  // donc un mot très court (« un », « deux ») n'est jamais coupé au démarrage.
+  var proc = null, sr = 48000, ring = [], ringMax = 0, recBufs = [], noise = 0.01, recStart = 0, spoke = false, lastLoud = 0, firstLoud = -1, lastLoudIdx = -1;
+  var OUT_SR = 22050;
   function ensureMic() {
-    if (stream) return Promise.resolve();
-    return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true } }).then(function (s) {
-      stream = s;
+    if (stream) { if (actx.state === "suspended") actx.resume(); return Promise.resolve(); }
+    return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: true } }).then(function (st) {
+      stream = st;
       actx = new (window.AudioContext || window.webkitAudioContext)();
-      an = actx.createAnalyser(); an.fftSize = 1024;
-      actx.createMediaStreamSource(s).connect(an);
+      sr = actx.sampleRate; ringMax = Math.ceil(sr * 0.6 / 2048);
+      var src = actx.createMediaStreamSource(st);
+      proc = actx.createScriptProcessor(2048, 1, 1);
+      var mute = actx.createGain(); mute.gain.value = 0;
+      src.connect(proc); proc.connect(mute); mute.connect(actx.destination);
+      proc.onaudioprocess = onAudio;
+      if (actx.state === "suspended") actx.resume();
     });
   }
-  function level() {
-    var a = new Uint8Array(an.fftSize); an.getByteTimeDomainData(a);
-    var m = 0; for (var j = 0; j < a.length; j++) { var v = Math.abs(a[j] - 128); if (v > m) m = v; }
-    return m / 128;
+  function rms(a) { var t = 0; for (var j = 0; j < a.length; j++) t += a[j] * a[j]; return Math.sqrt(t / a.length); }
+  function onAudio(e) {
+    var a = new Float32Array(e.inputBuffer.getChannelData(0)), lv = rms(a), now = Date.now();
+    if (!recOn) {
+      if (curAudio) { ring = []; return; }   // pendant la réécoute, on n'enregistre pas le haut-parleur
+      ring.push(a); if (ring.length > ringMax) ring.shift();
+      noise = noise * 0.95 + Math.min(lv, 0.05) * 0.05;   // bruit de fond de la pièce
+      return;
+    }
+    recBufs.push(a);
+    $("lvl").style.width = Math.min(100, lv * 900) + "%";
+    var thr = Math.max(0.012, noise * 3);
+    if (lv > thr) { if (!spoke) firstLoud = recBufs.length - 1; spoke = true; lastLoud = now; lastLoudIdx = recBufs.length - 1; }
+    // arrêt automatique : 0,7 s de silence après avoir parlé ; 20 s au maximum
+    if ((spoke && now - lastLoud > 700 && now - recStart > 500) || now - recStart > 20000) stop();
+    else if (!spoke && now - recStart > 7000) stop(true);
   }
   function start() {
     if (curAudio) { curAudio.pause(); curAudio = null; }
     ensureMic().then(function () {
-      if (actx.state === "suspended") actx.resume();
-      chunks = [];
-      rec = MIME ? new MediaRecorder(stream, { mimeType: MIME }) : new MediaRecorder(stream);
-      rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
-      rec.onstop = saved;
-      rec.start();
+      recBufs = ring.slice(); ring = [];          // la demi-seconde d'avant l'appui est conservée
+      spoke = false; firstLoud = -1; lastLoudIdx = -1; recStart = Date.now();
+      // un mot déjà commencé pendant la demi-seconde gardée compte aussi
+      var thr = Math.max(0.012, noise * 3);
+      recBufs.forEach(function (b, j) { if (rms(b) > thr) { if (!spoke) firstLoud = j; spoke = true; lastLoud = Date.now(); lastLoudIdx = j; } });
       recOn = true; $("rec").classList.add("on"); $("status").textContent = "Je t'écoute…";
-      var t0 = Date.now(), spoke = false, lastLoud = 0;
-      clearInterval(vadT);
-      vadT = setInterval(function () {
-        var lv = level(), now = Date.now();
-        $("lvl").style.width = Math.min(100, lv * 220) + "%";
-        if (lv > 0.12) { spoke = true; lastLoud = now; }
-        // arrêt automatique : 0,9 s de silence après avoir parlé, ou 20 s au maximum
-        if ((spoke && now - lastLoud > 900) || now - t0 > 20000) stop();
-        else if (!spoke && now - t0 > 7000) { stop(true); }
-      }, 50);
     }).catch(function () { $("status").textContent = "Micro refusé : autorise le micro pour cette page dans les réglages."; });
   }
-  var discard = false;
   function stop(nothing) {
-    clearInterval(vadT); $("lvl").style.width = "0";
+    $("lvl").style.width = "0";
     if (!recOn) return;
-    recOn = false; discard = !!nothing; $("rec").classList.remove("on");
-    try { rec.stop(); } catch (e) {}
+    recOn = false; $("rec").classList.remove("on");
+    if (nothing || !spoke) { recBufs = []; $("status").textContent = "Je n'ai rien entendu. Réessaie, un peu plus près du téléphone."; return; }
+    // on garde 0,25 s avant le premier son et 0,3 s après le dernier
+    var per = 2048 / sr, a = Math.max(0, firstLoud - Math.ceil(0.25 / per)), b = Math.min(recBufs.length, lastLoudIdx + 1 + Math.ceil(0.3 / per));
+    var blob = wav(recBufs.slice(a, b)); recBufs = [];
+    saved(blob);
   }
-  function saved() {
-    if (discard) { $("status").textContent = "Je n'ai rien entendu. Réessaie un peu plus fort."; return; }
-    var blob = new Blob(chunks, { type: rec.mimeType || MIME || "audio/webm" }), x = L[i];
-    put(x.k, { blob: blob, text: x.text, ext: EXT, at: Date.now() }).then(function () {
+  function wav(bufs) {
+    var n = 0; bufs.forEach(function (x) { n += x.length; });
+    var all = new Float32Array(n), o = 0; bufs.forEach(function (x) { all.set(x, o); o += x.length; });
+    var ratio = sr / OUT_SR, m = Math.floor(n / ratio), pcm = new Int16Array(m);
+    for (var j = 0; j < m; j++) {   // rééchantillonnage simple (moyenne) vers 22 050 Hz
+      var s0 = Math.floor(j * ratio), s1 = Math.min(n, Math.floor((j + 1) * ratio)), t = 0;
+      for (var q = s0; q < s1; q++) t += all[q];
+      var v = t / Math.max(1, s1 - s0); pcm[j] = Math.max(-32768, Math.min(32767, v * 32767));
+    }
+    var buf = new ArrayBuffer(44 + m * 2), dv = new DataView(buf);
+    function str(off, s2) { for (var k = 0; k < s2.length; k++) dv.setUint8(off + k, s2.charCodeAt(k)); }
+    str(0, "RIFF"); dv.setUint32(4, 36 + m * 2, true); str(8, "WAVE"); str(12, "fmt ");
+    dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, OUT_SR, true);
+    dv.setUint32(28, OUT_SR * 2, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); str(36, "data"); dv.setUint32(40, m * 2, true);
+    new Int16Array(buf, 44).set(pcm);
+    return new Blob([buf], { type: "audio/wav" });
+  }
+  function saved(blob) {
+    var x = L[i];
+    put(x.k, { blob: blob, text: x.text, ext: "wav", at: Date.now() }).then(function () {
       have[x.k] = true;
       $("status").textContent = "Enregistrée";
       if ($("auto").checked && i < L.length - 1) {
@@ -236,7 +262,7 @@ summary { font-weight: 600; cursor: pointer; }
       render();
     });
   });
-  if (!window.MediaRecorder) $("status").textContent = "Ce navigateur ne permet pas d'enregistrer. Ouvre la page dans Safari ou Chrome.";
+  if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) $("status").textContent = "Ce navigateur ne permet pas d'enregistrer. Ouvre la page dans Safari ou Chrome.";
 })();
 </script>
 </body>
