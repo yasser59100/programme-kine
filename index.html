@@ -2745,19 +2745,20 @@ function playDoneBeep()   { playBeep(523, 0.1, 0.3); setTimeout(function(){ play
 var speechQueue = [];
 var isSpeaking = false;
 
-function speak(text) {
+// La voix ne coupe jamais une phrase en cours : la suivante attend la fin.
+// Une consigne arrivée trop tard (déjà périmée) est abandonnée pour rester en rythme.
+// opt.ttl : durée de validité en ms (2,5 s par défaut) ; opt.now : priorité absolue (vide la file).
+function speak(text, opt) {
   if (!seqSoundOn || !seqVoiceOn) return;
-  if (!window.speechSynthesis) return;
-  // Max 1 item in queue — drop older items to stay in sync
-  speechQueue = [text];
+  if (!window.speechSynthesis || !text) return;
+  opt = opt || {};
+  var item = { text: String(text), at: Date.now(), ttl: opt.ttl || 2500 };
+  if (opt.now) speechQueue = [item];
+  else { speechQueue.push(item); if (speechQueue.length > 3) speechQueue.shift(); }
   if (!isSpeaking) processSpeechQueue();
-  else {
-    // Cancel current and start fresh immediately
-    window.speechSynthesis.cancel();
-    isSpeaking = false;
-    processSpeechQueue();
-  }
 }
+// Durée approximative d'une phrase prononcée (secondes)
+function kfSpeechDur(text) { return 0.3 + String(text).replace(/[^\wÀ-ÿ]/g, "").length * 0.072; }
 
 // Choix de la voix la plus naturelle disponible sur le téléphone :
 // voix « Premium » / « Améliorée » / neuronales d'abord, français de France de préférence.
@@ -2800,6 +2801,12 @@ var KF_LINES = {
   sessionEnd: ["Bravo ! Séance terminée. Prenez une minute pour votre bilan.", "Et c'est fini ! Super séance. Prenez une minute pour votre bilan.", "Séance bouclée, bravo à vous ! Prenez une minute pour votre bilan."]
 };
 var kfLastLine = {};
+// Phrase de la catégorie qui tient dans « budget » secondes (null si aucune)
+function kfSayFit(cat, budget) {
+  var l = (KF_LINES[cat] || []).filter(function (t) { return kfSpeechDur(t) <= budget && t !== kfLastLine[cat]; });
+  if (!l.length) return null;
+  var pick = l[Math.floor(Math.random() * l.length)]; kfLastLine[cat] = pick; return pick;
+}
 function kfSay(cat) {
   var l = KF_LINES[cat] || [""], pick;
   do { pick = l[Math.floor(Math.random() * l.length)]; } while (l.length > 1 && pick === kfLastLine[cat]);
@@ -2807,10 +2814,18 @@ function kfSay(cat) {
   return pick;
 }
 
+var kfSpeechWatch = null;
 function processSpeechQueue() {
-  if (!speechQueue.length) { isSpeaking = false; return; }
+  clearTimeout(kfSpeechWatch);
+  var now = Date.now(), item = null;
+  while (speechQueue.length) {
+    var it = speechQueue.shift();
+    if (now - it.at <= it.ttl) { item = it; break; }   // les consignes périmées sont sautées
+  }
+  if (!item) { isSpeaking = false; return; }
   isSpeaking = true;
-  var text = speechQueue.shift();
+  var text = item.text, finished = false;
+  var next = function (delay) { if (finished) return; finished = true; clearTimeout(kfSpeechWatch); setTimeout(processSpeechQueue, delay); };
   var utt = new SpeechSynthesisUtterance(text);
   utt.lang = "fr-FR";
   utt.rate = 0.96;   // débit posé, plus naturel
@@ -2818,14 +2833,17 @@ function processSpeechQueue() {
   utt.volume = 0.95;
   var frVoice = kfBestVoice();
   if (frVoice) { utt.voice = frVoice; utt.lang = frVoice.lang; }
-  utt.onend = function() { setTimeout(processSpeechQueue, 200); };
-  utt.onerror = function() { isSpeaking = false; processSpeechQueue(); };
+  utt.onend = function() { next(120); };
+  utt.onerror = function() { next(0); };
+  // Filet de sécurité : certains navigateurs n'envoient pas toujours « onend »
+  kfSpeechWatch = setTimeout(function () { next(0); }, (kfSpeechDur(text) * 1.8 + 2.5) * 1000);
   window.speechSynthesis.speak(utt);
 }
 
 function stopSpeech() {
   speechQueue = [];
   isSpeaking = false;
+  clearTimeout(kfSpeechWatch);
   if (window.speechSynthesis) {
     window.speechSynthesis.cancel();
     // iOS sometimes needs a double cancel
@@ -3016,7 +3034,7 @@ function seqSeriesDone() {
       playStartBeep();
       seqAutoNext(3);
     });
-    speak("Série terminée. Repos " + (ex.restAfter || 30) + " secondes.");
+    speak((Date.now() - (window.kfJustDone || 0) < 5000 ? "" : "Série terminée. ") + "Repos " + (ex.restAfter || 30) + " secondes.", { ttl: 6000 });
   }
 }
 
@@ -3037,7 +3055,7 @@ function seqExDone() {
       playStartBeep();
       seqAutoNext(5);
     });
-    speak("Exercice terminé. Repos " + ex.restAfter + " secondes.");
+    speak("Exercice terminé. Repos " + ex.restAfter + " secondes.", { ttl: 6000 });
   } else {
     seqSerieIdx = 0;
     seqExIdx++;
@@ -3629,7 +3647,8 @@ function repGuideStart() {
   var mainBtn = document.getElementById("rg-main-btn");
   mainBtn.textContent = "En cours...";
   mainBtn.onclick = null;
-  speak(kfSay("start"));
+  var go = kfSay("start");
+  speak(go, { now: true });
   rgState.phase = "running";
   var pb = document.getElementById("rg-pause-btn");
   if (pb) pb.disabled = false;
@@ -3637,7 +3656,7 @@ function repGuideStart() {
   setTimeout(function() {
     if (!rgAlive(id)) return;
     if (rgState.info.mode === "timed") runTimed(id); else doNextRep(id);
-  }, 600);
+  }, (seqSoundOn && seqVoiceOn) ? Math.max(600, kfSpeechDur(go) * 1000 + 150) : 600);
 }
 
 // ── ÉTAPES D'UNE RÉPÉTITION ──
@@ -3653,14 +3672,20 @@ function runSteps(steps, i, ok, rep, done) {
   if (window.KineAvatar) KineAvatar.step(st);
   var say = st.say;
   if (i === 0 && rep > 1) {
-    var tot = rgState.totalReps || 0, lead = String(rep);
-    if (tot >= 6 && rep === tot) lead = kfSay("last").replace(/[.!]$/, "");
-    else if (tot >= 8 && rep === tot - 2) lead = rep + ", " + kfSay("three");
-    else if (tot >= 10 && rep === Math.ceil(tot / 2) + 2 && Math.random() < 0.7) lead = rep + ". " + kfSay("mid").replace(/[.!]$/, "");
-    else if (tot >= 12 && rep === 3 && Math.random() < 0.4) lead = rep + ". " + kfSay("mid").replace(/[.!]$/, "");
-    say = st.dur >= 2 && st.say ? lead + ". " + st.say : lead;
+    // Le numéro, puis la consigne si le temps le permet ; un encouragement remplace la consigne
+    // seulement s'il tient dans la durée du mouvement (pas de phrase coupée ni de retard)
+    var tot = rgState.totalReps || 0, budget = st.dur - 0.2, extra = null;
+    var base = String(rep), withCue = st.say ? rep + ". " + st.say : base;
+    if (tot >= 6 && rep === tot) extra = kfSayFit("last", budget);
+    else if (tot >= 8 && rep === tot - 2) extra = kfSayFit("three", budget - 0.4);
+    else if (tot >= 10 && rep === Math.ceil(tot / 2) + 2 && Math.random() < 0.7) extra = kfSayFit("mid", budget - 0.4);
+    else if (tot >= 12 && rep === 3 && Math.random() < 0.4) extra = kfSayFit("mid", budget - 0.4);
+    if (extra) say = rep === tot ? extra : rep + ", " + extra.charAt(0).toLowerCase() + extra.slice(1);
+    else say = st.dur >= 2 && st.say && kfSpeechDur(withCue) <= budget + 0.3 ? withCue : base;
   }
-  if (say) speak(say);
+  if (say && i > 0 && kfSpeechDur(say) > st.dur - 0.1) say = say.split(/[,.]/)[0];   // « On monte, on expire » → « On monte » si le temps manque
+  if (say && i > 0 && kfSpeechDur(say) > st.dur + 0.3) say = "";
+  if (say) speak(say, { ttl: 700 });
   playBeep(st.kind === "up" ? 520 : st.kind === "hold" ? 300 : 440, 0.05, 0.15);
   var isoTick = null;
   if (st.iso) {
@@ -3671,8 +3696,8 @@ function runSteps(steps, i, ok, rep, done) {
       if (!ok()) { clearInterval(isoTick); return; }
       var left = Math.max(0, Math.ceil(st.iso - (rgNow() - t0) / 1000));
       setPhaseLabel(base + " " + left + " s", "hold");
-      if (left <= 3 && left >= 1 && left !== lastSaid && st.iso >= 5) { lastSaid = left; speak(String(left)); }
-      else if (st.iso >= 10 && left === Math.ceil(st.iso / 2) && lastSaid !== "mid") { lastSaid = "mid"; speak(kfSay("isoMid")); }
+      if (left <= 3 && left >= 1 && left !== lastSaid && st.iso >= 5) { lastSaid = left; speak(String(left), { ttl: 500 }); }
+      else if (st.iso >= 10 && left === Math.ceil(st.iso / 2) && lastSaid !== "mid") { lastSaid = "mid"; var im = kfSayFit("isoMid", left - 3.5); if (im) speak(im, { ttl: 800 }); }
     }, 200);
   }
   startTimingBar(st.dur, st.kind === "up" ? "up-color" : "down-color", function() {
@@ -3802,7 +3827,8 @@ function finishSerie() {
   setPhaseLabel("Série terminée !", "up");
   playDoneBeep();
   try { if (navigator.vibrate) navigator.vibrate([150, 80, 150]); } catch(e) {}
-  speak(kfSay("serieDone"));
+  speak(kfSay("serieDone"), { now: true });
+  window.kfJustDone = Date.now();
 
   // Auto-trigger onSerieComplete after 1.5s — no button needed, straight to rest
   setTimeout(function() {
@@ -3813,7 +3839,7 @@ function finishSerie() {
 }
 
 function closeRepGuide() {
-  stopSpeech();
+  speechQueue = [];   // on laisse finir la phrase en cours (« Série terminée… »), on oublie le reste
   rgState.paused = false;
   var pain = document.getElementById("rg-pain");
   if (pain) pain.classList.remove("open");
