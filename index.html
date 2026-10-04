@@ -2755,24 +2755,18 @@ function kfvInit() {
   KFV.map = {};
   try {
     fetch(KFV.base + "manifest.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; })
-      .then(function (m) { KFV.map = (m && m.clips) || {}; }).catch(function () {});
+      .then(function (m) { KFV.map = (m && m.clips) || {}; if (Object.keys(KFV.map).length) setTimeout(kfvPreloadAll, 2500); }).catch(function () {});
   } catch (e) {}
 }
 function kfvResolve(text) {
   if (!KFV.map) return null;
-  var out = [], sentences = String(text).match(/[^.!?]+[.!?]*/g) || [];
-  for (var i = 0; i < sentences.length; i++) {
-    if (!kfNorm(sentences[i])) continue;
-    // la plus longue suite de phrases enregistrée d'un seul tenant
+  // morceaux séparés par la ponctuation ; on prend chaque fois la plus longue suite déjà enregistrée
+  var parts = String(text).split(/[.!?,;:]+/).map(kfNorm).filter(Boolean), out = [];
+  for (var i = 0; i < parts.length;) {
     var hit = 0;
-    for (var j = sentences.length; j > i; j--) { var kj = kfNorm(sentences.slice(i, j).join(" ")); if (KFV.map[kj]) { out.push(KFV.map[kj]); hit = j; break; } }
-    if (hit) { i = hit - 1; continue; }
-    var parts = sentences[i].split(/,\s*/);
-    for (var j = 0; j < parts.length; j++) {
-      var kp = kfNorm(parts[j]); if (!kp) continue;
-      if (!KFV.map[kp]) return null;
-      out.push(KFV.map[kp]);
-    }
+    for (var j = parts.length; j > i; j--) { var k = parts.slice(i, j).join(" "); if (KFV.map[k]) { out.push(KFV.map[k]); hit = j; break; } }
+    if (!hit) return null;
+    i = hit;
   }
   return out.length ? out : null;
 }
