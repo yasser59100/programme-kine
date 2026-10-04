@@ -299,7 +299,10 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       (ex && ex.desc && CUES[exName] ? "<span class='cue-more'>Consigne complète ›</span><span class='cue-full'>" + esc(ex.desc) + (ex.tip ? "<br><strong>Conseil :</strong> " + esc(ex.tip) : "") + "</span>" : "");
     cueEl.onclick = function () { cueEl.classList.toggle("open"); };
     var n = rgState.autoStartIn; rgState.autoStartIn = 0;
-    if (!n) return;
+    if (ex && !tutoSeen(exName)) { showTuto(ex, exName, cue, n); return; }
+    if (n) countdown(n);
+  };
+  function countdown(n) {
     var id = rgState.runId;
     (function tick() {
       if (!rgState.active || rgState.runId !== id || rgState.phase !== "ready") return;
@@ -309,7 +312,60 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       n--;
       setTimeout(tick, 1000);
     })();
-  };
+  }
+
+  /* ════════ TUTORIEL : la première fois sur un exercice ════════ */
+  var TUTO_KEY = "kf-tuto-seen";
+  function tutoList() { try { return JSON.parse(localStorage.getItem(TUTO_KEY) || "[]"); } catch (e) { return []; } }
+  function tutoSeen(name) { return tutoList().indexOf(name) >= 0; }
+  function tutoMark(name) {
+    var l = tutoList(); if (l.indexOf(name) < 0) l.push(name);
+    try { localStorage.setItem(TUTO_KEY, JSON.stringify(l)); } catch (e) {}
+  }
+  window.kfTutoReset = function () { try { localStorage.removeItem(TUTO_KEY); } catch (e) {} };
+  function showTuto(ex, exName, cue, autoN) {
+    var g = $("rep-guide"), old = $("kf-tuto"); if (old) old.remove();
+    var t = tempoText(ex), side = KineAvatar && KineAvatar.info ? KineAvatar.info(exName, KineProgress.repsLabel(ex), week()) : null;
+    var stop = ex.stop ? ex.stop.replace(/^Arr[êe]t(ez)?(-vous)?\s+si\s*:?\s*/i, "Si ").replace(/\.?$/, ", ou si la douleur dépasse 3 sur 10.") : "Si la douleur dépasse 3 sur 10, ou si elle augmente d'une série à l'autre.";
+    var pts = [
+      ["Position et consigne", cue || ex.desc || ""],
+      ["Rythme", (t ? t.charAt(0).toUpperCase() + t.slice(1) : (side && side.mode === "timed" ? "Position tenue, respirez normalement sans bloquer." : "Mouvement lent et contrôlé.")) +
+        (side && side.sides ? " Les deux côtés, l'un après l'autre." : "")],
+      ["Arrêtez-vous", stop]
+    ];
+    var box = document.createElement("div");
+    box.id = "kf-tuto"; box.className = "kf-tuto"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Tutoriel de l'exercice");
+    box.innerHTML = "<div class='kf-tuto-card'>" +
+      "<div class='kf-tuto-tag'>Première fois</div>" +
+      "<div class='kf-tuto-h'>" + esc(exName) + "</div>" +
+      "<ol class='kf-tuto-pts'>" + pts.map(function (p) { return "<li><strong>" + esc(p[0]) + "</strong><span>" + esc(p[1]) + "</span></li>"; }).join("") + "</ol>" +
+      "<div class='kf-tuto-btns'><button type='button' class='seq-btn-secondary' id='kf-tuto-demo'>Voir le mouvement</button>" +
+      "<button type='button' class='seq-btn-main' id='kf-tuto-go'>C'est compris, on commence</button></div></div>";
+    g.appendChild(box);
+    var runId = rgState.runId, demoOn = false;
+    if (typeof seqSoundOn === "undefined" || seqSoundOn) speak("Première fois sur cet exercice. " + (cue || ""));
+    $("kf-tuto-demo").onclick = function () {
+      if (demoOn || !window.KineAvatar) return;
+      demoOn = true; box.classList.add("demo"); $("rep-guide").classList.add("tuto-demo");
+      var inf = rgState.info || KineAvatar.info(exName, KineProgress.repsLabel(ex), week());
+      var steps = inf.mode === "timed" && !KineAvatar.hasSteps(exName)
+        ? [{ pose: "hold", dur: 2.5, label: "Position tenue" }, { pose: KineAvatar.startOf(exName), dur: 2, label: "Retour" }]
+        : KineAvatar.plan(exName, 1, inf, week()).steps.filter(function (s) { return s.kind !== "hold" || !s.iso; });
+      var i = 0;
+      (function next() {
+        if (!box.isConnected || rgState.runId !== runId) return;
+        if (i >= steps.length) { demoOn = false; box.classList.remove("demo"); $("rep-guide").classList.remove("tuto-demo"); setPhaseLabel("Prêt ?", "up"); return; }
+        var st = steps[i++]; KineAvatar.step(st); setPhaseLabel("Démo : " + (st.label || "").toLowerCase(), st.kind === "hold" ? "hold" : "up");
+        setTimeout(next, st.dur * 1000);
+      })();
+    };
+    $("kf-tuto-go").onclick = function () {
+      tutoMark(exName); box.remove(); $("rep-guide").classList.remove("tuto-demo");
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      if (rgState.runId !== runId) return;
+      if (autoN) countdown(autoN); else repGuideStart();
+    };
+  }
 
   // Terminer la série maintenant (patient fatigué)
   window.rgFinishNow = function () {

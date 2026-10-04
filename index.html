@@ -2759,21 +2759,44 @@ function speak(text) {
   }
 }
 
+// Choix de la voix la plus naturelle disponible sur le téléphone :
+// voix « Premium » / « Améliorée » / neuronales d'abord, français de France de préférence.
+var kfVoiceCache = null;
+function kfBestVoice() {
+  if (kfVoiceCache) return kfVoiceCache;
+  var voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
+  var best = null, bestScore = -1;
+  voices.forEach(function (v) {
+    var lang = (v.lang || "").toLowerCase().replace("_", "-");
+    if (lang.indexOf("fr") !== 0) return;
+    var n = (v.name || "") + " " + (v.voiceURI || ""), sc = 0;
+    if (lang === "fr-fr") sc += 20;
+    if (/premium/i.test(n)) sc += 60;
+    if (/enhanced|améliorée|amelioree|neural|natural|naturel/i.test(n)) sc += 45;
+    if (/google/i.test(n)) sc += 25;
+    if (/audrey|aurélie|aurelie|thomas|amélie|amelie|marie|denise|henri|vivienne|remy|rémy/i.test(n)) sc += 12;
+    if (/compact|eloquence|grandma|grandpa|shelley|sandy|rocko|reed|flo|eddy/i.test(n)) sc -= 40; // voix synthétiques datées
+    if (v.localService) sc += 3;
+    if (sc > bestScore) { bestScore = sc; best = v; }
+  });
+  if (best) kfVoiceCache = best;
+  return best;
+}
+if (window.speechSynthesis && "onvoiceschanged" in window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = function () { kfVoiceCache = null; };
+}
+
 function processSpeechQueue() {
   if (!speechQueue.length) { isSpeaking = false; return; }
   isSpeaking = true;
   var text = speechQueue.shift();
   var utt = new SpeechSynthesisUtterance(text);
   utt.lang = "fr-FR";
-  utt.rate = 1.05;
+  utt.rate = 0.96;   // débit posé, plus naturel
   utt.pitch = 1.0;
-  utt.volume = 0.9;
-  // Pick best French voice
-  var voices = window.speechSynthesis.getVoices();
-  var frVoice = voices.find(function(v){ return v.lang === "fr-FR" && v.localService; })
-    || voices.find(function(v){ return v.lang === "fr-FR"; })
-    || voices.find(function(v){ return v.lang.startsWith("fr"); });
-  if (frVoice) utt.voice = frVoice;
+  utt.volume = 0.95;
+  var frVoice = kfBestVoice();
+  if (frVoice) { utt.voice = frVoice; utt.lang = frVoice.lang; }
   utt.onend = function() { setTimeout(processSpeechQueue, 200); };
   utt.onerror = function() { isSpeaking = false; processSpeechQueue(); };
   window.speechSynthesis.speak(utt);
@@ -3585,7 +3608,7 @@ function repGuideStart() {
   var mainBtn = document.getElementById("rg-main-btn");
   mainBtn.textContent = "En cours...";
   mainBtn.onclick = null;
-  speak("On y va !");
+  speak(["On y va.", "C'est parti.", "Allez, on commence."][Math.floor(Math.random() * 3)]);
   rgState.phase = "running";
   var pb = document.getElementById("rg-pause-btn");
   if (pb) pb.disabled = false;
@@ -3608,7 +3631,13 @@ function runSteps(steps, i, ok, rep, done) {
   updateRepImage(st.kind);
   if (window.KineAvatar) KineAvatar.step(st);
   var say = st.say;
-  if (i === 0 && rep > 1) say = st.dur >= 2 && st.say ? rep + ". " + st.say : String(rep);
+  if (i === 0 && rep > 1) {
+    var tot = rgState.totalReps || 0, lead = String(rep);
+    if (tot >= 6 && rep === tot) lead = "Dernière";
+    else if (tot >= 8 && rep === tot - 2) lead = rep + ", plus que trois";
+    else if (tot >= 10 && rep === Math.ceil(tot / 2) + 1 && !st.iso) lead = rep + ", c'est bien, continuez";
+    say = st.dur >= 2 && st.say ? lead + ". " + st.say : lead;
+  }
   if (say) speak(say);
   playBeep(st.kind === "up" ? 520 : st.kind === "hold" ? 300 : 440, 0.05, 0.15);
   var isoTick = null;

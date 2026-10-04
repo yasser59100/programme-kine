@@ -160,3 +160,22 @@ html:not([data-theme="light"]) :is([class*="badge"], .hstat-lbl, .hstat-label, .
 .ka-toggle { position: absolute; top: 12px; right: 12px; z-index: 3; min-height: 36px; padding: 0 12px; border-radius: 18px;
   border: 1px solid var(--border2); background: rgba(11, 15, 23, 0.6); color: var(--text2); font: 600 0.82rem var(--font); cursor: pointer; }
 .ka-toggle[aria-pressed="true"] { color: #FFC56B; border-color: rgba(255, 197, 107, 0.6); }
+
+/* Tutoriel première fois */
+.kf-tuto { position: fixed; inset: auto 0 0 0; z-index: 4500; display: flex; justify-content: center; padding: 0 12px calc(12px + env(safe-area-inset-bottom, 0px)); pointer-events: none; }
+.kf-tuto::before { content: ""; position: fixed; inset: 0; background: rgba(4, 8, 14, 0.55); pointer-events: auto; transition: opacity .3s; }
+.kf-tuto.demo::before { opacity: 0; pointer-events: none; }
+.kf-tuto-card { position: relative; pointer-events: auto; width: 100%; max-width: 520px; box-sizing: border-box; padding: 18px 18px 16px; border-radius: 22px; background: #0f1923; border: 1px solid #243547; box-shadow: 0 -10px 40px rgba(0,0,0,.45); color: #e8f0fe; display: flex; flex-direction: column; gap: 10px; animation: fadeIn .25s ease; }
+.kf-tuto.demo .kf-tuto-pts { display: none; }
+.kf-tuto-tag { align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #00d4e6; padding: 4px 10px; border-radius: 10px; background: rgba(0, 242, 254, 0.1); }
+.kf-tuto-h { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.kf-tuto-pts { margin: 0; padding: 0; list-style: none; counter-reset: t; display: flex; flex-direction: column; gap: 10px; }
+.kf-tuto-pts li { counter-increment: t; display: grid; grid-template-columns: 28px 1fr; column-gap: 10px; font-size: 15px; line-height: 1.4; color: #c9d6e6; }
+.kf-tuto-pts li::before { content: counter(t); grid-row: span 2; width: 26px; height: 26px; border-radius: 13px; background: #162030; color: #6fb0ff; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.kf-tuto-pts strong { color: #e8f0fe; font-size: 14px; }
+.kf-tuto-btns { display: flex; gap: 8px; margin-top: 4px; }
+.kf-tuto-btns button { flex: 1; min-height: 50px; margin: 0 !important; }
+html[data-theme="light"] .kf-tuto-card { background: #fff; border-color: #dbe3ee; color: #0f1923; }
+html[data-theme="light"] .kf-tuto-pts li { color: #3a4a5e; }
+html[data-theme="light"] .kf-tuto-pts strong, html[data-theme="light"] .kf-tuto-h { color: #0f1923; }
+#rep-guide.tuto-demo .v2-mid { visibility: hidden; }
