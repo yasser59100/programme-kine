@@ -308,7 +308,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       if (!rgState.active || rgState.runId !== id || rgState.phase !== "ready") return;
       if (n <= 0) { repGuideStart(); return; }
       setPhaseLabel("Départ dans " + n, "hold");
-      if (n <= 3) { speak(String(n), { ttl: 600 }); playBeep(700, 0.05, 0.12); }
+      if (n <= 3) { speak(String(n), { prio: 2, ttl: 700 }); playBeep(700, 0.05, 0.12); }
       n--;
       setTimeout(tick, 1000);
     })();

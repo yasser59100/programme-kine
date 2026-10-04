@@ -2748,13 +2748,26 @@ var isSpeaking = false;
 // La voix ne coupe jamais une phrase en cours : la suivante attend la fin.
 // Une consigne arrivée trop tard (déjà périmée) est abandonnée pour rester en rythme.
 // opt.ttl : durée de validité en ms (2,5 s par défaut) ; opt.now : priorité absolue (vide la file).
+// Priorités : 2 = consigne de rythme (« On descend », « On monte », numéros, 3-2-1) : jamais sacrifiée ;
+// 1 = annonces ; 0 = encouragements, qui s'effacent toujours devant une consigne de rythme.
+var kfCurPrio = 0;
 function speak(text, opt) {
   if (!seqSoundOn || !seqVoiceOn) return;
   if (!window.speechSynthesis || !text) return;
   opt = opt || {};
-  var item = { text: String(text), at: Date.now(), ttl: opt.ttl || 2500 };
+  var prio = opt.prio != null ? opt.prio : 1;
+  var item = { text: String(text), at: Date.now(), ttl: opt.ttl || (prio === 2 ? 1500 : 2500), prio: prio };
   if (opt.now) speechQueue = [item];
-  else { speechQueue.push(item); if (speechQueue.length > 3) speechQueue.shift(); }
+  else {
+    if (prio === 2) speechQueue = speechQueue.filter(function (q) { return q.prio === 2; });
+    speechQueue.push(item); if (speechQueue.length > 3) speechQueue.shift();
+  }
+  if (isSpeaking && prio === 2 && kfCurPrio < 2) {
+    // un encouragement ou une annonce encore en cours laisse la place à la consigne de rythme
+    clearTimeout(kfSpeechWatch); window.speechSynthesis.cancel(); isSpeaking = false;
+    setTimeout(processSpeechQueue, 60);
+    return;
+  }
   if (!isSpeaking) processSpeechQueue();
 }
 // Durée approximative d'une phrase prononcée (secondes)
@@ -2823,7 +2836,7 @@ function processSpeechQueue() {
     if (now - it.at <= it.ttl) { item = it; break; }   // les consignes périmées sont sautées
   }
   if (!item) { isSpeaking = false; return; }
-  isSpeaking = true;
+  isSpeaking = true; kfCurPrio = item.prio || 0;
   var text = item.text, finished = false;
   var next = function (delay) { if (finished) return; finished = true; clearTimeout(kfSpeechWatch); setTimeout(processSpeechQueue, delay); };
   var utt = new SpeechSynthesisUtterance(text);
@@ -3685,7 +3698,7 @@ function runSteps(steps, i, ok, rep, done) {
   }
   if (say && i > 0 && kfSpeechDur(say) > st.dur - 0.1) say = say.split(/[,.]/)[0];   // « On monte, on expire » → « On monte » si le temps manque
   if (say && i > 0 && kfSpeechDur(say) > st.dur + 0.3) say = "";
-  if (say) speak(say, { ttl: 700 });
+  if (say) speak(say, { prio: 2 });
   playBeep(st.kind === "up" ? 520 : st.kind === "hold" ? 300 : 440, 0.05, 0.15);
   var isoTick = null;
   if (st.iso) {
@@ -3696,8 +3709,8 @@ function runSteps(steps, i, ok, rep, done) {
       if (!ok()) { clearInterval(isoTick); return; }
       var left = Math.max(0, Math.ceil(st.iso - (rgNow() - t0) / 1000));
       setPhaseLabel(base + " " + left + " s", "hold");
-      if (left <= 3 && left >= 1 && left !== lastSaid && st.iso >= 5) { lastSaid = left; speak(String(left), { ttl: 500 }); }
-      else if (st.iso >= 10 && left === Math.ceil(st.iso / 2) && lastSaid !== "mid") { lastSaid = "mid"; var im = kfSayFit("isoMid", left - 3.5); if (im) speak(im, { ttl: 800 }); }
+      if (left <= 3 && left >= 1 && left !== lastSaid && st.iso >= 5) { lastSaid = left; speak(String(left), { prio: 2, ttl: 700 }); }
+      else if (st.iso >= 10 && left === Math.ceil(st.iso / 2) && lastSaid !== "mid") { lastSaid = "mid"; var im = kfSayFit("isoMid", left - 3.5); if (im) speak(im, { prio: 0, ttl: 800 }); }
     }, 200);
   }
   startTimingBar(st.dur, st.kind === "up" ? "up-color" : "down-color", function() {
@@ -3774,10 +3787,10 @@ function timedBlock(id, side, seconds, done) {
     while (cues.length && el >= cues[0].at) {
       var c = cues.shift();
       setPhaseLabel(c.label + sideTxt, "hold");
-      if (c.say) speak(c.say);
+      if (c.say) speak(c.say, { prio: 2 });
     }
-    if (talk && !saidMid && el >= seconds / 2) { saidMid = true; speak(kfSay("holdMid")); }
-    if (talk && !saidEnd && seconds - el <= 10.5 && seconds - el > 4) { saidEnd = true; speak(kfSay("holdEnd")); }
+    if (talk && !saidMid && el >= seconds / 2) { saidMid = true; speak(kfSay("holdMid"), { prio: 0 }); }
+    if (talk && !saidEnd && seconds - el <= 10.5 && seconds - el > 4) { saidEnd = true; speak(kfSay("holdEnd"), { prio: 0 }); }
     if (el >= seconds) {
       clearInterval(tick); live = false;
       playBeep(660, 0.08, 0.2);
