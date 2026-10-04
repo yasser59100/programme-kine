@@ -18,12 +18,24 @@ def dur(path):
     return round(float(r.stdout.strip()), 3)
 
 def convert(src, dst):
-    trim = ("silenceremove=start_periods=1:start_threshold=-42dB:start_silence=0.05,"
-            "areverse,silenceremove=start_periods=1:start_threshold=-42dB:start_silence=0.08,areverse,"
-            "highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=7,"
-            "afade=t=in:d=0.02,areverse,afade=t=in:d=0.04,areverse")
-    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", src, "-af", trim, "-ar", "44100", "-ac", "1",
-                    "-c:a", "libmp3lame", "-b:a", "56k", dst], check=True)
+    """Blancs coupés par rapport au niveau de la voix (pas un seuil fixe), volume harmonisé, MP3 mono."""
+    import numpy as np, soundfile as sf, io
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", src, "-af", "highpass=f=70", "-ac", "1", "-ar", "44100", "-f", "wav", "-"],
+                         capture_output=True, check=True).stdout
+    a, sr = sf.read(io.BytesIO(raw))
+    w = int(sr * 0.01)
+    if len(a) < w * 3: raise ValueError("vide")
+    db = 20 * np.log10(np.array([np.sqrt(np.mean(a[i:i + w] ** 2)) + 1e-9 for i in range(0, len(a) - w, w)]))
+    pk = db.max()
+    if pk < -60: raise ValueError("silence")
+    sp = np.where(db > max(pk - 32, -62))[0]
+    i0 = max(0, (sp[0] - 5) * w)           # 50 ms avant le premier son
+    i1 = min(len(a), (sp[-1] + 12) * w)    # 120 ms après le dernier
+    seg = a[i0:i1]
+    buf = io.BytesIO(); sf.write(buf, seg, sr, format="WAV")
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "wav", "-i", "-",
+                    "-af", "loudnorm=I=-16:TP=-1.5:LRA=7,afade=t=in:d=0.015,areverse,afade=t=in:d=0.04,areverse",
+                    "-ar", "44100", "-ac", "1", "-c:a", "libmp3lame", "-b:a", "56k", dst], input=buf.getvalue(), check=True)
 
 def main(zips):
     os.makedirs(OUT, exist_ok=True)
@@ -45,7 +57,10 @@ def main(zips):
                     while f"v{i:03d}.mp3" in used: i += 1
                     name = f"v{i:03d}.mp3"; used.add(name)
                 dst = os.path.join(OUT, name)
-                convert(os.path.join(tmp, it["file"]), dst)
+                try:
+                    convert(os.path.join(tmp, it["file"]), dst)
+                except Exception as e:
+                    print("ignorée (" + str(e) + ") :", it["text"]); continue
                 clips[k] = {"f": name, "d": dur(dst), "t": it["text"]}
                 n += 1
     json.dump(man, open(man_path, "w"), ensure_ascii=False, indent=0)
