@@ -22,7 +22,7 @@
     var L = KineAvatar.lib, base = L.STAND(0.11, 8);
     function pose(la, ra, extra) { return L.merge(base, { LA: { ang: la }, RA: { ang: ra } }, extra || {}); }
     var DOWN = [4, 7, 0, 10];
-    KineAvatar.register(NAME, {
+    var DEF = {
       camera: { yaw: 0.45, pitch: 0.04, dist: 1.95, ty: 1.4 },
       start: "idle", thumb: "idle",
       poses: {
@@ -45,7 +45,11 @@
         latG:   pose([0, 160, 0, 20], DOWN, { spine: [2, 15, 0] }),
         latD:   pose(DOWN, [0, 160, 0, 20], { spine: [2, -15, 0] })
       }
-    });
+    };
+    KineAvatar.register(NAME, DEF);
+    KineAvatar.register(NAME + "_ask", L.merge(DEF, { camera: { yaw: 0.12, pitch: 0.03, dist: 1.4, ty: 1.52 } }));
+    // pause active : face au patient, en grand, bras levés compris dans le cadre
+    KineAvatar.register(NAME + "_big", L.merge(DEF, { camera: { yaw: 0.12, pitch: 0.04, dist: 3.15, ty: 1.22 } }));
     // Portrait (tête et épaules), utilisé quand l'avatar 3D est déjà occupé par la séance
     var face = L.merge(base, { LA: { ang: [0, 82, 40, 108] }, RA: { ang: DOWN }, head: 4, headZ: 6 });
     KineAvatar.register(NAME + "_face", { camera: { yaw: 0.12, pitch: 0.0, dist: 1.15, ty: 1.58 }, start: "f", thumb: "f", poses: { f: face } });
@@ -180,6 +184,8 @@
     e.innerHTML = "<div class='km-bubble'><div class='km-scroll' id='km-scroll'><p class='km-text' id='km-text'></p><div class='km-list' id='km-list'></div></div><div class='km-acts' id='km-acts'></div></div>" +
       "<button type='button' class='km-stage' id='km-stage' aria-label='Poser une question à la mascotte' onclick='KineMascotte.faq()'></button>";
     document.body.appendChild(e);
+    // toucher le fond assombri referme (sauf pendant « Bouger »)
+    e.addEventListener("click", function (ev) { if (ev.target === e && mode !== "bouge") hide(); });
     var y0 = null;
     e.addEventListener("touchstart", function (ev) { y0 = ev.touches[0].clientY; }, { passive: true });
     e.addEventListener("touchend", function (ev) { if (y0 != null && ev.changedTouches[0].clientY - y0 > 60 && mode !== "bouge") hide(); y0 = null; });
@@ -203,10 +209,20 @@
     var sc = $("km-scroll"); if (sc) sc.scrollTop = 0;
   }
   function talk(text) { if (typeof speak === "function" && (typeof seqSoundOn === "undefined" || seqSoundOn)) { try { speak(text, { prio: 1, now: true }); } catch (e) {} } }
-  function appear() {
+  var look = null;
+  function appear(lk) {
     if (!register()) return false;
-    var box = el();
-    if (!box.classList.contains("open") && !KineAvatar.show($("km-stage"), NAME)) return false;
+    lk = lk || "msg";
+    var box = el(), wasOpen = box.classList.contains("open");
+    if (!wasOpen || lk !== look) {
+      box.classList.remove("big", "ask");
+      if (lk !== "msg") box.classList.add(lk);
+      look = lk;
+      // le cadre change de taille : on relance l'avatar dans le nouveau cadre
+      var name = lk === "msg" ? NAME : NAME + "_" + lk;
+      if (!wasOpen) { if (!KineAvatar.show($("km-stage"), name)) return false; }
+      else requestAnimationFrame(function () { KineAvatar.show($("km-stage"), name); });
+    }
     box.classList.add("open");
     return true;
   }
@@ -231,7 +247,8 @@
     var h = $("km-hole"); if (h) h.classList.remove("on");
     clearTimeout(timer); clearInterval(bougeT); playing = null; mode = null;
     var box = $("kf-masc"); if (!box || !box.classList.contains("open")) return;
-    box.classList.remove("open");
+    box.classList.remove("open"); look = null;
+    setTimeout(function () { if (!box.classList.contains("open")) box.classList.remove("big", "ask"); }, 450);
     if (typeof stopSpeech === "function") { try { stopSpeech(); } catch (e) {} }
     setTimeout(function () { if (window.KineAvatar && !box.classList.contains("open") && $("km-stage") && $("km-stage").querySelector("canvas")) { KineAvatar.hide(); } }, 400);
   }
@@ -244,26 +261,37 @@
   }
 
   /* ════════ « Demande-moi » ════════ */
+  var SEARCH = "<label class='km-search'><span class='km-sr'>Pose ta question</span><svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' aria-hidden='true'><circle cx='11' cy='11' r='7'></circle><path d='M20 20l-3.5-3.5'></path></svg>" +
+    "<input type='search' id='km-q' placeholder='Pose ta question…' autocomplete='off' enterkeyhint='search' oninput='KineMascotte.search(this.value)'></label>";
   function faq() {
-    if (mode === "bouge" || busy() || !appear()) return;
+    if (mode === "bouge" || busy() || !appear("ask")) return;
     mode = "faq"; clearTimeout(timer);
-    bubble("Une question ? Choisis :", FAQ.map(function (q, i) { return "<button class='km-q' onclick='KineMascotte.answer(" + i + ")'>" + esc(q[0]) + "</button>"; }).join(""),
+    bubble("", SEARCH + "<div id='km-res' class='km-list'>" + faqList() + "</div>",
       "<button class='km-go' onclick='KineMascotte.bouge()'>Bouger avec toi</button>" + "<button class='km-later' onclick='KineMascotte.hide()'>Fermer</button>");
     play(GESTURES.open);
   }
+  function faqList() {
+    return "<p class='km-hint'>Ou choisis une question fréquente :</p>" + FAQ.map(function (q, i) { return "<button class='km-q' onclick='KineMascotte.answer(" + i + ")'>" + esc(q[0]) + "</button>"; }).join("");
+  }
   function answer(i) {
     var q = FAQ[i]; if (!q) return;
+    showDoc({ title: q[0], text: q[1] });
+  }
+  function showDoc(d, extra) {
+    if (!appear("ask")) return;
     mode = "faq"; clearTimeout(timer);
-    bubble("", "<p class='km-qt'>" + esc(q[0]) + "</p><p class='km-a'>" + esc(q[1]) + "</p>", "<button class='km-go' onclick='KineMascotte.faq()'>Autre question</button><button class='km-later' onclick='KineMascotte.hide()'>Merci</button>");
+    var act = d.action ? "<button class='km-go' onclick='KineMascotte.doAct(" + JSON.stringify(d.action).replace(/'/g, "&#39;") + ")'>" + esc(d.actionLabel) + "</button>" : "";
+    bubble("", "<p class='km-qt'>" + esc(d.title) + "</p><p class='km-a'>" + esc(d.text) + "</p>",
+      act + "<button class='" + (act ? "km-later" : "km-go") + "' onclick='KineMascotte.faq()'>Autre question</button><button class='km-later' onclick='KineMascotte.hide()'>Merci</button>");
     play(GESTURES.talk);
-    talk(q[1]);
+    talk(d.text);
   }
   GESTURES.talk = [["talkA", 0.55], ["talkB", 0.6], ["talkA", 0.6], ["talkB", 0.6], ["open", 0.6], ["talkA", 0.6], ["idle", 0.8]];
 
   /* ════════ « Bouge avec moi » ════════ */
   var bougeT = null;
   function bouge() {
-    if (busy() || !appear()) return;
+    if (busy() || !appear("big")) return;
     mode = "bouge"; clearTimeout(timer); clearInterval(bougeT);
     var k = 0, t0 = 0;
     function startMove() {
@@ -273,9 +301,14 @@
       tick();
     }
     function tick() {
-      var m = BOUGE[k], left = Math.max(0, BOUGE_SEC - Math.floor((Date.now() - t0) / 1000));
-      bubble(m.name, "<div class='km-bouge'><span>" + (k + 1) + " sur " + BOUGE.length + "</span><b>" + left + " s</b></div><div class='km-bar'><i style='width:" + Math.round((1 - left / BOUGE_SEC) * 100) + "%'></i></div>",
+      var m = BOUGE[k], left = Math.max(0, BOUGE_SEC - Math.floor((Date.now() - t0) / 1000)), pct = Math.round((1 - left / BOUGE_SEC) * 100);
+      // on ne met à jour que le texte et le chrono : le bouton « Arrêter » reste en place sous le doigt
+      if (!$("km-sec")) bubble(m.name, "<div class='km-bouge'><span id='km-num'></span><b id='km-sec'></b></div><div class='km-bar'><i id='km-pct'></i></div>",
         "<button class='km-later' onclick='KineMascotte.hide()'>Arrêter</button>");
+      if ($("km-text").textContent !== m.name) $("km-text").textContent = m.name;
+      $("km-num").textContent = (k + 1) + " sur " + BOUGE.length;
+      $("km-sec").textContent = left + " s";
+      $("km-pct").style.width = pct + "%";
       if (left <= 0) {
         k++;
         if (k >= BOUGE.length) {
@@ -381,10 +414,208 @@
     p.classList.toggle("show", !hidden);
   }
 
+  /* ════════ Moteur de recherche local (sans IA, rien ne sort du téléphone) ════════ */
+  var HELP = [
+    { title: "Envoyer mes résultats à mon kiné", kw: "envoyer partager kiné bilan résumé message mail sms whatsapp transmettre",
+      text: "Dans l'onglet Suivi, touche « Envoyer à mon kiné ». Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.", action: "envoyer", actionLabel: "Ouvrir l'envoi" },
+    { title: "Noter mon ressenti du jour", kw: "ressenti humeur forme moral sommeil énergie noter journée",
+      text: "Chaque jour, tu peux noter en quelques secondes ta douleur, ton énergie, ton sommeil et ton moral. Après une dizaine de jours, je te montre ce qui ressort.", action: "ressenti", actionLabel: "Noter maintenant" },
+    { title: "Voir mon calendrier", kw: "calendrier agenda jours séances faites historique mois",
+      text: "Le calendrier montre les jours où tu as fait ta séance et ceux où tu as noté ton ressenti. Touche un jour pour voir le détail.", action: "calendrier", actionLabel: "Ouvrir le calendrier" },
+    { title: "Voir ma courbe de progression", kw: "courbe graphique évolution progrès progression statistiques",
+      text: "La courbe montre l'évolution de ta douleur, de ton énergie, de ton sommeil et de ton moral jour après jour.", action: "courbe", actionLabel: "Voir la courbe" },
+    { title: "Voir mes douleurs signalées", kw: "douleurs signalées historique j'ai mal zones",
+      text: "Toutes les douleurs signalées pendant les exercices avec « J'ai mal » sont regroupées dans Suivi, avec la zone, le niveau et l'exercice.", action: "douleurs", actionLabel: "Voir mes douleurs" },
+    { title: "J'ai mal pendant un exercice", kw: "mal douleur pendant exercice bouton arrêter stop vive",
+      text: "Appuie sur « J'ai mal » en bas de l'écran. Je te demande où et combien, puis je te dis quoi faire : adapter, passer l'exercice ou arrêter. Une douleur vive ou qui augmente, on arrête." },
+    { title: "Couper ou remettre le son et la voix", kw: "son voix audio muet volume couper parler silence",
+      text: "Pendant la séance, touche l'icône haut-parleur en haut de l'écran pour couper ou remettre la voix. Vérifie aussi que ton téléphone n'est pas en mode silencieux." },
+    { title: "Mettre en pause ou passer un exercice", kw: "pause arrêter interrompre passer sauter suivant reprendre",
+      text: "Pendant la séance, le bouton pause arrête le chrono. Tu peux reprendre quand tu veux. Pour sauter un exercice, utilise « Passer »." },
+    { title: "Afficher les angles sur l'avatar", kw: "angles degrés avatar démonstration flexion mesure",
+      text: "Dans la démonstration d'un exercice, touche « Angles » : les vrais angles de l'avatar s'affichent, par exemple 90° au genou pendant le squat." },
+    { title: "Changer de séance ou de jour", kw: "autre séance jour programme changer choisir semaine",
+      text: "Dans l'onglet Programme, choisis le jour que tu veux faire. Garde au moins un jour de repos entre deux séances qui travaillent les mêmes muscles.", action: "programme", actionLabel: "Ouvrir le programme" },
+    { title: "Installer l'appli sur mon écran d'accueil", kw: "installer écran accueil application appli icône raccourci télécharger iphone android",
+      text: "Sur iPhone : dans Safari, touche Partager puis « Sur l'écran d'accueil ». Sur Android : dans Chrome, touche les trois points puis « Installer l'application ». L'appli marche ensuite comme une vraie appli, même hors connexion." },
+    { title: "Reprendre après une absence", kw: "reprise reprendre absence vacances arrêt pause longue semaines",
+      text: "Après plus d'une semaine sans séance, reprends en douceur : moins de séries et une amplitude réduite la première fois, puis remonte selon ton ressenti. Si tu as eu une douleur nouvelle entre-temps, parles-en à ton kiné." },
+    { title: "Passer en mode clair ou sombre", kw: "thème mode sombre clair nuit couleur luminosité",
+      text: "Touche l'icône soleil ou lune en haut de l'accueil pour changer de thème.", action: "theme", actionLabel: "Changer maintenant" },
+    { title: "Bouger 2 minutes avec moi", kw: "bouger pause active étirer étirements bureau assis dégourdir",
+      text: "Quatre mouvements doux de 30 secondes, debout, à faire quand tu es resté assis longtemps. Je les fais avec toi.", action: "bouge", actionLabel: "On y va" },
+    { title: "La communauté", kw: "communauté messages autres patients encouragement forum",
+      text: "L'onglet Communauté permet d'échanger des encouragements avec les autres patients. Ne partage jamais d'informations médicales personnelles.", action: "communaute", actionLabel: "Ouvrir la communauté" }
+  ];
+  var STOP = {};
+  ("le la les l un une des de du d et ou a au aux en je j tu te t il elle on nous vous mon ma mes ton ta tes son sa ses ce cet cette ces c ca qui que qu quoi est es suis sont etre pour par sur dans avec sans ne n pas se s y me m moi toi comment quand pourquoi quel quelle quels quelles faire fais fait faut peux peut puis dois doit plus tres trop bien si combien mais donc alors encore ai as avoir quoi svp stp bonjour salut merci exercice exercices exo exos apres pendant lors").split(" ").forEach(function (w) { STOP[w] = 1; });
+  var SYN = {};
+  [["dos", "lombaire", "lombalgie", "rachis", "colonne", "rein", "lumbago"],
+   ["douleur", "mal", "douloureux", "souffre", "souffrir", "douleureu", "blessure", "blesse"],
+   ["respiration", "respirer", "souffle", "souffler", "expirer", "inspirer", "expiration", "inspiration", "apnee"],
+   ["kine", "kinesitherapeute", "kinesi", "kinesitherapie", "therapeute", "physio", "physiotherapeute"],
+   ["envoyer", "partager", "transmettre", "exporter", "envoi", "partage"],
+   ["courbature", "courbaturer", "raideur", "raide", "ankylose"],
+   ["seance", "entrainement", "session", "workout", "training"],
+   ["genou", "rotule", "rotulien", "rotulienne", "menisque"],
+   ["epaule", "scapula", "omoplate"],
+   ["hanche", "bassin"],
+   ["cheville", "pied", "talon"],
+   ["nuque", "cou", "cervical", "cervicale"],
+   ["abdo", "abdominal", "abdominaux", "ventre", "gainage", "sangle"],
+   ["fessier", "fesse", "glute"],
+   ["fatigue", "fatiguer", "creve", "epuise", "epuisement", "kao"],
+   ["malade", "fievre", "rhume", "grippe", "infection"],
+   ["glace", "froid", "glacon", "cryo"],
+   ["chaud", "chaleur", "bouillotte"],
+   ["pause", "arreter", "arret", "interrompre", "stop"],
+   ["passer", "sauter", "skip", "suivant"],
+   ["voix", "son", "audio", "parle", "volume", "muet", "silence"],
+   ["theme", "sombre", "clair", "nuit"],
+   ["installer", "telecharger", "accueil", "raccourci", "icone"],
+   ["ressenti", "humeur", "moral", "forme", "ressens"],
+   ["rater", "oublier", "manquer", "louper", "absence", "reprise", "reprendre"],
+   ["poids", "charge", "haltere", "kilo", "lest"],
+   ["sommeil", "dormir", "dors"],
+   ["marche", "marcher", "pas", "promenade"],
+   ["sport", "course", "courir", "velo", "natation", "foot"],
+   ["etirement", "etirer", "souplesse", "assouplir"],
+   ["echauffement", "echauffer", "chauffer"],
+   ["calendrier", "agenda", "planning"],
+   ["donnee", "confidentialite", "rgpd", "prive", "privee", "personnel", "personnelle", "securite"],
+   ["difficile", "dur", "dure", "compliquer", "arrive"],
+   ["facile", "simple", "leger", "rien"],
+   ["equilibre", "desequilibre", "tomber", "chute", "stabilite"]
+  ].forEach(function (g) { g.forEach(function (w) { SYN[w] = g[0]; }); });
+  function fold(t) { return String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/œ/g, "oe").replace(/æ/g, "ae").replace(/[^a-z0-9]+/g, " ").replace(/(\d) (?=\d{3}\b)/g, "$1"); }
+  function stem(w) {
+    if (w.length > 4) w = w.replace(/(s|x)$/, "");
+    if (w.length > 5) w = w.replace(/(ement|ment)$/, "").replace(/(ees|ee|er|ez|e)$/, "");
+    return w;
+  }
+  var SYNK = null;
+  function canon(w) {
+    if (SYN[w]) return SYN[w];
+    var pl = w.length > 3 ? w.replace(/(s|x)$/, "") : w; if (SYN[pl]) return SYN[pl];
+    var st = stem(w); if (SYN[st]) return SYN[st];
+    if (w.length >= 5) {
+      // faute de frappe sur un mot connu : « fesier » → fessier
+      SYNK = SYNK || Object.keys(SYN);
+      for (var i = 0; i < SYNK.length; i++) if (SYNK[i].length >= 5 && lev1(w, SYNK[i], 1)) return SYN[SYNK[i]];
+    }
+    return st;
+  }
+  function toks(t) {
+    var out = [], prev = "";
+    fold(t).split(" ").forEach(function (w) {
+      // « pas » : nombre de pas (marche), sinon simple négation
+      if (w === "pas" && /^(\d+|de|des|nombre|combien|mille)$/.test(prev)) w = "marche";
+      prev = w;
+      if (!w || STOP[w] || w.length < 2) return;
+      var s = canon(w);
+      if (out.indexOf(s) < 0) out.push(s);
+    });
+    return out;
+  }
+  function lev1(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return false;
+    var prev = [], i, j;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      var cur = [i], rowMin = i;
+      for (j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if (cur[j] < rowMin) rowMin = cur[j];
+      }
+      if (rowMin > max) return false;
+      prev = cur;
+    }
+    return prev[b.length] <= max;
+  }
+  function sim(q, d) {
+    if (q === d) return 1;
+    var n = Math.min(q.length, d.length), cp = 0;
+    while (cp < n && q[cp] === d[cp]) cp++;
+    if (cp >= 5 || (cp >= 4 && cp === n)) return 0.85 * Math.sqrt(cp / Math.max(q.length, d.length));
+    if (q.length >= 5 && lev1(q, d, q.length >= 8 ? 2 : 1)) return 0.7;
+    return 0;
+  }
+  var DOCS = null;
+  function buildDocs() {
+    if (DOCS) return DOCS;
+    DOCS = [];
+    FAQ.forEach(function (q) { DOCS.push({ type: "Question", title: q[0], text: q[1], kw: "" }); });
+    HELP.forEach(function (h) { DOCS.push({ type: "Appli", title: h.title, text: h.text, kw: h.kw, action: h.action, actionLabel: h.actionLabel }); });
+    var seen = {};
+    if (typeof SEQ_DAYS !== "undefined") Object.keys(SEQ_DAYS).forEach(function (id) {
+      (SEQ_DAYS[id].exercises || []).forEach(function (ex, i) {
+        if (seen[ex.name]) return; seen[ex.name] = 1;
+        var cue = (window.KF_CUES || {})[ex.name], err = ERRORS[ex.name];
+        var txt = (ex.desc || "") + (cue ? " Le point clé : " + cue : "") + (err ? " Erreur fréquente : " + err : "") + (ex.tip ? " Astuce : " + ex.tip : "") + (ex.stop ? " " + ex.stop : "");
+        DOCS.push({ type: "Exercice", title: ex.name, text: txt, kw: SEQ_DAYS[id].label + " " + (ex.repsLabel || ""),
+          action: ex.phase === "work" ? "demo:" + id + ":" + i : "programme", actionLabel: ex.phase === "work" ? "Voir la démonstration" : "Ouvrir le programme" });
+      });
+    });
+    if (window.KineSavoir) KineSavoir.tips.forEach(function (t, i) {
+      DOCS.push({ type: "Le saviez-vous", title: t.title, text: t.body, kw: t.theme + " " + (t.statLabel || ""), action: "savoir:" + i, actionLabel: "Voir la fiche" });
+    });
+    DOCS.forEach(function (d) { d.f = [[toks(d.title), 3], [toks(d.kw), 2], [toks(d.text), 1]]; });
+    return DOCS;
+  }
+  function find(query) {
+    var q = toks(query); if (!q.length) return [];
+    var res = [], docs = buildDocs(), N = docs.length;
+    // un mot présent partout (genou, séance…) compte moins qu'un mot rare
+    var best = docs.map(function (d) {
+      return q.map(function (w) {
+        var b = 0;
+        d.f.forEach(function (f) { for (var i = 0; i < f[0].length; i++) { var s = sim(w, f[0][i]) * f[1]; if (s > b) b = s; } });
+        return b;
+      });
+    });
+    var idf = q.map(function (w, j) { var df = 0; best.forEach(function (b) { if (b[j]) df++; }); return 1 + Math.log(N / (df || 1)); });
+    docs.forEach(function (d, k) {
+      var score = 0, hit = 0;
+      best[k].forEach(function (b, j) { if (b) hit++; score += b * idf[j]; });
+      // la plupart des mots de la question doivent être trouvés
+      if (hit && hit >= Math.ceil(q.length * 0.5)) res.push({ k: k, s: score * hit / q.length + (hit === q.length ? 2 : 0) });
+    });
+    res.sort(function (a, b) { return b.s - a.s; });
+    return res.slice(0, 5).map(function (r) { return r.k; });
+  }
+  function search(v) {
+    var box = $("km-res"); if (!box) return;
+    if (!fold(v).trim()) { box.innerHTML = faqList(); return; }
+    var ids = find(v);
+    if (!ids.length) {
+      box.innerHTML = "<p class='km-none'>Je n'ai pas trouvé de réponse à ça. Essaie d'autres mots, ou pose la question directement à ton kiné.</p>" +
+        "<button class='km-q km-kine' onclick='KineMascotte.doAct(\"envoyer\")'>Écrire à mon kiné</button>";
+      return;
+    }
+    box.innerHTML = ids.map(function (k) { var d = DOCS[k]; return "<button class='km-q' onclick='KineMascotte.open(" + k + ")'><span class='km-tag'>" + esc(d.type) + "</span>" + esc(d.title) + "</button>"; }).join("");
+  }
+  function doAct(a) {
+    var p = String(a).split(":");
+    hide();
+    setTimeout(function () {
+      if (p[0] === "envoyer" && window.KineSuivi) KineSuivi.open("envoyer");
+      else if (p[0] === "douleurs" && window.KineSuivi) KineSuivi.open("douleurs");
+      else if (p[0] === "ressenti" && window.KineCheckin) KineCheckin.open();
+      else if (p[0] === "calendrier" && window.KineCheckin) KineCheckin.calendar();
+      else if (p[0] === "courbe" && window.KineCheckin) KineCheckin.chart();
+      else if (p[0] === "savoir" && window.KineSavoir) KineSavoir.open(+p[1] || 0);
+      else if (p[0] === "demo" && typeof openDemo === "function") openDemo(p[1], +p[2]);
+      else if (p[0] === "programme" && typeof showPage === "function") showPage("guide");
+      else if (p[0] === "communaute" && typeof showPage === "function") showPage("community");
+      else if (p[0] === "theme" && typeof toggleDark === "function") toggleDark();
+      else if (p[0] === "bouge") bouge();
+    }, p[0] === "bouge" ? 500 : 60);
+  }
+
   window.KineMascotte = {
     menu: menu,
     show: show, hide: hide, maybe: maybe, pick: pickMessage, faq: faq, answer: answer, bouge: bouge, tour: tour,
-    faqList: FAQ, errors: ERRORS, coachHtml: coachHtml, portrait: portrait,
+    faqList: FAQ, errors: ERRORS, search: search, find: find, open: function (k) { var d = buildDocs()[k]; if (d) showDoc(d); }, doAct: doAct, docs: buildDocs, coachHtml: coachHtml, portrait: portrait,
     _bougeSec: function (n) { BOUGE_SEC = n; },
     say: function (text, gesture) { return show({ id: "libre", text: text, gesture: gesture || "wave" }); },
     act: function (what) {

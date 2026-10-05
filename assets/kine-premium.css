@@ -360,3 +360,35 @@ html[data-theme="light"] .km-coach p { color: #0f1923; }
 @keyframes km-bob { 0%, 82%, 100% { transform: translateX(0); } 88% { transform: translateX(-6px) rotate(-4deg); } 94% { transform: translateX(0); } }
 html[data-theme="light"] .km-peek { background: radial-gradient(circle at 70% 55%, rgba(0, 194, 214, 0.22), #ffffff 70%); }
 @media (prefers-reduced-motion: reduce) { .km-peek.show { animation: none; } }
+
+/* Mascotte — mode question (en haut, au-dessus du clavier) */
+.kf-masc.ask { top: calc(10px + env(safe-area-inset-top, 0px)); bottom: auto; align-items: flex-start; transform: translateY(-130%); }
+.kf-masc.ask.open { transform: none; }
+.kf-masc.ask::before, .kf-masc.big::before { position: fixed; inset: 0; left: 0; right: 0; height: auto; background: rgba(4, 8, 14, 0.72); pointer-events: auto; }
+.kf-masc.ask .km-stage { flex: 0 0 108px; height: 150px; margin: 0 -8px 0 2px; border-radius: 22px; }
+.kf-masc.ask .km-bubble { margin: 14px 0 0; border-radius: 20px 6px 20px 20px; }
+.kf-masc.ask .km-bubble::before { bottom: auto; top: 22px; }
+.kf-masc.ask .km-scroll { max-height: min(58vh, 460px); }
+.km-search { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0 12px; min-height: 46px; border-radius: 14px; border: 1px solid rgba(0, 212, 230, 0.45); background: rgba(255, 255, 255, 0.05); color: #00d4e6; }
+.km-search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--text, #e8f0fe); font: inherit; font-size: 16px; padding: 10px 0; }
+.km-search input::placeholder { color: var(--text3, #8595ab); }
+.km-search:focus-within { border-color: #00d4e6; box-shadow: 0 0 0 3px rgba(0, 212, 230, 0.18); }
+.km-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.km-hint { margin: 2px 0 2px; font-size: 13px; color: var(--text3, #8595ab); }
+.km-tag { display: block; margin-bottom: 2px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #00d4e6; }
+.km-none { margin: 0 0 4px; font-size: 14px; line-height: 1.4; color: var(--text2, #a9b8cc); }
+.km-q.km-kine { border-color: rgba(0, 212, 230, 0.5); color: #00d4e6; font-weight: 700; }
+html[data-theme="light"] .km-search input, html[data-theme="light"] .km-none { color: #0f1923; }
+html[data-theme="light"] .km-search { background: #fff; color: #0a8a99; }
+html[data-theme="light"] .km-tag, html[data-theme="light"] .km-q.km-kine { color: #0a8a99; }
+
+/* Mascotte — pause active en grand, face au patient */
+.kf-masc.big { top: 0; bottom: 0; max-width: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
+.kf-masc.big::before { background: radial-gradient(ellipse at 50% 38%, #0b3340, #060c14 70%); }
+.kf-masc.big .km-stage { order: 1; flex: 0 0 auto; width: min(92vw, 400px); height: min(56vh, 470px); margin: 0; border-radius: 28px; }
+.kf-masc.big .km-bubble { order: 2; flex: 0 0 auto; width: min(92vw, 400px); box-sizing: border-box; margin: 0; border-radius: 20px; }
+.kf-masc.big .km-bubble::before { display: none; }
+.kf-masc.big .km-text { font-size: 18px; font-weight: 700; text-align: center; }
+html[data-theme="light"] .kf-masc.big::before { background: radial-gradient(ellipse at 50% 38%, #cdeff4, #f0f6fa 70%); }
+html[data-theme="light"] .kf-masc.ask::before { background: rgba(15, 25, 35, 0.45); }
+html[data-theme="light"] .km-qt { color: #0a8a99; }
