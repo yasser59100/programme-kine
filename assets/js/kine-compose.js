@@ -10,7 +10,7 @@
 var KineCompose = (function () {
   "use strict";
   var MIN = 5, MAX = 8, MAX_RED = 2, MAX_GROUP = 3, UNLOCK_DAYS = 14, MAX_MIN = 45;
-  var KEY = "kf-custom", ZKEY = "kf-zones", PKEY = "kf-kine-pin", UKEY = "kf-reds-open";
+  var GKEY = "kf-gear", KEY = "kf-custom", ZKEY = "kf-zones", PKEY = "kf-kine-pin", UKEY = "kf-reds-open";
   var REGION = { genou: "bas", hanche: "bas", ischio: "bas", mollet: "bas", epaule: "haut", poussee: "haut", tirage: "haut", bras: "haut",
                  dos: "tronc", gainage: "tronc", equilibre: "autre", mobilite: "autre", cardio: "autre" };
   function $(id) { return document.getElementById(id); }
@@ -109,7 +109,8 @@ var KineCompose = (function () {
     }).join("");
     var groups = KineBiblio.groups.map(function (g) {
       if (z[g[0]] === "off") return "";
-      var items = KineBiblio.all().filter(function (e) { return e.group === g[0]; }).sort(function (a, b) { return KineBiblio.color(a.name) - KineBiblio.color(b.name); });
+      var gear = jget(GKEY, {});
+      var items = KineBiblio.all().filter(function (e) { return e.group === g[0] && (!e.gear || gear[e.gear]); }).sort(function (a, b) { return KineBiblio.color(a.name) - KineBiblio.color(b.name); });
       if (!items.length) return "";
       return "<div class='kf-phase' style='color:var(--text2)'>" + esc(g[1]) + (z[g[0]] === "nored" ? " <small class='kc-z'>pas de rouge</small>" : "") + "</div>" +
         items.map(function (e) {
@@ -128,6 +129,9 @@ var KineCompose = (function () {
       "<div class='kc-rules'><span" + (sel.length >= MIN && sel.length <= MAX ? " class='ok'" : "") + ">" + sel.length + " / 5 à 8 exercices</span>" +
         "<span" + (reds <= MAX_RED ? " class='ok'" : "") + "><i class='kb-dot c3'></i>" + reds + " / 2 difficiles</span>" +
         "<span" + (mins && mins <= MAX_MIN ? " class='ok'" : "") + ">~" + mins + " min</span></div>" +
+      "<div class='kc-gear'><b>Mon matériel</b>" + [["elastique", "Un élastique"], ["charge", "Haltères ou charges"]].map(function (g) {
+        var on = !!jget(GKEY, {})[g[0]];
+        return "<button type='button' class='kb-chip" + (on ? " on" : "") + "' aria-pressed='" + on + "' onclick='KineCompose.gear(\"" + g[0] + "\")'>" + (on ? "✓ " : "") + g[1] + "</button>"; }).join("") + "</div>" +
       (chosen ? "<div class='kc-tray'>" + chosen + "<div class='kf-sub'>L'ordre alterne les groupes musculaires pour que chacun récupère.</div></div>" : "") +
       groups + "</div>" +
       "<div class='kf-sheet-foot kc-foot'><input id='kc-name' class='kc-name' maxlength='30' placeholder='Nom de la séance' value='" + esc(title) + "' oninput='KineCompose.name(this.value)'>" +
@@ -226,7 +230,8 @@ var KineCompose = (function () {
 
   return {
     open: open, close: close, toggle: toggle, save: save, start: start, remove: remove, listHtml: listHtml, order: order, lockReason: lockReason, addBlock: addBlock,
-    name: function (v) { title = v; }, kine: kine, pin: pin, zone: zone,
+    name: function (v) { title = v; },
+    gear: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); var y = sheet().scrollTop; render(); sheet().scrollTop = y; }, kine: kine, pin: pin, zone: zone,
     reds: function (v) { jset(UKEY, !!v); },
     lock: function () { kineOpen = 0; close(); },
     resetPin: function () { try { localStorage.removeItem(PKEY); } catch (e) {} kineOpen = 0; kine(); },

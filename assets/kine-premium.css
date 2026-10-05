@@ -507,3 +507,5 @@ html[data-theme="light"] .kc-pick, html[data-theme="light"] .kc-eye, html[data-t
 .ko-f small { color: var(--text3, #8595ab); font-size: 12px; }
 html[data-theme="light"] .ko-f input, html[data-theme="light"] .ko-f textarea { background: #fff; color: #0f1923; }
 html[data-theme="light"] .ko-name { color: #0f1923; }
+.kc-gear { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+.kc-gear b { width: 100%; font-size: 13px; color: var(--text2, #a9b8cc); font-weight: 600; }

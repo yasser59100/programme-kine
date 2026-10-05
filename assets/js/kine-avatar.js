@@ -89,6 +89,11 @@
   var L4_KNEEL = { pelvis: { p: [0, 0.5, 0.0], r: [0, 0, 0] }, spine: [0, 0, 0], head: 0,
     L: { foot: { at: [0.13, 0, 0.62], yaw: 0 } }, R: { foot: { at: [-0.13, 0, -0.42], yaw: 0, lift: 75 } }, LA: { ang: [4, 10, 0, 10] }, RA: { ang: [4, 10, 0, 10] } };
 
+  // ── Bibliothèque, lot 5 : élastique et charge ──
+  var L5_SEAT = { pelvis: { p: [0, 0.53, -0.36], r: [0, 0, 0] }, spine: [4, 0, 0], head: 0, L: { foot: { at: [0.14, 0, 0.14], yaw: 6 } }, R: { foot: { at: [-0.14, 0, 0.14], yaw: -6 } } };
+  var L5_SQ_DOWN = { pelvis: { p: [0, 0.657, -0.222], r: [13, 0, 0] }, spine: [12, 0, 0], head: -14 };
+  var L5_GOB = { LA: { hand: { at: [0.05, 1.18, 0.24], pole: [1, -0.6, 0] } }, RA: { hand: { at: [-0.05, 1.18, 0.24], pole: [-1, -0.6, 0] } } };
+
   var EX = {
     /* ═══ Bibliothèque, lot 1 : genou et hanche ═══ */
    "Assis-debout de chaise": {
@@ -465,6 +470,109 @@
        sR: merge(STAND(0.12, 4), { pelvis: { p: [-0.12, 0.8, 0.02], r: [20, 0, 0] }, spine: [10, 0, 0], R: { foot: { at: [-0.22, 0, 0.14], yaw: -6 } }, L: { foot: { at: [-0.05, 0, -0.3], yaw: -20, lift: 50 } },
          RA: { ang: [-20, 10, 0, 20] }, LA: { ang: [60, -20, 0, 20] } }) },
      steps: [step("sL", 1, "On croise derrière", null, "down"), step("up", 0.7, "On revient", null, "up"), step("sR", 1, "On croise derrière", null, "down"), step("up", 0.7, "On revient", null, "up")]
+   },
+
+    /* ═══ Bibliothèque, lot 5 : élastique et charge ═══ */
+   "Rotation externe à l'élastique": {
+     sides: "blocks", sideWord: "épaule", labelSwap: true, camera: { yaw: 0.25, dist: 3.6, ty: 1.0 }, start: "in", thumb: "out",
+     bands: [["RH", [0.5, 1.02, 0.25]]],
+     poses: { in: merge(STAND(0.11, 6), { RA: { ang: [0, 6, -40, 90] } }), out: merge(STAND(0.11, 6), { RA: { ang: [0, 6, 40, 90] } }) },
+     steps: [step("out", 1.5, "On ouvre", "Coude collé, on ouvre", "up"), step("out", 1, "On tient", "On tient", "hold"), step("in", 2.5, "Retour lent", "On revient lentement", "down")]
+   },
+   "Pull-apart à l'élastique": {
+     camera: { yaw: 0.45, dist: 3.7, ty: 1.1 }, start: "in", thumb: "out", bands: [["LH", "RH"]],
+     poses: {
+       in: merge(STAND(0.11, 6), { LA: { hand: { at: [0.16, 1.36, 0.55], pole: [1, -0.3, 0] } }, RA: { hand: { at: [-0.16, 1.36, 0.55], pole: [-1, -0.3, 0] } } }),
+       out: merge(STAND(0.11, 6), { LA: { hand: { at: [0.66, 1.36, 0.16], pole: [0.3, -1, 0] } }, RA: { hand: { at: [-0.66, 1.36, 0.16], pole: [-0.3, -1, 0] } } })
+     },
+     steps: [step("out", 1.5, "On écarte", "On écarte, omoplates serrées", "up"), step("out", 1, "On tient", "On tient", "hold"), step("in", 2, "Retour lent", "On revient", "down")]
+   },
+   "Tirage horizontal à l'élastique": {
+     camera: { yaw: 1.2, dist: 4.0, ty: 1.0, tz: 0.2 }, start: "in", thumb: "out", bands: [["LH", [0, 1.05, 0.95]], ["RH", [0, 1.05, 0.95]]],
+     poses: {
+       in: merge(STAND(0.12, 6), { pelvis: { p: [0, "auto", 0], r: [4, 0, 0] }, LA: { hand: { at: [0.16, 1.1, 0.62], pole: [1, -0.4, 0] } }, RA: { hand: { at: [-0.16, 1.1, 0.62], pole: [-1, -0.4, 0] } } }),
+       out: merge(STAND(0.12, 6), { pelvis: { p: [0, "auto", 0], r: [4, 0, 0] }, LA: { hand: { at: [0.22, 1.06, 0.18], pole: [0.4, 0, -1] } }, RA: { hand: { at: [-0.22, 1.06, 0.18], pole: [-0.4, 0, -1] } } })
+     },
+     steps: [step("out", 1.5, "On tire", "Coudes vers l'arrière", "up"), step("out", 1, "On serre", "On serre les omoplates", "hold"), step("in", 2, "Retour lent", "On revient", "down")]
+   },
+   "Face pull à l'élastique": {
+     camera: { yaw: 1.2, dist: 4.0, ty: 1.15, tz: 0.2 }, start: "in", thumb: "out", bands: [["LH", [0, 1.62, 0.95]], ["RH", [0, 1.62, 0.95]]],
+     poses: {
+       in: merge(STAND(0.12, 6), { LA: { hand: { at: [0.12, 1.5, 0.58], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.12, 1.5, 0.58], pole: [-1, 0, 0] } } }),
+       out: merge(STAND(0.12, 6), { LA: { hand: { at: [0.26, 1.64, 0.14], pole: [1, 0.4, -0.4] } }, RA: { hand: { at: [-0.26, 1.64, 0.14], pole: [-1, 0.4, -0.4] } } })
+     },
+     steps: [step("out", 1.5, "On tire vers le visage", "Mains vers les oreilles", "up"), step("out", 1, "On tient", "On tient", "hold"), step("in", 2, "Retour lent", "On revient", "down")]
+   },
+   "Rotation interne à l'élastique": {
+     sides: "blocks", sideWord: "épaule", labelSwap: true, camera: { yaw: 0.25, dist: 3.6, ty: 1.0 }, start: "out", thumb: "in",
+     bands: [["RH", [-0.75, 1.02, 0.25]]],
+     poses: { out: merge(STAND(0.11, 6), { RA: { ang: [0, 6, 35, 90] } }), in: merge(STAND(0.11, 6), { RA: { ang: [0, 6, -55, 90] } }) },
+     steps: [step("in", 1.5, "On ramène", "Coude collé, on ramène vers le ventre", "up"), step("in", 1, "On tient", "On tient", "hold"), step("out", 2.5, "Retour lent", "On revient lentement", "down")]
+   },
+   "Pallof press": {
+     sides: "blocks", camera: { yaw: 0.9, dist: 4.0, ty: 1.0 }, start: "in", thumb: "out", bands: [["LH", [0.85, 1.12, 0.12]]],
+     poses: {
+       in: merge(STAND(0.15, 8), { pelvis: { p: [0, 0.88, 0], r: [4, 0, 0] }, LA: { hand: { at: [0.03, 1.13, 0.16], pole: [1, -0.5, 0] } }, RA: { hand: { at: [-0.03, 1.13, 0.16], pole: [-1, -0.5, 0] } } }),
+       out: merge(STAND(0.15, 8), { pelvis: { p: [0, 0.88, 0], r: [4, 0, 0] }, LA: { hand: { at: [0.03, 1.13, 0.6], pole: [1, -0.5, 0] } }, RA: { hand: { at: [-0.03, 1.13, 0.6], pole: [-1, -0.5, 0] } } })
+     },
+     steps: [step("out", 1.5, "On pousse devant", "On pousse, le buste ne tourne pas", "up"), step("out", 2, "On résiste", "On résiste", "hold"), step("in", 1.5, "On ramène", "On ramène", "down")]
+   },
+   "Squat élastique aux genoux": {
+     camera: { yaw: 0.45, dist: 4.0 }, start: "up", thumb: "down", bands: [["LK", "RK"]],
+     poses: { up: merge(STAND(0.15, 12), { LA: { ang: [80, 6, 0, 0] }, RA: { ang: [80, 6, 0, 0] } }),
+              down: merge(STAND(0.15, 12), L5_SQ_DOWN, { LA: { ang: [80, 6, 0, 0] }, RA: { ang: [80, 6, 0, 0] } }) },
+     steps: [step("down", 2, "On descend", "Genoux qui poussent l'élastique", "down"), step("up", 1, "On monte", "On monte", "up")]
+   },
+   "Extension terminale du genou": {
+     sides: "blocks", sideWord: "jambe", camera: { yaw: 1.25, dist: 3.8, ty: 0.7 }, start: "bent", thumb: "bent", bands: [["LK", [0.1, 0.45, 0.85]]],
+     poses: {
+       bent: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.85, -0.03], r: [6, 0, 0] }, L: { foot: { at: [0.1, 0, 0.18], yaw: 0 } }, R: { foot: { at: [-0.1, 0, -0.2], yaw: 0, lift: 30 } } }),
+       straight: merge(STAND(0.1, 0), { pelvis: { p: [0, "auto", -0.02], r: [2, 0, 0] }, L: { foot: { at: [0.1, 0, 0.18], yaw: 0 } }, R: { foot: { at: [-0.1, 0, -0.2], yaw: 0, lift: 30 } } })
+     },
+     steps: [step("straight", 1.2, "On tend le genou", "On verrouille le genou", "up"), step("straight", 2, "On tient", "On serre la cuisse", "hold"), step("bent", 1.5, "On relâche", "On relâche", "down")]
+   },
+   "Marche latérale élastique": {
+     camera: { yaw: 0.2, dist: 4.2 }, start: "base", thumb: "wide", bands: [["LA", "RA"]], noIso: true,
+     poses: {
+       base: merge(STAND(0.13, 6), { pelvis: { p: [0, 0.82, -0.08], r: [14, 0, 0] }, spine: [8, 0, 0], LA: { ang: [30, 10, 0, 60] }, RA: { ang: [30, 10, 0, 60] } }),
+       wide: merge(STAND(0.13, 6), { pelvis: { p: [0.1, 0.8, -0.08], r: [14, 0, 0] }, spine: [8, 0, 0], L: { foot: { at: [0.38, 0, 0.12], yaw: 6 } }, LA: { ang: [30, 10, 0, 60] }, RA: { ang: [30, 10, 0, 60] } })
+     },
+     steps: [step("wide", 1, "Un pas sur le côté", "Pas sur le côté", "up"), step("base", 1, "L'autre pied suit", "L'autre suit", "down")]
+   },
+   "Goblet squat": {
+     load: "L", camera: { yaw: 0.65, dist: 4.0 }, start: "up", thumb: "down",
+     poses: { up: merge(STAND(0.15, 14), L5_GOB), down: merge(STAND(0.15, 14), L5_SQ_DOWN, { spine: [8, 0, 0] }, { LA: { hand: { at: [0.05, 0.98, 0.12], pole: [1, -0.6, 0] } }, RA: { hand: { at: [-0.05, 0.98, 0.12], pole: [-1, -0.6, 0] } } }) },
+     steps: [step("down", 2, "On descend", "On descend, buste droit", "down"), step("up", 1, "On monte", "On pousse dans les talons", "up")]
+   },
+   "Soulevé de terre roumain avec charge": {
+     load: "both", camera: { yaw: 1.4, dist: 4.1 }, start: "up", thumb: "down",
+     poses: { up: STAND(0.12, 4),
+       down: merge(STAND(0.12, 4), { pelvis: { p: [0, "auto", -0.16], r: [62, 0, 0] }, head: -12, LA: { ang: [62, 6, 0, 5] }, RA: { ang: [62, 6, 0, 5] } }) },
+     steps: [step("down", 2.5, "On bascule", "Fesses en arrière, dos plat", "down"), step("up", 1.5, "On remonte", "On serre les fessiers", "up")]
+   },
+   "Développé épaules assis": {
+     load: "both", camera: { yaw: 0.5, dist: 3.8, ty: 1.05 }, props: ["chair"], start: "down", thumb: "up",
+     poses: {
+       down: merge(L5_SEAT, { LA: { hand: { at: [0.27, 1.12, -0.28], pole: [1, -1, 0] } }, RA: { hand: { at: [-0.27, 1.12, -0.28], pole: [-1, -1, 0] } } }),
+       up: merge(L5_SEAT, { LA: { hand: { at: [0.17, 1.58, -0.34], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.17, 1.58, -0.34], pole: [-1, 0, 0] } } })
+     },
+     steps: [step("up", 1.5, "On pousse", "On pousse vers le plafond", "up"), step("down", 2.5, "Descente lente", "On redescend", "down")]
+   },
+   "Fente avec charge": {
+     load: "both", sides: "blocks", firstSide: "R", sideWord: "jambe", camera: { yaw: 1.15, dist: 4.4, tz: 0.45 }, start: "up", thumb: "down",
+     poses: { up: STAND(0.1, 0),
+       down: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.55, 0.54], r: [0, 0, 0] }, spine: [0, 0, 0], L: { foot: { at: [0.1, 0, 1.06], yaw: 0 } }, R: { foot: { at: [-0.1, 0, 0.12], yaw: 0, lift: 40 } } }) },
+     steps: [step("down", 2, "On descend", "On descend", "down"), step("up", 1, "On revient", "On pousse, on revient", "up")]
+   },
+   "Hip thrust lesté": {
+     load: "both", camera: { yaw: 1.3, pitch: 0.2, dist: 3.9, ty: 0.4, tz: 0.1 }, props: ["chair"], chair: { z: -0.2 }, start: "down", thumb: "up",
+     poses: {
+       down: { pelvis: { p: [0, 0.2, -0.02], r: [-62, 0, 0] }, spine: [0, 0, 0], head: 25, L: { foot: { at: [0.15, 0, 0.5], yaw: 5 } }, R: { foot: { at: [-0.15, 0, 0.5], yaw: -5 } },
+               LA: { ang: [5, 22, 0, 10] }, RA: { ang: [5, 22, 0, 10] } },
+       up: { pelvis: { p: [0, 0.47, 0.0], r: [-88, 0, 0] }, spine: [0, 0, 0], head: 30, L: { foot: { at: [0.15, 0, 0.5], yaw: 5 } }, R: { foot: { at: [-0.15, 0, 0.5], yaw: -5 } },
+             LA: { ang: [5, 22, 0, 10] }, RA: { ang: [5, 22, 0, 10] } }
+     },
+     steps: [step("up", 1.5, "On monte", "On pousse dans les talons", "up"), step("up", 1.5, "On serre", "On serre les fessiers", "hold"), step("down", 2.5, "Descente lente", "On redescend", "down")]
    },
 
     "Squat bilatéral": {
@@ -1149,8 +1257,13 @@
     window.addEventListener("pointerup", function () { drag = null; });
     window.addEventListener("pointercancel", function () { drag = null; });
 
+    var bandMat = new T.MeshStandardMaterial({ color: lin("#f2994a"), roughness: 0.55 }), bands = [], bandKnots = [];
+    for (var bi = 0; bi < 2; bi++) {
+      var bm = mesh(new T.CylinderGeometry(0.011, 0.011, 1, 10), bandMat, scene); bm.visible = false; bands.push(bm);
+      var kn = mesh(new T.SphereGeometry(0.03, 12, 10), M.prop, scene); kn.visible = false; bandKnots.push(kn);
+    }
     return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0,
-             head: head, legs: legs, arms: arms, props: props, view: view };
+             head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots };
   }
 
   /* ── Cinématique ── */
@@ -1245,6 +1358,37 @@
         g.el.rotation.set(-a[3] * D2R, 0, 0);
       }
     });
+    updateBands();
+  }
+
+  /* ── Élastique : une bande tendue entre deux points (main, cheville, genou ou point fixe) ── */
+  var bandDef = null, bandSide = "L";
+  function bandPoint(spec, side) {
+    var T = R.T, v = new T.Vector3();
+    if (Array.isArray(spec)) return new T.Vector3(side === "R" ? -spec[0] : spec[0], spec[1], spec[2]);
+    var s = spec.charAt(0), part = spec.charAt(1);
+    if (side === "R") s = s === "L" ? "R" : "L";
+    if (part === "H") {
+      var a = R.arms[s], hq = new T.Quaternion(); a.el.getWorldQuaternion(hq);
+      var E = new T.Vector3(); a.el.getWorldPosition(E);
+      return new T.Vector3(0, -LEN.fore + 0.03, 0).applyQuaternion(hq).add(E);
+    }
+    var g = R.legs[s]; (part === "K" ? g.knee : g.ankle).getWorldPosition(v);
+    if (part === "A") v.y = Math.max(0.03, v.y - 0.02);
+    return v;
+  }
+  function updateBands() {
+    if (!R || !R.bands) return;
+    var list = (bandDef && bandDef.bands) || [];
+    R.pelvis.updateMatrixWorld(true);
+    R.bands.forEach(function (m, i) {
+      var b = list[i]; m.visible = !!b; if (!b) { R.bandKnots[i].visible = false; return; }
+      var A = bandPoint(b[0], bandSide), B = bandPoint(b[1], bandSide), mid = A.clone().add(B).multiplyScalar(0.5), dir = B.clone().sub(A), len = Math.max(0.01, dir.length());
+      m.position.copy(mid); m.scale.set(1, len, 1);
+      m.quaternion.setFromUnitVectors(new R.T.Vector3(0, 1, 0), dir.normalize());
+      R.bandKnots[i].visible = Array.isArray(b[0]) || Array.isArray(b[1]);
+      R.bandKnots[i].position.copy(Array.isArray(b[0]) ? A : B);
+    });
   }
 
   /* ── Poses : miroir (côté droit) et interpolation ── */
@@ -1296,6 +1440,7 @@
     placeProps(d);
     R.props.wallSide.position.x = side === "R" ? 0.62 : -0.62;
     if (R.props.cushion) R.props.cushion.position.x = side === "R" ? 0.1 : -0.1;
+    bandDef = d; bandSide = side === "R" ? "R" : "L";
     var both = d && d.load === "both";
     var arm = d && d.load && !both ? (side === "R" ? (d.load === "R" ? "L" : "R") : d.load) : null;
     R.arms.L.load.visible = both || arm === "L"; R.arms.R.load.visible = both || arm === "R";
@@ -1457,6 +1602,7 @@
       for (var k0 in R.props) R.props[k0].visible = (d.props || []).indexOf(k0) >= 0;
       var p = d.poses[poseName]; if (side === "R") p = mirror(p);
       if (fromPose) { var f0 = d.poses[fromPose]; if (side === "R") f0 = mirror(f0); p = blend(f0, p, k); }
+      bandDef = d; bandSide = side === "R" ? "R" : "L";
       applyPose(p); R.pelvis.updateMatrixWorld(true);
       R.renderer.setSize(size, size, false); R.camera.aspect = 1; R.camera.updateProjectionMatrix();
       var c = d.camera || {}, ty = c.ty != null ? c.ty : 0.8, tz = c.tz || 0, dist = (c.dist || 4.1) * 0.9;
@@ -1524,12 +1670,14 @@
       var px = size || 160;
       for (var k in R.props) R.props[k].visible = (d.props || []).indexOf(k) >= 0;
       var th = d.thumb || d.start; if (d.easyUntil && curWeek() <= d.easyUntil && d.poses[th + "K"]) th = th + "K";
+      var bd0 = bandDef, bs0 = bandSide; bandDef = d; bandSide = "L";
       applyPose(d.poses[th]);
       R.renderer.setSize(px, px, false); R.camera.aspect = 1; R.camera.updateProjectionMatrix();
       placeCamera(d, d.camera && d.camera.yaw != null ? d.camera.yaw : 0.6);
       R.renderer.render(R.scene, R.camera);
       var url = R.canvas.toDataURL("image/png");
       if (def) { for (var k2 in R.props) R.props[k2].visible = (def.props || []).indexOf(k2) >= 0; }
+      bandDef = bd0; bandSide = bs0;
       if (host) resize();
       return url;
     },
