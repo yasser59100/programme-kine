@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v9';
+const VERSION = 'kineforce-v10';
 const APP_FILES = [
   './',
   'index.html',
@@ -15,6 +15,7 @@ const APP_FILES = [
   'assets/js/kine-ressenti.js',
   'assets/js/kine-layout.js',
   'assets/js/kine-savoir.js',
+  'assets/js/kine-mascotte.js',
   'assets/kine-premium.css',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png'

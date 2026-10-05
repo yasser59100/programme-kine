@@ -124,7 +124,7 @@
   }
   function close() { var sh = $("ks-sheet"); if (sh) sh.classList.remove("open"); }
 
-  window.KineSavoir = { tips: TIPS, open: open, close: close, place: place };
+  window.KineSavoir = { tips: TIPS, open: open, close: close, place: place, today: todayIdx };
 
   function init() {
     var box = $("today-card"); if (!box) return;
