@@ -310,21 +310,24 @@ var KineBiblio = (function () {
       stop: "Arrêt si douleur au genou ou essoufflement important." }
   ];
 
-  var ALL = null;
-  function all() {
-    if (ALL) return ALL;
-    ALL = []; var seen = {};
-    if (typeof SEQ_DAYS !== "undefined") Object.keys(SEQ_DAYS).forEach(function (id) {
-      SEQ_DAYS[id].exercises.forEach(function (ex, i) {
-        var t = TAGS[ex.name]; if (!t || seen[ex.name]) return; seen[ex.name] = 1;
-        ALL.push({ name: ex.name, group: t[0], color: t[1], repsLabel: ex.repsLabel, desc: ex.desc, tip: ex.tip, stop: ex.stop, day: id, idx: i,
-                   kit: window.KF && KF.kitFor ? KF.kitFor({ exercises: [ex] }) : [] });
+  var FULL = null;
+  // Toute la bibliothèque (fiches d'origine + modifications publiées par le kiné) ; withHidden : y compris les masqués
+  function all(withHidden) {
+    if (!FULL) {
+      FULL = []; var seen = {}, src = window.KineOfficiel ? KineOfficiel.orig : (typeof SEQ_DAYS !== "undefined" ? SEQ_DAYS : {});
+      Object.keys(src).forEach(function (id) {
+        src[id].exercises.forEach(function (ex, i) {
+          var t = TAGS[ex.name]; if (!t || seen[ex.name]) return; seen[ex.name] = 1;
+          FULL.push({ name: ex.name, group: t[0], color: t[1], base: t[1], repsLabel: ex.repsLabel, desc: ex.desc, tip: ex.tip, stop: ex.stop, day: id, idx: i,
+                      kit: window.KF && KF.kitFor ? KF.kitFor({ exercises: [ex] }) : [] });
+        });
       });
-    });
-    NEW.forEach(function (e) { e.isNew = true; ALL.push(e); });
-    return ALL;
+      NEW.forEach(function (e) { var c = JSON.parse(JSON.stringify(e)); c.isNew = true; c.base = e.color; FULL.push(c); });
+      if (window.KineOfficiel) FULL.forEach(function (e) { KineOfficiel.patch(e); });
+    }
+    return withHidden ? FULL : FULL.filter(function (e) { return !(window.KineOfficiel && KineOfficiel.hidden(e.name)); });
   }
-  function find(name) { var a = all(); for (var i = 0; i < a.length; i++) if (a[i].name === name) return a[i]; return null; }
+  function find(name) { var a = all(true); for (var i = 0; i < a.length; i++) if (a[i].name === name) return a[i]; return null; }
 
   // Couleur du moment : la base, +1 si l'exercice est passé en tempo lent (charges progressives)
   function color(name) {
@@ -380,11 +383,13 @@ var KineBiblio = (function () {
   function demo(name) {
     var e = find(name); if (!e) return;
     wire();
-    if (e.day && typeof openDemo === "function") { openDemo(e.day, e.idx); return; }
+    var cur = e.day && typeof SEQ_DAYS !== "undefined" && SEQ_DAYS[e.day] && SEQ_DAYS[e.day].exercises[e.idx];
+    if (cur && cur.name === e.name && typeof openDemo === "function") { openDemo(e.day, e.idx); return; }
     if (typeof openDemoEx === "function") openDemoEx(e);
   }
 
-  return { groups: GROUPS, colors: COLORS, all: all, find: find, color: color, open: open, close: close, demo: demo, wire: wire, NEW: NEW };
+  return { groups: GROUPS, colors: COLORS, all: all, find: find, color: color, open: open, close: close, demo: demo, wire: wire, NEW: NEW,
+           reset: function () { FULL = null; }, baseColor: function (n) { var e = find(n); return e ? e.base : 0; } };
 })();
 window.KineBiblio = KineBiblio;
 document.addEventListener("DOMContentLoaded", function () { setTimeout(KineBiblio.wire, 0); });

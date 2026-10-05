@@ -10,7 +10,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getCountFromServer, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCI7fwNeTl-2kYNnlpjr0IatLvQbppsUgg",
@@ -85,6 +85,17 @@ window.fbDeleteMessage = async function(docId) {
   if (!window.fbUser || !window.fbUser.isAdmin) return;
   await deleteDoc(doc(db, "messages", docId));
 };
+
+// ── PROGRAMME OFFICIEL : contenu des exercices, publié par le kiné, lu par tous (aucune donnée patient) ──
+window.fbGetProgramme = async function() {
+  var snap = await getDoc(doc(db, "programme", "officiel"));
+  return snap.exists() ? snap.data() : null;
+};
+window.fbSetProgramme = async function(data) {
+  if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("admin");
+  await setDoc(doc(db, "programme", "officiel"), data);
+};
+window.dispatchEvent(new Event("kf-fb-ready"));
 
 // ── COMPTEUR ANONYME DES SÉANCES TERMINÉES (aucune donnée personnelle : ni compte, ni nom) ──
 window.fbCountSession = async function(j) {
@@ -4329,5 +4340,7 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-savoir.js" defer></script>
 <script src="assets/js/kine-mascotte.js" defer></script>
 <script src="assets/js/kine-biblio.js" defer></script>
+<script src="assets/js/kine-compose.js" defer></script>
+<script src="assets/js/kine-officiel.js" defer></script>
 </body>
 </html>
