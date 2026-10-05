@@ -226,6 +226,7 @@
     return true;
   }
   function hide() {
+    var h = $("km-hole"); if (h) h.classList.remove("on");
     clearTimeout(timer); clearInterval(bougeT); playing = null; mode = null;
     var box = $("kf-masc"); if (!box || !box.classList.contains("open")) return;
     box.classList.remove("open");
@@ -302,13 +303,24 @@
   ];
   function tour(i) {
     var st = TOUR[i];
-    document.querySelectorAll(".km-spot").forEach(function (n) { n.classList.remove("km-spot"); });
+    var hole = $("km-hole");
+    if (!hole) { hole = document.createElement("div"); hole.id = "km-hole"; document.body.appendChild(hole); }
+    hole.classList.remove("on");
     if (!st) { set("kf-masc-tour", "1"); hide(); return true; }
+    if (i === 99) { set("kf-masc-tour", "1"); hide(); return true; }
     if (!appear()) return false;
     mode = "tour"; clearTimeout(timer);
     if (st.sel) {
-      var spot = function () { if (mode !== "tour") return; var t = document.querySelector(st.sel); if (t && !t.classList.contains("km-spot")) { t.classList.add("km-spot"); try { t.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} } };
-      spot(); setTimeout(spot, 400); setTimeout(spot, 1200);   // l'accueil peut se redessiner juste après l'ouverture
+      // un « trou » de lumière posé sur l'élément expliqué, le reste de l'écran assombri
+      var place = function () {
+        if (mode !== "tour") return;
+        var t = document.querySelector(st.sel); if (!t) return;
+        var r = t.getBoundingClientRect();
+        if (!t.closest(".bottom-nav") && (r.bottom > innerHeight - 260 || r.top < 60)) { try { window.scrollBy({ top: r.top - 140, behavior: "instant" }); } catch (e) { window.scrollBy(0, r.top - 140); } r = t.getBoundingClientRect(); }
+        hole.style.cssText = "top:" + (r.top - 6) + "px;left:" + (r.left - 6) + "px;width:" + (r.width + 12) + "px;height:" + (r.height + 12) + "px";
+        hole.classList.add("on");
+      };
+      place(); setTimeout(place, 400); setTimeout(place, 1200);   // l'accueil peut se redessiner juste après l'ouverture
     }
     bubble(st.text, "<div class='km-dots'>" + TOUR.map(function (_, j) { return "<i" + (j === i ? " class='on'" : "") + "></i>"; }).join("") + "</div>",
       "<button class='km-go' onclick='KineMascotte.tour(" + (i + 1) + ")'>" + (i < TOUR.length - 1 ? "Suivant" : "C'est compris") + "</button>" +
