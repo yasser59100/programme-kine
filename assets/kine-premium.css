@@ -424,3 +424,15 @@ html[data-theme="light"] .km-qt { color: #0a8a99; }
 .km-peek.drag, .km-peek.drag.show { transition: none; animation: none; transform: scale(1.08); border: 1px solid #00d4e6; border-radius: 39px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
 @keyframes km-bob-l { 0%, 82%, 100% { transform: translateX(0); } 88% { transform: translateX(6px) rotate(4deg); } 94% { transform: translateX(0); } }
 @media (prefers-reduced-motion: reduce) { .km-peek.left.show { animation: none; } }
+
+/* Charges progressives : avis après chaque exercice */
+.kl-vote { margin: 12px 0 4px; padding: 12px; border-radius: 16px; border: 1px solid var(--border2, #243547); background: rgba(255, 255, 255, 0.03); text-align: center; }
+.kl-q { margin: 0 0 10px; font-size: 15px; font-weight: 600; color: var(--text, #e8f0fe); }
+.kl-btns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.kl-btns button { min-height: 44px; padding: 6px 4px; border-radius: 12px; border: 1px solid var(--border2, #243547); background: none; color: var(--text, #e8f0fe); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.kl-btns button[data-v="f"] { border-color: rgba(52, 211, 153, 0.5); }
+.kl-btns button[data-v="b"] { border-color: rgba(0, 212, 230, 0.5); }
+.kl-btns button[data-v="d"] { border-color: rgba(251, 146, 60, 0.55); }
+.kl-btns button:active { transform: scale(.97); }
+.kl-done { margin: 0; font-size: 14px; line-height: 1.4; color: var(--text, #e8f0fe); }
+html[data-theme="light"] .kl-q, html[data-theme="light"] .kl-done, html[data-theme="light"] .kl-btns button { color: #0f1923; }

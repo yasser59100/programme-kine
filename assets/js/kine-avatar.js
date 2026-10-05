@@ -483,7 +483,9 @@
     if (def.timed || /seconde/i.test(label)) {
       var s = def.timed && def.timed.byWeek ? def.timed.byWeek[Math.min(3, Math.max(0, (week || 1) - 1))]
             : def.timed && def.timed.seconds ? def.timed.seconds : n;
-      return { mode: "timed", seconds: s, cues: def.cues || null,
+      var fromDef = !!(def.timed && (def.timed.byWeek || def.timed.seconds));
+      if (fromDef && window.KineLevel) s = KineLevel.adjSec(name, s);   // palier propre au patient
+      return { mode: "timed", seconds: s, fromDef: fromDef, cues: def.cues || null,
                sides: perSide || def.sides === "blocks" ? "blocks" : def.sides === "alternate" ? "alternate" : null };
     }
     var sides = perSide ? (def.sides || "alternate") : null;
@@ -545,6 +547,13 @@
                label: s.label + (variant ? ", " + variant : "") + sideTxt };
     });
     var iso = isoFor(name, rep, inf);
+    // Plafond atteint : tempo lent, pause de 2 s dans la position la plus difficile
+    if (!iso && steps.length && inf && inf.mode === "reps" && window.KineLevel && KineLevel.tempo(name)) {
+      var at0 = def && def.isoAfter != null ? def.isoAfter : 0, r0 = steps[at0], nx0 = steps[at0 + 1];
+      var pause = { pose: r0.pose, dur: 2, kind: "hold", side: side, say: rep === 1 ? "Pause 2 secondes" : null, label: "Pause" };
+      if (nx0 && nx0.kind === "hold" && nx0.pose === r0.pose) nx0.dur = Math.max(nx0.dur, 2);
+      else steps.splice(at0 + 1, 0, pause);
+    }
     if (iso && steps.length) {
       var at = def && def.isoAfter != null ? def.isoAfter : 0, ref = steps[at];
       var hold = { pose: ref.pose, dur: iso, kind: "hold", iso: iso, side: side,

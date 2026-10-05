@@ -69,14 +69,16 @@ var KineProgress = (function () {
     if (/seconde/i.test(label) && window.KineAvatar) {
       var inf = KineAvatar.info(ex.name, label, state().week);
       if (inf.mode === "timed") {
-        var sec = inf.seconds, txt = sec >= 60 && sec % 60 === 0 ? (sec / 60) + " minute" + (sec > 60 ? "s" : "") : sec + " secondes";
+        var sec = inf.fromDef || !window.KineLevel ? inf.seconds : KineLevel.adjSec(ex.name, inf.seconds), txt = sec >= 60 && sec % 60 === 0 ? (sec / 60) + " minute" + (sec > 60 ? "s" : "") : sec + " secondes";
         return txt + (/par (jambe|côté)/i.test(label) ? " par côté" : "");
       }
     }
     if (!/répétition/i.test(label)) return label;
-    var bonus = plan().repsBonus, m = label.match(/(\d+)\s*à\s*(\d+)/);
-    if (m) { var lo = +m[1], hi = +m[2]; return label.replace(m[0], String(Math.min(hi, lo + bonus))); }
-    return bonus ? label.replace(/\d+/, function (n) { return String(+n + bonus); }) : label;
+    var bonus = plan().repsBonus, m = label.match(/(\d+)\s*à\s*(\d+)/), side = /par (jambe|côté)/i.test(label);
+    var lvl = function (n) { return window.KineLevel ? KineLevel.adjReps(ex.name, n, side) : n; };
+    var slow = window.KineLevel && KineLevel.tempo(ex.name) ? " · pause 2 s" : "";
+    if (m) { var lo = +m[1], hi = +m[2]; return label.replace(m[0], String(lvl(Math.min(hi, lo + bonus)))) + slow; }
+    return label.replace(/\d+/, function (n) { return String(lvl(+n + bonus)); }) + slow;
   }
 
   // Variante décrite dans la fiche de l'exercice (« Variante S4 : … », « Variante S3–S4 : … »)
@@ -295,7 +297,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var cue = CUES[exName] || (ex && ex.desc) || "";
     var cueEl = $("rg2-cue");
     cueEl.classList.remove("open");
-    cueEl.innerHTML = (v ? "<strong>Variante de la semaine :</strong> " + esc(v) + "<br>" : "") + esc(cue) +
+    var slow = ex && window.KineLevel && KineLevel.tempo(ex.name) ? "<strong>Tempo lent :</strong> pause de 2 secondes à chaque répétition.<br>" : "";
+    cueEl.innerHTML = slow + (v ? "<strong>Variante de la semaine :</strong> " + esc(v) + "<br>" : "") + esc(cue) +
       (ex && ex.desc && CUES[exName] ? "<span class='cue-more'>Consigne complète ›</span><span class='cue-full'>" + esc(ex.desc) + (ex.tip ? "<br><strong>Conseil :</strong> " + esc(ex.tip) : "") + "</span>" : "");
     cueEl.onclick = function () { cueEl.classList.toggle("open"); };
     var n = rgState.autoStartIn; rgState.autoStartIn = 0;
@@ -381,6 +384,17 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var nx = seqRestNext; seqRestNext = null;
     if (!nx) return;
     var day = SEQ_DAYS[seqCurrentDay], ex = day.exercises[nx.exIdx];
+    // Avis sur l'exercice qui vient de se terminer : il règle sa difficulté pour la prochaine fois
+    var prev = nx.serie === 1 && !day.circuit ? day.exercises[nx.exIdx - 1] : null;
+    if (prev && prev.phase === "work" && window.KineLevel) {
+      var fb = document.createElement("div"); fb.className = "kl-vote";
+      fb.innerHTML = "<p class='kl-q'>Comment c'était, " + esc(prev.name.charAt(0).toLowerCase() + prev.name.slice(1)) + " ?</p><div class='kl-btns'>" +
+        [["f", "Trop facile"], ["b", "Juste bien"], ["d", "Trop dur"]].map(function (b) { return "<button type='button' data-v='" + b[0] + "'>" + b[1] + "</button>"; }).join("") + "</div>";
+      fb.querySelectorAll("button").forEach(function (b) {
+        b.onclick = function () { var msg = KineLevel.vote(prev, b.getAttribute("data-v")); fb.innerHTML = "<p class='kl-done'>" + esc(msg) + "</p>"; };
+      });
+      body.appendChild(fb);
+    }
     var box = document.createElement("div");
     box.className = "seq-next";
     if (!ex) {
