@@ -29,9 +29,9 @@
       if (inf.mode === "timed") per = inf.seconds * (inf.sides ? 2 : 1);
       else if (window.KineAvatar && KineAvatar.hasSteps(ex.name)) { var st2 = KineAvatar.plan(ex.name, 1, inf, w).steps; per = st2.reduce(function (a, s) { return a + s.dur; }, 0) * (inf.reps || 12) + (KineAvatar.isoTotal ? KineAvatar.isoTotal(ex.name, KineProgress.repsLabel(ex), w) : 0); }
       else per = (inf.reps || 12) * 3;
-      tot += d.circuit ? 60 * p.series : p.series * per + (p.series - 1) * 30 + 60;
+      tot += d.circuit ? 60 * p.series : p.series * (per + 45);
     });
-    if (d.circuit) tot += (p.series - 1) * 120;
+    tot += (p.series - 1) * (d.circuit ? 120 : 90);
     return tot;
   }
   function status(id) {
@@ -91,7 +91,7 @@
     var first = works(id)[0];
     var html = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineProgram.close()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + esc(d.label) + "</div><div class='kf-sub'>" + esc(focus(id)) + "</div></div>" +
-      "<div class='su-tags'><span class='pg-chip'>Semaine " + w + "</span><span>" + (d.circuit ? p.series + " tours, 40 s par exercice" : p.series + " séries" + (first ? ", " + esc(KineProgress.repsLabel(first)) : "")) + "</span><span>" + fmtMin(estimate(id)) + "</span></div>" +
+      "<div class='su-tags'><span class='pg-chip'>Semaine " + w + "</span><span>" + (d.circuit ? p.series + " tours, 40 s par exercice" : p.series + " tours" + (first ? ", " + esc(KineProgress.repsLabel(first)) : "")) + "</span><span>" + fmtMin(estimate(id)) + "</span></div>" +
       (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "");
     d.exercises.forEach(function (ex, i) {
       if (ex.phase !== "work") {
@@ -101,7 +101,7 @@
       }
       var thumb = window.KineAvatar && KineAvatar.supports(ex.name) ? KineAvatar.snapshot(ex.name, 104) : null;
       var tt = window.KF ? KF.tempoText(ex) : "", v = KineProgress.variant(id, i);
-      var meta = (d.circuit ? KineProgress.repsLabel(ex) + " par tour" : p.series + " × " + KineProgress.repsLabel(ex)) + (tt ? ", " + tt : "");
+      var meta = KineProgress.repsLabel(ex) + " par tour" + (tt ? ", " + tt : "");
       html += "<button class='pg-ex' onclick=\"openDemo('" + id + "'," + i + ")\">" +
         (thumb ? "<img src='" + thumb + "' alt=''>" : "<span class='pg-fig' aria-hidden='true'></span>") +
         "<span class='pg-day-t'><b>" + esc(ex.name) + "</b><span>" + esc(meta) + "</span>" + (v ? "<em>Variante : " + esc(v) + "</em>" : "") + "</span><span class='pg-chev' aria-hidden='true'>›</span></button>";
@@ -137,7 +137,7 @@
     var p = plan();
     var eff = [[1, "Très facile", ""], [2, "Facile", "ok"], [3, "Modéré", "ok"], [4, "Difficile", "warn"], [5, "Épuisant", "bad"]].map(function (e) {
       return "<div class='pg-eff " + e[2] + "'><b>" + e[0] + "</b><span>" + e[1] + "</span></div>"; }).join("");
-    var wk = [["S1", "2 séries, on apprend la technique"], ["S2", "3 séries si facile, sinon +2 répétitions"], ["S3", "3 séries, renforcement"], ["S4", "3 séries et variantes"]].map(function (x, i) {
+    var wk = [["S1", "2 tours, on apprend la technique"], ["S2", "3 tours si facile, sinon +2 répétitions"], ["S3", "3 tours, renforcement"], ["S4", "3 tours et variantes"]].map(function (x, i) {
       return "<div class='pg-w" + (i + 1 === p.week ? " cur" : "") + "'><b>" + x[0] + "</b>" + x[1] + "</div>"; }).join("");
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineProgram.close()' aria-label='Retour'>←</button>" +

@@ -73,12 +73,12 @@
     ["Je peux faire deux séances le même jour ?", "Mieux vaut pas : les muscles progressent pendant la récupération. Une séance par jour au maximum, et garde au moins un jour de repos dans la semaine."],
     ["Je peux marcher ou faire du sport à côté ?", "La marche, oui, tous les jours si tu peux : c'est un excellent complément. Pour la course, les sports collectifs ou la salle, demande d'abord l'accord de ton kiné, selon ta blessure ou ton opération."],
     ["Comment je dois respirer ?", "Ne bloque jamais ta respiration. Souffle pendant l'effort, quand tu montes ou que tu pousses, et inspire en revenant. Pendant les gainages, respire calmement et régulièrement."],
-    ["C'est trop facile, je ne sens rien.", "Dis-le dans le bilan de fin de séance en notant un effort facile : le programme s'adapte et augmente plus tôt. Tu peux aussi ralentir la descente : plus c'est lent, plus c'est exigeant."],
-    ["C'est trop dur, je n'y arrive pas.", "Fais ce que tu peux avec une bonne technique, même avec moins de répétitions : le bouton « Terminer » est là pour ça. Note un effort élevé dans le bilan, le programme garde alors le même volume au lieu d'augmenter."],
+    ["C'est trop facile, je ne sens rien.", "Appuie sur « Trop facile » pendant le repos qui suit l'exercice : après deux fois de suite, il augmente. Tu peux aussi ralentir la descente : plus c'est lent, plus c'est exigeant."],
+    ["C'est trop dur, je n'y arrive pas.", "Fais ce que tu peux avec une bonne technique, même avec moins de répétitions : le bouton « Terminer » est là pour ça. Appuie ensuite sur « Trop dur » pendant le repos : l'exercice baisse d'un cran la fois suivante."],
     ["Quel est le meilleur moment pour ma séance ?", "Celui où tu peux la faire régulièrement. Évite juste de la faire juste après un gros repas."],
     ["Je peux sauter l'échauffement ?", "Non, il ne dure que quelques minutes et prépare tes articulations et tes muscles. C'est aussi ce qui limite les douleurs pendant la séance."],
     ["Chaud ou froid après la séance ?", "Choisis ce qui te fait du bien. Le chaud détend quand tu te sens tendu ou raide. Le froid, 10 à 15 minutes dans un linge, calme un gonflement ou une douleur qui s'emballe. Mais pas besoin de glacer après chaque séance : la petite inflammation après l'effort fait partie de la réparation et de la progression du muscle. Si une douleur persiste, parles-en à ton kiné."],
-    ["Je suis fatigué ou malade aujourd'hui.", "En cas de fièvre, d'infection ou de grosse fatigue, repose-toi et reprends quand ça va mieux. Si c'est juste une petite fatigue, adapte la séance à ton ressenti : moins de répétitions, moins de séries, une amplitude plus petite ou un rythme plus doux. Et note un effort élevé dans le bilan, le programme en tiendra compte."],
+    ["Je suis fatigué ou malade aujourd'hui.", "En cas de fièvre, d'infection ou de grosse fatigue, repose-toi et reprends quand ça va mieux. Si c'est juste une petite fatigue, adapte la séance à ton ressenti : moins de répétitions, moins de tours, une amplitude plus petite ou un rythme plus doux. Et note un effort élevé dans le bilan, le programme en tiendra compte."],
     ["Quand dois-je appeler mon kiné ?", "Si une douleur dépasse 5 sur 10 et ne passe pas, si une articulation gonfle, si la douleur te réveille la nuit, en cas d'instabilité, de fourmillements ou de perte de force. En cas de douleur dans la poitrine, de malaise ou d'essoufflement inhabituel, appelle le 15."],
     ["Où vont mes données ?", "Elles restent sur ton téléphone. Elles ne partent vers ton kiné que si tu utilises « Envoyer à mon kiné », et c'est toi qui choisis à qui les envoyer."]
   ];
@@ -131,13 +131,13 @@
     if (get("kf-masc-week") === key) return null;
     var p = KineProgress.plan(), t;
     if (st.cycleDone) t = "Ton cycle de 4 semaines est terminé, bravo ! Parle à ton kiné de la suite : il pourra t'en préparer un nouveau.";
-    else if (st.week === 1) t = "Bienvenue ! Cette semaine, 2 séries par exercice. On apprend les bons gestes, pas de course à la performance.";
+    else if (st.week === 1) t = "Bienvenue ! Cette semaine, 2 tours de séance. On apprend les bons gestes, pas de course à la performance.";
     else if (st.week === 2) t = p.high ? "Semaine 2 ! Tu as noté des séances difficiles, alors on garde le même volume. On augmentera quand ce sera plus facile."
-      : p.series >= 3 ? "Semaine 2 ! Les séances te semblent faciles, alors on passe à 3 séries par exercice."
+      : p.series >= 3 ? "Semaine 2 ! Les séances te semblent faciles, alors on passe à 3 tours."
       : "Semaine 2 ! On ajoute 2 répétitions à chaque exercice. Ton corps s'est habitué, on augmente un petit peu.";
-    else if (st.week === 3) t = p.high ? "Semaine 3 ! Tes dernières séances étaient dures, on reste à 2 séries. C'est toi qui donnes le rythme."
-      : "Semaine 3 : on passe à 3 séries. C'est la semaine du renforcement, c'est normal de le sentir un peu plus.";
-    else t = "Dernière semaine ! 3 séries, et certains exercices passent à une version plus exigeante, comme le squat avec une pause de 2 secondes en bas.";
+    else if (st.week === 3) t = p.high ? "Semaine 3 ! Tes dernières séances étaient dures, on reste à 2 tours. C'est toi qui donnes le rythme."
+      : "Semaine 3 : on passe à 3 tours. C'est la semaine du renforcement, c'est normal de le sentir un peu plus.";
+    else t = "Dernière semaine ! 3 tours, et certains exercices passent à une version plus exigeante, comme le squat avec une pause de 2 secondes en bas.";
     return { id: "semaine-" + key, gesture: "open", text: t, onShow: function () { set("kf-masc-week", key); } };
   }
   function pickMessage(page) {
@@ -497,7 +497,7 @@
     { title: "Installer l'appli sur mon écran d'accueil", kw: "installer écran accueil application appli icône raccourci télécharger iphone android",
       text: "Sur iPhone : dans Safari, touche Partager puis « Sur l'écran d'accueil ». Sur Android : dans Chrome, touche les trois points puis « Installer l'application ». L'appli marche ensuite comme une vraie appli, même hors connexion." },
     { title: "Reprendre après une absence", kw: "reprise reprendre absence vacances arrêt pause longue semaines",
-      text: "Après plus d'une semaine sans séance, reprends en douceur : moins de séries et une amplitude réduite la première fois, puis remonte selon ton ressenti. Si tu as eu une douleur nouvelle entre-temps, parles-en à ton kiné." },
+      text: "Après plus d'une semaine sans séance, reprends en douceur : moins de tours et une amplitude réduite la première fois, puis remonte selon ton ressenti. Si tu as eu une douleur nouvelle entre-temps, parles-en à ton kiné." },
     { title: "Passer en mode clair ou sombre", kw: "thème mode sombre clair nuit couleur luminosité",
       text: "Touche l'icône soleil ou lune en haut de l'accueil pour changer de thème.", action: "theme", actionLabel: "Changer maintenant" },
     { title: "Bouger 2 minutes avec moi", kw: "bouger pause active étirer étirements bureau assis dégourdir",

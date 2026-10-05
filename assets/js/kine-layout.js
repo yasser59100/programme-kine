@@ -145,7 +145,7 @@
   function renderProg() {
     var box = $("prog-v2"); if (!box || typeof SEQ_DAYS === "undefined") return;
     var p = window.KineProgress ? KineProgress.plan() : { week: 1, reason: "" }, st = window.KineProgress ? KineProgress.state() : {};
-    var W = [["2 séries, on apprend la technique."], ["3 séries si l'effort reste facile, sinon 2 répétitions de plus."], ["3 séries, renforcement."], ["3 séries et variantes avancées."]];
+    var W = [["2 tours, on apprend la technique."], ["3 tours si l'effort reste facile, sinon 2 répétitions de plus."], ["3 tours, renforcement."], ["3 tours et variantes avancées."]];
     var weeks = W.map(function (t, i) {
       var n = i + 1, cls = n < p.week ? "done" : n === p.week ? "cur" : "";
       return "<div class='lx-wk " + cls + "'><h3>Semaine " + n + (n === p.week ? ", en cours" : "") + "</h3><p>" + t[0] + "</p></div>";

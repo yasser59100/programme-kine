@@ -49,15 +49,15 @@ var KineProgress = (function () {
     var recent = borgs.slice(0, 3), avg = recent.length ? recent.reduce(function (a, b) { return a + b; }, 0) / recent.length : null;
     var easy = recent.length >= 2 && avg <= 2;
     var series = 2, bonus = 0, reason;
-    if (w === 1) { reason = "Semaine 1 : 2 séries, on apprend la technique"; }
+    if (w === 1) { reason = "Semaine 1 : 2 tours, on apprend la technique"; }
     else if (w === 2) {
       if (high) reason = "Effort élevé aux dernières séances : volume maintenu";
-      else if (easy) { series = 3; reason = "Effort bien toléré : passage à 3 séries"; }
+      else if (easy) { series = 3; reason = "Effort bien toléré : passage à 3 tours"; }
       else { bonus = 2; reason = "Semaine 2 : +2 répétitions"; }
     } else {
       series = high ? 2 : 3;
-      reason = high ? "Effort élevé aux dernières séances : on reste à 2 séries"
-                    : w === 3 ? "Semaine 3 : 3 séries, renforcement" : "Semaine 4 : 3 séries et variante avancée";
+      reason = high ? "Effort élevé aux dernières séances : on reste à 2 tours"
+                    : w === 3 ? "Semaine 3 : 3 tours, renforcement" : "Semaine 4 : 3 tours et variante avancée";
     }
     return { week: w, series: series, repsBonus: bonus, high: high, reason: reason, state: st };
   }
@@ -236,14 +236,14 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var html = "<div class='kf-sheet-body'>" +
       "<button class='kf-back' onclick='closePreview()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + esc(day.label) + "</div>" +
-      "<div class='kf-sub'>Semaine " + KineProgress.week() + ", ~40 min, " + (day.circuit ? "circuit de " + nS + " tours : 40 s par exercice, 20 s de transition, 2 min entre les tours" : nS + " séries par exercice") + "</div></div>" +
+      "<div class='kf-sub'>Semaine " + KineProgress.week() + ", ~40 min, " + (day.circuit ? "circuit de " + nS + " tours : 40 s par exercice, 20 s de transition, 2 min entre les tours" : nS + " tours : les exercices s'enchaînent, puis on recommence") + "</div></div>" +
       "<div class='kf-note'>" + esc(KineProgress.plan().reason) + "</div>" +
       (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "") +
       "<button class='v2-row' onclick=\"closePreview();openExplain('" + dayId + "')\"><b>Lire les explications des exercices</b><span>›</span></button>";
     var lastPhase = null;
     day.exercises.forEach(function (ex, i) {
       if (ex.phase !== lastPhase) { var ph = PHASES[ex.phase] || [ex.phase, "var(--text2)"]; html += "<div class='kf-phase' style='color:" + ph[1] + "'>" + ph[0] + "</div>"; lastPhase = ex.phase; }
-      var meta = ex.phase === "work" ? (day.circuit ? KineProgress.repsLabel(ex) + " à chaque tour" : nS + " × " + KineProgress.repsLabel(ex)) : ex.repsLabel;
+      var meta = ex.phase === "work" ? KineProgress.repsLabel(ex) + " à chaque tour" : ex.repsLabel;
       var t = tempoText(ex), v = KineProgress.variant(dayId, i);
       if (v) t = (t ? t + "\n" : "") + "Variante : " + v;
       var img = window.KineAvatar && KineAvatar.snapshot ? KineAvatar.snapshot(ex.name, 112) : null;
@@ -285,9 +285,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var ex = inSeq ? SEQ_DAYS[seqCurrentDay].exercises[seqExIdx] : null;
     if (inSeq) {
       var nEx = SEQ_DAYS[seqCurrentDay].exercises.length;
-      $("rg-serie-info").textContent = SEQ_DAYS[seqCurrentDay].circuit
-        ? "Tour " + serie + " sur " + totalSeries + ", Exercice " + (seqExIdx + 1) + " sur " + nEx
-        : "Exercice " + (seqExIdx + 1) + " sur " + nEx + ", Série " + serie + " sur " + totalSeries;
+      $("rg-serie-info").textContent = "Tour " + serie + " sur " + totalSeries + ", Exercice " + (seqExIdx + 1) + " sur " + nEx;
       $("rg2-prog-fill").style.width = Math.round(((seqExIdx + (serie - 1) / totalSeries) / nEx) * 100) + "%";
     } else {
       $("rg-serie-info").textContent = "Série " + serie + " sur " + totalSeries;
@@ -385,7 +383,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     if (!nx) return;
     var day = SEQ_DAYS[seqCurrentDay], ex = day.exercises[nx.exIdx];
     // Avis sur l'exercice qui vient de se terminer : il règle sa difficulté pour la prochaine fois
-    var prev = nx.serie === 1 && !day.circuit ? day.exercises[nx.exIdx - 1] : null;
+    // en tours : on demande l'avis au dernier tour, une fois l'exercice vraiment terminé
+    var prev = nx.prevIdx != null && !day.circuit ? day.exercises[nx.prevIdx] : null;
     if (prev && prev.phase === "work" && window.KineLevel) {
       var fb = document.createElement("div"); fb.className = "kl-vote";
       fb.innerHTML = "<p class='kl-q'>Comment c'était, " + esc(prev.name.charAt(0).toLowerCase() + prev.name.slice(1)) + " ?</p><div class='kl-btns'>" +
@@ -403,7 +402,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     }
     var demo = document.createElement("div"); demo.className = "seq-next-demo";
     var info = document.createElement("div");
-    var meta = ex.phase === "work" ? (day.circuit ? "Tour " : "Série ") + nx.serie + " sur " + seqTotalSeries + ", " + KineProgress.repsLabel(ex) : ex.repsLabel;
+    var meta = ex.phase === "work" ? "Tour " + nx.serie + " sur " + seqTotalSeries + ", " + KineProgress.repsLabel(ex) : ex.repsLabel;
     info.innerHTML = "<div class='seq-next-k'>Ensuite</div><div class='seq-next-name'>" + esc(ex.name) + "</div><div class='seq-next-meta'>" + esc(meta) + "</div>";
     box.appendChild(demo); box.appendChild(info);
     body.appendChild(box);
