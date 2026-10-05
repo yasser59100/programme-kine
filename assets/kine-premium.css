@@ -361,14 +361,15 @@ html[data-theme="light"] .km-coach p { color: #0f1923; }
 html[data-theme="light"] .km-peek { background: radial-gradient(circle at 70% 55%, rgba(0, 194, 214, 0.22), #ffffff 70%); }
 @media (prefers-reduced-motion: reduce) { .km-peek.show { animation: none; } }
 
-/* Mascotte — mode question (en haut, au-dessus du clavier) */
-.kf-masc.ask { top: calc(10px + env(safe-area-inset-top, 0px)); bottom: auto; align-items: flex-start; transform: translateY(-130%); }
+/* Mascotte — mode question : buste en bas de l'écran, bulle au-dessus */
+.kf-masc.ask { --st: min(30vh, 250px); top: auto; bottom: var(--kb, 0px); max-width: 560px; flex-direction: column; align-items: stretch; padding: 0 12px; transform: translateY(110%); }
 .kf-masc.ask.open { transform: none; }
+.kf-masc.ask.kb { --st: 150px; }
 .kf-masc.ask::before, .kf-masc.big::before { position: fixed; inset: 0; left: 0; right: 0; height: auto; background: rgba(4, 8, 14, 0.72); pointer-events: auto; }
-.kf-masc.ask .km-stage { flex: 0 0 108px; height: 150px; margin: 0 -8px 0 2px; border-radius: 22px; }
-.kf-masc.ask .km-bubble { margin: 14px 0 0; border-radius: 20px 6px 20px 20px; }
-.kf-masc.ask .km-bubble::before { bottom: auto; top: 22px; }
-.kf-masc.ask .km-scroll { max-height: min(58vh, 460px); }
+.kf-masc.ask .km-stage { order: 2; flex: 0 0 auto; width: auto; height: var(--st); margin: -6px -12px 0; border-radius: 0; -webkit-mask-image: none; mask-image: none; background: radial-gradient(55% 80% at 50% 100%, rgba(0, 242, 254, 0.2), transparent 75%); transition: height .25s; }
+.kf-masc.ask .km-bubble { order: 1; margin: 0; border-radius: 20px; }
+.kf-masc.ask .km-bubble::before { right: auto; left: 50%; bottom: -9px; top: auto; margin-left: -8px; transform: rotate(135deg); }
+.kf-masc.ask .km-scroll { max-height: calc(100dvh - var(--kb, 0px) - var(--st) - 120px - env(safe-area-inset-top, 0px)); }
 .km-search { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0 12px; min-height: 46px; border-radius: 14px; border: 1px solid rgba(0, 212, 230, 0.45); background: rgba(255, 255, 255, 0.05); color: #00d4e6; }
 .km-search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--text, #e8f0fe); font: inherit; font-size: 16px; padding: 10px 0; }
 .km-search input::placeholder { color: var(--text3, #8595ab); }

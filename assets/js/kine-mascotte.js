@@ -47,7 +47,7 @@
       }
     };
     KineAvatar.register(NAME, DEF);
-    KineAvatar.register(NAME + "_ask", L.merge(DEF, { camera: { yaw: 0.12, pitch: 0.03, dist: 1.4, ty: 1.52 } }));
+    KineAvatar.register(NAME + "_ask", L.merge(DEF, { camera: { yaw: 0.06, pitch: 0.02, dist: 1.05, ty: 1.5 } }));
     // pause active : face au patient, en grand, bras levés compris dans le cadre
     KineAvatar.register(NAME + "_big", L.merge(DEF, { camera: { yaw: 0.12, pitch: 0.04, dist: 3.15, ty: 1.22 } }));
     // Portrait (tête et épaules), utilisé quand l'avatar 3D est déjà occupé par la séance
@@ -184,6 +184,13 @@
     e.innerHTML = "<div class='km-bubble'><div class='km-scroll' id='km-scroll'><p class='km-text' id='km-text'></p><div class='km-list' id='km-list'></div></div><div class='km-acts' id='km-acts'></div></div>" +
       "<button type='button' class='km-stage' id='km-stage' aria-label='Poser une question à la mascotte' onclick='KineMascotte.faq()'></button>";
     document.body.appendChild(e);
+    if (window.visualViewport) {
+      var kb = function () {
+        var vv = window.visualViewport, h = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+        e.style.setProperty("--kb", h + "px"); e.classList.toggle("kb", h > 80);
+      };
+      visualViewport.addEventListener("resize", kb); visualViewport.addEventListener("scroll", kb);
+    }
     // toucher le fond assombri referme (sauf pendant « Bouger »)
     e.addEventListener("click", function (ev) { if (ev.target === e && mode !== "bouge") hide(); });
     var y0 = null;
@@ -588,8 +595,7 @@
     if (!fold(v).trim()) { box.innerHTML = faqList(); return; }
     var ids = find(v);
     if (!ids.length) {
-      box.innerHTML = "<p class='km-none'>Je n'ai pas trouvé de réponse à ça. Essaie d'autres mots, ou pose la question directement à ton kiné.</p>" +
-        "<button class='km-q km-kine' onclick='KineMascotte.doAct(\"envoyer\")'>Écrire à mon kiné</button>";
+      box.innerHTML = "<p class='km-none'>Je n'ai pas trouvé de réponse à ça. Essaie avec d'autres mots, ou garde ta question pour ta prochaine séance : ton kiné y répondra.</p>";
       return;
     }
     box.innerHTML = ids.map(function (k) { var d = DOCS[k]; return "<button class='km-q' onclick='KineMascotte.open(" + k + ")'><span class='km-tag'>" + esc(d.type) + "</span>" + esc(d.title) + "</button>"; }).join("");
