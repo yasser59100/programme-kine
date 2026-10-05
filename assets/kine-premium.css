@@ -325,3 +325,5 @@ html[data-theme="light"] .kr-kv span.r { background: #fde8e8; color: #b42318; }
 html[data-theme="light"] .km-bubble { background: rgba(255, 255, 255, 0.96); border-color: rgba(0, 150, 180, 0.35); box-shadow: 0 12px 30px rgba(15, 25, 35, 0.16); }
 html[data-theme="light"] .km-text { color: #0f1923; }
 @media (prefers-reduced-motion: reduce) { .kf-masc { transition: opacity .2s; } }
+.km-off { min-height: 40px; padding: 0 6px; border: 0; background: none; color: var(--text3, #8595ab); font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.kr-links .kr-sw { font-size: 14px !important; color: var(--text2, #a9b8cc); }

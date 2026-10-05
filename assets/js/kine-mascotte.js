@@ -110,7 +110,8 @@
     var acts = "";
     if (msg.cta === "ressenti") acts = "<button class='km-go' onclick='KineMascotte.act(\"ressenti\")'>Noter mon ressenti</button>";
     if (msg.cta === "savoir") acts = "<button class='km-go' onclick='KineMascotte.act(\"savoir\")'>Lire</button>";
-    $("km-acts").innerHTML = acts + "<button class='km-later' onclick='KineMascotte.hide()'>Plus tard</button>";
+    $("km-acts").innerHTML = acts + "<button class='km-later' onclick='KineMascotte.hide()'>Plus tard</button>" +
+      "<button class='km-off' onclick='KineMascotte.off(true)'>Ne plus afficher</button>";
     if (!KineAvatar.show($("km-stage"), NAME)) return false;
     box.classList.add("open");
     play(msg.gesture);
@@ -141,7 +142,8 @@
       if (what === "ressenti" && window.KineCheckin) KineCheckin.open();
       if (what === "savoir" && window.KineSavoir) KineSavoir.open(KineSavoir.today ? KineSavoir.today() : 0);
     },
-    off: function (v) { set("kf-masc-off", v ? "1" : "0"); if (v) hide(); }
+    off: function (v) { set("kf-masc-off", v ? "1" : "0"); if (v) hide(); if (window.KineLayout) KineLayout.render(); },
+    isOff: function () { return get("kf-masc-off") === "1"; }
   };
 
   function init() {

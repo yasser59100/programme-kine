@@ -132,6 +132,7 @@
         "<button onclick='KineCheckin.chart()'><span>Douleur et effort, la courbe</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"historique\")'><span>Historique des séances</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
+        (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Mascotte</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivée" : "activée") + "</span></button>" : "") +
       "</div>" +
       "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer à mon kiné</button>" +
       "<h2 class='lx-section'>Mes badges</h2>";
