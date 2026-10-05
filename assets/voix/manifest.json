@@ -1,1 +1,1204 @@
-{"clips":{}}
+{
+"clips": {
+"1": {
+"f": "v001.mp3",
+"d": 0.444,
+"t": "1"
+},
+"10": {
+"f": "v002.mp3",
+"d": 0.758,
+"t": "10"
+},
+"10 répétitions": {
+"f": "v003.mp3",
+"d": 1.254,
+"t": "10 répétitions"
+},
+"10 répétitions de chaque côté": {
+"f": "v004.mp3",
+"d": 1.672,
+"t": "10 répétitions de chaque côté"
+},
+"11": {
+"f": "v005.mp3",
+"d": 0.784,
+"t": "11"
+},
+"12": {
+"f": "v006.mp3",
+"d": 0.94,
+"t": "12"
+},
+"12 répétitions": {
+"f": "v007.mp3",
+"d": 1.176,
+"t": "12 répétitions"
+},
+"13": {
+"f": "v008.mp3",
+"d": 0.731,
+"t": "13"
+},
+"14": {
+"f": "v009.mp3",
+"d": 0.81,
+"t": "14"
+},
+"15": {
+"f": "v010.mp3",
+"d": 0.81,
+"t": "15"
+},
+"15 répétitions": {
+"f": "v011.mp3",
+"d": 1.149,
+"t": "15 répétitions"
+},
+"15 répétitions de chaque côté": {
+"f": "v012.mp3",
+"d": 1.776,
+"t": "15 répétitions de chaque côté"
+},
+"16": {
+"f": "v013.mp3",
+"d": 0.888,
+"t": "16"
+},
+"17": {
+"f": "v014.mp3",
+"d": 0.862,
+"t": "17"
+},
+"18": {
+"f": "v015.mp3",
+"d": 0.888,
+"t": "18"
+},
+"19": {
+"f": "v016.mp3",
+"d": 0.731,
+"t": "19"
+},
+"2": {
+"f": "v017.mp3",
+"d": 0.627,
+"t": "2"
+},
+"20": {
+"f": "v018.mp3",
+"d": 0.47,
+"t": "20"
+},
+"20 secondes": {
+"f": "v019.mp3",
+"d": 0.993,
+"t": "20 secondes"
+},
+"20 secondes de chaque côté": {
+"f": "v020.mp3",
+"d": 1.489,
+"t": "20 secondes de chaque côté"
+},
+"21": {
+"f": "v021.mp3",
+"d": 0.81,
+"t": "21"
+},
+"22": {
+"f": "v022.mp3",
+"d": 0.81,
+"t": "22"
+},
+"23": {
+"f": "v023.mp3",
+"d": 0.758,
+"t": "23"
+},
+"24": {
+"f": "v024.mp3",
+"d": 0.862,
+"t": "24"
+},
+"25": {
+"f": "v025.mp3",
+"d": 0.888,
+"t": "25"
+},
+"25 secondes": {
+"f": "v026.mp3",
+"d": 1.306,
+"t": "25 secondes"
+},
+"26": {
+"f": "v027.mp3",
+"d": 1.959,
+"t": "26"
+},
+"27": {
+"f": "v028.mp3",
+"d": 1.384,
+"t": "27"
+},
+"28": {
+"f": "v029.mp3",
+"d": 0.836,
+"t": "28"
+},
+"29": {
+"f": "v030.mp3",
+"d": 0.758,
+"t": "29"
+},
+"3": {
+"f": "v031.mp3",
+"d": 0.522,
+"t": "3"
+},
+"30": {
+"f": "v032.mp3",
+"d": 0.627,
+"t": "30"
+},
+"30 secondes": {
+"f": "v033.mp3",
+"d": 1.019,
+"t": "30 secondes"
+},
+"30 secondes de chaque côté": {
+"f": "v034.mp3",
+"d": 1.541,
+"t": "30 secondes de chaque côté"
+},
+"4": {
+"f": "v035.mp3",
+"d": 0.705,
+"t": "4"
+},
+"40 secondes": {
+"f": "v036.mp3",
+"d": 1.097,
+"t": "40 secondes"
+},
+"40 secondes de chaque côté": {
+"f": "v037.mp3",
+"d": 1.672,
+"t": "40 secondes de chaque côté"
+},
+"45 secondes": {
+"f": "v038.mp3",
+"d": 1.306,
+"t": "45 secondes"
+},
+"45 secondes de chaque côté": {
+"f": "v039.mp3",
+"d": 1.724,
+"t": "45 secondes de chaque côté"
+},
+"5": {
+"f": "v040.mp3",
+"d": 0.784,
+"t": "5"
+},
+"6": {
+"f": "v041.mp3",
+"d": 0.731,
+"t": "6"
+},
+"60 secondes": {
+"f": "v042.mp3",
+"d": 1.228,
+"t": "60 secondes"
+},
+"60 secondes de chaque côté": {
+"f": "v043.mp3",
+"d": 1.698,
+"t": "60 secondes de chaque côté"
+},
+"7": {
+"f": "v044.mp3",
+"d": 0.731,
+"t": "7"
+},
+"8": {
+"f": "v045.mp3",
+"d": 0.627,
+"t": "8"
+},
+"8 répétitions": {
+"f": "v046.mp3",
+"d": 1.123,
+"t": "8 répétitions"
+},
+"8 répétitions de chaque côté": {
+"f": "v047.mp3",
+"d": 1.62,
+"t": "8 répétitions de chaque côté"
+},
+"9": {
+"f": "v048.mp3",
+"d": 0.679,
+"t": "9"
+},
+"abduction hanche debout": {
+"f": "v049.mp3",
+"d": 1.437,
+"t": "Abduction hanche debout"
+},
+"activation ceinture pelvienne": {
+"f": "v050.mp3",
+"d": 1.75,
+"t": "Activation ceinture pelvienne"
+},
+"activation transverse et mobilisation": {
+"f": "v051.mp3",
+"d": 2.194,
+"t": "Activation transverse et mobilisation"
+},
+"alignez épaules hanches et genoux sans cambrer le bas du dos": {
+"f": "v052.mp3",
+"d": 3.004,
+"t": "Alignez épaules, hanches et genoux, sans cambrer le bas du dos."
+},
+"allez": {
+"f": "v053.mp3",
+"d": 0.679,
+"t": "Allez !"
+},
+"allez en piste": {
+"f": "v054.mp3",
+"d": 1.306,
+"t": "Allez, en piste !"
+},
+"belle exécution": {
+"f": "v055.mp3",
+"d": 1.097,
+"t": "Belle exécution."
+},
+"bravo séance terminée prenez une minute pour votre bilan": {
+"f": "v056.mp3",
+"d": 3.291,
+"t": "Bravo ! Séance terminée. Prenez une minute pour votre bilan."
+},
+"bravo séance terminée vous avez réalisé tous les exercices pensez à vous hydrater": {
+"f": "v057.mp3",
+"d": 4.702,
+"t": "Bravo ! Séance terminée. Vous avez réalisé tous les exercices. Pensez à vous hydrater."
+},
+"burpee modifié sans saut": {
+"f": "v058.mp3",
+"d": 1.829,
+"t": "Burpee modifié sans saut"
+},
+"c'est là que le muscle travaille": {
+"f": "v059.mp3",
+"d": 1.62,
+"t": "C'est là que le muscle travaille."
+},
+"c'est parti": {
+"f": "v060.mp3",
+"d": 0.888,
+"t": "C'est parti."
+},
+"c'est propre continuez comme ça": {
+"f": "v061.mp3",
+"d": 1.489,
+"t": "C'est propre, continuez comme ça."
+},
+"c'est reparti": {
+"f": "v062.mp3",
+"d": 1.019,
+"t": "C'est reparti !"
+},
+"chaise contre le mur": {
+"f": "v063.mp3",
+"d": 1.176,
+"t": "Chaise contre le mur"
+},
+"changez de côté": {
+"f": "v064.mp3",
+"d": 1.123,
+"t": "Changez de côté"
+},
+"circuit terminé place aux étirements": {
+"f": "v065.mp3",
+"d": 2.168,
+"t": "Circuit terminé. Place aux étirements."
+},
+"ciseaux": {
+"f": "v066.mp3",
+"d": 0.758,
+"t": "Ciseaux"
+},
+"ciseaux et vélo": {
+"f": "v067.mp3",
+"d": 1.254,
+"t": "Ciseaux et vélo"
+},
+"clamshell": {
+"f": "v068.mp3",
+"d": 0.993,
+"t": "Clamshell"
+},
+"corps aligné coudes à 45 du tronc descente lente": {
+"f": "v069.mp3",
+"d": 3.553,
+"t": "Corps aligné, coudes à 45° du tronc, descente lente."
+},
+"corps aligné ni cambré ni fessiers relevés respiration libre": {
+"f": "v070.mp3",
+"d": 3.657,
+"t": "Corps aligné, ni cambré ni fessiers relevés, respiration libre."
+},
+"coude collé au flanc l'avant bras monte vers le plafond": {
+"f": "v071.mp3",
+"d": 2.769,
+"t": "Coude collé au flanc, l'avant-bras monte vers le plafond."
+},
+"crunch abdominal contrôlé": {
+"f": "v072.mp3",
+"d": 1.75,
+"t": "Crunch abdominal contrôlé"
+},
+"côté droit": {
+"f": "v073.mp3",
+"d": 0.758,
+"t": "Côté droit"
+},
+"côté gauche": {
+"f": "v074.mp3",
+"d": 0.914,
+"t": "Côté gauche"
+},
+"dead bug": {
+"f": "v075.mp3",
+"d": 0.914,
+"t": "Dead bug"
+},
+"dernière": {
+"f": "v076.mp3",
+"d": 0.836,
+"t": "Dernière !"
+},
+"dernière on termine en beauté": {
+"f": "v077.mp3",
+"d": 1.855,
+"t": "Dernière, on termine en beauté."
+},
+"deux": {
+"f": "v078.mp3",
+"d": 0.653,
+"t": "Deux"
+},
+"deux minutes de récupération": {
+"f": "v079.mp3",
+"d": 1.698,
+"t": "Deux minutes de récupération"
+},
+"dips sur chaise": {
+"f": "v080.mp3",
+"d": 1.541,
+"t": "Dips sur chaise"
+},
+"dix dernières secondes vous y êtes": {
+"f": "v081.mp3",
+"d": 1.62,
+"t": "Dix dernières secondes, vous y êtes."
+},
+"dix secondes on serre les dents": {
+"f": "v082.mp3",
+"d": 1.646,
+"t": "Dix secondes, on serre les dents."
+},
+"donkey kick": {
+"f": "v083.mp3",
+"d": 1.045,
+"t": "Donkey kick"
+},
+"dos plaqué au mur genoux au dessus des chevilles respirez normalement": {
+"f": "v084.mp3",
+"d": 3.892,
+"t": "Dos plaqué au mur, genoux au-dessus des chevilles, respirez normalement."
+},
+"déjà la moitié bravo": {
+"f": "v085.mp3",
+"d": 1.698,
+"t": "Déjà la moitié, bravo."
+},
+"encore trois on lâche rien": {
+"f": "v086.mp3",
+"d": 1.62,
+"t": "Encore trois, on lâche rien"
+},
+"encore un peu vous tenez bon": {
+"f": "v087.mp3",
+"d": 1.672,
+"t": "Encore un peu, vous tenez bon."
+},
+"et c'est fini super séance prenez une minute pour votre bilan": {
+"f": "v088.mp3",
+"d": 3.187,
+"t": "Et c'est fini ! Super séance. Prenez une minute pour votre bilan."
+},
+"et la dernière": {
+"f": "v089.mp3",
+"d": 0.94,
+"t": "Et la dernière !"
+},
+"et voilà série bouclée": {
+"f": "v090.mp3",
+"d": 1.489,
+"t": "Et voilà, série bouclée !"
+},
+"exercice suivant": {
+"f": "v091.mp3",
+"d": 1.071,
+"t": "Exercice suivant"
+},
+"exercice terminé": {
+"f": "v092.mp3",
+"d": 1.123,
+"t": "Exercice terminé"
+},
+"expirez": {
+"f": "v093.mp3",
+"d": 0.784,
+"t": "Expirez"
+},
+"fente latérale avec toucher sol": {
+"f": "v094.mp3",
+"d": 2.142,
+"t": "Fente latérale avec toucher sol"
+},
+"fentes avant unilatérales": {
+"f": "v095.mp3",
+"d": 1.881,
+"t": "Fentes avant unilatérales"
+},
+"fermez les yeux": {
+"f": "v096.mp3",
+"d": 0.993,
+"t": "Fermez les yeux"
+},
+"fin du tour 1": {
+"f": "v097.mp3",
+"d": 1.097,
+"t": "Fin du tour 1"
+},
+"fin du tour 2": {
+"f": "v098.mp3",
+"d": 1.097,
+"t": "Fin du tour 2"
+},
+"fin du tour 3": {
+"f": "v099.mp3",
+"d": 1.123,
+"t": "Fin du tour 3"
+},
+"fini soufflez un coup": {
+"f": "v100.mp3",
+"d": 1.384,
+"t": "Fini ! Soufflez un coup."
+},
+"genou avant au dessus du pied genou arrière vers le sol buste droit": {
+"f": "v101.mp3",
+"d": 4.127,
+"t": "Genou avant au-dessus du pied, genou arrière vers le sol, buste droit."
+},
+"genoux dans l'axe des orteils remontée en serrant fessiers et adducteurs": {
+"f": "v102.mp3",
+"d": 3.448,
+"t": "Genoux dans l'axe des orteils, remontée en serrant fessiers et adducteurs."
+},
+"hanches hautes amenez la tête entre les mains": {
+"f": "v103.mp3",
+"d": 2.194,
+"t": "Hanches hautes, amenez la tête entre les mains."
+},
+"inchworm et pompes": {
+"f": "v104.mp3",
+"d": 1.228,
+"t": "Inchworm et pompes"
+},
+"inspirez": {
+"f": "v105.mp3",
+"d": 0.81,
+"t": "Inspirez"
+},
+"isométrique on tient 10 secondes": {
+"f": "v106.mp3",
+"d": 2.247,
+"t": "Isométrique, on tient 10 secondes"
+},
+"isométrique on tient 12 secondes": {
+"f": "v107.mp3",
+"d": 2.351,
+"t": "Isométrique, on tient 12 secondes"
+},
+"isométrique on tient 15 secondes": {
+"f": "v108.mp3",
+"d": 2.273,
+"t": "Isométrique, on tient 15 secondes"
+},
+"isométrique on tient 16 secondes": {
+"f": "v109.mp3",
+"d": 2.299,
+"t": "Isométrique, on tient 16 secondes"
+},
+"isométrique on tient 20 secondes": {
+"f": "v110.mp3",
+"d": 2.22,
+"t": "Isométrique, on tient 20 secondes"
+},
+"isométrique on tient 30 secondes": {
+"f": "v111.mp3",
+"d": 2.168,
+"t": "Isométrique, on tient 30 secondes"
+},
+"isométrique on tient 4 secondes": {
+"f": "v112.mp3",
+"d": 2.273,
+"t": "Isométrique, on tient 4 secondes"
+},
+"isométrique on tient 5 secondes": {
+"f": "v113.mp3",
+"d": 2.22,
+"t": "Isométrique, on tient 5 secondes"
+},
+"isométrique on tient 6 secondes": {
+"f": "v114.mp3",
+"d": 2.377,
+"t": "Isométrique, on tient 6 secondes"
+},
+"isométrique on tient 7 secondes": {
+"f": "v115.mp3",
+"d": 2.273,
+"t": "Isométrique, on tient 7 secondes"
+},
+"isométrique on tient 8 secondes": {
+"f": "v116.mp3",
+"d": 2.273,
+"t": "Isométrique, on tient 8 secondes"
+},
+"jambe droite": {
+"f": "v117.mp3",
+"d": 0.94,
+"t": "Jambe droite"
+},
+"jambe gauche": {
+"f": "v118.mp3",
+"d": 0.967,
+"t": "Jambe gauche"
+},
+"jambe tendue sur le côté sans pencher le buste": {
+"f": "v119.mp3",
+"d": 2.586,
+"t": "Jambe tendue sur le côté, sans pencher le buste."
+},
+"joli on continue": {
+"f": "v120.mp3",
+"d": 1.411,
+"t": "Joli, on continue."
+},
+"la cuisse monte vers le plafond le bassin ne tourne pas": {
+"f": "v121.mp3",
+"d": 2.508,
+"t": "La cuisse monte vers le plafond, le bassin ne tourne pas."
+},
+"la dernière la plus belle": {
+"f": "v122.mp3",
+"d": 1.515,
+"t": "La dernière, la plus belle."
+},
+"la moitié on tient": {
+"f": "v123.mp3",
+"d": 1.306,
+"t": "La moitié, on tient."
+},
+"le bas du dos reste collé au sol": {
+"f": "v124.mp3",
+"d": 1.672,
+"t": "Le bas du dos reste collé au sol."
+},
+"levez les hanches jusqu'à aligner épaule hanche et genou": {
+"f": "v125.mp3",
+"d": 2.795,
+"t": "Levez les hanches jusqu'à aligner épaule, hanche et genou."
+},
+"main droite et jambe gauche": {
+"f": "v126.mp3",
+"d": 1.437,
+"t": "Main droite et jambe gauche"
+},
+"main gauche et jambe droite": {
+"f": "v127.mp3",
+"d": 1.541,
+"t": "Main gauche et jambe droite"
+},
+"mains au sol": {
+"f": "v128.mp3",
+"d": 1.097,
+"t": "Mains au sol"
+},
+"mi temps respirez calmement": {
+"f": "v129.mp3",
+"d": 1.881,
+"t": "Mi-temps ! Respirez calmement."
+},
+"mobilisation articulaire progressive": {
+"f": "v130.mp3",
+"d": 2.299,
+"t": "Mobilisation articulaire progressive"
+},
+"mobilisation membres supérieurs": {
+"f": "v131.mp3",
+"d": 1.855,
+"t": "Mobilisation membres supérieurs"
+},
+"montez le plus haut possible redescendez lentement": {
+"f": "v132.mp3",
+"d": 2.638,
+"t": "Montez le plus haut possible, redescendez lentement."
+},
+"on allonge": {
+"f": "v133.mp3",
+"d": 0.94,
+"t": "On allonge"
+},
+"on avance les mains": {
+"f": "v134.mp3",
+"d": 1.097,
+"t": "On avance les mains"
+},
+"on commence": {
+"f": "v135.mp3",
+"d": 0.914,
+"t": "On commence !"
+},
+"on descend": {
+"f": "v136.mp3",
+"d": 0.731,
+"t": "On descend"
+},
+"on descend lentement": {
+"f": "v137.mp3",
+"d": 1.411,
+"t": "On descend lentement"
+},
+"on garde ce rythme c'est parfait": {
+"f": "v138.mp3",
+"d": 1.672,
+"t": "On garde ce rythme, c'est parfait."
+},
+"on lève": {
+"f": "v139.mp3",
+"d": 0.731,
+"t": "On lève"
+},
+"on monte": {
+"f": "v140.mp3",
+"d": 0.627,
+"t": "On monte"
+},
+"on monte fessiers serrés": {
+"f": "v141.mp3",
+"d": 1.724,
+"t": "On monte, fessiers serrés"
+},
+"on monte on expire": {
+"f": "v142.mp3",
+"d": 1.411,
+"t": "On monte, on expire"
+},
+"on ouvre": {
+"f": "v143.mp3",
+"d": 0.81,
+"t": "On ouvre"
+},
+"on pousse": {
+"f": "v144.mp3",
+"d": 0.81,
+"t": "On pousse"
+},
+"on pousse dans les talons": {
+"f": "v145.mp3",
+"d": 1.228,
+"t": "On pousse dans les talons"
+},
+"on pousse sur la jambe": {
+"f": "v146.mp3",
+"d": 1.332,
+"t": "On pousse sur la jambe"
+},
+"on pousse on revient": {
+"f": "v147.mp3",
+"d": 1.829,
+"t": "On pousse, on revient"
+},
+"on redescend": {
+"f": "v148.mp3",
+"d": 0.862,
+"t": "On redescend"
+},
+"on redescend doucement": {
+"f": "v149.mp3",
+"d": 1.254,
+"t": "On redescend doucement"
+},
+"on redescend lentement": {
+"f": "v150.mp3",
+"d": 1.411,
+"t": "On redescend lentement"
+},
+"on referme": {
+"f": "v151.mp3",
+"d": 0.967,
+"t": "On referme"
+},
+"on repose": {
+"f": "v152.mp3",
+"d": 0.888,
+"t": "On repose"
+},
+"on reprend": {
+"f": "v153.mp3",
+"d": 0.731,
+"t": "On reprend"
+},
+"on revient": {
+"f": "v154.mp3",
+"d": 0.758,
+"t": "On revient"
+},
+"on s'y met tranquillement": {
+"f": "v155.mp3",
+"d": 1.254,
+"t": "On s'y met, tranquillement."
+},
+"on se redresse lentement": {
+"f": "v156.mp3",
+"d": 1.437,
+"t": "On se redresse lentement"
+},
+"on se relève lentement": {
+"f": "v157.mp3",
+"d": 1.437,
+"t": "On se relève lentement"
+},
+"on serre": {
+"f": "v158.mp3",
+"d": 0.731,
+"t": "On serre"
+},
+"on tient": {
+"f": "v159.mp3",
+"d": 0.679,
+"t": "On tient"
+},
+"on tient vous êtes solide": {
+"f": "v160.mp3",
+"d": 1.463,
+"t": "On tient, vous êtes solide."
+},
+"on y retourne": {
+"f": "v161.mp3",
+"d": 0.993,
+"t": "On y retourne."
+},
+"on y va": {
+"f": "v162.mp3",
+"d": 0.679,
+"t": "On y va."
+},
+"pause": {
+"f": "v163.mp3",
+"d": 0.679,
+"t": "Pause"
+},
+"pause terminée on repart": {
+"f": "v164.mp3",
+"d": 1.62,
+"t": "Pause terminée, on repart."
+},
+"pied sur la marche": {
+"f": "v165.mp3",
+"d": 1.097,
+"t": "Pied sur la marche"
+},
+"pieds en arrière": {
+"f": "v166.mp3",
+"d": 0.967,
+"t": "Pieds en arrière"
+},
+"pieds joints ouvrez le genou bassin immobile": {
+"f": "v167.mp3",
+"d": 2.508,
+"t": "Pieds joints, ouvrez le genou, bassin immobile."
+},
+"pieds vers les mains": {
+"f": "v168.mp3",
+"d": 1.019,
+"t": "Pieds vers les mains"
+},
+"pike push up": {
+"f": "v169.mp3",
+"d": 0.862,
+"t": "Pike push-up"
+},
+"plank gainage avant bras": {
+"f": "v170.mp3",
+"d": 1.698,
+"t": "Plank — gainage avant-bras"
+},
+"plus que dix secondes": {
+"f": "v171.mp3",
+"d": 1.228,
+"t": "Plus que dix secondes."
+},
+"plus que trois": {
+"f": "v172.mp3",
+"d": 0.862,
+"t": "Plus que trois"
+},
+"plus que trois vous y êtes presque": {
+"f": "v173.mp3",
+"d": 1.959,
+"t": "Plus que trois, vous y êtes presque"
+},
+"pompes sur genoux": {
+"f": "v174.mp3",
+"d": 1.071,
+"t": "Pompes sur genoux"
+},
+"pont de hanche": {
+"f": "v175.mp3",
+"d": 0.94,
+"t": "Pont de hanche"
+},
+"pont fessier unilatéral": {
+"f": "v176.mp3",
+"d": 1.567,
+"t": "Pont fessier unilatéral"
+},
+"pont ischio jambiers talons sur chaise": {
+"f": "v177.mp3",
+"d": 2.22,
+"t": "Pont ischio-jambiers talons sur chaise"
+},
+"portefeuille v up": {
+"f": "v178.mp3",
+"d": 1.62,
+"t": "Portefeuille (V-up)"
+},
+"poussez avec le fessier de la jambe au sol bassin horizontal": {
+"f": "v179.mp3",
+"d": 3.318,
+"t": "Poussez avec le fessier de la jambe au sol, bassin horizontal."
+},
+"poussez dans les talons jusqu'à aligner épaules hanches et genoux": {
+"f": "v180.mp3",
+"d": 3.135,
+"t": "Poussez dans les talons jusqu'à aligner épaules, hanches et genoux."
+},
+"poussez sur le pied posé sur la marche sans vous aider de l'autre jambe": {
+"f": "v181.mp3",
+"d": 3.396,
+"t": "Poussez sur le pied posé sur la marche, sans vous aider de l'autre jambe."
+},
+"première fois sur cet exercice": {
+"f": "v182.mp3",
+"d": 1.672,
+"t": "Première fois sur cet exercice"
+},
+"prêt on attaque": {
+"f": "v183.mp3",
+"d": 1.541,
+"t": "Prêt ? On attaque."
+},
+"remontez en levant les deux bras jusqu'à la verticale": {
+"f": "v184.mp3",
+"d": 2.717,
+"t": "Remontez en levant les deux bras jusqu'à la verticale."
+},
+"repos 120 secondes": {
+"f": "v185.mp3",
+"d": 1.672,
+"t": "Repos 120 secondes"
+},
+"repos 30 secondes": {
+"f": "v186.mp3",
+"d": 1.489,
+"t": "Repos 30 secondes"
+},
+"repos 60 secondes": {
+"f": "v187.mp3",
+"d": 1.62,
+"t": "Repos 60 secondes"
+},
+"repos 90 secondes": {
+"f": "v188.mp3",
+"d": 1.829,
+"t": "Repos 90 secondes"
+},
+"respirez ne bloquez pas": {
+"f": "v189.mp3",
+"d": 1.541,
+"t": "Respirez, ne bloquez pas."
+},
+"respirez ça roule": {
+"f": "v190.mp3",
+"d": 1.541,
+"t": "Respirez, ça roule."
+},
+"rotation externe d'épaule": {
+"f": "v191.mp3",
+"d": 1.802,
+"t": "Rotation externe d'épaule"
+},
+"side plank sur genoux": {
+"f": "v192.mp3",
+"d": 1.437,
+"t": "Side plank sur genoux"
+},
+"solide comme un roc": {
+"f": "v193.mp3",
+"d": 1.28,
+"t": "Solide comme un roc."
+},
+"squat élévation bras": {
+"f": "v194.mp3",
+"d": 1.567,
+"t": "Squat + élévation bras"
+},
+"squat bilatéral": {
+"f": "v195.mp3",
+"d": 1.411,
+"t": "Squat bilatéral"
+},
+"squat sumo": {
+"f": "v196.mp3",
+"d": 1.097,
+"t": "Squat sumo"
+},
+"step up sur marche": {
+"f": "v197.mp3",
+"d": 1.437,
+"t": "Step-up sur marche"
+},
+"superman en y et en w": {
+"f": "v198.mp3",
+"d": 2.22,
+"t": "Superman en Y et en W"
+},
+"superman quadrupédique en gainage": {
+"f": "v199.mp3",
+"d": 2.168,
+"t": "Superman quadrupédique en gainage"
+},
+"séance j1 membres inférieurs": {
+"f": "v200.mp3",
+"d": 2.064,
+"t": "Séance J1 — Membres inférieurs"
+},
+"séance j2 membres supérieurs": {
+"f": "v201.mp3",
+"d": 2.247,
+"t": "Séance J2 — Membres supérieurs"
+},
+"séance j3 gainage rachidien": {
+"f": "v202.mp3",
+"d": 2.273,
+"t": "Séance J3 — Gainage rachidien"
+},
+"séance j4 fessiers et bassin": {
+"f": "v203.mp3",
+"d": 2.482,
+"t": "Séance J4 — Fessiers et bassin"
+},
+"séance j5 global fonctionnel": {
+"f": "v204.mp3",
+"d": 2.664,
+"t": "Séance J5 — Global fonctionnel"
+},
+"séance arrêtée pensez à prévenir votre kinésithérapeute": {
+"f": "v205.mp3",
+"d": 2.952,
+"t": "Séance arrêtée. Pensez à prévenir votre kinésithérapeute."
+},
+"séance bouclée bravo à vous prenez une minute pour votre bilan": {
+"f": "v206.mp3",
+"d": 3.37,
+"t": "Séance bouclée, bravo à vous ! Prenez une minute pour votre bilan."
+},
+"séance enregistrée à bientôt": {
+"f": "v207.mp3",
+"d": 1.907,
+"t": "Séance enregistrée. À bientôt !"
+},
+"série 1 sur 2": {
+"f": "v208.mp3",
+"d": 1.332,
+"t": "Série 1 sur 2"
+},
+"série 1 sur 3": {
+"f": "v209.mp3",
+"d": 1.306,
+"t": "Série 1 sur 3"
+},
+"série 2 sur 2": {
+"f": "v210.mp3",
+"d": 1.306,
+"t": "Série 2 sur 2"
+},
+"série 2 sur 3": {
+"f": "v211.mp3",
+"d": 1.489,
+"t": "Série 2 sur 3"
+},
+"série 3 sur 3": {
+"f": "v212.mp3",
+"d": 1.411,
+"t": "Série 3 sur 3"
+},
+"série terminée": {
+"f": "v213.mp3",
+"d": 1.019,
+"t": "Série terminée"
+},
+"série terminée joli travail": {
+"f": "v214.mp3",
+"d": 1.881,
+"t": "Série terminée, joli travail."
+},
+"série terminée bravo": {
+"f": "v215.mp3",
+"d": 1.515,
+"t": "Série terminée. Bravo !"
+},
+"talons au sol genoux dans l'axe des pieds dos neutre serrez les fessiers en remontant": {
+"f": "v216.mp3",
+"d": 4.31,
+"t": "Talons au sol, genoux dans l'axe des pieds, dos neutre. Serrez les fessiers en remontant."
+},
+"top départ en douceur": {
+"f": "v217.mp3",
+"d": 1.724,
+"t": "Top départ, en douceur."
+},
+"très bien le mouvement est contrôlé": {
+"f": "v219.mp3",
+"d": 1.75,
+"t": "Très bien, le mouvement est contrôlé."
+},
+"une": {
+"f": "v220.mp3",
+"d": 0.601,
+"t": "Une"
+},
+"une série de plus au compteur bravo": {
+"f": "v221.mp3",
+"d": 1.855,
+"t": "Une série de plus au compteur, bravo."
+},
+"vous gérez": {
+"f": "v222.mp3",
+"d": 0.836,
+"t": "Vous gérez."
+},
+"vous êtes dans le bon tempo": {
+"f": "v223.mp3",
+"d": 1.358,
+"t": "Vous êtes dans le bon tempo."
+},
+"vous êtes solide on continue": {
+"f": "v224.mp3",
+"d": 1.489,
+"t": "Vous êtes solide, on continue."
+},
+"vélo": {
+"f": "v225.mp3",
+"d": 0.679,
+"t": "Vélo"
+},
+"y levez bras et jambes w rapprochez les omoplates": {
+"f": "v226.mp3",
+"d": 3.657,
+"t": "Y : levez bras et jambes. W : rapprochez les omoplates."
+},
+"yeux ouverts": {
+"f": "v227.mp3",
+"d": 0.967,
+"t": "Yeux ouverts"
+},
+"échauffement global progressif": {
+"f": "v228.mp3",
+"d": 1.62,
+"t": "Échauffement global progressif"
+},
+"échauffement terminé": {
+"f": "v229.mp3",
+"d": 1.28,
+"t": "Échauffement terminé"
+},
+"élévation des talons": {
+"f": "v230.mp3",
+"d": 1.149,
+"t": "Élévation des talons"
+},
+"épaule droite": {
+"f": "v231.mp3",
+"d": 1.019,
+"t": "Épaule droite"
+},
+"épaule gauche": {
+"f": "v232.mp3",
+"d": 1.045,
+"t": "Épaule gauche"
+},
+"épaules basses et en arrière coudes à 90 maximum": {
+"f": "v233.mp3",
+"d": 3.448,
+"t": "Épaules basses et en arrière, coudes à 90° maximum."
+},
+"épaules décollées à 30 expirez en montant sans tirer sur la nuque": {
+"f": "v234.mp3",
+"d": 3.971,
+"t": "Épaules décollées à 30°, expirez en montant, sans tirer sur la nuque."
+},
+"équilibre unipodal": {
+"f": "v235.mp3",
+"d": 1.437,
+"t": "Équilibre unipodal"
+},
+"étirements fessiers et iliopsoas": {
+"f": "v236.mp3",
+"d": 2.168,
+"t": "Étirements fessiers et iliopsoas"
+},
+"étirements globaux et savasana": {
+"f": "v237.mp3",
+"d": 1.802,
+"t": "Étirements globaux et Savasana"
+},
+"étirements membres inférieurs": {
+"f": "v238.mp3",
+"d": 1.411,
+"t": "Étirements membres inférieurs"
+},
+"étirements membres supérieurs": {
+"f": "v239.mp3",
+"d": 1.593,
+"t": "Étirements membres supérieurs"
+},
+"étirements rachidiens et cohérence cardiaque": {
+"f": "v240.mp3",
+"d": 2.09,
+"t": "Étirements rachidiens et cohérence cardiaque"
+},
+"étirements terminés": {
+"f": "v241.mp3",
+"d": 1.254,
+"t": "Étirements terminés"
+}
+}
+}
