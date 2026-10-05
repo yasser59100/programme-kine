@@ -55,7 +55,78 @@
   var PLANK_FEET = { L: { foot: { at: [0.12, 0, 0.12], yaw: 0, lift: 70 } }, R: { foot: { at: [-0.12, 0, 0.12], yaw: 0, lift: 70 } } };
   var BRIDGE_UP = merge(BRIDGE_DOWN, { pelvis: { p: [0, 0.288, -0.029], r: [-110, 0, 0] }, head: 20 });
 
+  // ── Bibliothèque : position assise sur chaise, couché sur le côté ──
+  var ARMS_FWD = { LA: { ang: [80, 6, 0, 0] }, RA: { ang: [80, 6, 0, 0] } };
+  var SEAT = { pelvis: { p: [0, 0.53, -0.36], r: [0, 0, 0] }, spine: [6, 0, 0], head: 0,
+    L: { foot: { at: [0.14, 0, 0.14], yaw: 6 } }, R: { foot: { at: [-0.14, 0, 0.14], yaw: -6 } } };
+  var SIDE = { pelvis: { p: [0, 0.2, 0], r: [0, 0, -90] }, spine: [0, 0, 0], head: 0, LA: { ang: [168, 0, 0, 20] }, RA: { ang: [60, 0, 0, 60] } };
+
   var EX = {
+    /* ═══ Bibliothèque, lot 1 : genou et hanche ═══ */
+   "Assis-debout de chaise": {
+     camera: { yaw: 1.2, dist: 4.0, ty: 0.75 }, props: ["chair"], start: "sit", thumb: "lean",
+     poses: {
+       sit: merge(SEAT, ARMS_FWD),
+       lean: merge(SEAT, ARMS_FWD, { pelvis: { p: [0, 0.55, -0.3], r: [35, 0, 0] }, spine: [8, 0, 0], head: -20 }),
+       up: merge(STAND(0.14, 6), { pelvis: { p: [0, "auto", 0.02], r: [0, 0, 0] } }, ARMS_FWD)
+     },
+     steps: [step("lean", 0.8, "Buste en avant", "Buste en avant", "up"), step("up", 1.2, "On se lève", "On pousse dans les talons", "up"),
+             step("lean", 2, "On se rassoit lentement", "On se rassoit lentement", "down"), step("sit", 1, "Assis", null, "down")]
+   },
+   "Extension de genou assis": {
+     sides: "blocks", camera: { yaw: 1.3, dist: 3.6, ty: 0.65 }, props: ["chair"], start: "down", thumb: "up",
+     poses: {
+       down: merge(SEAT, { LA: { hand: { at: [0.27, 0.47, -0.2], pole: [1, 0, -0.3] } }, RA: { hand: { at: [-0.27, 0.47, -0.2], pole: [-1, 0, -0.3] } } }),
+       up: merge(SEAT, { LA: { hand: { at: [0.27, 0.47, -0.2], pole: [1, 0, -0.3] } }, RA: { hand: { at: [-0.27, 0.47, -0.2], pole: [-1, 0, -0.3] } },
+         L: { ang: [90, 4, 0, 4, -15] } })
+     },
+     steps: [step("up", 1.5, "On tend la jambe", "On tend", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 2.5, "Descente lente", "On redescend", "down")]
+   },
+   "Fente arrière": {
+     sides: "blocks", sideWord: "jambe", labelSwap: true, camera: { yaw: 1.15, dist: 4.4, tz: -0.3 }, start: "up", thumb: "down",
+     poses: {
+       up: STAND(0.1, 0),
+       down: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.55, -0.4], r: [0, 0, 0] }, spine: [4, 0, 0],
+         L: { foot: { at: [0.1, 0, -0.82], yaw: 0, lift: 40 } }, R: { foot: { at: [-0.1, 0, 0.12], yaw: 0 } } })
+     },
+     steps: [step("down", 2, "On recule et on descend", "On recule, on descend", "down"), step("up", 1, "On revient", "On pousse, on revient", "up")]
+   },
+   "Squat bulgare": {
+     sides: "blocks", sideWord: "jambe", labelSwap: true, camera: { yaw: 1.25, dist: 4.4, ty: 0.7, tz: 0 }, props: ["chair"], chair: { z: -0.14 }, start: "up", thumb: "down",
+     poses: {
+       up: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.88, 0.2], r: [6, 0, 0] }, spine: [4, 0, 0],
+         L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }),
+       down: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.6, -0.02], r: [12, 0, 0] }, spine: [8, 0, 0],
+         L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } })
+     },
+     steps: [step("down", 2, "On descend", "On descend", "down"), step("up", 1, "On remonte", "On pousse dans le talon avant", "up")]
+   },
+   "Fire hydrant": {
+     sides: "blocks", camera: { yaw: 3.0, pitch: 0.22, dist: 3.4, ty: 0.45, tz: 0.1 }, start: "down", thumb: "up",
+     poses: { down: QUAD, up: merge(QUAD, { L: { foot: { at: [0.5, 0.36, -0.5], yaw: 180, pole: [1, 0.2, 0] } } }) },
+     steps: [step("up", 1, "On ouvre", "On ouvre", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 2, "Descente lente", "On redescend", "down")]
+   },
+   "Abduction couché sur le côté": {
+     sides: "blocks", snapSideChange: true, camera: { yaw: 0.05, pitch: 0.35, dist: 3.4, ty: 0.3 }, start: "down", thumb: "up",
+     poses: {
+       down: merge(SIDE, { L: { ang: [20, 0, 0, 40, 0] }, R: { ang: [0, 0, 0, 0, 0] } }),
+       up: merge(SIDE, { L: { ang: [20, 0, 0, 40, 0] }, R: { ang: [-5, 35, 0, 0, 0] } })
+     },
+     steps: [step("up", 1, "On monte", "On monte", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 2, "Descente lente", "On redescend", "down")]
+   },
+   "Hip thrust épaules sur canapé": {
+     camera: { yaw: 1.3, pitch: 0.2, dist: 3.9, ty: 0.4, tz: 0.1 }, props: ["chair"], chair: { z: -0.2 }, start: "down", thumb: "up",
+     poses: {
+       down: { pelvis: { p: [0, 0.2, -0.02], r: [-62, 0, 0] }, spine: [0, 0, 0], head: 25,
+         L: { foot: { at: [0.15, 0, 0.5], yaw: 5 } }, R: { foot: { at: [-0.15, 0, 0.5], yaw: -5 } },
+         LA: { ang: [0, 80, 0, 10] }, RA: { ang: [0, 80, 0, 10] } },
+       up: { pelvis: { p: [0, 0.47, 0.0], r: [-88, 0, 0] }, spine: [0, 0, 0], head: 30,
+         L: { foot: { at: [0.15, 0, 0.5], yaw: 5 } }, R: { foot: { at: [-0.15, 0, 0.5], yaw: -5 } },
+         LA: { ang: [0, 80, 0, 10] }, RA: { ang: [0, 80, 0, 10] } }
+     },
+     steps: [step("up", 1.5, "On monte", "On pousse dans les talons", "up"), step("up", 1.5, "On serre", "On serre les fessiers", "hold"), step("down", 2.5, "Descente lente", "On redescend", "down")]
+   },
+
     "Squat bilatéral": {
       camera: { yaw: 0.65 }, start: "up", thumb: "down",
       poses: {

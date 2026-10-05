@@ -77,6 +77,7 @@
       "<div class='su-card'><div class='su-card-h'><b>Semaine " + p.week + " sur 4</b><span>" + (st.start ? "jour " + Math.min(28, st.dayInCycle) : "pas encore commencé") + "</span></div>" +
         "<div class='pg-bars'>" + bars + "</div><div class='kf-sub' style='color:var(--text)'>" + esc(p.reason) + "</div></div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Les 5 séances</div>" + rows +
+      "<button class='v2-row' onclick='KineBiblio.open(\"\")'><b>Bibliothèque d'exercices</b><span>›</span></button>" +
       "<button class='v2-row' onclick='KineProgram.understand()'><b>Comprendre mon programme</b><span>›</span></button>";
   }
 

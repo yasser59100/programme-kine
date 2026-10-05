@@ -517,17 +517,19 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   };
 
   // Démonstration animée d'un exercice, depuis sa fiche
-  window.openDemo = function (dayId, idx) {
-    var ex = SEQ_DAYS[dayId].exercises[idx], sheet = $("kf-demo");
+  window.openDemo = function (dayId, idx) { openDemoEx(SEQ_DAYS[dayId].exercises[idx], dayId, idx); };
+  window.openDemoEx = function (ex, dayId, idx) {
+    var sheet = $("kf-demo");
     if (!sheet) { sheet = document.createElement("div"); sheet.id = "kf-demo"; sheet.className = "kf-sheet"; sheet.setAttribute("role", "dialog"); document.body.appendChild(sheet); }
-    var t = tempoText(ex), v = KineProgress.variant(dayId, idx);
+    var t = tempoText(ex), v = dayId ? KineProgress.variant(dayId, idx) : null;
+    var lib = window.KineBiblio && KineBiblio.find(ex.name), col = lib ? KineBiblio.color(ex.name) : 0;
     sheet.innerHTML = "<div class='kf-sheet-body'>" +
       "<button class='kf-back' onclick='closeDemo()' aria-label='Fermer'>←</button>" +
-      "<div><div class='kf-h1'>" + esc(ex.name) + "</div><div class='kf-sub'>" + esc(KineProgress.repsLabel(ex)) + (t ? ", " + esc(t) : "") + "</div></div>" +
+      "<div><div class='kf-h1'>" + esc(ex.name) + "</div><div class='kf-sub'>" + (col ? "<i class='kb-dot c" + col + "'></i>" + esc(KineBiblio.colors[col][1]) + ", " : "") + esc(KineProgress.repsLabel(ex)) + (t ? ", " + esc(t) : "") + "</div></div>" +
       "<div class='v2-stage' style='min-height:340px'><div class='rg-phase-label up' id='kf-demo-label'>Démonstration</div><div id='kf-demo-stage' style='display:flex;justify-content:center;padding-top:30px'></div>" + angleBtn() + "</div>" +
       (CUES[ex.name] ? "<div class='pg-cue'>" + esc(CUES[ex.name]) + "</div>" : "") +
       "<div class='pg-desc'>" + esc(ex.desc || "") + "</div>" +
-      (window.KineProgram ? KineProgram.weeksTable(ex, dayId, idx) : "") +
+      (window.KineProgram && dayId ? KineProgram.weeksTable(ex, dayId, idx) : "") +
       (v ? "<div class='kf-note'><strong>Variante de la semaine :</strong> " + esc(v) + "</div>" : "") +
       (ex.tip ? "<div class='kf-note'><strong>Conseil :</strong> " + esc(ex.tip) + "</div>" : "") +
       (ex.stop ? "<div class='kf-note' style='border-color:rgba(248,113,113,.45)'>" + esc(ex.stop) + "</div>" : "") +
