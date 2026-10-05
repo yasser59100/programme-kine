@@ -179,3 +179,32 @@ html[data-theme="light"] .kf-tuto-card { background: #fff; border-color: #dbe3ee
 html[data-theme="light"] .kf-tuto-pts li { color: #3a4a5e; }
 html[data-theme="light"] .kf-tuto-pts strong, html[data-theme="light"] .kf-tuto-h { color: #0f1923; }
 #rep-guide.tuto-demo .v2-mid { visibility: hidden; }
+
+/* ═══ Le saviez-vous ? ═══ */
+.ks-card { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: left; margin: 22px 0 6px; padding: 16px 16px 14px; border-radius: 20px; border: 1px solid rgba(0, 212, 230, 0.28); background: linear-gradient(160deg, rgba(0, 212, 230, 0.10), rgba(43, 107, 209, 0.06) 60%, transparent), var(--card, #0f1923); color: inherit; font: inherit; cursor: pointer; }
+.ks-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #00d4e6; }
+.ks-title { font-size: 17px; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; color: var(--text, #e8f0fe); }
+.ks-src { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #a9b8cc; }
+.ks-src span { font-size: 20px; line-height: 1; color: #00d4e6; }
+.ks-body { gap: 16px !important; }
+.ks-body .ks-tag { margin-top: 6px; }
+.ks-h { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.02em; }
+.ks-stat { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 18px; background: rgba(0, 212, 230, 0.08); border: 1px solid rgba(0, 212, 230, 0.22); }
+.ks-stat b { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; color: #00d4e6; white-space: nowrap; }
+.ks-stat span { font-size: 14px; line-height: 1.4; color: #c9d6e6; }
+.ks-p { margin: 0; font-size: 16px; line-height: 1.55; color: #c9d6e6; }
+.ks-do { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 16px; background: #0f1923; border: 1px solid #243547; font-size: 15px; line-height: 1.45; }
+.ks-do strong { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: #6fb0ff; }
+.ks-ref { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: #a9b8cc; }
+.ks-ref span { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.ks-ref strong { color: #e8f0fe; font-weight: 600; }
+.ks-ref a { align-self: flex-start; margin-top: 4px; color: #00d4e6; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.ks-note { margin: 0; font-size: 13px; color: #8595ab; line-height: 1.45; }
+.ks-foot { display: flex !important; flex-direction: row !important; align-items: center; gap: 12px; }
+.ks-foot button { width: 56px; flex: 0 0 56px; min-height: 50px; margin: 0 !important; font-size: 24px; }
+.ks-count { flex: 1; text-align: center; font-size: 14px; color: #a9b8cc; }
+html[data-theme="light"] .ks-card { background: linear-gradient(160deg, rgba(0, 170, 200, 0.10), transparent 70%), #fff; border-color: rgba(0, 150, 180, 0.3); }
+html[data-theme="light"] .ks-title, html[data-theme="light"] .ks-ref strong { color: #0f1923; }
+html[data-theme="light"] .ks-p, html[data-theme="light"] .ks-stat span { color: #3a4a5e; }
+html[data-theme="light"] .ks-do { background: #f4f7fb; border-color: #dbe3ee; }
+html[data-theme="light"] .ks-tag, html[data-theme="light"] .ks-stat b, html[data-theme="light"] .ks-ref a { color: #0089a3; }
