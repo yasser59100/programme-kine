@@ -1259,11 +1259,13 @@
 
     var bandMat = new T.MeshStandardMaterial({ color: lin("#f2994a"), roughness: 0.55 }), bands = [], bandKnots = [];
     for (var bi = 0; bi < 2; bi++) {
-      var bm = mesh(new T.CylinderGeometry(0.011, 0.011, 1, 10), bandMat, scene); bm.visible = false; bands.push(bm);
+      var bm = mesh(new T.CylinderGeometry(0.014, 0.014, 1, 12), bandMat, scene); bm.visible = false; bands.push(bm);
       var kn = mesh(new T.SphereGeometry(0.03, 12, 10), M.prop, scene); kn.visible = false; bandKnots.push(kn);
     }
+    var bandLoops = [];
+    for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
     return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0,
-             head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots };
+             head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops };
   }
 
   /* ── Cinématique ── */
@@ -1363,33 +1365,48 @@
 
   /* ── Élastique : une bande tendue entre deux points (main, cheville, genou ou point fixe) ── */
   var bandDef = null, bandSide = "L";
-  function bandPoint(spec, side) {
-    var T = R.T, v = new T.Vector3();
-    if (Array.isArray(spec)) return new T.Vector3(side === "R" ? -spec[0] : spec[0], spec[1], spec[2]);
-    var s = spec.charAt(0), part = spec.charAt(1);
-    if (side === "R") s = s === "L" ? "R" : "L";
+  // Un point d'accroche : soit fixe [x, y, z], soit autour d'un membre (main, genou, cheville).
+  // Autour d'un membre, l'élastique fait une boucle qui entoure le membre, orientée selon son axe.
+  function bandEnd(spec, side) {
+    var T = R.T;
+    if (Array.isArray(spec)) return { p: new T.Vector3(side === "R" ? -spec[0] : spec[0], spec[1], spec[2]) };
+    var s = spec.charAt(0), part = spec.charAt(1); if (side === "R") s = s === "L" ? "R" : "L";
+    var w = function (g) { var v = new T.Vector3(); g.getWorldPosition(v); return v; }, a, b, r, back;
     if (part === "H") {
-      var a = R.arms[s], hq = new T.Quaternion(); a.el.getWorldQuaternion(hq);
-      var E = new T.Vector3(); a.el.getWorldPosition(E);
-      return new T.Vector3(0, -LEN.fore + 0.03, 0).applyQuaternion(hq).add(E);
-    }
-    var g = R.legs[s]; (part === "K" ? g.knee : g.ankle).getWorldPosition(v);
-    if (part === "A") v.y = Math.max(0.03, v.y - 0.02);
-    return v;
+      var arm = R.arms[s], hq = new T.Quaternion(); arm.el.getWorldQuaternion(hq);
+      a = w(arm.el); b = new T.Vector3(0, -LEN.fore, 0).applyQuaternion(hq).add(a); r = 0.042; back = 0.05;
+    } else if (part === "K") { a = w(R.legs[s].hip); b = w(R.legs[s].knee); r = 0.074; back = 0.1; }
+    else { a = w(R.legs[s].knee); b = w(R.legs[s].ankle); r = 0.052; back = 0.06; }
+    var axis = b.clone().sub(a).normalize();
+    return { c: b.clone().sub(axis.clone().multiplyScalar(back)), axis: axis, r: r };
+  }
+  function edge(e, toward) {
+    if (!e.c) return e.p;
+    var v = toward.clone().sub(e.c), along = e.axis.clone().multiplyScalar(v.dot(e.axis)); v.sub(along);
+    if (v.lengthSq() < 1e-6) v.set(1, 0, 0);
+    return e.c.clone().add(v.normalize().multiplyScalar(e.r));
   }
   function updateBands() {
     if (!R || !R.bands) return;
-    var list = (bandDef && bandDef.bands) || [];
+    var list = (bandDef && bandDef.bands) || [], Z = new R.T.Vector3(0, 0, 1), Y = new R.T.Vector3(0, 1, 0);
     R.pelvis.updateMatrixWorld(true);
     R.bands.forEach(function (m, i) {
-      var b = list[i]; m.visible = !!b; if (!b) { R.bandKnots[i].visible = false; return; }
-      var A = bandPoint(b[0], bandSide), B = bandPoint(b[1], bandSide), mid = A.clone().add(B).multiplyScalar(0.5), dir = B.clone().sub(A), len = Math.max(0.01, dir.length());
-      m.position.copy(mid); m.scale.set(1, len, 1);
-      m.quaternion.setFromUnitVectors(new R.T.Vector3(0, 1, 0), dir.normalize());
-      R.bandKnots[i].visible = Array.isArray(b[0]) || Array.isArray(b[1]);
-      R.bandKnots[i].position.copy(Array.isArray(b[0]) ? A : B);
+      var b = list[i], loops = [R.bandLoops[2 * i], R.bandLoops[2 * i + 1]];
+      m.visible = !!b; R.bandKnots[i].visible = false; loops[0].visible = loops[1].visible = false;
+      if (!b) return;
+      var E = [bandEnd(b[0], bandSide), bandEnd(b[1], bandSide)];
+      var ref = [E[0].c || E[0].p, E[1].c || E[1].p];
+      var A = edge(E[0], ref[1]), B = edge(E[1], ref[0]);
+      var dir = B.clone().sub(A), len = Math.max(0.01, dir.length());
+      m.position.copy(A.clone().add(B).multiplyScalar(0.5)); m.scale.set(1, len, 1);
+      m.quaternion.setFromUnitVectors(Y, dir.normalize());
+      E.forEach(function (e, k) {
+        if (e.c) { var L0 = loops[k]; L0.visible = true; L0.position.copy(e.c); L0.scale.set(e.r, e.r, e.r); L0.quaternion.setFromUnitVectors(Z, e.axis); }
+        else { R.bandKnots[i].visible = true; R.bandKnots[i].position.copy(e.p); }
+      });
     });
   }
+
 
   /* ── Poses : miroir (côté droit) et interpolation ── */
   function mirror(p) {
