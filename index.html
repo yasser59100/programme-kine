@@ -703,6 +703,19 @@ input,select,textarea{font-family:var(--font);}
 .rg-pain-btn { color: var(--red) !important; border-color: rgba(248,113,113,0.45) !important; }
 #rg-pain { position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; justify-content: center; }
 #rg-pain.open { display: flex; animation: fadeIn 0.2s ease; }
+#rg-pain[data-step] .rgp-zone, #rg-pain[data-step] .rgp-level, #rg-pain[data-step] .rgp-sharp, #rg-pain[data-step] .rgp-done, #rg-pain[data-step] .rgp-sharp-box, #rg-pain[data-step] #rg-pain-advice, #rg-pain[data-step] #rg-pain-actions { display: none; }
+#rg-pain[data-step="zone"] .rgp-zone { display: flex; }
+#rg-pain[data-step="level"] .rgp-level { display: grid; }
+#rg-pain[data-step="zone"] p.rgp-zone, #rg-pain[data-step="level"] p.rgp-level { display: none; }
+#rg-pain[data-step="sharp"] .rgp-sharp { display: grid; }
+#rg-pain[data-step="done"] .rgp-done { display: block; }
+#rg-pain[data-step="done"] #rg-pain-advice, #rg-pain[data-step="done"] #rg-pain-actions { display: block; }
+#rg-pain[data-step="done"] #rg-pain-actions { display: flex; }
+.rgp-yn { grid-template-columns: 1fr 1fr; gap: 10px; }
+.rgp-yn button { min-height: 52px; border-radius: 14px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-weight: 700; font-size: 1rem; }
+.rgp-edit { margin: 2px 0 0; padding: 6px 0; border: 0; background: none; color: var(--text2); font: inherit; font-size: 0.85rem; text-decoration: underline; text-align: left; }
+#rg-pain-coach .km-coach { margin-top: 4px; }
+#rg-pain-coach .km-coach p { font-size: 1rem; font-weight: 600; }
 .rg-pain-card { width: 100%; max-width: 480px; max-height: 92%; overflow-y: auto; background: var(--surface); border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 10px; }
 .rg-pain-head { display: flex; align-items: center; justify-content: space-between; }
 .rg-pain-head h3 { font-size: 1.15rem; }
@@ -2326,11 +2339,14 @@ document.addEventListener('DOMContentLoaded',function(){
         <h3 id="rg-pain-title">Vous avez mal ?</h3>
         <button class="rg-close-btn" onclick="rgClosePain(true)" aria-label="Fermer">✕</button>
       </div>
-      <p class="rg-pain-q">Où ?</p>
-      <div class="rg-chips" id="rg-pain-zones"></div>
-      <p class="rg-pain-q">Intensité (1 = légère, 10 = maximale)</p>
-      <div class="rg-scale" id="rg-pain-scale"></div>
-      <label class="rg-pain-sharp"><input type="checkbox" id="rg-pain-sharp" onchange="rgPainUpdate()"> Douleur vive, dans l'articulation, ou inhabituelle</label>
+      <div id="rg-pain-coach"></div>
+      <p class="rg-pain-q rgp-zone">Où ?</p>
+      <div class="rg-chips rgp-zone" id="rg-pain-zones"></div>
+      <p class="rg-pain-q rgp-level">Intensité (1 = légère, 10 = maximale)</p>
+      <div class="rg-scale rgp-level" id="rg-pain-scale"></div>
+      <label class="rg-pain-sharp rgp-sharp-box"><input type="checkbox" id="rg-pain-sharp" onchange="rgPainUpdate()"> Douleur vive, dans l'articulation, ou inhabituelle</label>
+      <div class="rgp-sharp rgp-yn"><button type="button" onclick="rgPainSharp(true)">Oui</button><button type="button" onclick="rgPainSharp(false)">Non</button></div>
+      <button type="button" class="rgp-done rgp-edit" onclick="rgPainStep('zone')">Modifier mes réponses</button>
       <div id="rg-pain-advice"></div>
       <div id="rg-pain-actions"></div>
       <p class="rg-pain-red"><strong>Urgence :</strong> malaise, douleur dans la poitrine ou essoufflement inhabituel : arrêtez tout et appelez le 15.</p>
@@ -3602,7 +3618,7 @@ function rgOpenPain() {
   RG_PAIN_ZONES.forEach(function(z) {
     var b = document.createElement("button");
     b.className = "rg-chip"; b.textContent = z;
-    b.onclick = function() { rgPain.zone = z; rgPainUpdate(); };
+    b.onclick = function() { rgPain.zone = z; rgPainUpdate(); rgPainStep("level"); };
     zones.appendChild(b);
   });
   var scale = document.getElementById("rg-pain-scale");
@@ -3610,11 +3626,32 @@ function rgOpenPain() {
   for (var i = 1; i <= 10; i++) (function(n) {
     var b = document.createElement("button");
     b.textContent = n; b.setAttribute("aria-label", "Douleur " + n + " sur 10");
-    b.onclick = function() { rgPain.level = n; rgPainUpdate(); };
+    b.onclick = function() { rgPain.level = n; rgPainUpdate(); rgPainStep(n >= 5 ? "done" : "sharp"); };
     scale.appendChild(b);
   })(i);
   rgPainUpdate();
+  rgPainStep("zone");
   document.getElementById("rg-pain").classList.add("open");
+}
+
+// « J'ai mal » pas à pas : une question à la fois, posée par la mascotte
+var RGP_ASK = {
+  zone: "Où as-tu mal ?",
+  level: "Combien sur 10, à peu près ?",
+  sharp: "C'est une douleur vive, dans l'articulation, ou inhabituelle ?",
+  done: "Voilà ce que je te conseille :"
+};
+function rgPainStep(step) {
+  var box = document.getElementById("rg-pain");
+  box.setAttribute("data-step", step);
+  var coach = document.getElementById("rg-pain-coach"), txt = RGP_ASK[step];
+  if (step === "done" && rgPain.zone && rgPain.level) txt = rgPain.zone + ", " + rgPain.level + " sur 10. " + txt;
+  coach.innerHTML = window.KineMascotte ? KineMascotte.coachHtml(txt) : "<p class='rg-pain-q'>" + txt + "</p>";
+  if (step !== "done" || !window.speak) return;
+}
+function rgPainSharp(yes) {
+  var c = document.getElementById("rg-pain-sharp"); c.checked = !!yes;
+  rgPainUpdate(); rgPainStep("done");
 }
 
 function rgClosePain(resume) {

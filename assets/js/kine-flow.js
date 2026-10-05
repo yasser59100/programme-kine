@@ -393,6 +393,9 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     info.innerHTML = "<div class='seq-next-k'>Ensuite</div><div class='seq-next-name'>" + esc(ex.name) + "</div><div class='seq-next-meta'>" + esc(meta) + "</div>";
     box.appendChild(demo); box.appendChild(info);
     body.appendChild(box);
+    // Le rappel de la mascotte : l'erreur la plus fréquente sur l'exercice qui arrive
+    var tip = window.KineMascotte && KineMascotte.errors[ex.name];
+    if (tip) { var c = document.createElement("div"); c.innerHTML = KineMascotte.coachHtml(tip); body.appendChild(c.firstChild); }
     if (!(window.KineAvatar && KineAvatar.supports(ex.name) && KineAvatar.show(demo, ex.name))) { demo.remove(); return; }
     // Démonstration en boucle, au tempo de l'exercice
     var inf = KineAvatar.info(ex.name, KineProgress.repsLabel(ex), week()), cycle = 0;
