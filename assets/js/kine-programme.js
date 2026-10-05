@@ -29,9 +29,9 @@
       if (inf.mode === "timed") per = inf.seconds * (inf.sides ? 2 : 1);
       else if (window.KineAvatar && KineAvatar.hasSteps(ex.name)) { var st2 = KineAvatar.plan(ex.name, 1, inf, w).steps; per = st2.reduce(function (a, s) { return a + s.dur; }, 0) * (inf.reps || 12) + (KineAvatar.isoTotal ? KineAvatar.isoTotal(ex.name, KineProgress.repsLabel(ex), w) : 0); }
       else per = (inf.reps || 12) * 3;
-      tot += d.circuit ? 60 * p.series : p.series * (per + 45);
+      tot += d.circuit ? 60 * p.series : p.series * (per + 30);
     });
-    tot += (p.series - 1) * (d.circuit ? 120 : 90);
+    tot += (p.series - 1) * 120;
     return tot;
   }
   function status(id) {

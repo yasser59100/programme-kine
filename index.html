@@ -1240,7 +1240,7 @@ input,select,textarea{font-family:var(--font);}
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
   <div class="slabel"><span class="slabel-dot"></span>Circuit de renforcement, 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 12–15 reps — 45 s entre les exercices — 90 s entre les tours</div>
+  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 12–15 reps — 30 s entre les exercices — 2 min entre les tours</div>
   <div class="ex" id="ex-day0-1"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Squat bilatéral en chaîne fermée</div><button class="ex-check-btn" onclick="toggleEx('day0',1)">✓</button></div>
     <div class="ex-desc">Pieds à largeur d'épaules, orteils légèrement vers l'extérieur. Flexion lente jusqu'à 80–90°, talons en appui permanent, rachis neutre. Contraction fessière complète à la remontée. Expirer à la remontée.</div>
@@ -1322,7 +1322,7 @@ input,select,textarea{font-family:var(--font);}
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
   <div class="slabel"><span class="slabel-dot teal"></span>Circuit de renforcement, 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 8–12 reps — 45 s entre les exercices — 90 s entre les tours</div>
+  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 8–12 reps — 30 s entre les exercices — 2 min entre les tours</div>
   <div class="ex" id="ex-day1-1"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Rotation externe d'épaule en décubitus latéral</div><button class="ex-check-btn" onclick="toggleEx('day1',1)">✓</button></div>
     <div class="ex-desc">Allongé sur le côté, coude du bras supérieur collé au flanc, fléchi à 90°. Lever l'avant-bras vers le plafond en rotation externe — sans décoller le coude. Descente lente 3 sec. Cible infra-épineux et petit rond.</div>
@@ -1477,7 +1477,7 @@ input,select,textarea{font-family:var(--font);}
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Activation')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
   </div></div></div>
   <div class="slabel"><span class="slabel-dot purple"></span>Circuit de renforcement, 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 15 reps — 45 s entre les exercices — 90 s entre les tours</div>
+  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 15 reps — 30 s entre les exercices — 2 min entre les tours</div>
   <div class="ex" id="ex-day3-1"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Squat sumo (adducteurs + grand fessier)</div><button class="ex-check-btn" onclick="toggleEx('day3',1)">✓</button></div>
     <div class="ex-desc">Pieds très écartés (~150% largeur épaules), orteils à 45°. Flexion en maintenant les genoux dans l'axe des orteils, bassin en légère rétroversion. Remontée par contraction simultanée fessiers et adducteurs.</div>
@@ -4004,8 +4004,8 @@ seqExDone = function() {
 // 20 s de transition entre les exercices, 2 min de repos entre les tours (consignes J5)
 var CIRCUIT_TRANSITION = 20, CIRCUIT_TOUR_REST = 120;
 // Toutes les séances se font en tours (choix du kiné) : on enchaîne les exercices, puis on refait un tour.
-// Hors circuit J5 : 45 s entre deux exercices, 90 s entre deux tours.
-var ROUND_TRANSITION = 45, ROUND_TOUR_REST = 90;
+// Hors circuit J5 : 30 s entre deux exercices, 2 min entre deux tours.
+var ROUND_TRANSITION = 30, ROUND_TOUR_REST = 120;
 var _seqSeriesDoneStd = _baseSeqSeriesDone, _seqExDoneStd = _baseSeqExDone, _seqSkipStd = seqSkipExercise;
 function seqIsCircuitWork() {
   var d = SEQ_DAYS[seqCurrentDay];
