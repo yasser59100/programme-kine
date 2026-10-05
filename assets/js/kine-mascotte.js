@@ -49,6 +49,8 @@
     // Portrait (tête et épaules), utilisé quand l'avatar 3D est déjà occupé par la séance
     var face = L.merge(base, { LA: { ang: [0, 82, 40, 108] }, RA: { ang: DOWN }, head: 4, headZ: 6 });
     KineAvatar.register(NAME + "_face", { camera: { yaw: 0.12, pitch: 0.0, dist: 1.15, ty: 1.58 }, start: "f", thumb: "f", poses: { f: face } });
+    var peek = L.merge(base, { LA: { ang: DOWN }, RA: { ang: DOWN }, head: 6, headZ: -12, headY: 8 });
+    KineAvatar.register(NAME + "_peek", { camera: { yaw: 0.55, pitch: 0.02, dist: 1.05, ty: 1.6 }, start: "p", thumb: "p", poses: { p: peek } });
     registered = true;
     return true;
   }
@@ -342,7 +344,45 @@
     return "<div class='km-coach'>" + (f ? "<img src='" + f + "' alt=''>" : "") + "<p>" + esc(text) + "</p></div>";
   }
 
+  /* ════════ À la demande : sa tête dépasse dans un coin, on la touche, il arrive ════════ */
+  function menu() {
+    if (busy() || !appear()) return;
+    mode = "faq"; clearTimeout(timer);
+    var noted = window.KineCheckin && KineCheckin.get(iso());
+    bubble("Je peux t'aider ?", "",
+      "<button class='km-go' onclick='KineMascotte.faq()'>Une question</button>" +
+      "<button class='km-later' onclick='KineMascotte.bouge()'>Bouger 2 minutes</button>" +
+      (noted ? "" : "<button class='km-later' onclick='KineMascotte.act(\"ressenti\")'>Noter mon ressenti</button>") +
+      "<button class='km-later' onclick='KineMascotte.hide()'>Fermer</button>");
+    play(GESTURES.wave);
+    talk("Je peux t'aider ?");
+  }
+  function peekImg() {
+    var c = get("kf-masc-peek"); if (c) return c;
+    if (!register() || !window.THREE) return null;
+    var g = $("rep-guide"); if (g && g.classList.contains("open")) return null;
+    try { var u = KineAvatar.snapshot(NAME + "_peek", 160); if (u) { set("kf-masc-peek", u); return u; } } catch (e) {}
+    return null;
+  }
+  function peekTick() {
+    var p = $("km-peek");
+    if (!p && (busy() || mode)) return;   // la photo de la tête se prend quand l'avatar est libre
+    if (!p) {
+      var src = peekImg(); if (!src) return;
+      p = document.createElement("button");
+      p.id = "km-peek"; p.type = "button"; p.className = "km-peek";
+      p.setAttribute("aria-label", "Appeler la mascotte");
+      p.innerHTML = "<img src='" + src + "' alt=''>";
+      p.onclick = function () { p.classList.remove("show"); menu(); };
+      document.body.appendChild(p);
+    }
+    var m = $("kf-masc"), open = m && m.classList.contains("open");
+    var hidden = open || busy() || get("kf-masc-peek-off") === "1" || !!document.querySelector("#kf-onboard.open, .modal.open, #rg-pain.open");
+    p.classList.toggle("show", !hidden);
+  }
+
   window.KineMascotte = {
+    menu: menu,
     show: show, hide: hide, maybe: maybe, pick: pickMessage, faq: faq, answer: answer, bouge: bouge, tour: tour,
     faqList: FAQ, errors: ERRORS, coachHtml: coachHtml, portrait: portrait,
     _bougeSec: function (n) { BOUGE_SEC = n; },
@@ -358,6 +398,7 @@
 
   function init() {
     setTimeout(function () { if (window.THREE) { portrait(); maybe(); } else setTimeout(function () { portrait(); maybe(); }, 4000); }, 3500);
+    setInterval(peekTick, 700);
     var base = window.showPage;
     if (typeof base === "function" && !base.__masc) {
       window.showPage = function () { var r = base.apply(this, arguments); if (mode !== "bouge" && mode !== "tour") hide(); setTimeout(maybe, 1200); return r; };

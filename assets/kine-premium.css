@@ -352,3 +352,11 @@ html[data-theme="light"] .km-q, html[data-theme="light"] .km-a { color: #0f1923;
 .km-coach img { width: 46px; height: 46px; border-radius: 23px; object-fit: cover; object-position: 50% 30%; background: radial-gradient(circle, rgba(0, 242, 254, 0.2), transparent 70%); flex-shrink: 0; }
 .km-coach p { margin: 0; font-size: 14px; line-height: 1.4; color: var(--text, #e8f0fe); }
 html[data-theme="light"] .km-coach p { color: #0f1923; }
+
+/* Mascotte : sa tête dépasse du bord droit, on la touche pour l'appeler */
+.km-peek { position: fixed; right: 0; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); z-index: 2800; width: 62px; height: 78px; padding: 0; border: 1px solid rgba(0, 212, 230, 0.4); border-right: 0; border-radius: 39px 0 0 39px; background: radial-gradient(circle at 70% 55%, rgba(0, 242, 254, 0.22), rgba(15, 25, 35, 0.92) 70%); overflow: hidden; cursor: pointer; transform: translateX(100%); transition: transform .45s cubic-bezier(.2, .9, .3, 1.2); box-shadow: -6px 8px 24px rgba(0, 0, 0, 0.35); }
+.km-peek.show { transform: translateX(0); animation: km-bob 4s ease-in-out 1s infinite; }
+.km-peek img { position: absolute; left: -6px; top: -2px; width: 96px; height: 96px; pointer-events: none; }
+@keyframes km-bob { 0%, 82%, 100% { transform: translateX(0); } 88% { transform: translateX(-6px) rotate(-4deg); } 94% { transform: translateX(0); } }
+html[data-theme="light"] .km-peek { background: radial-gradient(circle at 70% 55%, rgba(0, 194, 214, 0.22), #ffffff 70%); }
+@media (prefers-reduced-motion: reduce) { .km-peek.show { animation: none; } }
