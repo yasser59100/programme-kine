@@ -164,6 +164,7 @@
       L.push(""); L.push("Douleurs pendant les exercices :");
       pp.forEach(function (p) { L.push("· " + dateFr(p.date, false) + " " + p.zone.toLowerCase() + " " + p.intensite + "/10" + (p.vive ? " (vive)" : "") + ", " + p.exercice + ", " + p.action); });
     }
+    if (window.KineCheckin) KineCheckin.summaryLines(from === "0000" ? "0000-00-00" : from).forEach(function (l) { L.push(l); });
     var notes = ss.map(function (s) { return s.notes; }).filter(Boolean);
     if (notes.length) { L.push(""); L.push("Remarques : " + notes.join(" ; ")); }
     var extra = ($("su-extra") && $("su-extra").value.trim()) || "";

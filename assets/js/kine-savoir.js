@@ -95,7 +95,7 @@
   function place() {
     var box = $("today-card"); if (!box || !box.firstChild) return;
     if ($("ks-card")) return;
-    var anchor = box.querySelector(".lx-link") || box.querySelector(".lx-cta");
+    var anchor = box.querySelector(".kr-remind") || box.querySelector(".lx-link") || box.querySelector(".lx-cta");
     var c = card();
     if (anchor && anchor.nextSibling) box.insertBefore(c, anchor.nextSibling); else box.appendChild(c);
   }

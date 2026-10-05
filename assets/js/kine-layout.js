@@ -74,6 +74,7 @@
       "<div class='lx-week'><span class='lx-fill' style='width:" + fill + "%'></span>" + dots + "</div>" +
       "<button class='lx-cta' onclick=\"openPreview('" + target + "')\">" + esc(cta) + "</button>" +
       "<button class='lx-link' onclick=\"openExplain('" + target + "')\">Voir les exercices</button>" +
+      (window.KineCheckin ? KineCheckin.homeReminder() : "") +
       "<h2 class='lx-section'>Faire une autre séance</h2><div class='lx-list'>" + others + "</div>";
     var page = $("page-home"); if (page) page.classList.add("lx");
   }
@@ -119,12 +120,19 @@
       var v = hurt ? "douleur<b class='bad'>" + s.douleur + "</b>" : s.borg ? "effort<b>" + s.borg + "</b>" : "";
       return "<div class='lx-hrow'><span class='lx-d'><b>" + d.getDate() + "</b>" + WS[d.getDay()].toLowerCase() + ".</span><span>" + esc(s.seance || "Séance") + "<small>" + esc(meta) + "</small></span><span class='lx-v'>" + v + "</span></div>";
     }).join("");
+    var C = window.KineCheckin;
+    var now = new Date();
     box.innerHTML =
-      "<h1 class='lx-title'>Mon suivi</h1><p class='lx-lede'>" + summary + "</p>" +
-      "<div class='lx-chart'>" + chart(ss) + "</div>" + alert +
-      (rows ? "<h2 class='lx-section'>Dernières séances</h2><div class='lx-hist'>" + rows + "</div>" : "") +
-      "<button class='lx-link left' onclick='KineSuivi.open(\"historique\")'>Tout l'historique</button>" +
-      "<button class='lx-link left' onclick='KineSuivi.open(\"douleurs\")'>Douleurs signalées</button>" +
+      "<h1 class='lx-title'>Mon suivi</h1><p class='lx-date'>" + cap(WD[now.getDay()]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
+      (C ? C.ring() + C.cta() + C.week() : "") +
+      "<p class='lx-lede kr-sum'>" + summary + "</p>" + alert +
+      (C ? C.insights() : "<div class='lx-chart'>" + chart(ss) + "</div>") +
+      "<div class='kr-links'>" +
+        "<button onclick='KineCheckin.calendar()'><span>Calendrier</span><span aria-hidden='true'>›</span></button>" +
+        "<button onclick='KineCheckin.chart()'><span>Douleur et effort, la courbe</span><span aria-hidden='true'>›</span></button>" +
+        "<button onclick='KineSuivi.open(\"historique\")'><span>Historique des séances</span><span aria-hidden='true'>›</span></button>" +
+        "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
+      "</div>" +
       "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer à mon kiné</button>" +
       "<h2 class='lx-section'>Mes badges</h2>";
     var page = $("page-suivi"); if (page) page.classList.add("lx");
@@ -165,6 +173,7 @@
   }
 
   function renderAllLx() { renderHome(); renderSuivi(); renderProg(); }
+  window.KineLayout = { render: renderAllLx, chart: chart };
   function init() {
     arrangeGuide(); renderAllLx();
     if (typeof renderAll === "function" && !renderAll.__lx) {
