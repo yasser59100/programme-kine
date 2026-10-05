@@ -49,7 +49,7 @@
     KineAvatar.register(NAME, DEF);
     KineAvatar.register(NAME + "_ask", L.merge(DEF, { camera: { yaw: 0.06, pitch: 0.02, dist: 1.05, ty: 1.5 } }));
     // pause active : face au patient, en grand, bras levés compris dans le cadre
-    KineAvatar.register(NAME + "_big", L.merge(DEF, { camera: { yaw: 0.12, pitch: 0.04, dist: 3.15, ty: 1.22 } }));
+    KineAvatar.register(NAME + "_big", L.merge(DEF, { camera: { yaw: 0.1, pitch: 0.06, dist: 3.7, ty: 1.02 } }));
     // Portrait (tête et épaules), utilisé quand l'avatar 3D est déjà occupé par la séance
     var face = L.merge(base, { LA: { ang: [0, 82, 40, 108] }, RA: { ang: DOWN }, head: 4, headZ: 6 });
     KineAvatar.register(NAME + "_face", { camera: { yaw: 0.12, pitch: 0.0, dist: 1.15, ty: 1.58 }, start: "f", thumb: "f", poses: { f: face } });
@@ -115,10 +115,10 @@
     "Équilibre unipodal": "Fixe un point devant toi, et reste près d'un appui."
   };
   var BOUGE = [
-    { name: "Bras au ciel", say: "Bras au ciel. On inspire en montant, on souffle en descendant.", seq: [["ciel", 2], ["idle", 2]] },
-    { name: "Ouverture de la poitrine", say: "On ouvre la poitrine. Bras devant, puis on ouvre grand.", seq: [["avant", 1.8], ["ouvre", 2]] },
-    { name: "Inclinaison du cou", say: "Le cou, tout doucement. Oreille vers l'épaule, d'un côté puis de l'autre.", seq: [["couG", 3], ["idle", 1.5], ["couD", 3], ["idle", 1.5]] },
-    { name: "Inclinaison du buste", say: "On s'étire sur le côté. Le bras passe au-dessus de la tête.", seq: [["latG", 2.5], ["idle", 1.5], ["latD", 2.5], ["idle", 1.5]] }
+    { name: "Bras au ciel", say: "Bras au ciel. On inspire en montant, on souffle en descendant.", seq: [["ciel", 2, "Inspire, les bras montent"], ["idle", 2, "Souffle, ils redescendent"]] },
+    { name: "Ouverture de la poitrine", say: "On ouvre la poitrine. Bras devant, puis on ouvre grand.", seq: [["avant", 1.8, "Bras tendus devant"], ["ouvre", 2, "Ouvre grand la poitrine"]] },
+    { name: "Inclinaison du cou", say: "Le cou, tout doucement. Oreille vers l'épaule, d'un côté puis de l'autre.", seq: [["couG", 3, "Oreille vers l'épaule"], ["idle", 1.5, "Retour au centre"], ["couD", 3, "De l'autre côté"], ["idle", 1.5, "Retour au centre"]] },
+    { name: "Inclinaison du buste", say: "On s'étire sur le côté. Le bras passe au-dessus de la tête.", seq: [["latG", 2.5, "Le bras passe au-dessus"], ["idle", 1.5, "Retour au centre"], ["latD", 2.5, "De l'autre côté"], ["idle", 1.5, "Retour au centre"]] }
   ];
   var BOUGE_SEC = 30;
 
@@ -198,13 +198,14 @@
     e.addEventListener("touchend", function (ev) { if (y0 != null && ev.changedTouches[0].clientY - y0 > 60 && mode !== "bouge") hide(); y0 = null; });
     return e;
   }
-  function play(seq, loop) {
+  function play(seq, loop, onStep) {
     var i = 0, id = {};
     playing = id;
     (function next() {
       if (playing !== id) return;
       if (i >= seq.length) { if (loop) i = 0; else return; }
       var s = seq[i++]; KineAvatar.step({ pose: s[0], dur: s[1] });
+      if (onStep) onStep(s);
       setTimeout(next, s[1] * 1000);
     })();
   }
@@ -254,7 +255,7 @@
     var h = $("km-hole"); if (h) h.classList.remove("on");
     clearTimeout(timer); clearInterval(bougeT); playing = null; mode = null;
     var box = $("kf-masc"); if (!box || !box.classList.contains("open")) return;
-    box.classList.remove("open"); look = null;
+    box.classList.remove("open"); look = null; hud(false);
     setTimeout(function () { if (!box.classList.contains("open")) box.classList.remove("big", "ask"); }, 450);
     if (typeof stopSpeech === "function") { try { stopSpeech(); } catch (e) {} }
     setTimeout(function () { if (window.KineAvatar && !box.classList.contains("open") && $("km-stage") && $("km-stage").querySelector("canvas")) { KineAvatar.hide(); } }, 400);
@@ -297,29 +298,41 @@
 
   /* ════════ « Bouge avec moi » ════════ */
   var bougeT = null;
+  function hud(on) {
+    var box = el(), h = $("km-hud");
+    if (!on) { if (h) h.remove(); return; }
+    if (!h) {
+      h = document.createElement("div"); h.id = "km-hud"; h.className = "km-hud"; h.setAttribute("aria-hidden", "true");
+      h.innerHTML = "<div class='km-seg'>" + BOUGE.map(function () { return "<i><b></b></i>"; }).join("") + "</div>" +
+        "<div class='km-big'><b id='km-sec'>30</b><span>s</span></div>" +
+        "<svg class='km-floor' viewBox='0 0 200 60'><ellipse cx='100' cy='30' rx='92' ry='24' class='km-fl0'/><path id='km-fl' d='M100 54 A92 24 0 1 1 100.01 54' class='km-fl1' pathLength='100' stroke-dasharray='0 100'/></svg>";
+      box.appendChild(h);
+    }
+  }
   function bouge() {
     if (busy() || !appear("big")) return;
     mode = "bouge"; clearTimeout(timer); clearInterval(bougeT);
     var k = 0, t0 = 0;
+    function cue(s) { var c = $("km-cue"); if (c && s[2]) { c.textContent = s[2]; c.classList.remove("in"); void c.offsetWidth; c.classList.add("in"); } }
     function startMove() {
       var m = BOUGE[k]; t0 = Date.now();
-      play(m.seq, true);
+      bubble("", "<p class='km-mv'>Mouvement " + (k + 1) + " sur " + BOUGE.length + "</p><p class='km-name'>" + esc(m.name) + "</p><p class='km-cue' id='km-cue'></p>" +
+        (BOUGE[k + 1] ? "<p class='km-next'>Ensuite : " + esc(BOUGE[k + 1].name) + "</p>" : "<p class='km-next'>Dernier mouvement</p>"),
+        "<button class='km-later' onclick='KineMascotte.hide()'>Arrêter</button>");
+      play(m.seq, true, cue);
       talk(m.say);
       tick();
     }
     function tick() {
-      var m = BOUGE[k], left = Math.max(0, BOUGE_SEC - Math.floor((Date.now() - t0) / 1000)), pct = Math.round((1 - left / BOUGE_SEC) * 100);
-      // on ne met à jour que le texte et le chrono : le bouton « Arrêter » reste en place sous le doigt
-      if (!$("km-sec")) bubble(m.name, "<div class='km-bouge'><span id='km-num'></span><b id='km-sec'></b></div><div class='km-bar'><i id='km-pct'></i></div>",
-        "<button class='km-later' onclick='KineMascotte.hide()'>Arrêter</button>");
-      if ($("km-text").textContent !== m.name) $("km-text").textContent = m.name;
-      $("km-num").textContent = (k + 1) + " sur " + BOUGE.length;
-      $("km-sec").textContent = left + " s";
-      $("km-pct").style.width = pct + "%";
+      var el2 = (Date.now() - t0) / 1000, left = Math.max(0, BOUGE_SEC - Math.floor(el2)), pct = Math.min(100, el2 / BOUGE_SEC * 100);
+      if ($("km-sec")) $("km-sec").textContent = left;
+      if ($("km-fl")) $("km-fl").setAttribute("stroke-dasharray", pct.toFixed(1) + " 100");
+      var segs = document.querySelectorAll("#km-hud .km-seg b");
+      for (var n = 0; n < segs.length; n++) segs[n].style.width = (n < k ? 100 : n === k ? pct : 0) + "%";
       if (left <= 0) {
         k++;
         if (k >= BOUGE.length) {
-          clearInterval(bougeT);
+          clearInterval(bougeT); hud(false);
           var done = "Et voilà, 2 minutes de mouvement ! Ton dos et tes épaules te remercient.";
           bubble(done, "", "<button class='km-go' onclick='KineMascotte.hide()'>Merci !</button>");
           play(GESTURES.cheer); talk(done);
@@ -330,10 +343,11 @@
         startMove();
       }
     }
-    var intro = "C'est parti pour 2 minutes ! Debout ou assis, imite-moi.";
+    hud(true);
+    var intro = "C'est parti pour 2 minutes ! Debout ou assis, fais comme moi, comme dans un miroir.";
     bubble(intro, "", "<button class='km-later' onclick='KineMascotte.hide()'>Arrêter</button>");
     play(GESTURES.open); talk(intro);
-    setTimeout(function () { if (mode !== "bouge") return; startMove(); bougeT = setInterval(function () { if (mode === "bouge") tick(); else clearInterval(bougeT); }, 500); }, 3200);
+    setTimeout(function () { if (mode !== "bouge") return; startMove(); bougeT = setInterval(function () { if (mode === "bouge") tick(); else clearInterval(bougeT); }, 250); }, 3200);
   }
 
   /* ════════ Visite guidée (premier lancement) ════════ */
@@ -413,12 +427,49 @@
       p.id = "km-peek"; p.type = "button"; p.className = "km-peek";
       p.setAttribute("aria-label", "Appeler la mascotte");
       p.innerHTML = "<img src='" + src + "' alt=''>";
-      p.onclick = function () { p.classList.remove("show"); menu(); };
       document.body.appendChild(p);
+      peekPlace(p);
+      peekDrag(p);
     }
     var m = $("kf-masc"), open = m && m.classList.contains("open");
     var hidden = open || busy() || get("kf-masc-peek-off") === "1" || !!document.querySelector("#kf-onboard.open, .modal.open, #rg-pain.open");
     p.classList.toggle("show", !hidden);
+  }
+
+  // La tête se déplace au doigt : on la glisse où on veut, elle se range contre le bord le plus proche
+  function peekPlace(p) {
+    var pos = null; try { pos = JSON.parse(get("kf-masc-peek-pos") || "null"); } catch (e) {}
+    p.classList.toggle("left", !!(pos && pos.side === "L"));
+    if (pos && pos.y != null) { p.style.top = Math.round(Math.min(Math.max(pos.y, 0.08), 0.82) * window.innerHeight) + "px"; p.style.bottom = "auto"; }
+  }
+  function peekDrag(p) {
+    var st = null;
+    p.addEventListener("pointerdown", function (e) {
+      var r = p.getBoundingClientRect();
+      st = { x: e.clientX, y: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, moved: false, id: e.pointerId };
+      try { p.setPointerCapture(e.pointerId); } catch (er) {}
+    });
+    p.addEventListener("pointermove", function (e) {
+      if (!st || e.pointerId !== st.id) return;
+      if (!st.moved && Math.hypot(e.clientX - st.x, e.clientY - st.y) < 8) return;
+      if (!st.moved) { st.moved = true; p.classList.add("drag"); }
+      var w = p.offsetWidth, h = p.offsetHeight;
+      p.style.left = Math.min(Math.max(e.clientX - st.dx, 0), window.innerWidth - w) + "px"; p.style.right = "auto";
+      p.style.top = Math.min(Math.max(e.clientY - st.dy, 40), window.innerHeight - h - 70) + "px"; p.style.bottom = "auto";
+      e.preventDefault();
+    });
+    function end(e) {
+      if (!st) return;
+      var moved = st.moved; st = null;
+      if (!moved) return;
+      var r = p.getBoundingClientRect(), side = r.left + r.width / 2 < window.innerWidth / 2 ? "L" : "R";
+      p.classList.remove("drag"); p.style.left = ""; p.style.right = "";
+      set("kf-masc-peek-pos", JSON.stringify({ side: side, y: r.top / window.innerHeight }));
+      peekPlace(p);
+      p._dragged = Date.now();
+    }
+    p.addEventListener("pointerup", end); p.addEventListener("pointercancel", end);
+    p.addEventListener("click", function () { if (p._dragged && Date.now() - p._dragged < 400) return; p.classList.remove("show"); menu(); });
   }
 
   /* ════════ Moteur de recherche local (sans IA, rien ne sort du téléphone) ════════ */

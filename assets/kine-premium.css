@@ -383,13 +383,44 @@ html[data-theme="light"] .km-search input, html[data-theme="light"] .km-none { c
 html[data-theme="light"] .km-search { background: #fff; color: #0a8a99; }
 html[data-theme="light"] .km-tag, html[data-theme="light"] .km-q.km-kine { color: #0a8a99; }
 
-/* Mascotte — pause active en grand, face au patient */
-.kf-masc.big { top: 0; bottom: 0; max-width: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
-.kf-masc.big::before { background: radial-gradient(ellipse at 50% 38%, #0b3340, #060c14 70%); }
-.kf-masc.big .km-stage { order: 1; flex: 0 0 auto; width: min(92vw, 400px); height: min(56vh, 470px); margin: 0; border-radius: 28px; }
-.kf-masc.big .km-bubble { order: 2; flex: 0 0 auto; width: min(92vw, 400px); box-sizing: border-box; margin: 0; border-radius: 20px; }
+/* Mascotte — « Bouger 2 minutes » : scène plein écran, comme un miroir */
+.kf-masc.big { top: 0; bottom: 0; max-width: none; display: grid; grid-template-columns: min(92vw, 420px); grid-template-rows: auto auto; grid-template-areas: "st" "bu"; justify-content: center; align-content: center; gap: 8px; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px calc(14px + env(safe-area-inset-bottom, 0px)); }
+.kf-masc.big::before { background: radial-gradient(ellipse at 50% 42%, #0b3340, #060c14 70%); }
+.kf-masc.big .km-stage { grid-row: 1; grid-column: 1; width: 100%; height: min(58vh, 500px); margin: 0; border-radius: 0; -webkit-mask-image: none; mask-image: none; background: none; }
+.kf-masc.big .km-bubble { grid-row: 2; grid-column: 1; margin: 0; border-radius: 22px; text-align: center; }
 .kf-masc.big .km-bubble::before { display: none; }
-.kf-masc.big .km-text { font-size: 18px; font-weight: 700; text-align: center; }
-html[data-theme="light"] .kf-masc.big::before { background: radial-gradient(ellipse at 50% 38%, #cdeff4, #f0f6fa 70%); }
+.kf-masc.big .km-text { font-size: 18px; font-weight: 700; }
+.kf-masc.big .km-acts { justify-content: center; }
+.km-hud { display: none; }
+.kf-masc.big .km-hud { grid-row: 1; grid-column: 1; align-self: stretch; position: relative; display: block; pointer-events: none; z-index: 1; }
+.km-seg { position: absolute; left: 0; right: 0; top: 0; display: flex; gap: 6px; }
+.km-seg i { flex: 1; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); overflow: hidden; }
+.km-seg b { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #00e5f5, #4f8ff7); transition: width .25s linear; }
+.km-big { position: absolute; left: 50%; transform: translateX(-50%); top: 14px; display: flex; align-items: baseline; gap: 2px; color: #e8f0fe; }
+.km-big b { font-size: 44px; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.km-big span { font-size: 18px; font-weight: 700; color: #00d4e6; }
+.km-floor { position: absolute; left: 50%; bottom: 0; width: 76%; margin-left: -38%; height: auto; overflow: visible; }
+.km-fl0 { fill: rgba(0, 212, 230, 0.08); stroke: rgba(255, 255, 255, 0.12); stroke-width: 3; }
+.km-fl1 { fill: none; stroke: #00e5f5; stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(0, 229, 245, 0.8)); }
+.km-mv { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #00d4e6; }
+.km-name { margin: 2px 0 6px; font-size: 22px; font-weight: 800; color: var(--text, #e8f0fe); }
+.km-cue { margin: 0 0 6px; min-height: 26px; font-size: 19px; font-weight: 600; color: var(--text, #e8f0fe); opacity: .95; }
+.km-cue.in { animation: km-cue .45s ease-out; }
+@keyframes km-cue { from { opacity: 0; transform: translateY(8px); } to { opacity: .95; transform: none; } }
+.km-next { margin: 0 0 10px; font-size: 13px; color: var(--text3, #8595ab); }
+html[data-theme="light"] .kf-masc.big::before { background: radial-gradient(ellipse at 50% 42%, #cdeff4, #f0f6fa 70%); }
+html[data-theme="light"] .km-big { color: #0f1923; }
+html[data-theme="light"] .km-name, html[data-theme="light"] .km-cue { color: #0f1923; }
+html[data-theme="light"] .km-seg i { background: rgba(15, 25, 35, 0.12); }
+@media (prefers-reduced-motion: reduce) { .km-cue.in { animation: none; } }
 html[data-theme="light"] .kf-masc.ask::before { background: rgba(15, 25, 35, 0.45); }
 html[data-theme="light"] .km-qt { color: #0a8a99; }
+
+/* Tête de la mascotte déplaçable */
+.km-peek { touch-action: none; }
+.km-peek.left { right: auto; left: 0; border-right: 1px solid rgba(0, 212, 230, 0.4); border-left: 0; border-radius: 0 39px 39px 0; transform: translateX(-100%); box-shadow: 6px 8px 24px rgba(0, 0, 0, 0.35); }
+.km-peek.left.show { transform: translateX(0); animation: km-bob-l 4s ease-in-out 1s infinite; }
+.km-peek.left img { left: auto; right: -6px; transform: scaleX(-1); }
+.km-peek.drag, .km-peek.drag.show { transition: none; animation: none; transform: scale(1.08); border: 1px solid #00d4e6; border-radius: 39px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
+@keyframes km-bob-l { 0%, 82%, 100% { transform: translateX(0); } 88% { transform: translateX(6px) rotate(4deg); } 94% { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .km-peek.left.show { animation: none; } }
