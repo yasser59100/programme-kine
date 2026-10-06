@@ -159,8 +159,31 @@
     box.innerHTML = "<h1 class='lx-title'>Semaine " + p.week + " sur 4</h1>" + (st.start ? "<p class='lx-muted'>Jour " + Math.min(28, st.dayInCycle) + " du programme</p>" : "<p class='lx-muted'>Le programme démarre à votre première séance.</p>") +
       "<div class='lx-weeks'>" + weeks + "</div>" +
       "<h2 class='lx-section'>Les 5 séances</h2><div class='lx-list'>" + rows + "</div>" +
-      "<button class='lx-link left' onclick='KineProgram.understand()'>Comprendre mon programme</button>";
+      mineHtml() + libHtml() +
+      "<button class='lx-link left' onclick='KineProgram.understand()'>Comprendre mon programme</button>" +
+      (window.KineCompose ? "<button class='kc-kine' onclick='KineCompose.kine()'>Espace kiné</button>" : "");
     var page = $("page-guide"); if (page) page.classList.add("lx");
+  }
+
+  // Séances composées par le patient (« Ma séance »)
+  function mineHtml() {
+    if (!window.KineCompose) return "";
+    var q = function (s) { return JSON.stringify(s).replace(/'/g, "&#39;"); };
+    var rows = KineCompose.saved().map(function (s) {
+      var reds = window.KineBiblio ? s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length : 0;
+      return "<div class='lx-mine'><button class='lx-srow' onclick='KineCompose.start(" + q(s.id) + ")'><span class='lx-j'>★</span><span class='lx-n'>" + esc(s.name) +
+        "<small>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small></span></button>" +
+        "<button class='kc-mini' aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button>" +
+        "<button class='kc-mini' aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div>";
+    }).join("");
+    return "<h2 class='lx-section'>Mes séances</h2><div class='lx-list'>" + rows +
+      "<button class='lx-srow' onclick='KineCompose.open()'><span class='lx-j'>＋</span><span class='lx-n'>Créer ma séance<small>Choisissez vos exercices, par couleur de difficulté</small></span></button></div>";
+  }
+  function libHtml() {
+    if (!window.KineBiblio) return "";
+    var n = KineBiblio.all().length;
+    return "<h2 class='lx-section'>Bibliothèque</h2><div class='lx-list'><button class='lx-srow' onclick='KineBiblio.open(\"\")'><span class='lx-j'>" + n + "</span>" +
+      "<span class='lx-n'>Bibliothèque d'exercices<small>Tous les exercices, classés par groupe musculaire</small></span><span aria-hidden='true'>›</span></button></div>";
   }
 
   /* ════════ Écran d'exercice : réorganisation ════════ */

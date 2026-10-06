@@ -159,7 +159,7 @@ var KineCompose = (function () {
     var rec = { id: id, name: (title || "").trim() || "Ma séance " + (list.length + (editing ? 0 : 1)), ex: order(sel), at: Date.now() };
     list = list.filter(function (x) { return x.id !== id; }); list.unshift(rec); jset(KEY, list.slice(0, 12));
     close();
-    if (window.KineProgram) KineProgram.render();
+    if (window.KineProgram) KineProgram.render(); if (window.KineLayout) KineLayout.render();
     if (launch) start(id);
   }
   function start(id) {
@@ -170,7 +170,7 @@ var KineCompose = (function () {
   function remove(id) {
     if (!confirm("Supprimer cette séance ?")) return;
     jset(KEY, jget(KEY, []).filter(function (x) { return x.id !== id; }));
-    if (window.KineProgram) KineProgram.render();
+    if (window.KineProgram) KineProgram.render(); if (window.KineLayout) KineLayout.render();
   }
   function close() { var el = $("kc-sheet"); if (el) el.classList.remove("open"); }
 
@@ -230,7 +230,7 @@ var KineCompose = (function () {
 
   return {
     open: open, close: close, toggle: toggle, save: save, start: start, remove: remove, listHtml: listHtml, order: order, lockReason: lockReason, addBlock: addBlock,
-    name: function (v) { title = v; },
+    name: function (v) { title = v; }, saved: function () { return jget(KEY, []); },
     gear: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); var y = sheet().scrollTop; render(); sheet().scrollTop = y; }, kine: kine, pin: pin, zone: zone,
     reds: function (v) { jset(UKEY, !!v); },
     lock: function () { kineOpen = 0; close(); },
