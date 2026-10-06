@@ -137,9 +137,54 @@
         (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Mascotte</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivée" : "activée") + "</span></button>" : "") +
       "</div>" +
       "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer à mon kiné</button>" +
-      "<h2 class='lx-section'>Mes badges</h2>";
+      beforeAfter();
+    // Les badges ne sont plus affichés
+    ["badges-suivi", "badges-home"].forEach(function (id) {
+      var b = $(id); if (!b) return;
+      var t = b.previousElementSibling; if (t && /badge/i.test(t.textContent || "")) t.remove();
+      b.remove();
+    });
     var page = $("page-suivi"); if (page) page.classList.add("lx");
   }
+
+  /* ════════ Avant / maintenant : première semaine de suivi comparée aux 7 derniers jours ════════ */
+  function beforeAfter() {
+    var map = {}; try { map = JSON.parse(localStorage.getItem("kf-checkin") || "{}") || {}; } catch (e) {}
+    var ss = list(), days = {};
+    Object.keys(map).forEach(function (d) { var c = map[d]; days[d] = { pain: c.pain, mood: c.mood, sleep: c.sleep }; });
+    ss.forEach(function (x) { var d = String(x.date).slice(0, 10); days[d] = days[d] || {}; if (days[d].pain == null && x.douleur != null && x.douleur !== "") days[d].pain = +x.douleur; if (x.borg) days[d].borg = +x.borg; });
+    var keys = Object.keys(days).sort();
+    var head = "<h2 class='lx-section'>Avant / maintenant</h2>";
+    if (!keys.length) return head + "<p class='lx-muted'>Notez votre ressenti et faites vos séances : dans deux semaines, vous verrez ici ce qui a changé.</p>";
+    var first = keys[0], last7 = iso(addD(new Date(), -6)), first7 = iso(addD(parse(first), 6));
+    var A = keys.filter(function (d) { return d <= first7; }), B = keys.filter(function (d) { return d >= last7; });
+    var spanDays = Math.round((Date.now() - parse(first).getTime()) / 86400000);
+    if (spanDays < 13) {
+      var left = 13 - spanDays;
+      return head + "<p class='lx-muted'>Encore " + left + " jour" + (left > 1 ? "s" : "") + " de suivi et vous pourrez comparer votre première semaine avec la semaine en cours.</p>" +
+        "<div class='ba-wait'><i style='width:" + Math.round(spanDays / 13 * 100) + "%'></i></div>";
+    }
+    var avg = function (arr, k, f) { var v = arr.map(function (d) { return days[d][k]; }).filter(function (x) { return x != null && x !== ""; }).map(f || Number); return v.length >= 2 ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; };
+    var good = function (s) { return +s === 0 ? 1 : 0; };   // nuit « bonne »
+    var rows = [
+      ["Douleur", avg(A, "pain"), avg(B, "pain"), "/10", -1, 1],
+      ["Moral", avg(A, "mood"), avg(B, "mood"), "/5", 1, 1],
+      ["Bonnes nuits", avg(A, "sleep", good), avg(B, "sleep", good), "%", 1, 100],
+      ["Effort des séances", avg(A, "borg"), avg(B, "borg"), "/5", 0, 1]
+    ].filter(function (r) { return r[1] != null && r[2] != null; });
+    if (!rows.length) return head + "<p class='lx-muted'>Pas encore assez de données sur ces deux semaines. Notez votre ressenti quelques jours de plus.</p>";
+    var f = function (v, m) { return m === 100 ? Math.round(v * 100) + " %" : (Math.round(v * 10) / 10).toString().replace(".", ","); };
+    var html = rows.map(function (r) {
+      var d = r[2] - r[1], tol = r[5] === 100 ? 0.1 : 0.3, better = r[4] === 0 ? null : (d * r[4] > tol ? true : d * r[4] < -tol ? false : null);
+      var tag = better === true ? "<em class='ba-up'>mieux</em>" : better === false ? "<em class='ba-down'>moins bien</em>" : "<em class='ba-eq'>stable</em>";
+      var max = r[5] === 100 ? 1 : r[3] === "/10" ? 10 : 5;
+      return "<div class='ba-row'><div class='ba-h'><b>" + r[0] + "</b>" + tag + "</div>" +
+        "<div class='ba-bars'><span class='ba-l'>1re sem.</span><i class='ba-bar a' style='width:" + Math.max(4, Math.round(r[1] / max * 100)) + "%'></i><span class='ba-v'>" + f(r[1], r[5]) + (r[5] === 100 ? "" : r[3]) + "</span></div>" +
+        "<div class='ba-bars'><span class='ba-l'>7 derniers j.</span><i class='ba-bar b' style='width:" + Math.max(4, Math.round(r[2] / max * 100)) + "%'></i><span class='ba-v'>" + f(r[2], r[5]) + (r[5] === 100 ? "" : r[3]) + "</span></div></div>";
+    }).join("");
+    return head + "<p class='lx-muted'>Votre première semaine (à partir du " + parse(first).getDate() + " " + MO[parse(first).getMonth()] + ") comparée aux 7 derniers jours.</p><div class='ba'>" + html + "</div>";
+  }
+  function addD(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
 
   /* ════════ Programme ════════ */
   function renderProg() {
