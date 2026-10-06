@@ -511,3 +511,32 @@ html[data-theme="light"] .ko-name { color: #0f1923; }
 .kc-gear b { width: 100%; font-size: 13px; color: var(--text2, #a9b8cc); font-weight: 600; }
 .lx-mine { display: flex; gap: 6px; align-items: stretch; }
 .lx-mine .lx-srow { flex: 1; min-width: 0; }
+
+/* Onglet « Ma séance » : le coach en icône, au centre de la barre */
+.bnav-coach .bnav-face { width: 44px; height: 44px; margin-top: -18px; border-radius: 22px; overflow: hidden; background: radial-gradient(circle at 50% 40%, rgba(0, 242, 254, 0.35), #0f1923 72%); border: 2px solid #00d4e6; box-shadow: 0 6px 18px rgba(0, 212, 230, 0.35); color: #00d4e6; }
+.bnav-coach .bnav-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; transform: scale(1.35); }
+.bnav-coach.active .bnav-face { box-shadow: 0 0 0 3px rgba(0, 212, 230, 0.25), 0 6px 18px rgba(0, 212, 230, 0.45); }
+html[data-theme="light"] .bnav-coach .bnav-face { background: radial-gradient(circle at 50% 40%, rgba(0, 194, 214, 0.3), #fff 72%); }
+#page-mes .content { padding-bottom: 120px; }
+.mx-hero { position: relative; margin-top: 8px; padding: 18px 16px 16px; border-radius: 22px; background: linear-gradient(135deg, rgba(0, 212, 230, 0.16), rgba(79, 143, 247, 0.12)); border: 1px solid rgba(0, 212, 230, 0.35); display: grid; grid-template-columns: 76px 1fr; gap: 6px 12px; align-items: center; }
+.mx-face { width: 76px; height: 76px; border-radius: 38px; object-fit: cover; object-position: 50% 28%; background: radial-gradient(circle, rgba(0, 242, 254, 0.25), transparent 70%); }
+.mx-hero h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.15; }
+.mx-hero p { margin: 0; font-size: 14px; line-height: 1.4; color: var(--text2, #a9b8cc); }
+.mx-cta { grid-column: 1 / -1; margin-top: 10px; min-height: 52px; border: 0; border-radius: 16px; background: linear-gradient(90deg, #00e5f5, #4f8ff7); color: #04121c; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; }
+.mx-colors { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+.mx-colors span { display: inline-flex; align-items: center; gap: 2px; min-height: 34px; padding: 0 12px; border-radius: 17px; border: 1px solid var(--border2, #243547); font-size: 13px; color: var(--text2, #a9b8cc); }
+.mx-colors b { margin-left: 4px; color: var(--text, #e8f0fe); }
+.mx-mine { display: flex; gap: 8px; margin-bottom: 8px; }
+.mx-sess { flex: 1; min-width: 0; text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding: 14px; border-radius: 18px; border: 1px solid var(--border, #1d2b3a); background: var(--surface, #111c28); color: var(--text, #e8f0fe); font: inherit; cursor: pointer; }
+.mx-sess b { font-size: 16px; } .mx-sess span { grid-column: 1; display: flex; gap: 3px; } .mx-sess small { grid-column: 1; font-size: 13px; color: var(--text3, #8595ab); }
+.mx-sess em { grid-column: 2; grid-row: 1 / span 3; align-self: center; font-style: normal; font-weight: 700; color: #00d4e6; }
+.mx-tools { display: flex; flex-direction: column; gap: 6px; }
+.mx-tools button { flex: 1; width: 46px; border-radius: 14px; border: 1px solid var(--border, #1d2b3a); background: var(--surface, #111c28); color: var(--text2, #a9b8cc); font-size: 15px; cursor: pointer; }
+.mx-empty { margin: 0 0 8px; font-size: 14px; color: var(--text3, #8595ab); }
+.mx-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.mx-grp { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 10px; border-radius: 16px; border: 1px solid var(--border, #1d2b3a); background: var(--surface, #111c28); color: var(--text, #e8f0fe); font: inherit; cursor: pointer; text-align: center; }
+.mx-grp img, .mx-grp .pg-fig { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; background: var(--surface2, #16222f); }
+.mx-grp b { font-size: 12px; line-height: 1.2; } .mx-grp small { font-size: 11px; color: var(--text3, #8595ab); }
+.mx-all { display: block; width: 100%; margin-top: 12px; min-height: 48px; border-radius: 14px; border: 1px solid rgba(0, 212, 230, 0.45); background: none; color: #00d4e6; font: inherit; font-weight: 700; cursor: pointer; }
+html[data-theme="light"] .mx-sess, html[data-theme="light"] .mx-grp, html[data-theme="light"] .mx-tools button { background: #fff; color: #0f1923; }
+html[data-theme="light"] .mx-colors b { color: #0f1923; }

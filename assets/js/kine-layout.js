@@ -159,7 +159,7 @@
     box.innerHTML = "<h1 class='lx-title'>Semaine " + p.week + " sur 4</h1>" + (st.start ? "<p class='lx-muted'>Jour " + Math.min(28, st.dayInCycle) + " du programme</p>" : "<p class='lx-muted'>Le programme démarre à votre première séance.</p>") +
       "<div class='lx-weeks'>" + weeks + "</div>" +
       "<h2 class='lx-section'>Les 5 séances</h2><div class='lx-list'>" + rows + "</div>" +
-      mineHtml() + libHtml() +
+      (window.KineCompose ? "<button class='lx-link left' onclick=\"showPage('mes');KineCompose.tab()\">Composer ma propre séance ›</button>" : "") +
       "<button class='lx-link left' onclick='KineProgram.understand()'>Comprendre mon programme</button>" +
       (window.KineCompose ? "<button class='kc-kine' onclick='KineCompose.kine()'>Espace kiné</button>" : "");
     var page = $("page-guide"); if (page) page.classList.add("lx");

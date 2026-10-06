@@ -357,13 +357,15 @@
     { sel: "#bn-suivi", text: "Dans Suivi, tu verras tes progrès et tu pourras tout envoyer à ton kiné.", gesture: "point" },
     { sel: null, text: "Pendant les exercices, si quelque chose fait mal, appuie sur « J'ai mal » : je te dirai quoi faire. Et touche-moi quand tu as une question !", gesture: "open" }
   ];
+  var TOUR_MAIN = TOUR, TOUR_KEY = "kf-masc-tour";
+  function guide(steps, key) { if (!steps || !steps.length) return false; TOUR = steps; TOUR_KEY = key || "kf-masc-guide"; return tour(0); }
   function tour(i) {
     var st = TOUR[i];
     var hole = $("km-hole");
     if (!hole) { hole = document.createElement("div"); hole.id = "km-hole"; document.body.appendChild(hole); }
     hole.classList.remove("on");
-    if (!st) { set("kf-masc-tour", "1"); hide(); return true; }
-    if (i === 99) { set("kf-masc-tour", "1"); hide(); return true; }
+    var end = function () { set(TOUR_KEY, "1"); TOUR = TOUR_MAIN; TOUR_KEY = "kf-masc-tour"; hide(); return true; };
+    if (!st || i === 99) return end();
     if (!appear()) return false;
     mode = "tour"; clearTimeout(timer);
     if (st.sel) {
@@ -670,7 +672,7 @@
   }
 
   window.KineMascotte = {
-    menu: menu,
+    menu: menu, guide: guide,
     show: show, hide: hide, maybe: maybe, pick: pickMessage, faq: faq, answer: answer, bouge: bouge, tour: tour,
     faqList: FAQ, errors: ERRORS, search: search, find: find, open: function (k) { var d = buildDocs()[k]; if (d) showDoc(d); }, doAct: doAct, docs: buildDocs, coachHtml: coachHtml, portrait: portrait,
     _bougeSec: function (n) { BOUGE_SEC = n; },

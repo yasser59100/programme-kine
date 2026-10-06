@@ -159,7 +159,7 @@ var KineCompose = (function () {
     var rec = { id: id, name: (title || "").trim() || "Ma séance " + (list.length + (editing ? 0 : 1)), ex: order(sel), at: Date.now() };
     list = list.filter(function (x) { return x.id !== id; }); list.unshift(rec); jset(KEY, list.slice(0, 12));
     close();
-    if (window.KineProgram) KineProgram.render(); if (window.KineLayout) KineLayout.render();
+    if (window.KineProgram) KineProgram.render(); if (window.KineLayout) KineLayout.render(); page();
     if (launch) start(id);
   }
   function start(id) {
@@ -170,7 +170,7 @@ var KineCompose = (function () {
   function remove(id) {
     if (!confirm("Supprimer cette séance ?")) return;
     jset(KEY, jget(KEY, []).filter(function (x) { return x.id !== id; }));
-    if (window.KineProgram) KineProgram.render(); if (window.KineLayout) KineLayout.render();
+    if (window.KineProgram) KineProgram.render(); if (window.KineLayout) KineLayout.render(); page();
   }
   function close() { var el = $("kc-sheet"); if (el) el.classList.remove("open"); }
 
@@ -228,7 +228,64 @@ var KineCompose = (function () {
   }
   function zone(g, v) { var z = zones(); if (v === "ok") delete z[g]; else z[g] = v; jset(ZKEY, z); kinePanel(); }
 
+  /* ════════ Onglet « Ma séance » ════════ */
+  var thumbs = {};
+  function thumb(name) {
+    if (thumbs[name]) return thumbs[name];
+    try { var u = window.KineAvatar && KineAvatar.supports(name) ? KineAvatar.snapshot(name, 120) : null; if (u) thumbs[name] = u; return u; } catch (e) { return null; }
+  }
+  function page() {
+    var root = $("mes-root"); if (!root || !window.KineBiblio) return;
+    KineBiblio.wire();
+    var all = KineBiblio.all(), gear = jget(GKEY, {}), list = jget(KEY, []);
+    var count = function (c) { return all.filter(function (e) { return KineBiblio.color(e.name) === c; }).length; };
+    var face = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null;
+    var mine = list.length ? list.map(function (s) {
+      var reds = s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length;
+      var dots = s.ex.map(function (n) { return "<i class='kb-dot c" + KineBiblio.color(n) + "'></i>"; }).join("");
+      return "<div class='mx-mine'><button class='mx-sess' onclick='KineCompose.start(" + q(s.id) + ")'><b>" + esc(s.name) + "</b><span>" + dots + "</span><small>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small><em>Lancer ›</em></button>" +
+        "<div class='mx-tools'><button aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button><button aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div></div>";
+    }).join("") : "<p class='mx-empty'>Aucune séance pour l'instant. Crée la première, ça prend une minute.</p>";
+    var groups = KineBiblio.groups.map(function (g) {
+      var it = all.filter(function (e) { return e.group === g[0] && (!e.gear || gear[e.gear]); }); if (!it.length) return "";
+      var t = thumb(it[0].name);
+      return "<button class='mx-grp' onclick='KineBiblio.open(\"" + g[0] + "\")'>" + (t ? "<img src='" + t + "' alt=''>" : "<span class='pg-fig'></span>") +
+        "<b>" + esc(g[1]) + "</b><small>" + it.length + " exercice" + (it.length > 1 ? "s" : "") + "</small></button>";
+    }).join("");
+    root.innerHTML =
+      "<div class='mx-hero' id='mx-create'>" + (face ? "<img class='mx-face' src='" + face + "' alt=''>" : "") +
+        "<div><h1>Compose ta séance</h1><p>" + all.length + " exercices animés. Tu choisis, je m'occupe de l'échauffement, des étirements et de l'ordre.</p></div>" +
+        "<button class='mx-cta' onclick='KineCompose.open()'>＋ Créer une séance</button></div>" +
+      "<div class='mx-colors' id='mx-colors'><span><i class='kb-dot c1'></i>Facile <b>" + count(1) + "</b></span><span><i class='kb-dot c2'></i>Intermédiaire <b>" + count(2) + "</b></span><span><i class='kb-dot c3'></i>Difficile <b>" + count(3) + "</b></span></div>" +
+      "<h2 class='lx-section' id='mx-mine'>Mes séances</h2>" + mine +
+      "<h2 class='lx-section'>Explorer les exercices</h2>" +
+      "<div class='kc-gear' id='mx-gear'><b>Mon matériel</b>" + [["elastique", "Un élastique"], ["charge", "Haltères ou charges"]].map(function (g) {
+        var on = !!gear[g[0]]; return "<button type='button' class='kb-chip" + (on ? " on" : "") + "' aria-pressed='" + on + "' onclick='KineCompose.gearPage(\"" + g[0] + "\")'>" + (on ? "✓ " : "") + g[1] + "</button>"; }).join("") + "</div>" +
+      "<div class='mx-grid' id='mx-lib'>" + groups + "</div>" +
+      "<button class='mx-all' onclick='KineBiblio.open(\"\")'>Voir les " + all.length + " exercices ›</button>" +
+      "<button class='kc-kine' onclick='KineCompose.kine()'>Espace kiné</button>";
+  }
+  var GUIDE = [
+    { sel: "#mx-create", text: "Ici, tu crées ta propre séance : tu choisis 5 à 8 exercices, je m'occupe de l'échauffement, des étirements et de l'ordre.", gesture: "wave" },
+    { sel: "#mx-colors", text: "Les couleurs, c'est la difficulté : vert facile, orange intermédiaire, rouge difficile. Deux rouges au maximum, et ils se débloquent quand tu progresses.", gesture: "point" },
+    { sel: "#mx-lib", text: "Touche un groupe pour voir ses exercices, et un exercice pour me voir le faire. Tu as un élastique ou des haltères ? Coche-les juste au-dessus.", gesture: "open" },
+    { sel: "#mx-mine", text: "Tes séances s'affichent ici : un appui et c'est parti. Si une règle bloque un exercice, je t'explique pourquoi.", gesture: "cheer" }
+  ];
+  function tab() {
+    page();
+    var seen = null; try { seen = localStorage.getItem("kf-mes-guide"); } catch (e) {}
+    if (!seen && window.KineMascotte && KineMascotte.guide) setTimeout(function () { window.scrollTo(0, 0); KineMascotte.guide(GUIDE, "kf-mes-guide"); }, 450);
+  }
+  // L'onglet prend la tête du coach dès que son portrait est prêt
+  var faceTry = setInterval(function () {
+    var f = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null, el = $("bn-mes-face");
+    if (f && el) { el.innerHTML = "<img src='" + f + "' alt=''>"; clearInterval(faceTry); }
+  }, 1500);
+  document.addEventListener("DOMContentLoaded", function () { setTimeout(page, 800); });
+
   return {
+    page: page, tab: tab,
+    gearPage: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); page(); },
     open: open, close: close, toggle: toggle, save: save, start: start, remove: remove, listHtml: listHtml, order: order, lockReason: lockReason, addBlock: addBlock,
     name: function (v) { title = v; }, saved: function () { return jget(KEY, []); },
     gear: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); var y = sheet().scrollTop; render(); sheet().scrollTop = y; }, kine: kine, pin: pin, zone: zone,
