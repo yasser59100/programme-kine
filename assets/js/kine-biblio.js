@@ -407,6 +407,9 @@ var KineBiblio = (function () {
         });
       });
       NEW.forEach(function (e) { var c = JSON.parse(JSON.stringify(e)); c.isNew = true; c.base = e.color; FULL.push(c); });
+      // Exercices créés par le kiné et publiés
+      var cu = window.KineOfficiel && KineOfficiel.customs ? KineOfficiel.customs() : {};
+      Object.keys(cu).forEach(function (n) { var c = JSON.parse(JSON.stringify(cu[n].fiche)); c.isNew = true; c.custom = true; c.base = c.color; c.kit = c.kit || []; FULL.push(c); });
       if (window.KineOfficiel) FULL.forEach(function (e) { KineOfficiel.patch(e); });
     }
     return withHidden ? FULL : FULL.filter(function (e) { return !(window.KineOfficiel && KineOfficiel.hidden(e.name)); });

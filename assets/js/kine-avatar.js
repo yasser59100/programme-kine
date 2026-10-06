@@ -1308,7 +1308,7 @@
       var dx = a.x - hx, dz = a.z - p.pelvis.p[2], reach = (LEN.thigh + LEN.shank) * 0.9985;
       py = Math.min(py, a.y + Math.sqrt(Math.max(0.01, reach * reach - dx * dx - dz * dz)));
     });
-    return py;
+    return py + (p.pelvis.dy || 0);   // dy : bassin abaissé depuis la position « auto » (créateur d'exercice)
   }
   function withY(p) {
     if (p.pelvis.p[1] !== "auto") return p;

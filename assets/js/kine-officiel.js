@@ -25,6 +25,8 @@ var KineOfficiel = (function () {
     var e = findOrig(name);
     if (e) return e;
     var b = window.KineBiblio && KineBiblio.NEW.filter(function (x) { return x.name === name; })[0];
+    var c = data && data.custom && data.custom[name];
+    if (!b && c) b = c.fiche;
     if (!b) return null;
     return { name: b.name, phase: "work", series: 2, repsLabel: b.repsLabel, restAfter: 60, desc: b.desc, tip: b.tip, stop: b.stop };
   }
@@ -53,6 +55,12 @@ var KineOfficiel = (function () {
       base.exercises.forEach(patch);
       if (base.circuit) base.exercises.forEach(function (e) { if (e.phase === "work") e.repsLabel = "40 secondes"; });
       SEQ_DAYS[id] = base;
+    });
+    // Exercices créés par le kiné : l'avatar apprend le mouvement, la fiche rejoint la bibliothèque
+    if (data && data.custom && window.KineCreateur) Object.keys(data.custom).forEach(function (n) {
+      var c = data.custom[n]; KineCreateur.register(n, c);
+      if (c.fiche.cue && window.KF_CUES) KF_CUES[n] = c.fiche.cue;
+      if (c.fiche.err && window.KineMascotte && KineMascotte.errors) KineMascotte.errors[n] = c.fiche.err;
     });
     if (data && data.ex) Object.keys(data.ex).forEach(function (n) {
       var o = data.ex[n];
@@ -141,6 +149,12 @@ var KineOfficiel = (function () {
     }).join("");
     frame("Programme officiel", "Vos modifications partent chez tous les patients quand vous publiez." + (data && data.v ? " Dernière publication : " + new Date(data.v).toLocaleDateString("fr-FR") + "." : ""),
       "<div class='kf-phase' style='color:var(--text2)'>Les 5 séances</div>" + days +
+      "<div class='kf-phase' style='color:var(--text2)'>Mes exercices créés</div>" +
+      Object.keys(d.custom || {}).map(function (n) {
+        var c = d.custom[n];
+        return "<button class='v2-row' onclick='KineCreateur.open(" + q(n) + ")'><b><i class='kb-dot c" + c.fiche.color + "'></i>" + esc(n) + "</b><span>✎</span></button>";
+      }).join("") +
+      "<button class='v2-row kc-new' onclick='KineCreateur.open()'><b>＋ Créer un exercice avec l'avatar</b><span>›</span></button>" +
       "<div class='kf-phase' style='color:var(--text2)'>Fiches d'exercices</div>" +
       "<button class='v2-row' onclick='KineOfficiel.lib()'><b>Toutes les fiches de la bibliothèque</b><span>›</span></button>" +
       (changed() ? "<div class='kf-note'>Des modifications ne sont pas encore publiées.</div><button class='kc-kine' onclick='KineOfficiel.discard()'>Annuler les modifications non publiées</button>" : ""),
@@ -171,6 +185,9 @@ var KineOfficiel = (function () {
         return "<button class='v2-row' onclick='KineOfficiel.add(\"" + id + "\"," + q(e.name) + ")'><b><i class='kb-dot c" + KineBiblio.color(e.name) + "'></i>" + esc(e.name) + "</b><span>＋</span></button>";
       }).join("");
     }).join("") : "";
+    var drafts = Object.keys(d.custom || {}).filter(function (n) { return have.indexOf(n) < 0 && !(window.KineBiblio && KineBiblio.find(n)); });
+    if (drafts.length) list = "<div class='kf-phase' style='color:var(--text2)'>Mes exercices créés (non publiés)</div>" + drafts.map(function (n) {
+      return "<button class='v2-row' onclick='KineOfficiel.add(\"" + id + "\"," + q(n) + ")'><b><i class='kb-dot c" + d.custom[n].fiche.color + "'></i>" + esc(n) + "</b><span>＋</span></button>"; }).join("") + list;
     stack.push([pick, [id]]);
     frame("Ajouter à " + ORIG[id].label, "", list, "");
   }
@@ -233,6 +250,18 @@ var KineOfficiel = (function () {
     open: function () { stack = []; go(home); }, back: back, close: close, day: function (id) { go(day, [id]); }, move: move, del: del, pick: pick, add: add,
     lib: function () { go(lib); }, edit: edit, saveEx: saveEx, publish: publish,
     discard: function () { jset(DKEY, null); home(); },
+    customs: function () { return (data && data.custom) || {}; },
+    customDraft: function () { return draft().custom || {}; },
+    saveCustom: function (x, oldName) {
+      var d = draft(), n = x.fiche.name; d.custom = d.custom || {};
+      if (oldName && oldName !== n) {
+        delete d.custom[oldName];
+        Object.keys(ORIG).forEach(function (id) { var l = dayNames(d, id), i = l.indexOf(oldName); if (i >= 0) { l[i] = n; d.days = d.days || {}; d.days[id] = l; } });
+      }
+      d.custom[n] = x; saveDraft(d);
+      if (window.KineCreateur) KineCreateur.register(n, x);
+      stack = []; go(home);
+    },
     col: function (btn, k) { var s = btn.parentNode; s.setAttribute("data-v", k); Array.prototype.forEach.call(s.children, function (b) { b.classList.toggle("on", b === btn); }); }
   };
 })();
