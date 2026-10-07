@@ -157,6 +157,11 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       .forEach(function (k) { if (new RegExp("\\b" + k[0]).test(txt)) kit.push(k[1]); });
     return kit;
   }
+  // Durée estimée de la séance (échauffement, tours, repos, étirements)
+  function dur(id) {
+    try { if (window.KineProgram && KineProgram.estimate && SEQ_DAYS[id]) return "~" + Math.max(5, Math.round(KineProgram.estimate(id) / 300) * 5) + " min"; } catch (e) {}
+    return "~40 min";
+  }
   function tempoText(ex) {
     if (!window.KineAvatar || !KineAvatar.hasSteps || !KineAvatar.hasSteps(ex.name)) return "";
     var inf = KineAvatar.info(ex.name, ex.repsLabel, week());
@@ -217,7 +222,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
         "<div class='today-bar'>" + bar + "</div></div>" +
       "<div class='v2-card'>" +
         "<div><div class='today-kicker'>" + esc(kicker) + "</div><div class='today-title'>" + esc(day.label) + "</div></div>" +
-        "<div class='today-pills'><span>~40 min</span><span>" + day.exercises.length + " exercices</span><span>" +
+        "<div class='today-pills'><span>" + dur(targetId) + "</span><span>" + day.exercises.length + " exercices</span><span>" +
           (kit.length ? esc(kit.map(function (x) { return x.replace(/^(une?|un) /, "").replace(" libre", ""); }).join(", ")) : "Sans matériel") + "</span></div>" +
         (doneToday
           ? "<button class='today-go done' onclick=\"openPreview('" + targetId + "')\">✓ Faite aujourd'hui, la refaire</button>"
@@ -236,7 +241,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var html = "<div class='kf-sheet-body'>" +
       "<button class='kf-back' onclick='closePreview()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + esc(day.label) + "</div>" +
-      "<div class='kf-sub'>Semaine " + KineProgress.week() + ", ~40 min, " + (day.circuit ? "circuit de " + nS + " tours : 40 s par exercice, 20 s de transition, 2 min entre les tours" : nS + " tours : les exercices s'enchaînent, puis on recommence") + "</div></div>" +
+      "<div class='kf-sub'>Semaine " + KineProgress.week() + ", " + dur(dayId) + ", " + (day.circuit ? "circuit de " + nS + " tours : 40 s par exercice, 20 s de transition, 2 min entre les tours" : nS + " tours : les exercices s'enchaînent, puis on recommence") + "</div></div>" +
       "<div class='kf-note'>" + esc(KineProgress.plan().reason) + "</div>" +
       (kit.length ? "<div class='kf-kit'><strong>À préparer :</strong> " + esc(kit.join(", ")) + "</div>" : "") +
       "<button class='v2-row' onclick=\"closePreview();openExplain('" + dayId + "')\"><b>Lire les explications des exercices</b><span>›</span></button>";

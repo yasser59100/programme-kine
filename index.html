@@ -2317,7 +2317,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <!-- REP GUIDE OVERLAY -->
 <div id="rep-guide" data-state="ready">
   <div class="v2-top">
-    <button class="v2-icon" onclick="closeRepGuide()" aria-label="Quitter la série"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    <button class="v2-icon" onclick="closeRepGuide()" aria-label="Quitter l'exercice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
     <div class="v2-prog">
       <div class="v2-prog-txt" id="rg-serie-info">Série 1 sur 3</div>
       <div class="v2-prog-bar"><i id="rg2-prog-fill"></i></div>
@@ -2902,7 +2902,7 @@ var KF_LINES = {
   isoMid: ["On tient, vous êtes solide.", "Respirez, ne bloquez pas.", "C'est là que le muscle travaille.", "Encore un peu, vous tenez bon.", "Solide comme un roc."],
   holdMid: ["La moitié, on tient.", "Mi-temps ! Respirez calmement.", "Déjà la moitié, bravo.", "Vous êtes solide, on continue."],
   holdEnd: ["Plus que dix secondes.", "Dix secondes, on serre les dents.", "Dix dernières secondes, vous y êtes."],
-  serieDone: ["Série terminée. Bravo !", "Et voilà, série bouclée !", "Série terminée, joli travail.", "Fini ! Soufflez un coup.", "Une série de plus au compteur, bravo."],
+  serieDone: ["Terminé. Bravo !", "Et voilà, c'est bouclé !", "Terminé, joli travail.", "Fini ! Soufflez un coup.", "Un de plus au compteur, bravo."],
   restEnd: ["Allez !", "C'est reparti !", "On y retourne.", "Pause terminée, on repart."],
   sessionEnd: ["Bravo ! Séance terminée. Prenez une minute pour votre bilan.", "Et c'est fini ! Super séance. Prenez une minute pour votre bilan.", "Séance bouclée, bravo à vous ! Prenez une minute pour votre bilan."]
 };
@@ -3098,10 +3098,10 @@ function renderSeqExercise() {
 
   var guided = ex.phase === "work" && ex.repsLabel && /\d/.test(ex.repsLabel);
   if (ex.phase === "work" && seqSerieIdx < seqTotalSeries - 1) {
-    actions.appendChild(makeBtn("seq-btn-main", guided ? "Commencer la série " + (seqSerieIdx+1) : "✓ Série " + (seqSerieIdx+1) + " terminée", seqSeriesDone));
+    actions.appendChild(makeBtn("seq-btn-main", guided ? "Commencer le tour " + (seqSerieIdx+1) : "✓ Tour " + (seqSerieIdx+1) + " terminé", seqSeriesDone));
     actions.appendChild(makeBtn("seq-btn-secondary", "Passer cet exercice →", seqSkipExercise));
   } else if (seqExIdx < total - 1) {
-    var btnLabel = guided ? "Commencer la série " + (seqSerieIdx+1) : ex.restAfter > 0
+    var btnLabel = guided ? "Commencer le tour " + (seqSerieIdx+1) : ex.restAfter > 0
       ? "✓ Terminé — Repos " + (ex.restAfter >= 60 ? Math.floor(ex.restAfter/60)+"min" : ex.restAfter+"s")
       : "Exercice suivant →";
     actions.appendChild(makeBtn("seq-btn-main green", btnLabel, seqExDone));
@@ -3744,8 +3744,8 @@ function launchRepGuide(exName, repsLabel, currentSerie, totalSeries, onComplete
   if (pb) { pb.disabled = true; pb.innerHTML = RG_PAUSE_ICON + " Pause"; }
 
   document.getElementById("rg-ex-name").textContent = exName;
-  document.getElementById("rg-serie-badge").textContent = "Série " + currentSerie;
-  document.getElementById("rg-serie-info").textContent = "Série " + currentSerie + " sur " + totalSeries;
+  document.getElementById("rg-serie-badge").textContent = "Tour " + currentSerie;
+  document.getElementById("rg-serie-info").textContent = "Tour " + currentSerie + " sur " + totalSeries;
   var totalTxt, sayTxt;
   if (info.mode === "timed") {
     totalTxt = "secondes" + (info.sides === "blocks" ? " par côté" : "");
@@ -3775,7 +3775,7 @@ function launchRepGuide(exName, repsLabel, currentSerie, totalSeries, onComplete
   document.getElementById("rep-guide").classList.add("open");
   document.body.style.overflow = "hidden";
 
-  speak("Série " + currentSerie + " sur " + totalSeries + ". " + sayTxt + ".");
+  speak("Tour " + currentSerie + " sur " + totalSeries + ". " + sayTxt + ".");
 }
 
 function repGuideStart() {
@@ -3959,7 +3959,7 @@ function finishSerie() {
   var fill = document.getElementById("rg-timing-fill");
   if (fill) { fill.style.width = "100%"; fill.className = "rg-timing-fill up-color"; }
 
-  setPhaseLabel("Série terminée !", "up");
+  setPhaseLabel("Terminé !", "up");
   playDoneBeep();
   try { if (navigator.vibrate) navigator.vibrate([150, 80, 150]); } catch(e) {}
   speak(kfSay("serieDone"), { now: true });

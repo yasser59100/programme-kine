@@ -576,3 +576,7 @@ html[data-theme="light"] .kcr-sl b { color: #0f1923; }
 #kcr-sheet details.kf-acc { padding-bottom: 12px; }
 #kcr-sheet details.kf-acc > :not(summary) { margin-left: 14px; margin-right: 14px; }
 #kcr-sheet details.kf-acc > .ko-f, #kcr-sheet details.kf-acc > .kc-gear, #kcr-sheet details.kf-acc > .kc-seg { margin-top: 8px; }
+
+/* Barre du bas à 5 onglets : libellés lisibles en clair comme en sombre */
+.bnav-btn { text-transform: none !important; letter-spacing: -0.01em !important; font-size: 0.66rem !important; white-space: nowrap; padding-left: 1px !important; padding-right: 1px !important; }
+.bnav-btn > span:last-child { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }

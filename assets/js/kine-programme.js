@@ -118,21 +118,28 @@
     if (ex.phase !== "work" || !window.KineAvatar) return "";
     var cur = plan().week, circuit = SEQ_DAYS[dayId] && SEQ_DAYS[dayId].circuit;
     var cells = [1, 2, 3, 4].map(function (w) {
-      var inf = KineAvatar.info(ex.name, ex.repsLabel, w), txt;
-      var side = /par (jambe|côté)/i.test(ex.repsLabel) ? " / côté" : "";
-      if (inf.mode === "timed") txt = (circuit ? "" : (w === 1 ? "2" : w === 2 ? "2–3" : "3") + " × ") + inf.seconds + " s";
-      else {
+      // Chiffres du patient : paliers gagnés (charges progressives) et tempo lent compris
+      var inf = KineAvatar.info(ex.name, ex.repsLabel, w), txt, LV = window.KineLevel;
+      var perSide = /par (jambe|côté)/i.test(ex.repsLabel), side = perSide ? " / côté" : "";
+      var tours = function (k) { return circuit ? "" : k + (k === "2–3" || +k > 1 ? " tours × " : " tour × "); };
+      if (inf.mode === "timed") {
+        var sec = inf.fromDef || !LV ? inf.seconds : LV.adjSec(ex.name, inf.seconds);
+        txt = tours(w === 1 ? "2" : w === 2 ? "2–3" : "3") + sec + " s" + side;
+      } else {
         var m = String(ex.repsLabel).match(/(\d+)(?:\s*à\s*(\d+))?/), n = m ? +m[1] : 12, hi = m && m[2] ? +m[2] : null;
-        var n2 = hi ? Math.min(hi, n + 2) : n + 2;
-        txt = w === 1 ? "2 × " + n : w === 2 ? "2 × " + n2 + " ou 3 × " + n : "3 × " + n;
+        var lv = function (k) { return LV ? LV.adjReps(ex.name, k, perSide) : k; };
+        var n1 = lv(n), n2 = lv(hi ? Math.min(hi, n + 2) : n + 2);
+        txt = w === 1 ? tours("2") + n1 : w === 2 ? tours("2") + n2 + " ou " + tours("3") + n1 : tours("3") + n1;
         txt += side;
+        if (LV && LV.tempo(ex.name)) txt += ", pause 2 s";
       }
       var card = document.querySelector("#ex-" + dayId + "-" + idx + " .ex-variant"), vm = card && card.textContent.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
       if (vm && w >= +vm[1]) txt += " + variante";
       if (ex.name === "Pike push-up") txt += w <= 2 ? ", genoux" : ", pieds";
       return "<div class='pg-w" + (w === cur ? " cur" : "") + "'><b>S" + w + "</b>" + esc(txt) + "</div>";
     }).join("");
-    return "<div class='pg-weeks'>" + cells + "</div>";
+    var lvl = window.KineLevel && KineLevel.get(ex.name);
+    return "<div class='pg-weeks'>" + cells + "</div>" + (lvl && (lvl.d || lvl.tempo) ? "<div class='kf-sub'>Vos chiffres, avec les paliers gagnés sur cet exercice.</div>" : "");
   }
 
   /* ════════ Écran 4 : comprendre mon programme ════════ */
