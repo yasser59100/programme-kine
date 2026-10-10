@@ -234,6 +234,12 @@ html[data-theme="light"] { --kr-track: #e3e9f1; --kr-past: #b8c4d3; --kr-future:
 .kr-week b { width: 38px; height: 38px; border-radius: 19px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text, #e8f0fe); border: 1px solid var(--border2, #243547); box-sizing: border-box; }
 .kr-week b.done { background: #00d4e6; color: #04121c; border-color: #00d4e6; font-weight: 700; }
 .kr-week b.plan { border: 2px dashed #6fb0ff; }
+.kr-week b.miss { border: 2px solid #f5a524; color: #f5a524; }
+.kr-cal .d.miss { box-shadow: inset 0 0 0 2px #f5a524; color: #f5a524; }
+.kr-adh { margin-top: 16px; }
+.kr-adh-t { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; color: var(--text2, #a9b8cc); margin-bottom: 6px; }
+.kr-adh-t b { font-size: 20px; }
+.kr-adh .kr-prog { margin: 0 0 6px; }
 .kr-week b.today { box-shadow: 0 0 0 2px var(--bg, #080e17), 0 0 0 4px var(--text, #e8f0fe); }
 .kr-week em, .kr-cal i { display: flex; gap: 3px; height: 6px; }
 .kr-week em i { width: 6px; height: 6px; border-radius: 3px; }

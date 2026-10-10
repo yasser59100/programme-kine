@@ -3229,7 +3229,10 @@ function renderSeqRest(secs, onDone) {
     if (sub) sub.textContent = "sur " + fmt(seqTimerTotal);
     var fg = document.getElementById("seq-t-fg");
     if (fg) { fg.style.strokeDashoffset = C * (1 - seqTimerRemaining / seqTimerTotal); fg.style.stroke = seqTimerRemaining <= 5 ? "var(--amber)" : "var(--green)"; }
-    if (seqTimerRemaining <= 3 && seqTimerRemaining > 0) playTickBeep();
+    if (seqTimerRemaining <= 3 && seqTimerRemaining > 0) {
+      playTickBeep();
+      try { if (navigator.vibrate) navigator.vibrate(90); } catch(e){}
+    }
   }
   window._seqRestUpdate = updateRestDisplay;
 
@@ -3240,7 +3243,7 @@ function renderSeqRest(secs, onDone) {
       if (seqTimerRemaining <= 0) {
         clearInterval(seqTimerInterval); seqTimerInterval = null;
         playDoneBeep();
-        try { if (navigator.vibrate) navigator.vibrate([200,100,200]); } catch(e){}
+        try { if (navigator.vibrate) navigator.vibrate(700); } catch(e){}
         speak(kfSay("restEnd"));
         setTimeout(function() { if (window._seqRestDone) window._seqRestDone(); }, 800);
       }
@@ -3388,7 +3391,7 @@ function qlConfirm() {
     id: Date.now(),
     date: new Date().toISOString().slice(0,10),
     seance: qlData.day,
-    semaine: "S" + rgWeek(),
+    semaine: "S" + (window.KineProgress ? KineProgress.week() : rgWeek()),
     borg: qlData.borg,
     completion: qlData.completion,
     notes: allNotes,
@@ -3570,7 +3573,7 @@ function renderRepDots() {
 
 // ── RYTHME : semaine, infos de l'exercice, plan de chaque répétition ──
 function rgWeek() {
-  if (window.KineProgress) return KineProgress.week();
+  if (window.KineProgress) return KineProgress.loadWeek();
   var s = []; try { s = JSON.parse(localStorage.getItem("kf-sessions") || "[]"); } catch (e) {}
   var m = String(s.length && s[0].semaine || "").match(/[1-4]/);
   return m ? parseInt(m[0], 10) : 1;

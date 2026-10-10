@@ -43,6 +43,31 @@
       (get(date) && +get(date).pain >= 5);
   }
 
+  // Séance prévue mais pas faite (seulement après la toute première séance, et jamais aujourd'hui)
+  function firstDay() { var d = sessList().map(function (s) { return String(s.date).slice(0, 10); }).filter(Boolean).sort(); return d[0] || null; }
+  function missed(date) { var f = firstDay(); return !!f && date >= f && date < iso() && !!plannedOn(date) && !sessOn(date).length; }
+  // Régularité sur les 14 derniers jours : séances faites / séances prévues
+  function adherence() {
+    var f = firstDay(), today = iso(); if (!f) return null;
+    var planned = 0, done = 0;
+    for (var i = 13; i >= 0; i--) {
+      var d = addDays(today, -i); if (d < f) continue;
+      var did = sessOn(d).length > 0, pl = !!plannedOn(d);
+      if (d === today && !did) continue;                 // la journée n'est pas finie
+      if (pl) { planned++; if (did) done++; } else if (did) done++;
+    }
+    if (planned < 3) return null;
+    return { done: Math.min(done, planned), planned: planned, pct: Math.min(100, Math.round(done / planned * 100)) };
+  }
+  function adherenceHtml() {
+    var a = adherence(); if (!a) return "";
+    var col = a.pct >= 80 ? "#00d4e6" : a.pct >= 50 ? "#f5a524" : "#f87171";
+    return "<div class='kr-adh'><div class='kr-adh-t'><span>Régularité sur 14 jours</span><b style='color:" + col + "'>" + a.pct + " %</b></div>" +
+      "<div class='kr-prog'><span style='width:" + a.pct + "%;background:" + col + "'></span></div>" +
+      "<div class='kr-muted'>" + a.done + " séance" + (a.done > 1 ? "s" : "") + " faite" + (a.done > 1 ? "s" : "") + " sur " + a.planned + " prévue" + (a.planned > 1 ? "s" : "") + "." +
+      (a.pct < 80 ? " Une séance manquée n'est pas grave : reprenez simplement à la prochaine." : "") + "</div></div>";
+  }
+
   /* ════════ Ressenti du jour ════════ */
   var draft = null, draftDate = null;
   function sheet(id) {
@@ -182,11 +207,11 @@
     var h = "<div class='kr-week'>";
     for (var i = 0; i < 7; i++) {
       var date = iso(new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + i, 12)), dd = parse(date);
-      var done = sessOn(date).length, plan = !done && plannedOn(date) && date >= today, hurt = hurtOn(date), noted = get(date);
-      h += "<button type='button' onclick=\"KineCheckin.calendar('" + date + "')\" aria-label='" + esc(dayLong(date)) + "'><span>" + WS[dd.getDay()] + "</span><b class='" + (done ? "done" : plan ? "plan" : "") + (date === today ? " today" : "") + "'>" + dd.getDate() + "</b><em>" +
+      var done = sessOn(date).length, plan = !done && plannedOn(date) && date >= today, hurt = hurtOn(date), noted = get(date), miss = missed(date);
+      h += "<button type='button' onclick=\"KineCheckin.calendar('" + date + "')\" aria-label='" + esc(dayLong(date)) + (miss ? ", séance manquée" : "") + "'><span>" + WS[dd.getDay()] + "</span><b class='" + (done ? "done" : plan ? "plan" : miss ? "miss" : "") + (date === today ? " today" : "") + "'>" + dd.getDate() + "</b><em>" +
         (hurt ? "<i style='background:#f87171'></i>" : "") + (noted ? "<i style='background:var(--kr-noted)'></i>" : "") + "</em></button>";
     }
-    return h + "</div>";
+    return h + "</div>" + adherenceHtml();
   }
 
   /* ════════ Tendances : ce que montrent les données du patient ════════ */
@@ -254,8 +279,8 @@
     for (var i = 0; i < lead; i++) h += "<span></span>";
     var n = new Date(y, m + 1, 0).getDate();
     for (var k = 1; k <= n; k++) {
-      var ds = iso(new Date(y, m, k, 12)), done = sessOn(ds).length, plan = !done && ds >= today && plannedOn(ds), hurt = hurtOn(ds), noted = get(ds);
-      h += "<button type='button' class='d" + (done ? " done" : plan ? " plan" : "") + (ds === calSel ? " sel" : "") + (ds === today ? " today" : "") + "' onclick=\"KineCheckin.calendar('" + ds + "')\">" + k +
+      var ds = iso(new Date(y, m, k, 12)), done = sessOn(ds).length, plan = !done && ds >= today && plannedOn(ds), hurt = hurtOn(ds), noted = get(ds), miss = missed(ds);
+      h += "<button type='button' class='d" + (done ? " done" : plan ? " plan" : miss ? " miss" : "") + (ds === calSel ? " sel" : "") + (ds === today ? " today" : "") + "' onclick=\"KineCheckin.calendar('" + ds + "')\">" + k +
         (hurt ? "<i style='background:#f87171'></i>" : noted ? "<i style='background:var(--kr-noted)'></i>" : "") + "</button>";
     }
     h += "</div>";
@@ -264,7 +289,7 @@
       "<h2 class='kr-h'>Calendrier</h2>" +
       "<div class='kr-mhead'><button onclick='KineCheckin.month(-1)' aria-label='Mois précédent'>‹</button><span>" + cap(MO[m]) + " " + y + "</span><button onclick='KineCheckin.month(1)' aria-label='Mois suivant'>›</button></div>" +
       h +
-      "<div class='kr-legend wrap'><span><i style='background:#00d4e6'></i>Séance faite</span><span><i class='dash'></i>Prévue</span><span><i style='background:#f87171'></i>Douleur 5 et plus</span><span><i style='background:var(--kr-noted)'></i>Ressenti noté</span></div>" +
+      "" + adherenceHtml() + "<div class='kr-legend wrap'><span><i style='background:#00d4e6'></i>Séance faite</span><span><i class='dash'></i>Prévue</span><span><i style='background:#f5a524'></i>Manquée</span><span><i style='background:#f87171'></i>Douleur 5 et plus</span><span><i style='background:var(--kr-noted)'></i>Ressenti noté</span></div>" +
       detail(calSel) + "</div>";
     el.classList.add("open");
   }
@@ -279,6 +304,7 @@
       h += "<div class='kr-lab cy'>Séance</div><div class='kr-st'>" + esc(String(s.seance || "Séance").replace(" — ", " ")) + "</div>" + kv0(kv);
     });
     pp.forEach(function (p) { h += kv0(["!" + cap(p.zone) + " " + p.intensite + "/10 pendant « " + p.exercice + " », " + p.action]); });
+    if (missed(ds)) h += "<div class='kr-lab' style='color:#f5a524'>Séance manquée</div><div class='kr-st'>" + esc(plan.label.replace(" — ", " ")) + "</div>";
     if (!ss.length && plan && ds >= iso()) h += "<div class='kr-lab cy'>Prévue</div><div class='kr-st'>" + esc(plan.label.replace(" — ", " ")) + "</div>";
     if (c) {
       var kv = [];
@@ -355,7 +381,7 @@
   window.KineCheckin = {
     topInsight: topInsight,
     all: all, get: get, open: open, save: doSave, close: close,
-    ring: ring, cta: cta, week: week, insights: insights, homeReminder: homeReminder, summaryLines: summaryLines,
+    ring: ring, cta: cta, week: week, adherence: adherence, insights: insights, homeReminder: homeReminder, summaryLines: summaryLines,
     calendar: calendar, closeCal: function () { var el = $("kr-cal"); if (el) el.classList.remove("open"); },
     month: function (n) { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + n, 1, 12); var y = calMonth.getFullYear(), m = calMonth.getMonth(); var s = parse(calSel); if (s.getFullYear() !== y || s.getMonth() !== m) calSel = iso(calMonth); calendar(); },
     chart: chartSheet

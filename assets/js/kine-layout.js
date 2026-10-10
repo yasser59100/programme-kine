@@ -64,7 +64,8 @@
     });
     var fill = lastDone < 0 ? 0 : (lastDone / 6) * 86;
     var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : comme prévu par votre programme, on reprend en semaine 1.</p>"
-               : st.cycleDone ? "<p class='lx-rule'>Cycle de 4 semaines terminé. Parlez-en à votre kinésithérapeute pour la suite.</p>" : "";
+               : st.cycleDone ? "<p class='lx-rule'>Cycle de 4 semaines terminé. Parlez-en à votre kinésithérapeute pour la suite.</p>"
+               : st.week >= 2 && window.KineProgress && KineProgress.painHold && KineProgress.painHold() ? "<p class='lx-rule red'><b>Douleur de 5 sur 10 ou plus à plusieurs reprises.</b> Par prudence, on reste à 2 tours, sans augmenter la difficulté, jusqu'à ce que ça se calme. Parlez-en à votre kiné.</p>" : "";
     var others = Object.keys(SEQ_DAYS).filter(function (id) { return id !== target; }).map(function (id) {
       return "<button class='lx-item' onclick=\"openPreview('" + id + "')\"><span class='lx-j'>" + codeOf(id) + "</span><span>" + esc(cap(nameOf(id))) + "</span><span class='lx-t'>" + minutes(id) + " min</span></button>";
     }).join("");

@@ -42,8 +42,22 @@ var KineProgress = (function () {
     return { today: today, start: start, week: week, cycleDone: !!start && elapsed >= 28, reset: reset, cycle: cycle, dayInCycle: elapsed + 1 };
   }
 
+  // Garde-fou douleur : douleur de 5 sur 10 ou plus à au moins 2 des 3 dernières séances,
+  // ou signalée pendant les exercices sur 2 jours différents de la dernière semaine.
+  // Tant que c'est le cas : 2 tours, pas de répétitions en plus, pas de variante S3/S4.
+  function painHold() {
+    var today = iso(Date.now()), recent = list().filter(function (s) { return s.date && daysBetween(s.date, today) <= 14; }).slice(0, 3);
+    var bad = recent.filter(function (s) { return +s.douleur >= 5; }).length;
+    var pp = []; try { pp = JSON.parse(get("kf-pain") || "[]"); } catch (e) {}
+    var days = {};
+    pp.forEach(function (p) { var d = String(p.date || "").slice(0, 10); if (d && +p.intensite >= 5 && daysBetween(d, today) <= 7) days[d] = 1; });
+    return bad >= 2 || Object.keys(days).length >= 2;
+  }
+  function loadWeek() { var w = state().week; return painHold() ? Math.min(2, w) : w; }
+
   function plan() {
     var st = state(), w = st.week;
+    if (w >= 2 && painHold()) return { week: w, series: 2, repsBonus: 0, high: true, pain: true, reason: "Douleur de 5 sur 10 ou plus à plusieurs reprises : on reste à 2 tours, sans variante avancée. Parlez-en à votre kiné.", state: st };
     var borgs = st.cycle.map(function (s) { return +s.borg; }).filter(function (b) { return b >= 1 && b <= 5; });
     var high = borgs.length >= 2 && borgs[0] >= 4 && borgs[1] >= 4;           // les plus récentes en premier
     var recent = borgs.slice(0, 3), avg = recent.length ? recent.reduce(function (a, b) { return a + b; }, 0) / recent.length : null;
@@ -67,7 +81,7 @@ var KineProgress = (function () {
     var label = String(ex && ex.repsLabel || "");
     // Exercices en durée : durée de la semaine (ex. chaise 30 s, puis 45 s, puis 1 min, planche 20, puis 40 s)
     if (/seconde/i.test(label) && window.KineAvatar) {
-      var inf = KineAvatar.info(ex.name, label, state().week);
+      var inf = KineAvatar.info(ex.name, label, loadWeek());
       if (inf.mode === "timed") {
         var sec = inf.fromDef || !window.KineLevel ? inf.seconds : KineLevel.adjSec(ex.name, inf.seconds), txt = sec >= 60 && sec % 60 === 0 ? (sec / 60) + " minute" + (sec > 60 ? "s" : "") : sec + " secondes";
         return txt + (/par (jambe|côté)/i.test(label) ? " par côté" : "");
@@ -87,13 +101,14 @@ var KineProgress = (function () {
     if (!el) return null;
     var txt = el.textContent.replace(/\s+/g, " ").trim(), m = txt.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
     if (!m) return null;
-    var from = +m[1], to = m[2] ? +m[2] : from, w = state().week;
+    var from = +m[1], to = m[2] ? +m[2] : from, w = loadWeek();
     return w >= from ? txt.replace(/^Variante[^:]*:\s*/, "") : null;
   }
 
   return {
     state: state, plan: plan, repsLabel: repsLabel, variant: variant,
     week: function () { return state().week; },
+    loadWeek: loadWeek, painHold: painHold,
     markStart: function () { if (!get("kf-start")) { set("kf-start", iso(Date.now())); set("kf-reset", ""); } }
   };
 })();
@@ -186,7 +201,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var box = $("today-card");
     if (!box || typeof SEQ_DAYS === "undefined") return;
     var page = $("page-home"); if (page) page.classList.add("v2");
-    var now = new Date(), dow = now.getDay(), todayId = DAY_OF_WEEK[dow], w = week();
+    var now = new Date(), dow = now.getDay(), todayId = DAY_OF_WEEK[dow], w = KineProgress.week();
     var list = typeof sessions !== "undefined" ? sessions : [];
     var mon = mondayISO(), todayISO = now.toISOString().slice(0, 10);
     var doneWeek = list.filter(function (s) { return s.date && s.date >= mon; });

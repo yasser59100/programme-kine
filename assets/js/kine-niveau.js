@@ -87,8 +87,12 @@ var KineLevel = (function () {
   /* Lignes pour « Envoyer à mon kiné » */
   function summaryLines() {
     var o = all(), names = Object.keys(o).filter(function (n) { return o[n].d || o[n].tempo || o[n].alert; });
-    if (!names.length) return [];
-    var L = ["", "AJUSTEMENTS PAR EXERCICE"];
+    var top = [], a = window.KineCheckin && KineCheckin.adherence ? KineCheckin.adherence() : null;
+    if (a) top.push("Régularité sur 14 jours : " + a.pct + " % (" + a.done + " séances sur " + a.planned + " prévues)");
+    if (window.KineProgress && KineProgress.painHold && KineProgress.painHold()) top.push("GARDE-FOU DOULEUR ACTIF : douleur ≥ 5/10 répétée, progression bloquée (2 tours, pas de variante S3/S4)");
+    if (top.length) top.unshift("");
+    if (!names.length) return top;
+    var L = top.concat(["", "AJUSTEMENTS PAR EXERCICE"]);
     names.forEach(function (n) {
       var r = o[n], parts = [];
       if (r.d) parts.push((r.d > 0 ? "+" : "") + r.d + " palier" + (Math.abs(r.d) > 1 ? "s" : ""));
