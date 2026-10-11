@@ -64,6 +64,10 @@
 "g": "seance"
 },
 {
+"t": "12 répétitions de chaque côté.",
+"g": "seance"
+},
+{
 "t": "12 séances au compteur, continue comme ça !",
 "g": "mascotte"
 },
@@ -92,7 +96,7 @@
 "g": "mascotte"
 },
 {
-"t": "15",
+"t": "15.",
 "g": "seance"
 },
 {
@@ -112,7 +116,7 @@
 "g": "mascotte"
 },
 {
-"t": "16",
+"t": "16.",
 "g": "seance"
 },
 {
@@ -124,7 +128,7 @@
 "g": "mascotte"
 },
 {
-"t": "17",
+"t": "17.",
 "g": "seance"
 },
 {
@@ -136,7 +140,7 @@
 "g": "mascotte"
 },
 {
-"t": "18",
+"t": "18.",
 "g": "seance"
 },
 {
@@ -172,7 +176,7 @@
 "g": "mascotte"
 },
 {
-"t": "20",
+"t": "20.",
 "g": "seance"
 },
 {
@@ -192,7 +196,7 @@
 "g": "mascotte"
 },
 {
-"t": "21",
+"t": "21.",
 "g": "seance"
 },
 {
@@ -204,7 +208,7 @@
 "g": "mascotte"
 },
 {
-"t": "22",
+"t": "22.",
 "g": "seance"
 },
 {
@@ -309,6 +313,10 @@
 },
 {
 "t": "3 répétitions",
+"g": "seance"
+},
+{
+"t": "3 secondes pour monter, 3 secondes pour descendre.",
 "g": "seance"
 },
 {
@@ -520,7 +528,7 @@
 "g": "mascotte"
 },
 {
-"t": "5",
+"t": "5.",
 "g": "seance"
 },
 {
@@ -528,7 +536,7 @@
 "g": "seance"
 },
 {
-"t": "5 répétitions",
+"t": "5 répétitions.",
 "g": "seance"
 },
 {
@@ -628,11 +636,15 @@
 "g": "mascotte"
 },
 {
-"t": "6.",
+"t": "6",
 "g": "seance"
 },
 {
 "t": "6 répétitions",
+"g": "seance"
+},
+{
+"t": "6 répétitions de chaque côté.",
 "g": "seance"
 },
 {
@@ -644,7 +656,11 @@
 "g": "seance"
 },
 {
-"t": "60 secondes",
+"t": "60 secondes.",
+"g": "seance"
+},
+{
+"t": "60 secondes de chaque côté.",
 "g": "seance"
 },
 {
@@ -692,7 +708,7 @@
 "g": "seance"
 },
 {
-"t": "7",
+"t": "7.",
 "g": "seance"
 },
 {
@@ -900,6 +916,18 @@
 "g": "seance"
 },
 {
+"t": "Appuie ensuite sur « Trop dur » pendant le repos : l'exercice baisse d'un cran la fois suivante.",
+"g": "mascotte"
+},
+{
+"t": "Appuie sur « Trop facile » pendant le repos qui suit l'exercice : après deux fois de suite, il augmente.",
+"g": "mascotte"
+},
+{
+"t": "Après plus d'une semaine sans séance, le programme reprend en semaine 1, pour ta sécurité.",
+"g": "mascotte"
+},
+{
 "t": "Assis sur les talons, bras loin devant.",
 "g": "seance"
 },
@@ -924,7 +952,15 @@
 "g": "seance"
 },
 {
+"t": "Bas du dos, coudes et mains restent contre le mur.",
+"g": "seance"
+},
+{
 "t": "Bassin au sol, poussez sur les mains, épaules basses.",
+"g": "seance"
+},
+{
+"t": "Bassin haut tout le long, on repousse lentement.",
 "g": "seance"
 },
 {
@@ -948,12 +984,36 @@
 "g": "mascotte"
 },
 {
+"t": "Bras droit.",
+"g": "seance"
+},
+{
+"t": "Bras et jambe opposés",
+"g": "seance"
+},
+{
+"t": "Bras et jambe s'allongent plus qu'ils ne montent.",
+"g": "seance"
+},
+{
+"t": "Bras gauche",
+"g": "seance"
+},
+{
 "t": "Bravo !",
 "g": "seance"
 },
 {
 "t": "Bravo pour la séance !",
 "g": "mascotte"
+},
+{
+"t": "Buste droit, le poids sur la jambe avant.",
+"g": "seance"
+},
+{
+"t": "Buste en avant",
+"g": "seance"
 },
 {
 "t": "Buste penché, bras relâchés : petits cercles qui s'agrandissent.",
@@ -1012,7 +1072,7 @@
 "g": "mascotte"
 },
 {
-"t": "Changez de côté",
+"t": "Changez de côté.",
 "g": "seance"
 },
 {
@@ -1030,6 +1090,10 @@
 {
 "t": "Cheville sur le genou opposé, tirez la cuisse vers vous.",
 "g": "seance"
+},
+{
+"t": "Choisis ce qui te fait du bien.",
+"g": "mascotte"
 },
 {
 "t": "Circuit terminé.",
@@ -1076,7 +1140,35 @@
 "g": "seance"
 },
 {
+"t": "Coude collé, on ouvre",
+"g": "seance"
+},
+{
+"t": "Coude collé, on ramène vers le ventre",
+"g": "seance"
+},
+{
+"t": "Coude vers le plafond",
+"g": "seance"
+},
+{
+"t": "Coudes hauts, mains vers les oreilles.",
+"g": "seance"
+},
+{
+"t": "Coudes près du corps, omoplates serrées en fin de mouvement.",
+"g": "seance"
+},
+{
+"t": "Coudes vers l'arrière",
+"g": "seance"
+},
+{
 "t": "Crunch abdominal contrôlé",
+"g": "seance"
+},
+{
+"t": "Côté",
 "g": "seance"
 },
 {
@@ -1086,6 +1178,10 @@
 {
 "t": "Côté gauche.",
 "g": "seance"
+},
+{
+"t": "Dans ce cas, utilise le bouton « J'ai mal » et parles-en à ton kiné.",
+"g": "mascotte"
 },
 {
 "t": "Dans Suivi, tu verras tes progrès et tu pourras tout envoyer à ton kiné.",
@@ -1120,11 +1216,19 @@
 "g": "mascotte"
 },
 {
+"t": "Derrière",
+"g": "seance"
+},
+{
 "t": "Deux",
 "g": "seance"
 },
 {
 "t": "Deux minutes de récupération.",
+"g": "seance"
+},
+{
+"t": "Devant",
 "g": "seance"
 },
 {
@@ -1164,11 +1268,19 @@
 "g": "seance"
 },
 {
+"t": "Dos droit, on bascule",
+"g": "seance"
+},
+{
 "t": "Dos droit, penchez-vous vers le pied sans forcer.",
 "g": "seance"
 },
 {
 "t": "Dos plaqué au mur, genoux au-dessus des chevilles, respirez normalement.",
+"g": "seance"
+},
+{
+"t": "Dos plat, on serre les omoplates en haut.",
 "g": "seance"
 },
 {
@@ -1178,6 +1290,26 @@
 {
 "t": "Déjà la moitié, bravo.",
 "g": "seance"
+},
+{
+"t": "Elle passe en 2 à 4 jours.",
+"g": "mascotte"
+},
+{
+"t": "Elles ne partent vers ton kiné que si tu utilises « Envoyer à mon kiné », et c'est toi qui choisis à qui les envoyer.",
+"g": "mascotte"
+},
+{
+"t": "Elles restent sur ton téléphone.",
+"g": "mascotte"
+},
+{
+"t": "En cas de douleur dans la poitrine, de malaise ou d'essoufflement inhabituel, appelle le 15.",
+"g": "mascotte"
+},
+{
+"t": "En cas de fièvre, d'infection ou de grosse fatigue, repose-toi et reprends quand ça va mieux.",
+"g": "mascotte"
 },
 {
 "t": "Encore",
@@ -1204,6 +1336,10 @@
 "g": "seance"
 },
 {
+"t": "Et note un effort élevé dans le bilan, le programme en tiendra compte.",
+"g": "mascotte"
+},
+{
 "t": "Et touche-moi quand tu as une question !",
 "g": "mascotte"
 },
@@ -1228,6 +1364,10 @@
 "g": "seance"
 },
 {
+"t": "Fais ce que tu peux avec une bonne technique, même avec moins de répétitions : le bouton « Terminer » est là pour ça.",
+"g": "mascotte"
+},
+{
 "t": "Fente basse au sol pour l'iliopsoas.",
 "g": "seance"
 },
@@ -1236,11 +1376,19 @@
 "g": "seance"
 },
 {
+"t": "Fesses en arrière, dos plat",
+"g": "seance"
+},
+{
 "t": "Figure 4 en décubitus.",
 "g": "seance"
 },
 {
 "t": "Fin du tour 1.",
+"g": "seance"
+},
+{
+"t": "Fin du tour 2.",
 "g": "seance"
 },
 {
@@ -1280,7 +1428,27 @@
 "g": "seance"
 },
 {
+"t": "Genoux qui poussent l'élastique",
+"g": "seance"
+},
+{
 "t": "Genoux vers le sol d'un côté, épaules à plat.",
+"g": "seance"
+},
+{
+"t": "Genoux à 5 cm du sol, dos plat comme une table.",
+"g": "seance"
+},
+{
+"t": "Genoux à hauteur de hanches, buste droit.",
+"g": "seance"
+},
+{
+"t": "Goblet squat",
+"g": "seance"
+},
+{
+"t": "Good morning debout",
 "g": "seance"
 },
 {
@@ -1298,6 +1466,14 @@
 {
 "t": "Groupe retiré par ton kiné",
 "g": "compose"
+},
+{
+"t": "Hanche droite.",
+"g": "seance"
+},
+{
+"t": "Hanche gauche",
+"g": "seance"
 },
 {
 "t": "Hanches hautes, amenez la tête entre les mains.",
@@ -1372,11 +1548,15 @@
 "g": "seance"
 },
 {
+"t": "Jambe bien tendue, pointe de pied vers vous.",
+"g": "seance"
+},
+{
 "t": "Jambe droite.",
 "g": "seance"
 },
 {
-"t": "Jambe gauche",
+"t": "Jambe gauche.",
 "g": "seance"
 },
 {
@@ -1428,7 +1608,23 @@
 "g": "seance"
 },
 {
+"t": "L'autre suit",
+"g": "seance"
+},
+{
 "t": "L'onglet Communauté permet d'échanger des encouragements avec les autres patients.",
+"g": "mascotte"
+},
+{
+"t": "L'élastique reste tendu, les pieds restent parallèles.",
+"g": "seance"
+},
+{
+"t": "La charge reste collée à la poitrine, buste droit.",
+"g": "seance"
+},
+{
+"t": "La courbature est dans le muscle, diffuse, souvent des deux côtés, et elle s'améliore en bougeant.",
 "g": "mascotte"
 },
 {
@@ -1444,7 +1640,19 @@
 "g": "seance"
 },
 {
+"t": "La descente prend 3 à 4 secondes, sur une seule jambe.",
+"g": "seance"
+},
+{
+"t": "La marche, oui, tous les jours si tu peux : c'est un excellent complément.",
+"g": "mascotte"
+},
+{
 "t": "La moitié, on tient.",
+"g": "seance"
+},
+{
+"t": "La poitrine descend vers le bord, le corps reste gainé.",
 "g": "seance"
 },
 {
@@ -1456,16 +1664,104 @@
 "g": "seance"
 },
 {
+"t": "Le bassin reste horizontal quand le pied se lève.",
+"g": "seance"
+},
+{
+"t": "Le bassin reste horizontal, seul le genou s'ouvre.",
+"g": "seance"
+},
+{
 "t": "Le bras passe au-dessus de la tête.",
 "g": "mascotte"
+},
+{
+"t": "Le buste reste face à l'avant : on résiste à la rotation.",
+"g": "seance"
 },
 {
 "t": "Le calendrier montre les jours où tu as fait ta séance et ceux où tu as noté ton ressenti.",
 "g": "mascotte"
 },
 {
+"t": "Le chaud détend quand tu te sens tendu ou raide.",
+"g": "mascotte"
+},
+{
+"t": "Le corps bascule d'un bloc, le bassin reste horizontal.",
+"g": "seance"
+},
+{
+"t": "Le corps monte d'un bloc, comme une planche.",
+"g": "seance"
+},
+{
+"t": "Le corps reste droit comme une planche.",
+"g": "seance"
+},
+{
+"t": "Le corps reste droit des genoux à la tête, on freine le plus longtemps possible.",
+"g": "seance"
+},
+{
 "t": "Le cou, tout doucement.",
 "g": "mascotte"
+},
+{
+"t": "Le coude monte le long du corps, l'omoplate se rapproche de la colonne.",
+"g": "seance"
+},
+{
+"t": "Le coude reste collé au corps, seul l'avant-bras tourne.",
+"g": "seance"
+},
+{
+"t": "Le coude reste collé, on ramène la main vers le nombril.",
+"g": "seance"
+},
+{
+"t": "Le coude reste collé, seul l'avant-bras tourne.",
+"g": "seance"
+},
+{
+"t": "Le dos reste contre le dossier, on pousse droit vers le haut.",
+"g": "seance"
+},
+{
+"t": "Le froid, 10 à 15 minutes dans un linge, calme un gonflement ou une douleur qui s'emballe.",
+"g": "mascotte"
+},
+{
+"t": "Le genou avant reste dans l'axe du pied, on pousse dans le talon.",
+"g": "seance"
+},
+{
+"t": "Le genou reste au-dessus du pied, souple.",
+"g": "seance"
+},
+{
+"t": "Le mouvement suit la respiration.",
+"g": "seance"
+},
+{
+"t": "Le nez passe au-dessus des orteils, puis on pousse dans les talons.",
+"g": "seance"
+},
+{
+"t": "Le poids reste sur la jambe avant.",
+"g": "seance"
+},
+{
+"t": "Le regard reste vers le sol, la nuque longue.",
+"g": "seance"
+},
+{
+"t": "Le regard suit la main.",
+"g": "seance"
+},
+{
+"t": "Le talon mène le mouvement, les orteils ne regardent pas le plafond.",
+"g": "seance"
 },
 {
 "t": "Le ventre se gonfle à l'inspiration, se vide à l'expiration.",
@@ -1480,12 +1776,48 @@
 "g": "seance"
 },
 {
+"t": "Lent et contrôlé : le bassin ne monte pas.",
+"g": "seance"
+},
+{
 "t": "Lentement, sans forcer en arrière.",
+"g": "seance"
+},
+{
+"t": "Les charges frôlent les jambes, le dos reste plat.",
+"g": "seance"
+},
+{
+"t": "Les coudes restent collés au corps.",
+"g": "seance"
+},
+{
+"t": "Les coudes restent près de la tête et pointent vers le plafond.",
+"g": "seance"
+},
+{
+"t": "Les fesses reculent, le dos reste plat.",
+"g": "seance"
+},
+{
+"t": "Les genoux poussent l'élastique vers l'extérieur.",
+"g": "seance"
+},
+{
+"t": "Les genoux restent pliés : c'est le soléaire qui travaille.",
+"g": "seance"
+},
+{
+"t": "Les genoux tombent doucement",
 "g": "seance"
 },
 {
 "t": "Les séances te semblent faciles, alors on passe à 3 tours.",
 "g": "mascotte"
+},
+{
+"t": "Les épaules restent posées au sol.",
+"g": "seance"
 },
 {
 "t": "Levez les bras en inspirant, descendez-les en expirant.",
@@ -1532,6 +1864,14 @@
 "g": "seance"
 },
 {
+"t": "Mains vers les oreilles",
+"g": "seance"
+},
+{
+"t": "Mais pas besoin de glacer après chaque séance : la petite inflammation après l'effort fait partie de la réparation et de la progression du muscle.",
+"g": "mascotte"
+},
+{
 "t": "Marche genoux hauts, élévation exagérée.",
 "g": "seance"
 },
@@ -1548,8 +1888,20 @@
 "g": "seance"
 },
 {
+"t": "Menton rentré, côtes basses : on ne cambre pas.",
+"g": "seance"
+},
+{
+"t": "Menton rentré, on pousse dans les talons.",
+"g": "seance"
+},
+{
 "t": "Mi-temps !",
 "g": "seance"
+},
+{
+"t": "Mieux vaut pas : les muscles progressent pendant la récupération.",
+"g": "mascotte"
 },
 {
 "t": "minute",
@@ -1564,12 +1916,24 @@
 "g": "seance"
 },
 {
+"t": "Montez bien haut, le poids sur le gros orteil.",
+"g": "seance"
+},
+{
 "t": "Montez le plus haut possible, redescendez lentement.",
 "g": "seance"
 },
 {
 "t": "Montez les genoux haut, bras coordonnés.",
 "g": "seance"
+},
+{
+"t": "Montées de genoux",
+"g": "seance"
+},
+{
+"t": "Ne bloque jamais ta respiration.",
+"g": "mascotte"
 },
 {
 "t": "Ne partage jamais d'informations médicales personnelles.",
@@ -1580,12 +1944,20 @@
 "g": "mascotte"
 },
 {
+"t": "Omoplates serrées",
+"g": "seance"
+},
+{
 "t": "On allonge",
 "g": "seance"
 },
 {
 "t": "On apprend les bons gestes, pas de course à la performance.",
 "g": "mascotte"
+},
+{
+"t": "On arrondit, on souffle",
+"g": "seance"
 },
 {
 "t": "On attaque.",
@@ -1596,7 +1968,15 @@
 "g": "mascotte"
 },
 {
+"t": "On avance le bassin",
+"g": "seance"
+},
+{
 "t": "On avance les mains",
+"g": "seance"
+},
+{
+"t": "On bascule, la jambe recule",
 "g": "seance"
 },
 {
@@ -1604,7 +1984,15 @@
 "g": "seance"
 },
 {
+"t": "On creuse, on inspire",
+"g": "seance"
+},
+{
 "t": "On descend",
+"g": "seance"
+},
+{
+"t": "On descend, buste droit",
 "g": "seance"
 },
 {
@@ -1612,7 +2000,35 @@
 "g": "seance"
 },
 {
+"t": "On descend lentement, sur une jambe",
+"g": "seance"
+},
+{
+"t": "On descend, trois secondes",
+"g": "seance"
+},
+{
+"t": "On descend vers le mur",
+"g": "seance"
+},
+{
+"t": "On décolle le buste",
+"g": "seance"
+},
+{
+"t": "On fléchit le genou d'appui, le buste reste gainé.",
+"g": "seance"
+},
+{
+"t": "On freine la descente",
+"g": "seance"
+},
+{
 "t": "On garde ce rythme, c'est parfait.",
+"g": "seance"
+},
+{
+"t": "On glisse vers le haut",
 "g": "seance"
 },
 {
@@ -1628,7 +2044,27 @@
 "g": "seance"
 },
 {
+"t": "On monte en Y",
+"g": "seance"
+},
+{
+"t": "On monte, genoux pliés",
+"g": "seance"
+},
+{
+"t": "On monte jusqu'aux épaules, pas plus haut.",
+"g": "seance"
+},
+{
 "t": "On monte, on expire",
+"g": "seance"
+},
+{
+"t": "On monte sur deux pieds",
+"g": "seance"
+},
+{
+"t": "On monte, trois secondes",
 "g": "seance"
 },
 {
@@ -1640,7 +2076,19 @@
 "g": "mascotte"
 },
 {
+"t": "On ouvre vers le plafond",
+"g": "seance"
+},
+{
+"t": "On plie",
+"g": "seance"
+},
+{
 "t": "On pousse",
+"g": "seance"
+},
+{
+"t": "On pousse dans le talon",
 "g": "seance"
 },
 {
@@ -1648,11 +2096,35 @@
 "g": "seance"
 },
 {
+"t": "On pousse, le buste ne tourne pas",
+"g": "seance"
+},
+{
 "t": "On pousse sur la jambe",
 "g": "seance"
 },
 {
+"t": "On pousse vers le plafond",
+"g": "seance"
+},
+{
+"t": "On ramène",
+"g": "seance"
+},
+{
+"t": "On ramène les talons",
+"g": "seance"
+},
+{
+"t": "On recule, on descend",
+"g": "seance"
+},
+{
 "t": "On redescend",
+"g": "seance"
+},
+{
+"t": "On redescend, coudes au mur",
 "g": "seance"
 },
 {
@@ -1668,7 +2140,19 @@
 "g": "seance"
 },
 {
+"t": "On relâche",
+"g": "seance"
+},
+{
+"t": "On replie lentement",
+"g": "seance"
+},
+{
 "t": "On repose",
+"g": "seance"
+},
+{
+"t": "On repousse lentement, bassin haut",
 "g": "seance"
 },
 {
@@ -1684,12 +2168,28 @@
 "g": "seance"
 },
 {
+"t": "On revient en s'aidant des mains",
+"g": "seance"
+},
+{
+"t": "On revient lentement",
+"g": "seance"
+},
+{
+"t": "On résiste",
+"g": "seance"
+},
+{
 "t": "On s'y met, tranquillement.",
 "g": "seance"
 },
 {
 "t": "On s'étire sur le côté.",
 "g": "mascotte"
+},
+{
+"t": "On se rassoit lentement",
+"g": "seance"
 },
 {
 "t": "On se redresse lentement",
@@ -1701,6 +2201,34 @@
 },
 {
 "t": "On serre",
+"g": "seance"
+},
+{
+"t": "On serre la cuisse",
+"g": "seance"
+},
+{
+"t": "On serre le fessier de la jambe arrière, sans cambrer.",
+"g": "seance"
+},
+{
+"t": "On serre les fessiers",
+"g": "seance"
+},
+{
+"t": "On serre les omoplates comme pour tenir un crayon entre elles.",
+"g": "seance"
+},
+{
+"t": "On serre les omoplates, les épaules restent basses.",
+"g": "seance"
+},
+{
+"t": "On tend",
+"g": "seance"
+},
+{
+"t": "On tend les bras",
 "g": "seance"
 },
 {
@@ -1784,6 +2312,18 @@
 "g": "seance"
 },
 {
+"t": "On touche le sol du bout du pied, sans s'appuyer dessus.",
+"g": "seance"
+},
+{
+"t": "On verrouille le genou",
+"g": "seance"
+},
+{
+"t": "On verrouille le genou en serrant la cuisse.",
+"g": "seance"
+},
+{
 "t": "On y retourne.",
 "g": "seance"
 },
@@ -1792,7 +2332,15 @@
 "g": "seance"
 },
 {
+"t": "On écarte, omoplates serrées",
+"g": "seance"
+},
+{
 "t": "Oreille vers l'épaule, d'un côté puis de l'autre.",
+"g": "mascotte"
+},
+{
+"t": "Oui, surtout les premières semaines.",
 "g": "mascotte"
 },
 {
@@ -1812,8 +2360,20 @@
 "g": "mascotte"
 },
 {
+"t": "Pas de panique : fais simplement la séance suivante prévue, sans doubler.",
+"g": "mascotte"
+},
+{
 "t": "Pas encore bougé aujourd'hui ?",
 "g": "mascotte"
+},
+{
+"t": "Pas sur le côté",
+"g": "seance"
+},
+{
+"t": "Pause",
+"g": "seance"
 },
 {
 "t": "Pause terminée, on repart.",
@@ -1829,6 +2389,10 @@
 },
 {
 "t": "Pendant les exercices, si quelque chose fait mal, appuie sur « J'ai mal » : je te dirai quoi faire.",
+"g": "mascotte"
+},
+{
+"t": "Pendant les gainages, respire calmement et régulièrement.",
 "g": "mascotte"
 },
 {
@@ -1849,6 +2413,18 @@
 },
 {
 "t": "Petits cercles avec le pied.",
+"g": "seance"
+},
+{
+"t": "Pied droit.",
+"g": "seance"
+},
+{
+"t": "Pied et bras partent en même temps.",
+"g": "seance"
+},
+{
+"t": "Pied gauche",
 "g": "seance"
 },
 {
@@ -1876,6 +2452,10 @@
 "g": "seance"
 },
 {
+"t": "Planche latérale complète",
+"g": "seance"
+},
+{
 "t": "Pliez et tendez les coudes, puis les poignets.",
 "g": "seance"
 },
@@ -1896,8 +2476,28 @@
 "g": "seance"
 },
 {
+"t": "Pointes de pieds bien relevées.",
+"g": "seance"
+},
+{
+"t": "Poitrine vers la table",
+"g": "seance"
+},
+{
+"t": "Portefeuille (V-up)",
+"g": "seance"
+},
+{
 "t": "Position de l'enfant, bras tendus.",
 "g": "seance"
+},
+{
+"t": "Pouces vers le ciel, les bras forment un Y.",
+"g": "seance"
+},
+{
+"t": "Pour la course, les sports collectifs ou la salle, demande d'abord l'accord de ton kiné, selon ta blessure ou ton opération.",
+"g": "mascotte"
 },
 {
 "t": "Pour sauter un exercice, utilise « Passer ».",
@@ -1934,6 +2534,10 @@
 {
 "t": "Quatre mouvements doux de 30 secondes, debout, à faire quand tu es resté assis longtemps.",
 "g": "mascotte"
+},
+{
+"t": "Regard sur un point fixe devant vous.",
+"g": "seance"
 },
 {
 "t": "Relâchez chaque partie du corps.",
@@ -2100,12 +2704,28 @@
 "g": "seance"
 },
 {
+"t": "Si c'est juste une petite fatigue, adapte la séance à ton ressenti : moins de répétitions, moins de tours, une amplitude plus petite ou un rythme plus doux.",
+"g": "mascotte"
+},
+{
+"t": "Si une douleur dépasse 5 sur 10 et ne passe pas, si une articulation gonfle, si la douleur te réveille la nuit, en cas d'instabilité, de fourmillements ou de perte de force.",
+"g": "mascotte"
+},
+{
+"t": "Si une douleur persiste, parles-en à ton kiné.",
+"g": "mascotte"
+},
+{
 "t": "Si une règle bloque un exercice, je t'explique pourquoi.",
 "g": "compose"
 },
 {
 "t": "Solide comme un roc.",
 "g": "seance"
+},
+{
+"t": "Souffle pendant l'effort, quand tu montes ou que tu pousses, et inspire en revenant.",
+"g": "mascotte"
 },
 {
 "t": "Soufflez un coup.",
@@ -2168,6 +2788,10 @@
 "g": "seance"
 },
 {
+"t": "Séance Ma séance — Test.",
+"g": "seance"
+},
+{
 "t": "Séance terminée.",
 "g": "seance"
 },
@@ -2200,6 +2824,10 @@
 "g": "compose"
 },
 {
+"t": "Tirage inversé sous une table",
+"g": "seance"
+},
+{
 "t": "Ton cycle de 4 semaines est terminé, bravo !",
 "g": "mascotte"
 },
@@ -2228,6 +2856,10 @@
 "g": "mascotte"
 },
 {
+"t": "Toujours à portée de main d'un appui.",
+"g": "seance"
+},
+{
 "t": "tour",
 "g": "seance"
 },
@@ -2240,7 +2872,7 @@
 "g": "seance"
 },
 {
-"t": "Tour 1 sur 3",
+"t": "Tour 1 sur 3.",
 "g": "seance"
 },
 {
@@ -2252,7 +2884,7 @@
 "g": "seance"
 },
 {
-"t": "Tour 2 sur 3",
+"t": "Tour 2 sur 3.",
 "g": "seance"
 },
 {
@@ -2260,7 +2892,7 @@
 "g": "seance"
 },
 {
-"t": "Tour 3 sur 3",
+"t": "Tour 3 sur 3.",
 "g": "seance"
 },
 {
@@ -2308,6 +2940,14 @@
 "g": "mascotte"
 },
 {
+"t": "Tu peux aussi ralentir la descente : plus c'est lent, plus c'est exigeant.",
+"g": "mascotte"
+},
+{
+"t": "Tu peux faire ta séance en réduisant un peu l'amplitude.",
+"g": "mascotte"
+},
+{
 "t": "Tu peux reprendre quand tu veux.",
 "g": "mascotte"
 },
@@ -2316,8 +2956,36 @@
 "g": "seance"
 },
 {
+"t": "Un pied",
+"g": "seance"
+},
+{
 "t": "Une",
 "g": "seance"
+},
+{
+"t": "Une courbature, c'est une raideur dans le muscle qui apparaît 1 à 2 jours après l'effort, diffuse, et qui diminue quand tu bouges.",
+"g": "mascotte"
+},
+{
+"t": "Une douleur à surveiller est dans l'articulation ou à un point précis, vive, augmente pendant l'exercice ou te réveille la nuit.",
+"g": "mascotte"
+},
+{
+"t": "Une ligne droite de la tête aux pieds.",
+"g": "seance"
+},
+{
+"t": "Une seule ligne de la tête aux talons.",
+"g": "seance"
+},
+{
+"t": "Une séance manquée ne casse rien, c'est la régularité sur la semaine qui compte.",
+"g": "mascotte"
+},
+{
+"t": "Une séance par jour au maximum, et garde au moins un jour de repos dans la semaine.",
+"g": "mascotte"
 },
 {
 "t": "Vous avez réalisé tous les exercices.",
@@ -2328,7 +2996,7 @@
 "g": "seance"
 },
 {
-"t": "Vous êtes dans le bon tempo.",
+"t": "vous êtes dans le bon tempo.",
 "g": "seance"
 },
 {
