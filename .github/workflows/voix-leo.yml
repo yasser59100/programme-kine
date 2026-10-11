@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && (python3 -m pip install --user num2words || python3 -m pip install --break-system-packages num2words)
       - name: Generer la voix
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
@@ -22,4 +22,4 @@ jobs:
         if: always()
         run: |
           git config user.name "github-actions" && git config user.email "actions@github.com"
-          git add assets/voix tools/voix_echecs.json tools/voix_log.txt && git commit -q -m "Voix de Léo générée [skip ci]" && git pull -q --rebase && git push || echo "rien de nouveau"
+          git add -A assets/voix tools/voix_echecs.json tools/voix_log.txt && git commit -q -m "Voix de Léo générée [skip ci]" && git pull -q --rebase && git push || echo "rien de nouveau"
