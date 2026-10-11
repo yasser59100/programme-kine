@@ -1,0 +1,76 @@
+{
+ "steps": [
+  "abonnement starter caracteres 0 / 40000",
+  "voix fr male 40",
+  "candidat male Guillaume - Narrator | standard | casual | narrative_story",
+  "candidat male Léo - Reassuring and Dynamic | parisian | casual | narrative_story",
+  "candidat male Guillaume - Narrator | standard | casual | narrative_story",
+  "voix fr female 40",
+  "candidat female Claire - Warm, Pretty and Charming | standard | casual | narrative_story",
+  "candidat female Audrey - Energetic Commercial | standard | professional | advertisement",
+  "candidat female Clara Dupont - Professional and Urgent |  | confident | entertainment_tv",
+  "ok h_guillaume",
+  "ok h_léo",
+  "ok h_guillaume",
+  "ok f_claire",
+  "ok f_audrey",
+  "ok f_clara",
+  "apres: caracteres 256 / 40000"
+ ],
+ "voix": [
+  {
+   "fichier": "eleven_h_guillaume.mp3",
+   "nom": "Guillaume - Narrator",
+   "voice_id": "Qrl71rx6Yg8RvyPYRGCQ",
+   "genre": "male",
+   "accent": "standard",
+   "style": "casual",
+   "usage": "narrative_story"
+  },
+  {
+   "fichier": "eleven_h_léo.mp3",
+   "nom": "Léo - Reassuring and Dynamic",
+   "voice_id": "AfbuxQ9DVtS4azaxN1W7",
+   "genre": "male",
+   "accent": "parisian",
+   "style": "casual",
+   "usage": "narrative_story"
+  },
+  {
+   "fichier": "eleven_h_guillaume.mp3",
+   "nom": "Guillaume - Narrator",
+   "voice_id": "ohItIVrXTBI80RrUECOD",
+   "genre": "male",
+   "accent": "standard",
+   "style": "casual",
+   "usage": "narrative_story"
+  },
+  {
+   "fichier": "eleven_f_claire.mp3",
+   "nom": "Claire - Warm, Pretty and Charming",
+   "voice_id": "6vTyAgAT8PncODBcLjRf",
+   "genre": "female",
+   "accent": "standard",
+   "style": "casual",
+   "usage": "narrative_story"
+  },
+  {
+   "fichier": "eleven_f_audrey.mp3",
+   "nom": "Audrey - Energetic Commercial",
+   "voice_id": "McVZB9hVxVSk3Equu8EH",
+   "genre": "female",
+   "accent": "standard",
+   "style": "professional",
+   "usage": "advertisement"
+  },
+  {
+   "fichier": "eleven_f_clara.mp3",
+   "nom": "Clara Dupont - Professional and Urgent",
+   "voice_id": "glDtoWIoIgk38YbycCwG",
+   "genre": "female",
+   "accent": "",
+   "style": "confident",
+   "usage": "entertainment_tv"
+  }
+ ]
+}
