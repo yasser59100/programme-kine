@@ -7,7 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pip install piper-tts==1.2.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install piper-tts
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Generer
         run: |
@@ -20,14 +23,11 @@ jobs:
             curl -sSL -o voices/$n.onnx.json "$B/$v.onnx.json"
           done
           gen () { # voix, locuteur, nom
-            i=0
-            while IFS= read -r line; do
-              i=$((i+1))
-              echo "$line" | piper --model voices/$1.onnx ${2:+--speaker $2} --length_scale 1.08 --sentence_silence 0.25 --output_file out/$3_$i.wav
-            done < tools/phrases_echantillon.txt
+            python tools/voix_gen.py voices/$1.onnx "$2" $3
             # les 5 phrases a la suite, avec un silence entre chaque
             files=""; for k in 1 2 3 4 5; do files="$files -i out/$3_$k.wav"; done
-            ffmpeg -loglevel error $files -filter_complex "[0][1][2][3][4]concat=n=5:v=0:a=1,apad=pad_dur=0" -ar 44100 -b:a 128k out/$3.mp3
+            for k in 1 2 3 4 5; do ffmpeg -loglevel error -y -i out/$3_$k.wav -af apad=pad_dur=0.8 -ar 22050 out/$3_p$k.wav; done; files=""; for k in 1 2 3 4 5; do files="$files -i out/$3_p$k.wav"; done
+            ffmpeg -loglevel error $files -filter_complex "[0][1][2][3][4]concat=n=5:v=0:a=1" -ar 44100 -b:a 128k out/$3.mp3
           }
           gen fr_FR-siwis-medium "" femme_siwis
           gen fr_FR-tom-medium "" homme_tom
