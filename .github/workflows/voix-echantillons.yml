@@ -13,10 +13,14 @@ jobs:
       - name: Generer avec ElevenLabs
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          GENRES: male
+          RECHERCHE: "dynamique,énergique,coach,sport,motivant"
+          PAR_GENRE: "4"
+          EXCLURE: "Qrl71rx6Yg8RvyPYRGCQ AfbuxQ9DVtS4azaxN1W7 ohItIVrXTBI80RrUECOD"
         run: python3 tools/voix_eleven.py
       - name: Ranger les echantillons dans la branche
         if: always()
         run: |
-          mkdir -p tools/echantillons && cp out/eleven_*.mp3 out/eleven_log.json tools/echantillons/ 2>/dev/null || true
+          mkdir -p tools/echantillons && cp out/eleven_*.mp3 out/eleven_log*.json tools/echantillons/ 2>/dev/null || true
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git add tools/echantillons && git commit -m "Echantillons ElevenLabs [skip ci]" && git push || true

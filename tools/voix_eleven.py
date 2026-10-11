@@ -19,18 +19,26 @@ if st == 200: note("abonnement", u.get("tier"), "caracteres", u.get("character_c
 else: note("abonnement ERREUR", st, u)
 
 phrases = [l.strip() for l in open("tools/phrases_echantillon.txt", encoding="utf-8") if l.strip()]
-cands = []
-for gender in ("male", "female"):
-    q = urllib.parse.urlencode({"page_size": 40, "language": "fr", "gender": gender, "sort": "usage_character_count_1y"})
-    st, res = call("GET", "/v1/shared-voices?" + q)
-    if st != 200: note("bibliotheque ERREUR", gender, st, res); continue
-    vs = res.get("voices", [])
-    note("voix fr", gender, len(vs))
-    lively = [v for v in vs if any(w in (" ".join(str(v.get(k) or "") for k in ("descriptive", "description", "use_case", "name"))).lower()
-                                  for w in ("energ", "dynam", "upbeat", "enthous", "excit", "motiv", "coach", "confident", "cheer", "warm", "chaleur", "pêch", "vivant"))]
-    pick = (lively + [v for v in vs if v not in lively])[:3]
-    for v in pick:
-        cands.append(v); note("candidat", gender, v.get("name"), "|", v.get("accent"), "|", v.get("descriptive"), "|", v.get("use_case"))
+cands = []; seen = set()
+GENDERS = os.environ.get("GENRES", "male,female").split(",")
+SEARCH = os.environ.get("RECHERCHE", "").split(",") if os.environ.get("RECHERCHE") else [""]
+for gender in GENDERS:
+    pool = []
+    for term in SEARCH:
+        params = {"page_size": 40, "language": "fr", "gender": gender, "sort": "usage_character_count_1y"}
+        if term: params["search"] = term
+        st, res = call("GET", "/v1/shared-voices?" + urllib.parse.urlencode(params))
+        if st != 200: note("bibliotheque ERREUR", gender, term, st, res); continue
+        note("voix fr", gender, term or "-", len(res.get("voices", [])))
+        pool += res.get("voices", [])
+    lively = [v for v in pool if any(w in (" ".join(str(v.get(k) or "") for k in ("descriptive", "description", "use_case", "name"))).lower()
+                                  for w in ("energ", "dynam", "upbeat", "enthous", "excit", "motiv", "coach", "sport", "confident", "cheer", "pêch", "vivant", "fitness"))]
+    n = 0
+    for v in lively + pool:
+        if v["voice_id"] in seen or v["voice_id"] in os.environ.get("EXCLURE", ""): continue
+        seen.add(v["voice_id"]); cands.append(v); n += 1
+        note("candidat", gender, v.get("name"), "|", v.get("accent"), "|", v.get("descriptive"), "|", v.get("use_case"))
+        if n >= int(os.environ.get("PAR_GENRE", "3")): break
 
 os.makedirs("out", exist_ok=True)
 made = []
@@ -43,7 +51,9 @@ def tts(voice_id, text, model, out):
     return False, (st, d)
 for v in cands:
     vid, name = v["voice_id"], v.get("name", "voix").split()[0].lower()
-    tag = ("h" if v.get("gender") == "male" else "f") + "_" + "".join(c for c in name if c.isalnum())
+    import unicodedata
+    name = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
+    tag = ("h" if v.get("gender") == "male" else "f") + "_" + "".join(c for c in name if c.isalnum()) + "_" + vid[:4]
     ok, err = tts(vid, phrases[0], "eleven_multilingual_v2", f"out/{tag}_1.mp3")
     if not ok:
         note("voix pas directement utilisable", tag, err)
@@ -67,4 +77,4 @@ for v in cands:
 log["voix"] = made
 st, u = call("GET", "/v1/user/subscription")
 if st == 200: note("apres: caracteres", u.get("character_count"), "/", u.get("character_limit"))
-json.dump(log, open("out/eleven_log.json", "w"), ensure_ascii=False, indent=1)
+json.dump(log, open("out/eleven_log_" + time.strftime("%H%M%S") + ".json", "w"), ensure_ascii=False, indent=1)
