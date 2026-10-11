@@ -1,0 +1,57 @@
+{
+ "steps": [
+  "abonnement starter caracteres 896 / 40000",
+  "voix fr male dynamique 1",
+  "voix fr male énergique 0",
+  "voix fr male coach 26",
+  "voix fr male sport 40",
+  "voix fr male motivant 0",
+  "candidat male Lucas - Narrator | standard | professional | narrative_story",
+  "candidat male Francois Samson - Coach & speaker | standard | confident | informative_educational",
+  "candidat male Rafiki - Life Coach | standard | casual | conversational",
+  "candidat male Johan - Corporate Narrator | standard | casual | conversational",
+  "ok h_lucas_EkJ5",
+  "ok h_francois_w4FD",
+  "ok h_rafiki_6aRk",
+  "ok h_johan_J4zc",
+  "apres: caracteres 1253 / 40000"
+ ],
+ "voix": [
+  {
+   "fichier": "eleven_h_lucas_EkJ5.mp3",
+   "nom": "Lucas - Narrator",
+   "voice_id": "EkJ5RDvSjqVhPFYzTy96",
+   "genre": "male",
+   "accent": "standard",
+   "style": "professional",
+   "usage": "narrative_story"
+  },
+  {
+   "fichier": "eleven_h_francois_w4FD.mp3",
+   "nom": "Francois Samson - Coach & speaker",
+   "voice_id": "w4FDa0ya9UrortMOEDXi",
+   "genre": "male",
+   "accent": "standard",
+   "style": "confident",
+   "usage": "informative_educational"
+  },
+  {
+   "fichier": "eleven_h_rafiki_6aRk.mp3",
+   "nom": "Rafiki - Life Coach",
+   "voice_id": "6aRkp7Pz4MBOSpUyJCTO",
+   "genre": "male",
+   "accent": "standard",
+   "style": "casual",
+   "usage": "conversational"
+  },
+  {
+   "fichier": "eleven_h_johan_J4zc.mp3",
+   "nom": "Johan - Corporate Narrator",
+   "voice_id": "J4zcoLNXc78q5wwPb5z5",
+   "genre": "male",
+   "accent": "standard",
+   "style": "casual",
+   "usage": "conversational"
+  }
+ ]
+}
