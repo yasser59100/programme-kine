@@ -1,7 +1,8 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v27';
+const VERSION = 'kineforce-v28';
+const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const APP_FILES = [
   './',
   'index.html',
@@ -42,7 +43,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== VERSION; }).map(function (k) { return caches.delete(k); }));
+      return Promise.all(keys.filter(function (k) { return k !== VERSION && k !== VOIX; }).map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
 });
@@ -64,6 +65,16 @@ self.addEventListener('fetch', function (e) {
   if (STATIC_HOSTS.indexOf(url.hostname) >= 0) {
     e.respondWith(caches.match(req).then(function (hit) {
       return hit || fetch(req).then(function (res) { return saveCopy(req, res); });
+    }));
+    return;
+  }
+
+  // Voix enregistrée : chaque fichier a un nom unique et ne change jamais → cache d'abord, gardé entre les versions
+  if (url.origin === self.location.origin && /\/assets\/voix\/[^/]+\.mp3$/.test(url.pathname)) {
+    e.respondWith(caches.open(VOIX).then(function (cache) {
+      return cache.match(req).then(function (hit) {
+        return hit || fetch(req).then(function (res) { if (res && res.ok) cache.put(req, res.clone()); return res; });
+      });
     }));
     return;
   }

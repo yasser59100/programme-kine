@@ -2794,7 +2794,12 @@ function kfvInit() {
   KFV.map = {};
   try {
     fetch(KFV.base + "manifest.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; })
-      .then(function (m) { KFV.map = (m && m.clips) || {}; if (Object.keys(KFV.map).length) setTimeout(kfvPreloadAll, 2500); }).catch(function () {});
+      .then(function (m) {
+        KFV.map = (m && m.clips) || {}; if (m && m.base) KFV.base = m.base;
+        if (!Object.keys(KFV.map).length) return;
+        setTimeout(function () { kfvPreloadAll("seance"); }, 2500);     // tout ce qui se dit pendant une séance
+        setTimeout(function () { kfvPreloadAll("mascotte"); }, 15000); // puis la mascotte
+      }).catch(function () {});
   } catch (e) {}
 }
 function kfvResolve(text) {
@@ -2804,7 +2809,18 @@ function kfvResolve(text) {
   for (var i = 0; i < parts.length;) {
     var hit = 0;
     for (var j = parts.length; j > i; j--) { var k = parts.slice(i, j).join(" "); if (KFV.map[k]) { out.push(KFV.map[k]); hit = j; break; } }
-    if (!hit) return null;
+    if (!hit) {
+      // morceau jamais prononcé tel quel (ex. « 16 répétitions » après une progression) :
+      // on l'assemble mot à mot avec les plus longs bouts déjà enregistrés
+      var w = parts[i].split(" "), sub = [];
+      for (var a = 0; a < w.length;) {
+        var h2 = 0;
+        for (var b = w.length; b > a; b--) { var k2 = w.slice(a, b).join(" "); if (KFV.map[k2]) { sub.push(KFV.map[k2]); h2 = b; break; } }
+        if (!h2) return null;
+        a = h2;
+      }
+      out = out.concat(sub); hit = i + 1;
+    }
     i = hit;
   }
   return out.length ? out : null;
@@ -2817,9 +2833,9 @@ function kfvLoad(e) {
     .then(function (ab) { return new Promise(function (ok, ko) { ctx.decodeAudioData(ab, ok, ko); }); })
     .then(function (b) { KFV.buf[e.f] = b; }).catch(function () {}).then(function () { delete KFV.pending[e.f]; });
 }
-function kfvPreloadAll() {
+function kfvPreloadAll(group) {
   if (!KFV.map) return;
-  var keys = Object.keys(KFV.map), i = 0;
+  var keys = Object.keys(KFV.map).filter(function (k) { return !group || (KFV.map[k].g || "seance") === group; }), i = 0;
   (function batch() { for (var n = 0; n < 12 && i < keys.length; n++, i++) kfvLoad(KFV.map[keys[i]]); if (i < keys.length) setTimeout(batch, 250); })();
 }
 function kfvReady(ents) { for (var i = 0; i < ents.length; i++) if (!KFV.buf[ents[i].f]) { ents.forEach(kfvLoad); return false; } return true; }
@@ -2939,6 +2955,12 @@ function processSpeechQueue() {
   var text = item.text, finished = false;
   var next = function (delay) { if (finished) return; finished = true; clearTimeout(kfSpeechWatch); setTimeout(processSpeechQueue, delay); };
   var ents = kfvResolve(text);
+  // Le fichier n'est pas encore chargé : on lui laisse un court instant plutôt que de changer de voix
+  if (ents && !kfvReady(ents) && !item.waited && Date.now() - item.at < item.ttl - 400) {
+    item.waited = true; speechQueue.unshift(item); finished = true;
+    kfSpeechWatch = setTimeout(processSpeechQueue, 350);
+    return;
+  }
   if (ents && kfvReady(ents) && kfvPlay(ents, function () { next(90); })) {
     kfSpeechWatch = setTimeout(function () { kfvStop(); next(0); }, (kfvDur(ents) + 2) * 1000);
     return;
