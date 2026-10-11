@@ -365,7 +365,7 @@
     if (!hole) { hole = document.createElement("div"); hole.id = "km-hole"; document.body.appendChild(hole); }
     hole.classList.remove("on");
     var end = function () { set(TOUR_KEY, "1"); TOUR = TOUR_MAIN; TOUR_KEY = "kf-masc-tour"; hide(); return true; };
-    if (!st || i === 99) return end();
+    if (!st || i === 99 || (i > 0 && busy())) return end();   // jamais par-dessus une séance
     if (!appear()) return false;
     mode = "tour"; clearTimeout(timer);
     if (st.sel) {
@@ -434,9 +434,15 @@
       peekDrag(p);
     }
     var m = $("kf-masc"), open = m && m.classList.contains("open");
-    var hidden = open || busy() || get("kf-masc-peek-off") === "1" || !!document.querySelector("#kf-onboard.open, .modal.open, #rg-pain.open");
+    var hidden = open || busy() || scrolling || get("kf-masc-peek-off") === "1" || !!document.querySelector("#kf-onboard.open, .modal.open, #rg-pain.open");
     p.classList.toggle("show", !hidden);
   }
+  // Pendant qu'on fait défiler la page, la tête se range pour ne pas cacher le texte, puis revient
+  var scrolling = false, scrollT = null;
+  window.addEventListener("scroll", function () {
+    scrolling = true; var p = $("km-peek"); if (p && !p.classList.contains("drag")) p.classList.remove("show");
+    clearTimeout(scrollT); scrollT = setTimeout(function () { scrolling = false; peekTick(); }, 1500);
+  }, { passive: true });
 
   // La tête se déplace au doigt : on la glisse où on veut, elle se range contre le bord le plus proche
   function peekPlace(p) {

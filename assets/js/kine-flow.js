@@ -157,7 +157,9 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   var WEEKDAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   var PHASES = { warm: ["Échauffement", "var(--amber)"], work: ["Renforcement", "var(--blue)"], cool: ["Retour au calme", "var(--green)"] };
   var BORG = [null, ["Très facile"], ["Facile"], ["Modéré"], ["Difficile"], ["Épuisant"]];
-  var CHIPS = ["Légère fatigue", "Très motivé", "Manque d'énergie", "Progression ressentie", "Trop facile", "Trop difficile"];
+  // « Trop facile / trop dur » se dit exercice par exercice pendant le repos : pas de doublon ici
+  var CHIPS = ["Légère fatigue", "Très motivé", "Manque d'énergie", "Progression ressentie"];
+  var PAIN_WORDS = ["aucune douleur", "très légère", "légère", "légère", "modérée", "modérée, parlez-en à votre kiné", "forte", "forte", "très forte", "très forte", "maximale"];
 
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -286,6 +288,20 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     rgState.autoStartIn = seconds;
     if (seqSerieIdx < seqTotalSeries - 1) seqSeriesDone(); else seqExDone();
   };
+  // Un exercice guidé s'ouvre directement sur l'avatar : plus de fiche texte intermédiaire
+  // (les consignes sont sur l'écran de l'avatar, et en entier la première fois)
+  if (typeof renderSeqExercise === "function") {
+    var baseRenderEx = renderSeqExercise;
+    renderSeqExercise = function () {
+      baseRenderEx.apply(this, arguments);
+      var ex = SEQ_DAYS[seqCurrentDay].exercises[seqExIdx], idx = seqExIdx, day = seqCurrentDay;
+      if (!isGuided(ex)) return;
+      setTimeout(function () {
+        if (seqCurrentDay !== day || seqExIdx !== idx || !$("seq-overlay").classList.contains("open") || $("rep-guide").classList.contains("open")) return;
+        if (seqSerieIdx < seqTotalSeries - 1) seqSeriesDone(); else seqExDone();
+      }, 0);
+    };
+  }
   function guideState(st) { var g = $("rep-guide"); if (g) g.setAttribute("data-state", st); }
   window.rgSyncSound = function () {
     var b = $("rg2-sound"); if (b) b.classList.toggle("off", typeof seqSoundOn !== "undefined" && !seqSoundOn);
@@ -458,8 +474,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     bilan = { day: day, duration: duration, done: done, total: total, pains: pains, borg: null, pain: null, chips: [] };
     var sheet = $("seq-bilan");
 
-    var borgBtns = ""; for (var b = 1; b <= 5; b++) borgBtns += "<button data-borg='" + b + "' aria-label='Effort " + b + " sur 5, " + BORG[b][0] + "'>" + b + "</button>";
-    var painBtns = ""; for (var p = 0; p <= 10; p++) painBtns += "<button data-pain='" + p + "' aria-label='Douleur " + p + " sur 10'>" + p + "</button>";
+    var borgBtns = ""; for (var b = 1; b <= 5; b++) borgBtns += "<button data-borg='" + b + "' aria-label='Effort " + b + " sur 5, " + BORG[b][0] + "'><b>" + b + "</b><small>" + BORG[b][0] + "</small></button>";
+    var painBtns = ""; for (var p = 0; p <= 10; p++) painBtns += "<button data-pain='" + p + "'" + (p >= 5 ? " class='hi'" : "") + " aria-label='Douleur " + p + " sur 10'>" + p + "</button>";
     var chips = CHIPS.map(function (c) { return "<button data-chip=\"" + esc(c) + "\">" + esc(c) + "</button>"; }).join("");
     var painNote = pains.length
       ? "<div class='kf-note'>Pendant la séance : " + pains.map(function (x) { return "<strong>" + esc(x.zone.toLowerCase()) + ", " + x.intensite + "/10</strong> (" + esc(x.exercice) + ", " + esc(x.action) + ")"; }).join(" ; ") + "</div>" : "";
@@ -471,13 +487,13 @@ var seqSkipped = 0;       // exercices passés pendant la séance
         "<div class='kf-stat'><b>" + duration + " min</b><span>durée</span></div>" +
         "<div class='kf-stat" + (pains.length ? " warn" : "") + "'><b>" + pains.length + "</b><span>douleur" + (pains.length > 1 ? "s" : "") + " signalée" + (pains.length > 1 ? "s" : "") + "</span></div>" +
       "</div>" +
-      "<div class='kf-q'>Effort ressenti</div><div class='kf-scale' id='kf-borg' style='grid-template-columns:repeat(5,1fr)'>" + borgBtns + "</div><div class='kf-hint' id='kf-borg-hint'></div>" +
-      "<div class='kf-q'>Douleur maintenant</div><div class='kf-scale pain' id='kf-pain' style='grid-template-columns:repeat(11,1fr)'>" + painBtns + "</div>" + painNote +
+      "<div class='kf-q'>Effort ressenti</div><div class='kf-scale borg' id='kf-borg' style='grid-template-columns:repeat(5,1fr)'>" + borgBtns + "</div><div class='kf-hint' id='kf-borg-hint'></div>" +
+      "<div class='kf-q'>Douleur maintenant</div><div class='kf-scale pain' id='kf-pain' style='grid-template-columns:repeat(6,1fr)'>" + painBtns + "</div><div class='kf-hint' id='kf-pain-hint'>0 = aucune douleur, 10 = douleur maximale</div>" + painNote +
       "<div class='kf-q'>Un mot pour votre kiné ?</div><div class='kf-chips' id='kf-chips'>" + chips + "</div>" +
       "<textarea class='kf-text' id='kf-notes' placeholder='Écrire un commentaire (facultatif)'></textarea>" +
       "</div><div class='kf-sheet-foot' id='kf-bilan-foot'>" +
       "<button class='seq-btn-main green' onclick='saveSeqBilan()'>✓ Enregistrer ma séance</button>" +
-      "<button class='seq-btn-secondary' onclick='closeSeqBilan()'>Ne pas enregistrer</button></div>";
+      "<button class='seq-btn-secondary' onclick='discardSeqBilan()'>Ne pas enregistrer</button></div>";
 
     sheet.querySelectorAll("[data-borg]").forEach(function (el) { el.onclick = function () {
       bilan.borg = +el.dataset.borg;
@@ -487,6 +503,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     sheet.querySelectorAll("[data-pain]").forEach(function (el) { el.onclick = function () {
       bilan.pain = +el.dataset.pain;
       sheet.querySelectorAll("[data-pain]").forEach(function (x) { x.classList.toggle("sel", x === el); });
+      $("kf-pain-hint").textContent = bilan.pain + " sur 10, " + PAIN_WORDS[bilan.pain];
     }; });
     sheet.querySelectorAll("[data-chip]").forEach(function (el) { el.onclick = function () {
       el.classList.toggle("sel");
@@ -520,6 +537,10 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       "<div style='color:var(--green);display:flex;justify-content:center'>" + (window.KFI ? KFI.check : "") + "</div><div class='kf-h1'>Séance enregistrée</div>" +
       "<div class='kf-sub'>Retrouvez-la dans votre suivi. Pensez à bien vous hydrater.</div></div>";
     $("kf-bilan-foot").innerHTML = "<button class='seq-btn-main' onclick=\"closeSeqBilan();showPage('home')\">Retour à l'accueil</button>";
+  };
+  window.discardSeqBilan = function () {
+    if (!confirm("Cette séance ne sera pas enregistrée dans votre suivi, et votre kiné ne la verra pas. Continuer ?")) return;
+    closeSeqBilan();
   };
   window.closeSeqBilan = function () {
     $("seq-bilan").classList.remove("open");

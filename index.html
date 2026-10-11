@@ -690,7 +690,13 @@ input,select,textarea{font-family:var(--font);}
 .kf-scale { display: grid; gap: 4px; }
 .kf-scale button { height: 46px; border-radius: 10px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-weight: 800; font-size: 0.95rem; }
 .kf-scale button.sel { background: #2b6bd1; border-color: var(--blue); color: #fff; }
-.kf-scale.pain button.sel { background: #b93b3b; border-color: var(--red); }
+.kf-scale.pain button.sel { background: #2b6bd1; border-color: var(--blue); }
+.kf-scale.pain button.sel.hi { background: #b93b3b; border-color: var(--red); }
+.kf-scale.pain button { height: 52px; font-size: 1.1rem; }
+.kf-scale.borg button { height: auto; min-height: 64px; padding: 8px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.kf-scale.borg button b { font-size: 1.15rem; }
+.kf-scale.borg button small { font-size: 0.66rem; font-weight: 600; line-height: 1.15; color: var(--text2); }
+.kf-scale.borg button.sel small { color: inherit; }
 .kf-hint { color: var(--text2); font-size: 0.9rem; min-height: 1.3em; }
 .kf-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .kf-stat { padding: 11px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--border); }
@@ -1764,8 +1770,8 @@ input,select,textarea{font-family:var(--font);}
 <div class="page" id="page-community">
 <div class="content">
   <div class="community-header">
-    <h2>Communauté</h2>
-    <p>Les séances de tous les patients du cabinet, Motivez-vous ensemble</p>
+    <h1 class="lx-title">Communauté</h1>
+    <p class="lx-lede">Les séances des patients du cabinet. Motivez-vous ensemble.</p>
     <div class="community-stats">
       <div class="cs"><div class="cs-val" id="cs-members">—</div><div class="cs-lbl">Membres</div></div>
       <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances totales</div></div>
@@ -1793,9 +1799,9 @@ input,select,textarea{font-family:var(--font);}
     </div>
   </div>
 
-  <div class="sec-title">Fil d'activité</div>
+  <h2 class="lx-section">Fil d'activité</h2>
   <div id="community-feed">
-    <div style="text-align:center;padding:2rem 0;font-size:0.74rem;color:var(--text3);font-style:italic">Chargement du feed...</div>
+    <div id="feed-loading" class="cm-empty">Chargement des messages…</div>
   </div>
 
 
@@ -2212,7 +2218,7 @@ function loadCommunityStats(){
 function renderFeed(msgs){
   var feed = document.getElementById("community-feed");
   if(!msgs || !msgs.length){
-    feed.innerHTML = "<p style=\"font-size:0.78rem;color:var(--text3);text-align:center;padding:2rem 0;font-style:italic\">Aucun message pour l'instant. Soyez le premier !</p>";
+    feed.innerHTML = "<p class=\"cm-empty\">Aucun message pour l'instant. Soyez le premier !</p>";
     return;
   }
   var isAdmin = window.fbUser && window.fbUser.isAdmin;
@@ -2572,13 +2578,12 @@ function finishOnboarding() {
 // ── INIT PWA FEATURES ──
 document.addEventListener('DOMContentLoaded', function() {
   // Onboarding au premier lancement
-  var onboarded = localStorage.getItem('kf-onboarded');
-  if (!onboarded) {
-    setTimeout(showOb, 800);
-  } else {
-    checkNotifPrompt();
-    scheduleReminderCheck();
-  }
+  // L'ancienne présentation en diapositives est remplacée par la visite guidée de la mascotte
+  try { localStorage.setItem('kf-onboarded', '1'); } catch (e) {}
+  // Sans connexion, le fil ne se charge jamais : on le dit au lieu de laisser « Chargement… »
+  setTimeout(function () { var l = document.getElementById('feed-loading'); if (l) l.textContent = "Les messages n'ont pas pu se charger. Vérifiez votre connexion internet, puis rouvrez l'appli."; }, 12000);
+  checkNotifPrompt();
+  scheduleReminderCheck();
 });
 
 // ═══════════════════════════════════════════════════════
@@ -4076,7 +4081,7 @@ seqSkipExercise = function() {
 function renderFeed(msgs) {
   var feed = document.getElementById("community-feed");
   if (!msgs || !msgs.length) {
-    feed.innerHTML = "<p style='font-size:0.78rem;color:var(--text3);text-align:center;padding:2rem 0;font-style:italic'>Aucune activité pour l'instant. Terminez une séance pour apparaître ici !</p>";
+    feed.innerHTML = "<p class='cm-empty'>Aucune activité pour l'instant. Terminez une séance pour apparaître ici !</p>";
     return;
   }
 

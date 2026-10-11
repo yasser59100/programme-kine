@@ -29,6 +29,15 @@
   }
   function dayMap() { return window.KF ? KF.DAY_OF_WEEK : {}; }
 
+  /* ════════ Grand texte : pour les yeux fatigués ════════ */
+  function bigOn() { try { return localStorage.getItem("kf-big") === "1"; } catch (e) { return false; } }
+  function applyBig() { document.documentElement.classList.toggle("kf-big", bigOn()); }
+  applyBig();
+  function bigText() {
+    try { localStorage.setItem("kf-big", bigOn() ? "0" : "1"); } catch (e) {}
+    applyBig(); renderSuivi();
+  }
+
   /* ════════ Accueil ════════ */
   function renderHome() {
     var box = $("today-card"); if (!box || typeof SEQ_DAYS === "undefined") return;
@@ -40,7 +49,13 @@
     if (!todayId) for (var i = 1; i <= 7; i++) { var n = map[(dow + i) % 7]; if (n) { target = n; when = WD[(dow + i) % 7]; break; } }
     var doneToday = todayId && ss.some(function (s) { return s.date === today && String(s.seance || "").indexOf(codeOf(todayId)) === 0; });
     var head, lede, cta;
-    if (todayId && !doneToday) {
+    if (!ss.length && !todayId) {
+      // Nouveau patient un jour sans séance prévue : il peut commencer tout de suite
+      target = Object.keys(SEQ_DAYS)[0];
+      head = "Prêt pour votre première séance ?";
+      lede = "Pas besoin d'attendre : commencez par <strong>" + esc(nameOf(target)) + "</strong>, environ " + minutes(target) + " minutes, " + kitText(target) + ".";
+      cta = "Commencer ma première séance";
+    } else if (todayId && !doneToday) {
       head = "Aujourd'hui, " + nameOf(todayId) + ".";
       lede = "Semaine " + w + " sur 4. Environ " + minutes(todayId) + " minutes, " + kitText(todayId) + ".";
       cta = "Commencer la séance";
@@ -136,6 +151,7 @@
         (window.KineMascotte ? "<button onclick='KineMascotte.faq()'><span>Une question ? Demande à la mascotte</span><span aria-hidden='true'>›</span></button>" +
           "<button onclick='KineMascotte.bouge()'><span>Bouger 2 minutes avec la mascotte</span><span aria-hidden='true'>›</span></button>" : "") +
         (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Mascotte</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivée" : "activée") + "</span></button>" : "") +
+        "<button onclick='KineLayout.bigText()' aria-pressed='" + bigOn() + "'><span>Taille du texte</span><span class='kr-sw'>" + (bigOn() ? "grande" : "normale") + "</span></button>" +
       "</div>" +
       "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer à mon kiné</button>" +
       beforeAfter();
@@ -245,7 +261,7 @@
   }
 
   function renderAllLx() { renderHome(); renderSuivi(); renderProg(); }
-  window.KineLayout = { render: renderAllLx, chart: chart };
+  window.KineLayout = { render: renderAllLx, chart: chart, bigText: bigText };
   function init() {
     arrangeGuide(); renderAllLx();
     if (typeof renderAll === "function" && !renderAll.__lx) {

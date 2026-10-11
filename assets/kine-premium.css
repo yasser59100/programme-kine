@@ -4,7 +4,7 @@ html:not([data-theme="light"]) {
   --border: rgba(255, 255, 255, 0.08); --border2: rgba(255, 255, 255, 0.12);
   --blue: #00F2FE; --blue-dim: rgba(0, 242, 254, 0.10); --teal: #4FACFE; --teal-dim: rgba(79, 172, 254, 0.12);
   --green: #3CF2B0; --green-dim: rgba(60, 242, 176, 0.10); --red: #FF5C73; --red-dim: rgba(255, 92, 115, 0.12);
-  --text: #EEF3FA; --text2: #8C98AB; --text3: #6F7C90;
+  --text: #EEF3FA; --text2: #A3AEC0; --text3: #8794A8;
   --lx-line: rgba(255, 255, 255, 0.08); --lx-soft: #C9D3E0;
   --glass: rgba(22, 29, 41, 0.62);
   --font: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
@@ -360,9 +360,9 @@ html[data-theme="light"] .km-q, html[data-theme="light"] .km-a { color: #0f1923;
 html[data-theme="light"] .km-coach p { color: #0f1923; }
 
 /* Mascotte : sa tête dépasse du bord droit, on la touche pour l'appeler */
-.km-peek { position: fixed; right: 0; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); z-index: 2800; width: 62px; height: 78px; padding: 0; border: 1px solid rgba(0, 212, 230, 0.4); border-right: 0; border-radius: 39px 0 0 39px; background: radial-gradient(circle at 70% 55%, rgba(0, 242, 254, 0.22), rgba(15, 25, 35, 0.92) 70%); overflow: hidden; cursor: pointer; transform: translateX(100%); transition: transform .45s cubic-bezier(.2, .9, .3, 1.2); box-shadow: -6px 8px 24px rgba(0, 0, 0, 0.35); }
+.km-peek { position: fixed; right: 0; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); z-index: 2800; width: 54px; height: 68px; padding: 0; border: 1px solid rgba(0, 212, 230, 0.4); border-right: 0; border-radius: 39px 0 0 39px; background: radial-gradient(circle at 70% 55%, rgba(0, 242, 254, 0.22), rgba(15, 25, 35, 0.92) 70%); overflow: hidden; cursor: pointer; transform: translateX(100%); transition: transform .45s cubic-bezier(.2, .9, .3, 1.2); box-shadow: -6px 8px 24px rgba(0, 0, 0, 0.35); }
 .km-peek.show { transform: translateX(0); animation: km-bob 4s ease-in-out 1s infinite; }
-.km-peek img { position: absolute; left: -6px; top: -2px; width: 96px; height: 96px; pointer-events: none; }
+.km-peek img { position: absolute; left: -5px; top: -2px; width: 84px; height: 84px; pointer-events: none; }
 @keyframes km-bob { 0%, 82%, 100% { transform: translateX(0); } 88% { transform: translateX(-6px) rotate(-4deg); } 94% { transform: translateX(0); } }
 html[data-theme="light"] .km-peek { background: radial-gradient(circle at 70% 55%, rgba(0, 194, 214, 0.22), #ffffff 70%); }
 @media (prefers-reduced-motion: reduce) { .km-peek.show { animation: none; } }
@@ -586,3 +586,25 @@ html[data-theme="light"] .kcr-sl b { color: #0f1923; }
 /* Barre du bas à 5 onglets : libellés lisibles en clair comme en sombre */
 .bnav-btn { text-transform: none !important; letter-spacing: -0.01em !important; font-size: 0.66rem !important; white-space: nowrap; padding-left: 1px !important; padding-right: 1px !important; }
 .bnav-btn > span:last-child { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+/* ═══ Communauté, au même style que les autres pages ═══ */
+#page-community .community-header, html[data-theme="light"] #page-community .community-header { background: none; border: none; box-shadow: none; padding: 8px 4px 0; margin-bottom: 22px; text-align: left; }
+#page-community .community-header .lx-lede { font-size: 1.05rem; color: var(--lx-soft, var(--text2)); }
+html[data-theme="light"] #page-community .community-header .lx-lede { color: var(--text2); }
+#page-community .community-stats { justify-content: flex-start; gap: 0; margin-top: 22px; border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border2); }
+#page-community .cs { flex: 1; text-align: left; padding: 14px 0; }
+#page-community .cs + .cs { padding-left: 14px; border-left: 1px solid var(--border2); }
+#page-community .cs-val { color: var(--text); font-size: 1.6rem; }
+#page-community .cs-lbl { color: var(--text2); text-transform: none; letter-spacing: 0; font-size: 0.85rem; }
+#page-community .login-prompt { text-align: left; padding: 20px; background: var(--surface2); border-radius: 18px; }
+#page-community .login-prompt h3 { font-size: 1.15rem; }
+#page-community .login-prompt p { font-size: 0.95rem; color: var(--text2); }
+#page-community .lx-section { margin-top: 26px; }
+.cm-empty { color: var(--text2); font-size: 0.95rem; text-align: left; padding: 14px 4px; margin: 0; }
+#bn-community > span:last-child { letter-spacing: -0.03em; font-size: 0.62rem; }
+
+/* ═══ Grand texte (réglage dans Suivi) ═══ */
+html.kf-big .page { zoom: 1.12; }
+html.kf-big .kf-sheet-body, html.kf-big .kr-body { zoom: 1.08; }
+html:not([data-theme="light"]) .kf-scale.pain button.sel.hi { background: linear-gradient(135deg, #ff7a8c, #e0435a) !important; color: #fff !important; box-shadow: 0 6px 18px rgba(255, 92, 115, 0.3) !important; }
+.kr-links button > span:first-child { text-align: left; }
