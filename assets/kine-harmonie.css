@@ -1,0 +1,126 @@
+/* ═══════════ KinéForce — harmonisation visuelle ═══════════
+   Une seule famille de boutons, de cartes, d'arrondis et d'icônes sur tous les écrans,
+   en sombre comme en clair. Chargée en dernier : elle a le dernier mot.
+   Règle : un seul bouton cyan (l'action principale) par écran ; le reste est neutre. */
+
+:root:root {
+  --h-r-btn: 18px;          /* boutons */
+  --h-r-card: 20px;         /* cartes */
+  --h-r-small: 12px;        /* petites cases (échelles) */
+  --h-primary: linear-gradient(135deg, #00F2FE, #4FACFE);
+  --h-on-primary: #04121A;
+  --h-primary-glow: 0 12px 30px -12px rgba(0, 242, 254, 0.6);
+  --h-accent: #00E5F5;      /* texte d'accent (sur-titres, liens) */
+  --h-sel-bg: rgba(0, 229, 245, 0.14);
+  --h-sel-border: #00E5F5;
+}
+:root:root[data-theme="light"] {
+  --h-primary: linear-gradient(135deg, #22D3EE, #4F9BF7);
+  --h-on-primary: #04121A;
+  --h-primary-glow: 0 10px 24px -12px rgba(14, 116, 144, 0.55);
+  --h-accent: #0E7490;
+  --h-sel-bg: rgba(8, 145, 178, 0.10);
+  --h-sel-border: #0891B2;
+  --lx-soft: #334155;       /* les sous-titres restaient gris très clair sur fond blanc */
+}
+
+/* ── Bouton principal : partout le même ── */
+:root:root :is(.lx-cta, .v2-primary, .seq-btn-main, .btn-primary, .today-go, .seq-launch-btn, .mx-cta, .kc-new, .su-send, .rgp-done, [id="rg-main-btn"]):not(.rgp-edit) {
+  background: var(--h-primary) !important; color: var(--h-on-primary) !important;
+  border: none !important; border-radius: var(--h-r-btn) !important;
+  box-shadow: var(--h-primary-glow) !important;
+  min-height: 56px; font-weight: 700 !important; font-size: 1rem !important; letter-spacing: -0.005em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+:root:root :is(.seq-btn-main, .v2-primary, .lx-cta, [id="rg-main-btn"]) { width: 100%; }
+:root:root :is(.lx-cta, .v2-primary, .seq-btn-main, .btn-primary):disabled { opacity: .45; box-shadow: none !important; }
+
+/* ── Bouton secondaire : contour neutre ── */
+:root:root :is(.seq-btn-secondary, .v2-btn, .btn-secondary):not([id="rg-pause-btn"]) {
+  background: transparent !important; color: var(--text) !important;
+  border: 1px solid var(--border2) !important; border-radius: var(--h-r-btn) !important;
+  box-shadow: none !important; min-height: 52px; font-weight: 600 !important; font-size: 0.95rem !important;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+/* « J'ai mal » reste rouge : c'est une alerte, pas une action ordinaire */
+:root:root :is(.v2-btn.v2-pain, .btn-danger) {
+  background: var(--red-dim) !important; color: var(--red) !important; border-color: rgba(255, 92, 115, 0.45) !important;
+}
+
+/* ── Petits boutons dans la bulle de la mascotte ── */
+:root:root .km-go { background: var(--h-primary) !important; color: var(--h-on-primary) !important; border: none !important; }
+:root:root .km-later { background: transparent !important; border: 1px solid var(--border2) !important; color: var(--text) !important; }
+
+/* ── Boutons ronds (fermer, retour, son) : 44 px, tous pareils ── */
+:root:root :is(.kf-back, .v2-icon, .rg-close-btn, .kr-close, .seq-close, .seq-sound-btn, .icon-btn) {
+  width: 44px !important; height: 44px !important; min-width: 44px; padding: 0 !important;
+  border-radius: 22px !important; border: 1px solid var(--border2) !important;
+  background: var(--surface2) !important; color: var(--text) !important; box-shadow: none !important;
+  display: inline-flex !important; align-items: center; justify-content: center; font-size: 1.1rem !important;
+}
+:root:root .icon-btn { border-radius: 14px !important; }   /* barre du haut : coins plus doux, à côté de « Connexion » */
+
+/* ── Cartes : même fond, même bord, même arrondi ── */
+:root:root :is(.seq-ex-card, .kr-card, .kf-stat, .login-prompt, .feed-item, .kr-list, .kf-tuto-card, .kr-links, .kr-det) {
+  background: var(--surface) !important; border: 1px solid var(--border) !important;
+  border-radius: var(--h-r-card) !important; box-shadow: none;
+}
+/* La fiche d'exercice perd sa barre de couleur : le sur-titre suffit */
+:root:root .seq-ex-top-bar { display: none !important; }
+:root:root .seq-ex-inner { padding: 20px !important; }
+:root:root .seq-ex-name { font-size: 1.35rem !important; margin-bottom: 8px !important; }
+:root:root .seq-ex-desc { font-size: 0.98rem !important; line-height: 1.55 !important; color: var(--lx-soft, var(--text2)) !important; }
+:root:root :is(.seq-tip, .seq-stop) { font-size: 0.9rem !important; border-radius: var(--h-r-small) !important; padding: 10px 12px !important; }
+:root:root .kr-list { padding: 18px 20px !important; }
+:root:root .kr-list .kf-phase { font-size: 0.75rem !important; letter-spacing: .08em; text-transform: uppercase; color: var(--h-accent) !important; font-weight: 700; margin-bottom: 6px; }
+:root:root .kr-row { font-size: 0.95rem; padding: 7px 0; }
+:root:root .kf-stat { padding: 14px !important; }
+
+/* ── Sur-titres en petites capitales : une seule couleur d'accent ── */
+:root:root :is(.seq-ex-num, .seq-next-k, .v2-rest-k, .kf-tuto-tag, .kr-lab:not(.mute), .lx-kicker) {
+  color: var(--h-accent) !important; font-size: 0.75rem !important; font-weight: 700 !important; letter-spacing: .08em !important; text-transform: uppercase;
+}
+:root:root .kf-tuto-tag { background: var(--h-sel-bg) !important; }
+
+/* ── Sélection (échelles, puces) : contour d'accent, pas de second bouton cyan ── */
+:root:root :is(.kf-scale button.sel, .kf-chips button.sel, .kr-chips button[aria-pressed="true"], .kr-scale.mood button[aria-pressed="true"]) {
+  background: var(--h-sel-bg) !important; border: 2px solid var(--h-sel-border) !important; color: var(--text) !important;
+  box-shadow: none !important; font-weight: 800 !important;
+}
+:root:root .kf-scale.borg button.sel small { color: var(--text) !important; }
+:root:root :is(.kf-scale.pain button.sel.hi, .kr-scale.pain button[aria-pressed="true"]:is([data-v="5"],[data-v="6"],[data-v="7"],[data-v="8"],[data-v="9"],[data-v="10"])) {
+  background: var(--red-dim) !important; border: 2px solid var(--red) !important; color: var(--text) !important;
+}
+:root:root .kr-scale.pain button[aria-pressed="true"]:not([data-v="5"]):not([data-v="6"]):not([data-v="7"]):not([data-v="8"]):not([data-v="9"]):not([data-v="10"]) {
+  background: var(--h-sel-bg) !important; border: 2px solid var(--h-sel-border) !important; color: var(--text) !important;
+}
+:root:root :is(.kf-scale button, .kr-scale button) { border-radius: var(--h-r-small) !important; }
+
+/* Échelle de douleur du ressenti : mêmes grosses cases que le bilan de fin */
+:root:root .kr-scale.pain { grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
+:root:root .kr-scale.pain button { height: 50px !important; font-size: 1.05rem !important; font-weight: 700; border: 1px solid var(--border2) !important; }
+
+/* ── « Comment ça va aujourd'hui ? » dans Suivi : carte, pas second bouton cyan ── */
+:root:root .kr-cta:not(.done) {
+  background: var(--surface) !important; color: var(--text) !important; border: 1px solid var(--border2) !important;
+  justify-content: flex-start !important; padding: 12px 18px !important;
+}
+:root:root .kr-cta:not(.done) > svg { flex: 0 0 auto; width: 36px; height: 36px; padding: 8px; border-radius: 18px; background: var(--h-primary); color: var(--h-on-primary); box-sizing: border-box; }
+:root:root .kr-cta small { color: var(--text2); opacity: 1 !important; }
+
+/* ── Connexion Google : bouton blanc neutre, comme partout ailleurs ── */
+:root:root .login-prompt .btn-primary {
+  background: #fff !important; color: #1f2937 !important; border: 1px solid #dadce0 !important; box-shadow: none !important; width: 100%;
+}
+
+/* ── Mode clair : textes trop pâles ── */
+:root:root[data-theme="light"] :is(.v2-cue, .lx-lede, .kr-sum, .seq-ex-desc) { color: #334155 !important; }
+:root:root[data-theme="light"] .v2-cue strong { color: #0f172a; }
+
+/* ── Icônes dessinées (remplacent ✓ ✕ → ← ＋ ⏸) ── */
+.h-ico { width: 1.15em; height: 1.15em; flex: 0 0 auto; vertical-align: -0.2em; }
+:is(.kf-back, .v2-icon, .rg-close-btn, .kr-close, .seq-close) .h-ico { width: 20px; height: 20px; }
+.h-chev { width: 18px; height: 18px; opacity: .7; vertical-align: middle; }
+:root:root .msg-footer .btn-primary { min-height: 44px; width: auto; padding: 0 22px; }
+:root:root[data-theme="light"] .ka-toggle { background: #fff !important; color: #334155 !important; border: 1px solid var(--border2) !important; }
+:root:root[data-theme="light"] :is(.v2-btn.v2-pain, .btn-danger) { background: #FEE2E2 !important; color: #B91C1C !important; border-color: #FCA5A5 !important; }

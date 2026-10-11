@@ -104,7 +104,7 @@
     var el = sheet("kr-checkin");
     el.setAttribute("aria-label", "Comment ça va aujourd'hui ?");
     el.innerHTML = "<div class='kf-sheet-body kr-body'>" +
-      "<div class='kr-top'><span class='kr-date'>" + esc(dayLong(draftDate)) + "</span><button class='kr-close' onclick='KineCheckin.close()'>Fermer</button></div>" +
+      "<div class='kr-top'><span class='kr-date'>" + esc(dayLong(draftDate)) + "</span><button class='kr-close' onclick='KineCheckin.close()' aria-label='Fermer'>✕</button></div>" +
       "<h2 class='kr-h'>" + (draftDate === iso() ? "Comment ça va aujourd'hui ?" : "Comment ça allait ce jour-là ?") + "</h2>" +
       "<div class='kr-q'><strong>Douleur en ce moment</strong>" + scale("pain", 0, 10, "pain") + "<div class='kr-ends'><span>Aucune</span><span>La pire imaginable</span></div></div>" +
       "<div class='kr-q' id='kr-zones'" + (draft.pain ? "" : " hidden") + "><strong>Où ?</strong>" + chips("zones", ZONES, true) + "</div>" +
