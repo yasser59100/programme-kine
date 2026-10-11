@@ -22,4 +22,4 @@ jobs:
         if: always()
         run: |
           git config user.name "github-actions" && git config user.email "actions@github.com"
-          git add assets/voix tools/voix_echecs.json && git commit -q -m "Voix de Léo générée [skip ci]" && git pull -q --rebase && git push || echo "rien de nouveau"
+          git add assets/voix tools/voix_echecs.json tools/voix_log.txt && git commit -q -m "Voix de Léo générée [skip ci]" && git pull -q --rebase && git push || echo "rien de nouveau"
