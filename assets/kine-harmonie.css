@@ -124,3 +124,47 @@
 :root:root .msg-footer .btn-primary { min-height: 44px; width: auto; padding: 0 22px; }
 :root:root[data-theme="light"] .ka-toggle { background: #fff !important; color: #334155 !important; border: 1px solid var(--border2) !important; }
 :root:root[data-theme="light"] :is(.v2-btn.v2-pain, .btn-danger) { background: #FEE2E2 !important; color: #B91C1C !important; border-color: #FCA5A5 !important; }
+
+/* ═══ Écran d'exercice : tout reste visible, même sur un petit téléphone ═══ */
+/* L'indication du mouvement (« On descend, jambe gauche ») passe à la ligne au lieu de sortir de l'écran */
+#rep-guide.lx .lx-countrow { flex-wrap: wrap; align-items: flex-end; row-gap: 4px; }
+#rep-guide.lx .lx-countrow .v2-count { flex: 0 0 auto; }
+#rep-guide.lx .lx-countrow .rg-phase-label { flex: 1 1 140px; min-width: 0; white-space: normal !important; text-align: right; line-height: 1.15;
+  overflow-wrap: break-word; font-size: clamp(1.05rem, 4.8vw, 1.35rem) !important; padding-bottom: 6px !important; }
+/* Le nombre reste grand, mais un peu moins sur les petits écrans */
+#rep-guide.lx .rg-rep-num { font-size: clamp(4.2rem, 21vw, 6rem) !important; }
+/* L'avatar se réduit pour laisser la place aux consignes et aux boutons */
+#rep-guide .v2-stage { min-height: 140px !important; flex: 1 1 0 !important; }
+#rep-guide .v2-stage #rg-image-container { height: 100%; box-sizing: border-box; }
+#rep-guide .v2-stage #rg-image-container canvas { max-height: 100%; width: auto !important; height: auto !important; max-width: 100%; }
+#rep-guide > :not(.v2-stage) { flex-shrink: 0; }
+@media (max-height: 700px) {
+  #rep-guide { gap: 8px !important; }
+  #rep-guide.lx .v2-cue { font-size: 0.95rem !important; }
+  #rep-guide.lx #rg-pause-btn { width: 56px !important; height: 56px !important; }
+}
+
+/* ═══ Échauffement et étirements guidés : chrono et consignes toujours visibles ═══ */
+#kf-routine .kf-sheet-body > * { flex-shrink: 0; }
+#kf-routine .v2-stage { min-height: 140px !important; flex: 1 1 0 !important; }
+#kf-routine #kr-stage { height: 100%; box-sizing: border-box; align-items: center; }
+#kf-routine #kr-stage canvas { max-height: 100%; width: auto !important; height: auto !important; max-width: 100%; }
+#kf-routine .kf-sheet-body { overflow-y: hidden; }
+/* L'indication (« Côté gauche », « Inspirez ») passe devant l'avatar et ses accessoires */
+:is(#kf-routine, #rep-guide) .v2-stage .rg-phase-label { z-index: 2; }
+#kf-routine .rg-phase-label { text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55); }
+#kf-routine .v2-count .rg-rep-num { font-size: clamp(3.4rem, 17vw, 5rem) !important; }
+@media (max-height: 700px) {
+  #kf-routine .kf-sheet-body { gap: 8px !important; padding-top: calc(10px + env(safe-area-inset-top, 0px)) !important; }
+  #kf-routine .v2-title { font-size: 1.35rem !important; }
+  #kf-routine .v2-cue { font-size: 0.95rem !important; }
+  #kf-routine .kf-sheet-foot, #seq-overlay #seq-actions { padding-top: 8px !important; gap: 6px !important; }
+  :root:root #kf-routine .v2-btn, :root:root #seq-actions .v2-btn { min-height: 46px; }
+  /* Repos : l'anneau rétrécit pour laisser voir l'exercice suivant */
+  #seq-overlay .v2-ring { zoom: 0.68; }
+  #seq-overlay .v2-rest-msg { display: none; }   /* la voix le dit déjà ; place au conseil du coach */
+  #seq-overlay .v2-rest { gap: 6px !important; }
+  #seq-overlay .seq-next { margin-top: 8px; padding: 8px; }
+  #seq-overlay .seq-next-demo, #seq-overlay .seq-next-demo canvas { width: 92px !important; height: 104px !important; }
+  #seq-overlay .seq-next-name { font-size: 1.05rem !important; }
+}

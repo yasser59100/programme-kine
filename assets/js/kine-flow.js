@@ -302,6 +302,12 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       }, 0);
     };
   }
+  function shortCue(d) {
+    d = String(d || "").trim(); if (d.length <= 110) return d;
+    var parts = d.split(/(?<=[.!?])\s+/), out = "";
+    for (var i = 0; i < parts.length; i++) { if (out && (out + " " + parts[i]).length > 110) break; out = out ? out + " " + parts[i] : parts[i]; }
+    return out.length > 140 ? out.slice(0, 120).replace(/[\s,;:]+\S*$/, "") + "…" : out;
+  }
   function guideState(st) { var g = $("rep-guide"); if (g) g.setAttribute("data-state", st); }
   window.rgSyncSound = function () {
     var b = $("rg2-sound"); if (b) b.classList.toggle("off", typeof seqSoundOn !== "undefined" && !seqSoundOn);
@@ -328,12 +334,13 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       $("rg2-prog-fill").style.width = Math.round(((serie - 1) / totalSeries) * 100) + "%";
     }
     var v = ex ? KineProgress.variant(seqCurrentDay, seqExIdx) : null;
-    var cue = CUES[exName] || (ex && ex.desc) || "";
+    // Consigne courte à l'écran (la description complète reste à un appui : « Consigne complète »)
+    var cue = CUES[exName] || shortCue(ex && ex.desc) || "";
     var cueEl = $("rg2-cue");
     cueEl.classList.remove("open");
     var slow = ex && window.KineLevel && KineLevel.tempo(ex.name) ? "<strong>Tempo lent :</strong> pause de 2 secondes à chaque répétition.<br>" : "";
     cueEl.innerHTML = slow + (v ? "<strong>Variante de la semaine :</strong> " + esc(v) + "<br>" : "") + esc(cue) +
-      (ex && ex.desc && CUES[exName] ? "<span class='cue-more'>Consigne complète ›</span><span class='cue-full'>" + esc(ex.desc) + (ex.tip ? "<br><strong>Conseil :</strong> " + esc(ex.tip) : "") + "</span>" : "");
+      (ex && ex.desc && cue !== ex.desc ? "<span class='cue-more'>Consigne complète ›</span><span class='cue-full'>" + esc(ex.desc) + (ex.tip ? "<br><strong>Conseil :</strong> " + esc(ex.tip) : "") + "</span>" : "");
     cueEl.onclick = function () { cueEl.classList.toggle("open"); };
     var n = rgState.autoStartIn; rgState.autoStartIn = 0;
     if (ex && !tutoSeen(exName)) { showTuto(ex, exName, cue, n); return; }
