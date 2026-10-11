@@ -1,0 +1,40 @@
+name: Echantillons de voix
+on:
+  push:
+    branches: [voix-echantillons]
+jobs:
+  voix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install piper-tts==1.2.0
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Generer
+        run: |
+          set -e
+          mkdir -p out voices
+          B=https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/fr/fr_FR
+          for v in siwis/medium/fr_FR-siwis-medium tom/medium/fr_FR-tom-medium upmc/medium/fr_FR-upmc-medium; do
+            n=$(basename $v)
+            curl -sSL -o voices/$n.onnx "$B/$v.onnx"
+            curl -sSL -o voices/$n.onnx.json "$B/$v.onnx.json"
+          done
+          gen () { # voix, locuteur, nom
+            i=0
+            while IFS= read -r line; do
+              i=$((i+1))
+              echo "$line" | piper --model voices/$1.onnx ${2:+--speaker $2} --length_scale 1.08 --sentence_silence 0.25 --output_file out/$3_$i.wav
+            done < tools/phrases_echantillon.txt
+            # les 5 phrases a la suite, avec un silence entre chaque
+            files=""; for k in 1 2 3 4 5; do files="$files -i out/$3_$k.wav"; done
+            ffmpeg -loglevel error $files -filter_complex "[0][1][2][3][4]concat=n=5:v=0:a=1,apad=pad_dur=0" -ar 44100 -b:a 128k out/$3.mp3
+          }
+          gen fr_FR-siwis-medium "" femme_siwis
+          gen fr_FR-tom-medium "" homme_tom
+          gen fr_FR-upmc-medium 1 homme_pierre
+          gen fr_FR-upmc-medium 0 femme_jessica
+          ls -la out/*.mp3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: echantillons
+          path: out/*.mp3
