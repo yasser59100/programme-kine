@@ -1,6 +1,6 @@
 /* ═══════════ KinéForce — guidage sonore : voix, métronome, les deux, ou silence ═══════════
    Le patient choisit depuis le bouton son de l'écran d'exercice (ou dans Suivi). Le choix est mémorisé.
-   - Voix et métronome : Léo annonce les phases, un tic doux marque chaque seconde (plus discret quand il parle).
+   - Voix et métronome : Yass annonce les phases, un tic doux marque chaque seconde (plus discret quand il parle).
    - Voix seule : comme avant.
    - Métronome seul : plus de « On descend / On monte » ni d'encouragements, seulement les tics ;
      les annonces utiles restent (exercice, tour, changement de côté, douleur, fin).
@@ -9,9 +9,9 @@
   "use strict";
   var KEY = "kf-guide";
   var MODES = [
-    ["both", "Voix et métronome", "Léo vous guide, un tic doux marque chaque seconde"],
-    ["voice", "Voix seule", "Léo vous guide, sans tic"],
-    ["metro", "Métronome seul", "Un tic par seconde, Léo ne fait que les annonces"],
+    ["both", "Voix et métronome", "Yass vous guide, un tic doux marque chaque seconde"],
+    ["voice", "Voix seule", "Yass vous guide, sans tic"],
+    ["metro", "Métronome seul", "Un tic par seconde, Yass ne fait que les annonces"],
     ["mute", "Silencieux", "Aucun son"]
   ];
   function get() { try { var m = localStorage.getItem(KEY); return /^(both|voice|metro|mute)$/.test(m) ? m : "both"; } catch (e) { return "both"; } }

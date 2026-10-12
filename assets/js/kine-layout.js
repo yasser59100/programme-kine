@@ -148,9 +148,9 @@
         "<button onclick='KineCheckin.chart()'><span>Douleur et effort, la courbe</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"historique\")'><span>Historique des séances</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
-        (window.KineMascotte ? "<button onclick='KineMascotte.faq()'><span>Une question ? Demande à la mascotte</span><span aria-hidden='true'>›</span></button>" +
-          "<button onclick='KineMascotte.bouge()'><span>Bouger 2 minutes avec la mascotte</span><span aria-hidden='true'>›</span></button>" : "") +
-        (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Mascotte</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivée" : "activée") + "</span></button>" : "") +
+        (window.KineMascotte ? "<button onclick='KineMascotte.faq()'><span>Une question ? Demande à Yass</span><span aria-hidden='true'>›</span></button>" +
+          "<button onclick='KineMascotte.bouge()'><span>Bouger 2 minutes avec Yass</span><span aria-hidden='true'>›</span></button>" : "") +
+        (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Yass, ton coach</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivée" : "activée") + "</span></button>" : "") +
         (window.KineGuide ? "<button onclick='KineGuide.menu()'><span>Guidage sonore</span><span class='kr-sw' id='kg-current'>" + KineGuide.label().toLowerCase() + "</span></button>" : "") +
         "<button onclick='KineLayout.bigText()' aria-pressed='" + bigOn() + "'><span>Taille du texte</span><span class='kr-sw'>" + (bigOn() ? "grande" : "normale") + "</span></button>" +
       "</div>" +

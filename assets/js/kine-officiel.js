@@ -213,7 +213,7 @@ var KineOfficiel = (function () {
       "<div class='ko-f'><span>Difficulté de base</span><div class='kc-seg' id='ko-col' data-v='" + c.color + "'>" + seg + "</div></div>" +
       "<label class='ko-f'><span>Consigne</span><textarea id='ko-desc' rows='4'>" + esc(c.desc) + "</textarea></label>" +
       "<label class='ko-f'><span>Point clé (affiché en grand, lu par la voix)</span><input id='ko-cue' value='" + esc(c.cue) + "'></label>" +
-      "<label class='ko-f'><span>Erreur fréquente (rappelée par la mascotte)</span><input id='ko-err' value='" + esc(c.err) + "'></label>" +
+      "<label class='ko-f'><span>Erreur fréquente (rappelée par Yass)</span><input id='ko-err' value='" + esc(c.err) + "'></label>" +
       "<label class='ko-f'><span>Conseil</span><textarea id='ko-tip' rows='2'>" + esc(c.tip) + "</textarea></label>" +
       "<label class='ko-f'><span>Critère d'arrêt</span><input id='ko-stop' value='" + esc(c.stop) + "'></label>" +
       "<label class='kc-check'><input type='checkbox' id='ko-hide'" + (c.hidden ? " checked" : "") + "> Masquer cet exercice de la bibliothèque des patients</label>" +

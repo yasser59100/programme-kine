@@ -182,7 +182,7 @@
     e = document.createElement("div");
     e.id = "kf-masc"; e.className = "kf-masc"; e.setAttribute("role", "status"); e.setAttribute("aria-live", "polite");
     e.innerHTML = "<div class='km-bubble'><div class='km-scroll' id='km-scroll'><p class='km-text' id='km-text'></p><div class='km-list' id='km-list'></div></div><div class='km-acts' id='km-acts'></div></div>" +
-      "<button type='button' class='km-stage' id='km-stage' aria-label='Poser une question à la mascotte' onclick='KineMascotte.faq()'></button>";
+      "<button type='button' class='km-stage' id='km-stage' aria-label='Poser une question à Yass' onclick='KineMascotte.faq()'></button>";
     document.body.appendChild(e);
     if (window.visualViewport) {
       var kb = function () {
@@ -352,7 +352,7 @@
 
   /* ════════ Visite guidée (premier lancement) ════════ */
   var TOUR = [
-    { sel: "#today-card .lx-cta", text: "Salut, je suis ton coach ! Ici, tu lances la séance du jour. Je te montre chaque mouvement, au bon rythme.", gesture: "wave" },
+    { sel: "#today-card .lx-cta", text: "Salut, je suis Yass, ton coach ! Ici, tu lances la séance du jour. Je te montre chaque mouvement, au bon rythme.", gesture: "wave" },
     { sel: ".kr-remind, #ks-card", text: "Chaque jour, note ton ressenti en 30 secondes. Ton kiné et moi, on suit comme ça ta douleur et ton sommeil.", gesture: "point" },
     { sel: "#bn-suivi", text: "Dans Suivi, tu verras tes progrès et tu pourras tout envoyer à ton kiné.", gesture: "point" },
     { sel: null, text: "Pendant les exercices, si quelque chose fait mal, appuie sur « J'ai mal » : je te dirai quoi faire. Et touche-moi quand tu as une question !", gesture: "open" }
@@ -427,7 +427,7 @@
       var src = peekImg(); if (!src) return;
       p = document.createElement("button");
       p.id = "km-peek"; p.type = "button"; p.className = "km-peek";
-      p.setAttribute("aria-label", "Appeler la mascotte");
+      p.setAttribute("aria-label", "Appeler Yass");
       p.innerHTML = "<img src='" + src + "' alt=''>";
       document.body.appendChild(p);
       peekPlace(p);
