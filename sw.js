@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v29';
+const VERSION = 'kineforce-v30';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const APP_FILES = [
   './',
@@ -22,6 +22,7 @@ const APP_FILES = [
   'assets/js/kine-compose.js',
   'assets/js/kine-officiel.js',
   'assets/js/kine-harmonie.js',
+  'assets/js/kine-metronome.js',
   'assets/js/kine-createur.js',
   'assets/js/kine-eveil.js',
   'assets/kine-premium.css',
