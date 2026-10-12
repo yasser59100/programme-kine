@@ -56,7 +56,7 @@
 "g": "mascotte"
 },
 {
-"t": "12.",
+"t": "12",
 "g": "seance"
 },
 {
@@ -96,7 +96,7 @@
 "g": "mascotte"
 },
 {
-"t": "15.",
+"t": "15",
 "g": "seance"
 },
 {
@@ -116,7 +116,7 @@
 "g": "mascotte"
 },
 {
-"t": "16.",
+"t": "16",
 "g": "seance"
 },
 {
@@ -128,7 +128,7 @@
 "g": "mascotte"
 },
 {
-"t": "17.",
+"t": "17",
 "g": "seance"
 },
 {
@@ -140,7 +140,7 @@
 "g": "mascotte"
 },
 {
-"t": "18.",
+"t": "18",
 "g": "seance"
 },
 {
@@ -196,7 +196,7 @@
 "g": "mascotte"
 },
 {
-"t": "21.",
+"t": "21",
 "g": "seance"
 },
 {
@@ -308,7 +308,7 @@
 "g": "mascotte"
 },
 {
-"t": "3",
+"t": "3.",
 "g": "seance"
 },
 {
@@ -334,6 +334,14 @@
 {
 "t": "30 répétitions",
 "g": "seance"
+},
+{
+"t": "30 s de chaque côté en semaine 1, 45 s en semaine 2, 1 min à partir de la semaine 3.",
+"g": "mascotte"
+},
+{
+"t": "30 s en semaine 1, 45 s en semaine 2, 1 min à partir de la semaine 3.",
+"g": "mascotte"
 },
 {
 "t": "30 secondes.",
@@ -636,7 +644,7 @@
 "g": "mascotte"
 },
 {
-"t": "6",
+"t": "6.",
 "g": "seance"
 },
 {
@@ -888,8 +896,16 @@
 "g": "seance"
 },
 {
+"t": "Abaisser simultanément le bras droit et la jambe gauche sans décoller le bas du dos.",
+"g": "mascotte"
+},
+{
 "t": "Abduction de hanche alternée, contre le mur.",
 "g": "seance"
+},
+{
+"t": "Activer le transverse, décoller le bassin jusqu'à alignement épaules hanches genoux.",
+"g": "mascotte"
 },
 {
 "t": "Alignez épaules, hanches et genoux, sans cambrer le bas du dos.",
@@ -908,6 +924,10 @@
 "g": "seance"
 },
 {
+"t": "Allongé sur le côté, coude du bras du dessus collé au flanc, fléchi à 90 degrés.",
+"g": "mascotte"
+},
+{
 "t": "Allongé sur le dos, bas du dos plaqué au sol, bras le long du corps, jambes levées.",
 "g": "seance"
 },
@@ -916,7 +936,43 @@
 "g": "seance"
 },
 {
+"t": "Allongé sur le dos, talons posés sur l'assise d'une chaise, genoux légèrement fléchis, bras le long du corps.",
+"g": "mascotte"
+},
+{
+"t": "Alterner.",
+"g": "mascotte"
+},
+{
+"t": "Alterner A et B.",
+"g": "mascotte"
+},
+{
+"t": "Alterner les côtés.",
+"g": "mascotte"
+},
+{
+"t": "Alterner les jambes.",
+"g": "mascotte"
+},
+{
+"t": "Alterner toutes les 5 secondes entre les ciseaux (battements jambes tendues de haut en bas) et le vélo (pédalage), dans l'axe du corps.",
+"g": "mascotte"
+},
+{
+"t": "Amplitude maximale.",
+"g": "mascotte"
+},
+{
+"t": "Appui sur avant-bras et orteils.",
+"g": "mascotte"
+},
+{
 "t": "Appuie ensuite sur « Trop dur » pendant le repos : l'exercice baisse d'un cran la fois suivante.",
+"g": "mascotte"
+},
+{
+"t": "Appuie sur « J'ai mal » en bas de l'écran.",
 "g": "mascotte"
 },
 {
@@ -928,12 +984,148 @@
 "g": "mascotte"
 },
 {
+"t": "Après plus d'une semaine sans séance, reprends en douceur : moins de tours et une amplitude réduite la première fois, puis remonte selon ton ressenti.",
+"g": "mascotte"
+},
+{
+"t": "Après une dizaine de jours, je te montre ce qui ressort.",
+"g": "mascotte"
+},
+{
+"t": "Après une nuit blanche, les participants ressentaient la douleur pour une chaleur plus faible.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur au poignet ou à l'épaule.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur interne ou externe du genou.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur lombaire.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur lombaire ou cervicale.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur profonde dans l'épaule.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur vive au genou ou douleur lombaire.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur à l'arrière de l'épaule.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur à l'arrière du genou ou douleur lombaire.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si douleur à l'avant du genou ou douleur lombaire.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si genou en valgus incontrôlé à la montée.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt si le bas du dos se décolle ou si douleur lombaire.",
+"g": "mascotte"
+},
+{
+"t": "Arrêt à la perte d'alignement ou si douleur lombaire.",
+"g": "mascotte"
+},
+{
 "t": "Assis sur les talons, bras loin devant.",
 "g": "seance"
 },
 {
 "t": "Assis sur les talons, front vers le sol, bras loin devant.",
 "g": "seance"
+},
+{
+"t": "Astuce : Amplitude réduite à 60° si douleur rotulienne.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Garder les talons appuyés sur la chaise sans pousser avec les orteils ; si crampe à l'arrière de la cuisse, fléchir un peu plus les genoux.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : L'inclinaison latérale du tronc est la compensation la plus fréquente.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : La variante W cible les rhomboïdes et trapèzes, essentiels pour la posture.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Le bas du dos ne doit pas se cambrer en position haute.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Le bassin reste strictement horizontal ; s'il tourne, lever moins haut.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Mémorisez cette activation du transverse, vous l'utiliserez sur tous les exercices suivants.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Ne pas tirer sur la nuque.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Objectif Borg 2 en fin d'échauffement.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Plus les jambes sont basses, plus c'est difficile : remonter les jambes si le dos se décolle.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Respiration lente et profonde.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Si c'est trop difficile, plier légèrement les genoux.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Si c'est trop difficile, remonter légèrement pour réduire la flexion.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Simule la capacité à se relever du sol, compétence fondamentale.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Tenir un mur si équilibre précaire.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Très bénéfique pour la prévention des chutes.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Version débutant: pompes contre un mur ou plan incliné.",
+"g": "mascotte"
+},
+{
+"t": "Astuce : Étirements dynamiques uniquement — pas de maintien prolongé.",
+"g": "mascotte"
+},
+{
+"t": "Aucun type d'exercice ne se détache nettement : le meilleur est celui que l'on pratique vraiment.",
+"g": "mascotte"
 },
 {
 "t": "Auto-agrandissement cervical, assis.",
@@ -962,6 +1154,10 @@
 {
 "t": "Bassin haut tout le long, on repousse lentement.",
 "g": "seance"
+},
+{
+"t": "Bassin strictement immobile.",
+"g": "mascotte"
 },
 {
 "t": "belle exécution.",
@@ -1064,11 +1260,19 @@
 "g": "mascotte"
 },
 {
+"t": "Cercles de hanches 50 s, abduction alternée contre mur 15 s de chaque côté, leg swings latéraux 15 s de chaque côté, rotations hanche décubitus 35 s, marche genoux hauts 35 s.",
+"g": "mascotte"
+},
+{
 "t": "Cercles de hanches, amplitude progressive.",
 "g": "seance"
 },
 {
 "t": "Cette semaine, 2 tours de séance.",
+"g": "mascotte"
+},
+{
+"t": "Changer de côté.",
 "g": "mascotte"
 },
 {
@@ -1080,8 +1284,20 @@
 "g": "mascotte"
 },
 {
+"t": "Chaque jour, tu peux noter en quelques secondes ta douleur, ton énergie, ton sommeil et ton moral.",
+"g": "mascotte"
+},
+{
+"t": "Charge : un haltère de 1 kg ou une bouteille d'eau d'1 litre fait l'affaire.",
+"g": "mascotte"
+},
+{
 "t": "Chat-vache à quatre pattes.",
 "g": "seance"
+},
+{
+"t": "Chat-vache à quatre pattes 56 s.",
+"g": "mascotte"
 },
 {
 "t": "Cheville sur le genou opposé.",
@@ -1092,7 +1308,15 @@
 "g": "seance"
 },
 {
+"t": "Chez plus de 25 000 personnes équipées d'un capteur, trois courts moments d'effort soutenu par jour (monter les escaliers d'un bon pas, marcher vite pour un bus) étaient associés à une mortalité nettement plus faible.",
+"g": "mascotte"
+},
+{
 "t": "Choisis ce qui te fait du bien.",
+"g": "mascotte"
+},
+{
+"t": "Cible les ischio-jambiers.",
 "g": "mascotte"
 },
 {
@@ -1108,8 +1332,16 @@
 "g": "seance"
 },
 {
+"t": "Cobra allongé 30 secondes, torsion lombaire 40 secondes de chaque côté, position de l'enfant 1 minute.",
+"g": "mascotte"
+},
+{
 "t": "Cohérence cardiaque.",
 "g": "seance"
+},
+{
+"t": "Cohérence cardiaque: inspirer 5 secondes, expirer 5 secondes pendant 3 minutes.",
+"g": "mascotte"
 },
 {
 "t": "Commencez doucement, puis accélérez.",
@@ -1120,7 +1352,23 @@
 "g": "seance"
 },
 {
+"t": "Concentrer son activité physique sur le week-end apporte des bénéfices comparables à une activité répartie sur la semaine, à volume égal.",
+"g": "mascotte"
+},
+{
 "t": "Content de te revoir !",
+"g": "mascotte"
+},
+{
+"t": "Contraction fessière à la remontée.",
+"g": "mascotte"
+},
+{
+"t": "Contraction maximale en position haute.",
+"g": "mascotte"
+},
+{
+"t": "Coordination croisée.",
 "g": "mascotte"
 },
 {
@@ -1134,6 +1382,14 @@
 {
 "t": "Corps aligné, ni cambré ni fessiers relevés, respiration libre.",
 "g": "seance"
+},
+{
+"t": "Corps aligné épaule hanche genou.",
+"g": "mascotte"
+},
+{
+"t": "Corps parfaitement aligné, pas de cambre lombaire, pas de fessiers relevés.",
+"g": "mascotte"
 },
 {
 "t": "Coude collé au flanc, l'avant-bras monte vers le plafond.",
@@ -1164,6 +1420,10 @@
 "g": "seance"
 },
 {
+"t": "Critère absolu: le bas du dos ne doit pas décoller.",
+"g": "mascotte"
+},
+{
 "t": "Crunch abdominal contrôlé",
 "g": "seance"
 },
@@ -1172,7 +1432,7 @@
 "g": "seance"
 },
 {
-"t": "Côté droit",
+"t": "Côté droit.",
 "g": "seance"
 },
 {
@@ -1184,6 +1444,22 @@
 "g": "mascotte"
 },
 {
+"t": "Dans l'essai WalkBack, 701 adultes qui sortaient d'un épisode de lombalgie ont suivi un programme de marche progressive avec quelques séances d'accompagnement.",
+"g": "mascotte"
+},
+{
+"t": "Dans l'onglet Programme, choisis le jour que tu veux faire.",
+"g": "mascotte"
+},
+{
+"t": "Dans l'onglet Suivi, touche « Envoyer à mon kiné ».",
+"g": "mascotte"
+},
+{
+"t": "Dans la démonstration d'un exercice, touche « Angles » : les vrais angles de l'avatar s'affichent, par exemple 90° au genou pendant le squat.",
+"g": "mascotte"
+},
+{
 "t": "Dans Suivi, tu verras tes progrès et tu pourras tout envoyer à ton kiné.",
 "g": "mascotte"
 },
@@ -1192,7 +1468,19 @@
 "g": "seance"
 },
 {
+"t": "Debout, appui léger sur un mur.",
+"g": "mascotte"
+},
+{
 "t": "Debout ou assis, fais comme moi, comme dans un miroir.",
+"g": "mascotte"
+},
+{
+"t": "Debout, pieds parallèles.",
+"g": "mascotte"
+},
+{
+"t": "Debout, poser les mains au sol, marcher jusqu'en position planche, 2 pompes, revenir en marchant, redressement lent.",
 "g": "mascotte"
 },
 {
@@ -1218,6 +1506,46 @@
 {
 "t": "Derrière",
 "g": "seance"
+},
+{
+"t": "Des adultes restés assis 8 heures ont testé plusieurs rythmes de pauses.",
+"g": "mascotte"
+},
+{
+"t": "Descendre en fléchissant les coudes jusqu'à 90 degrés maximum.",
+"g": "mascotte"
+},
+{
+"t": "Descendre jusqu'à 90° de flexion des deux genoux, genou avant au-dessus du pied, genou arrière proche du sol, buste droit.",
+"g": "mascotte"
+},
+{
+"t": "Descente contrôlée.",
+"g": "mascotte"
+},
+{
+"t": "Descente en squat, remontée avec élévation coordonnée des deux bras jusqu'à la verticale.",
+"g": "mascotte"
+},
+{
+"t": "Descente excentrique 3 secondes.",
+"g": "mascotte"
+},
+{
+"t": "Descente lente 2 secondes.",
+"g": "mascotte"
+},
+{
+"t": "Descente lente 3 secondes.",
+"g": "mascotte"
+},
+{
+"t": "Descente lente 3 secondes, coudes à 45 degrés du tronc.",
+"g": "mascotte"
+},
+{
+"t": "Descente lente jusqu'à 90°, talons au sol, dos neutre.",
+"g": "mascotte"
 },
 {
 "t": "Deux",
@@ -1280,11 +1608,43 @@
 "g": "seance"
 },
 {
+"t": "Dos plaqué contre le mur, pieds écartés à la largeur des hanches et avancés d'environ 40 cm.",
+"g": "mascotte"
+},
+{
 "t": "Dos plat, on serre les omoplates en haut.",
 "g": "seance"
 },
 {
 "t": "» du jour ?",
+"g": "mascotte"
+},
+{
+"t": "Décoller les épaules à 30 degrés maximum, tenir 1 seconde, descente excentrique 3 secondes.",
+"g": "mascotte"
+},
+{
+"t": "Décubitus dorsal, bras tendus au plafond, hanches et genoux à 90 degrés.",
+"g": "mascotte"
+},
+{
+"t": "Décubitus dorsal, genoux à 90°, pieds à plat.",
+"g": "mascotte"
+},
+{
+"t": "Décubitus dorsal, mains croisées sur la poitrine.",
+"g": "mascotte"
+},
+{
+"t": "Décubitus latéral, appui avant-bras et genou inférieur.",
+"g": "mascotte"
+},
+{
+"t": "Décubitus latéral, hanches fléchies à 45 degrés et genoux à 90 degrés, pieds joints.",
+"g": "mascotte"
+},
+{
+"t": "Décubitus ventral.",
 "g": "mascotte"
 },
 {
@@ -1304,11 +1664,23 @@
 "g": "mascotte"
 },
 {
+"t": "En analysant 108 essais, les programmes centrés sur l'équilibre et les gestes du quotidien (se lever, se tourner, tenir sur un pied) sont ceux qui réduisent le plus les chutes.",
+"g": "mascotte"
+},
+{
 "t": "En cas de douleur dans la poitrine, de malaise ou d'essoufflement inhabituel, appelle le 15.",
 "g": "mascotte"
 },
 {
 "t": "En cas de fièvre, d'infection ou de grosse fatigue, repose-toi et reprends quand ça va mieux.",
+"g": "mascotte"
+},
+{
+"t": "En regroupant 57 études, des chercheurs ont montré que le bénéfice est presque le même à 7 000 pas qu'à 10 000.",
+"g": "mascotte"
+},
+{
+"t": "En regroupant les données de plus de 100 000 personnes, l'arthrose de hanche et de genou était moins fréquente chez les coureurs loisirs que chez les sédentaires.",
 "g": "mascotte"
 },
 {
@@ -1322,6 +1694,126 @@
 {
 "t": "Encore un peu, vous tenez bon.",
 "g": "seance"
+},
+{
+"t": "Environ 4 minutes par jour au total.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : 90° au coude au maximum, épaules loin des oreilles.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Avance les mains doucement ; plie un peu les genoux si l'arrière des jambes tire.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Bas du dos plaqué au sol : plus les jambes sont hautes, plus c'est facile.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Bassin horizontal : il ne tombe pas du côté de la jambe levée.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Bassin stable et horizontal, comme un verre d'eau posé sur ton dos.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Buste droit, et le genou avant reste au-dessus de la cheville.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Buste droit : la jambe monte sur le côté sans que le corps penche.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Coude collé au corps : c'est l'avant-bras qui tourne, l'épaule ne monte pas.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Dos bien collé au mur, et ne bloque pas ta respiration.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Fesses ni trop hautes ni trop basses, et respire normalement.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Fixe un point devant toi, et reste près d'un appui.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Garde la ligne tête, hanches, genoux : les fesses ne remontent pas.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Genoux ouverts dans l'axe des pieds, dos droit.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Hanche bien levée, épaule au-dessus du coude.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : La tête descend entre les mains, coudes vers l'arrière et pas vers l'extérieur.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Le bas du dos reste collé au sol.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Le genou plié reste au-dessus du pied, l'autre jambe tendue.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Les bras montent avec le dos droit, sans cambrer en haut.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Les genoux ne rentrent pas vers l'intérieur : pousse-les dans l'axe des pieds.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Monte haut, puis redescends lentement, sans rebondir.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Monte sans à-coup, et redescends en contrôlant.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Ne cambre pas en haut : serre les fessiers plutôt que de creuser le dos.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Ne cambre pas : le mouvement part de la hanche, pas du dos.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Ne tire pas sur la nuque : les mains soutiennent la tête sans tirer.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Pieds collés et bassin immobile : il ne bascule pas vers l'arrière.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Pose bien les mains au sol avant de reculer les pieds.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Pousse dans les talons et serre les fessiers en haut, sans cambrer.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Pousse sur la jambe posée sur la marche, sans élan de la jambe du bas.",
+"g": "mascotte"
+},
+{
+"t": "Erreur fréquente : Regarde le sol, nuque longue : ce sont les bras qui montent, pas la tête.",
+"g": "mascotte"
 },
 {
 "t": "et",
@@ -1352,8 +1844,20 @@
 "g": "seance"
 },
 {
+"t": "Exercice clé contre le valgus de genou.",
+"g": "mascotte"
+},
+{
 "t": "Exercice suivant.",
 "g": "seance"
+},
+{
+"t": "Expirer en montant.",
+"g": "mascotte"
+},
+{
+"t": "Expirer à la montée.",
+"g": "mascotte"
 },
 {
 "t": "Expirez",
@@ -1380,6 +1884,10 @@
 "g": "seance"
 },
 {
+"t": "Figure 4 décubitus 45 secondes de chaque côté, fente basse iliopsoas 40 secondes, demi-grand écart adducteurs 40 secondes, respiration abdominale 1 minute.",
+"g": "mascotte"
+},
+{
 "t": "Figure 4 en décubitus.",
 "g": "seance"
 },
@@ -1400,12 +1908,24 @@
 "g": "seance"
 },
 {
+"t": "Flexion genoux dans l'axe des orteils.",
+"g": "mascotte"
+},
+{
 "t": "Flexions-extensions des chevilles, assis.",
 "g": "seance"
 },
 {
 "t": "Flexions-extensions des poignets et des coudes.",
 "g": "seance"
+},
+{
+"t": "Fléchir les coudes pour amener la tête entre les mains puis remonter.",
+"g": "mascotte"
+},
+{
+"t": "Garde au moins un jour de repos entre deux séances qui travaillent les mêmes muscles.",
+"g": "mascotte"
 },
 {
 "t": "Genou arrière au sol, avancez le bassin, buste droit.",
@@ -1444,12 +1964,24 @@
 "g": "seance"
 },
 {
+"t": "Glisser jusqu'à 90° de flexion de hanches et de genoux, genoux au-dessus des chevilles.",
+"g": "mascotte"
+},
+{
 "t": "Goblet squat",
 "g": "seance"
 },
 {
 "t": "Good morning debout",
 "g": "seance"
+},
+{
+"t": "Grand pas en avant, toujours avec la même jambe : 8 répétitions jambe droite, puis 8 jambe gauche.",
+"g": "mascotte"
+},
+{
+"t": "Grand pas latéral, plier le genou porteur, toucher le sol avec la main opposée.",
+"g": "mascotte"
 },
 {
 "t": "Grandissez-vous comme si un fil tirait le sommet du crâne.",
@@ -1485,6 +2017,14 @@
 },
 {
 "t": "Ici, tu lances la séance du jour.",
+"g": "mascotte"
+},
+{
+"t": "Il s'agit d'études d'observation : elles montrent un lien fort, sans prouver à elles seules la cause.",
+"g": "mascotte"
+},
+{
+"t": "Inspirer 4 secondes, expirer 6 secondes.",
 "g": "mascotte"
 },
 {
@@ -1552,7 +2092,7 @@
 "g": "seance"
 },
 {
-"t": "Jambe droite.",
+"t": "Jambe droite",
 "g": "seance"
 },
 {
@@ -1584,6 +2124,10 @@
 "g": "mascotte"
 },
 {
+"t": "Je te demande où et combien, puis je te dis quoi faire : adapter, passer l'exercice ou arrêter.",
+"g": "mascotte"
+},
+{
 "t": "Je te montre chaque mouvement, au bon rythme.",
 "g": "mascotte"
 },
@@ -1604,12 +2148,20 @@
 "g": "seance"
 },
 {
+"t": "L'appli marche ensuite comme une vraie appli, même hors connexion.",
+"g": "mascotte"
+},
+{
 "t": "L'autre main pousse doucement le coude.",
 "g": "seance"
 },
 {
 "t": "L'autre suit",
 "g": "seance"
+},
+{
+"t": "L'important est d'atteindre son total.",
+"g": "mascotte"
 },
 {
 "t": "L'onglet Communauté permet d'échanger des encouragements avec les autres patients.",
@@ -1650,6 +2202,14 @@
 {
 "t": "La moitié, on tient.",
 "g": "seance"
+},
+{
+"t": "La nicotine resserre les vaisseaux et le monoxyde de carbone réduit l'oxygène apporté à l'os.",
+"g": "mascotte"
+},
+{
+"t": "La plus grande revue sur le sujet montre que l'exercice réduit la douleur d'environ 15 points sur 100 par rapport à l'absence de traitement.",
+"g": "mascotte"
 },
 {
 "t": "La poitrine descend vers le bord, le corps reste gainé.",
@@ -1740,6 +2300,10 @@
 "g": "seance"
 },
 {
+"t": "Le manque de sommeil amplifie les zones qui perçoivent la douleur et freine celles qui la soulagent naturellement.",
+"g": "mascotte"
+},
+{
 "t": "Le mouvement suit la respiration.",
 "g": "seance"
 },
@@ -1752,12 +2316,128 @@
 "g": "seance"
 },
 {
+"t": "Le point clé : Alignez épaules, hanches et genoux, sans cambrer le bas du dos.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Corps aligné, coudes à 45° du tronc, descente lente.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Corps aligné, ni cambré ni fessiers relevés, respiration libre.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Coude collé au flanc, l'avant-bras monte vers le plafond.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Dos plaqué au mur, genoux au-dessus des chevilles, respirez normalement.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Fixez un point devant vous, bougez doucement les bras.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Genou avant au-dessus du pied, genou arrière vers le sol, buste droit.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Genou porteur fléchi, touchez le sol avec la main opposée.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Genoux dans l'axe des orteils, remontée en serrant fessiers et adducteurs.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Hanches hautes, amenez la tête entre les mains.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Jambe tendue sur le côté, sans pencher le buste.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : La cuisse monte vers le plafond, le bassin ne tourne pas.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : La qualité prime sur la vitesse, planche gainée 2 secondes.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Le bas du dos reste collé au sol.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Levez les hanches jusqu'à aligner épaule, hanche et genou.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Marchez avec les mains jusqu'en planche, dos gainé.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Montez le plus haut possible, redescendez lentement.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Pieds joints, ouvrez le genou, bassin immobile.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Poussez avec le fessier de la jambe au sol, bassin horizontal.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Poussez dans les talons jusqu'à aligner épaules, hanches et genoux.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Poussez sur le pied posé sur la marche, sans vous aider de l'autre jambe.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Remontez en levant les deux bras jusqu'à la verticale.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Talons au sol, genoux dans l'axe des pieds, dos neutre.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Y : levez bras et jambes.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Épaules basses et en arrière, coudes à 90° maximum.",
+"g": "mascotte"
+},
+{
+"t": "Le point clé : Épaules décollées à 30°, expirez en montant, sans tirer sur la nuque.",
+"g": "mascotte"
+},
+{
 "t": "Le regard reste vers le sol, la nuque longue.",
 "g": "seance"
 },
 {
 "t": "Le regard suit la main.",
 "g": "seance"
+},
+{
+"t": "Le renforcement et le yoga étaient les mieux acceptés.",
+"g": "mascotte"
+},
+{
+"t": "Le risque de démence est aussi plus faible (−38 %).",
+"g": "mascotte"
+},
+{
+"t": "Le tai-chi semble aussi efficace.",
+"g": "mascotte"
 },
 {
 "t": "Le talon mène le mouvement, les orteils ne regardent pas le plafond.",
@@ -1820,6 +2500,22 @@
 "g": "seance"
 },
 {
+"t": "Leurs rechutes sont arrivées presque deux fois plus tard que dans le groupe sans programme.",
+"g": "mascotte"
+},
+{
+"t": "Lever en même temps les jambes tendues et le buste pour que les mains viennent rejoindre les pieds au-dessus du ventre, comme un portefeuille qui se ferme.",
+"g": "mascotte"
+},
+{
+"t": "Lever l'avant-bras vers le plafond en rotation externe sans décoller le coude.",
+"g": "mascotte"
+},
+{
+"t": "Lever les hanches jusqu'à alignement.",
+"g": "mascotte"
+},
+{
 "t": "Levez les bras en inspirant, descendez-les en expirant.",
 "g": "seance"
 },
@@ -1848,6 +2544,18 @@
 "g": "seance"
 },
 {
+"t": "Mains au sol, reculer en position planche, tenir 2 secondes de gainage, ramener les pieds, remontée lente.",
+"g": "mascotte"
+},
+{
+"t": "Mains légèrement plus larges que les épaules, corps aligné.",
+"g": "mascotte"
+},
+{
+"t": "Mains sur le bord d'une chaise stable, bras tendus.",
+"g": "mascotte"
+},
+{
 "t": "Mains sur les genoux, petits cercles.",
 "g": "seance"
 },
@@ -1868,12 +2576,28 @@
 "g": "seance"
 },
 {
+"t": "Maintenir le bassin horizontal.",
+"g": "mascotte"
+},
+{
 "t": "Mais pas besoin de glacer après chaque séance : la petite inflammation après l'effort fait partie de la réparation et de la progression du muscle.",
+"g": "mascotte"
+},
+{
+"t": "Marche genoux hauts 45 s, jumping jacks modérés 35 s, rotations complètes de bas en haut 1 min, 5 grandes respirations 40 s.",
 "g": "mascotte"
 },
 {
 "t": "Marche genoux hauts, élévation exagérée.",
 "g": "seance"
+},
+{
+"t": "Marche ou jogging, yoga et renforcement musculaire étaient les plus efficaces pour réduire les symptômes de dépression, et l'effet augmentait avec l'intensité.",
+"g": "mascotte"
+},
+{
+"t": "Marche sur place croissante 50 s, flexions chevilles 25 s, leg swings 15 s de chaque côté, rotations genoux 25 s, squats dynamiques faible amplitude 25 s, rotations hanches 25 s.",
+"g": "mascotte"
 },
 {
 "t": "Marche sur place genoux hauts, rythme croissant.",
@@ -1882,6 +2606,10 @@
 {
 "t": "Marche sur place, rythme croissant.",
 "g": "seance"
+},
+{
+"t": "Marcher 5 minutes toutes les 30 minutes était le seul rythme qui abaissait à la fois la glycémie et la tension artérielle (4 à 5 points).",
+"g": "mascotte"
 },
 {
 "t": "Marchez avec les mains jusqu'en planche, dos gainé.",
@@ -1916,6 +2644,10 @@
 "g": "seance"
 },
 {
+"t": "Monter en poussant sur ce pied sans s'aider de la jambe libre.",
+"g": "mascotte"
+},
+{
 "t": "Montez bien haut, le poids sur le gros orteil.",
 "g": "seance"
 },
@@ -1928,8 +2660,16 @@
 "g": "seance"
 },
 {
+"t": "Montée lente 2 secondes, tenir 1 seconde, descente excentrique 3 secondes.",
+"g": "mascotte"
+},
+{
 "t": "Montées de genoux",
 "g": "seance"
+},
+{
+"t": "Mouvement fluide membres inférieurs et membres supérieurs.",
+"g": "mascotte"
 },
 {
 "t": "Ne bloque jamais ta respiration.",
@@ -2340,7 +3080,15 @@
 "g": "mascotte"
 },
 {
+"t": "Oscillations douces des bras pour créer des déstabilisations controlées.",
+"g": "mascotte"
+},
+{
 "t": "Oui, surtout les premières semaines.",
+"g": "mascotte"
+},
+{
+"t": "Ouvrir le genou supérieur vers le plafond comme une coquille.",
 "g": "mascotte"
 },
 {
@@ -2380,11 +3128,19 @@
 "g": "seance"
 },
 {
+"t": "Pectoraux bras en croix 40 secondes, triceps coude derrière la tête 30 secondes, auto-agrandissement cervical 1 minute, position de l'enfant 1 minute, respiration abdominale 1 minute.",
+"g": "mascotte"
+},
+{
 "t": "Pectoraux contre le mur, coude à 90°.",
 "g": "seance"
 },
 {
 "t": "Pendant la séance, le bouton pause arrête le chrono.",
+"g": "mascotte"
+},
+{
+"t": "Pendant la séance, touche l'icône haut-parleur en haut de l'écran pour couper ou remettre la voix.",
 "g": "mascotte"
 },
 {
@@ -2398,6 +3154,10 @@
 {
 "t": "Pendules des bras en cercles progressifs.",
 "g": "seance"
+},
+{
+"t": "Pendules des bras en cercles progressifs 45 s, rétropulsion scapulaire 25 s, rotations dynamiques épaules 25 s, flexions extensions poignets et coudes 25 s, 10 pompes contre mur 1 min.",
+"g": "mascotte"
 },
 {
 "t": "Pensez à prévenir votre kinésithérapeute.",
@@ -2444,8 +3204,16 @@
 "g": "seance"
 },
 {
+"t": "Pieds très écartés à 150 pour cent de la largeur des épaules, orteils à 45 degrés.",
+"g": "mascotte"
+},
+{
 "t": "Pieds vers les mains",
 "g": "seance"
+},
+{
+"t": "Pieds à largeur d'épaules, orteils légèrement ouverts.",
+"g": "mascotte"
 },
 {
 "t": "Place aux étirements.",
@@ -2484,8 +3252,16 @@
 "g": "seance"
 },
 {
+"t": "Pont de hanche puis soulever une jambe tendue horizontalement.",
+"g": "mascotte"
+},
+{
 "t": "Portefeuille (V-up)",
 "g": "seance"
+},
+{
+"t": "Poser un pied sur une marche.",
+"g": "mascotte"
 },
 {
 "t": "Position de l'enfant, bras tendus.",
@@ -2504,6 +3280,10 @@
 "g": "mascotte"
 },
 {
+"t": "Pousser dans les talons pour décoller le bassin jusqu'à l'alignement épaules, hanches, genoux.",
+"g": "mascotte"
+},
+{
 "t": "Poussez avec le fessier de la jambe au sol, bassin horizontal.",
 "g": "seance"
 },
@@ -2514,6 +3294,10 @@
 {
 "t": "Poussez sur le pied posé sur la marche, sans vous aider de l'autre jambe.",
 "g": "seance"
+},
+{
+"t": "Poussée sur la jambe avant pour revenir.",
+"g": "mascotte"
 },
 {
 "t": "Première fois sur cet exercice.",
@@ -2532,7 +3316,19 @@
 "g": "seance"
 },
 {
+"t": "Puis main gauche et jambe droite.",
+"g": "mascotte"
+},
+{
+"t": "Quadriceps debout 40 secondes de chaque côté, ischio-jambiers assis 40 secondes, mollets en fente basse 30 secondes, figure 4 décubitus 30 secondes, respiration diaphragmatique 2 minutes.",
+"g": "mascotte"
+},
+{
 "t": "Quatre mouvements doux de 30 secondes, debout, à faire quand tu es resté assis longtemps.",
+"g": "mascotte"
+},
+{
+"t": "Redescendre lentement sans claquer au sol.",
 "g": "mascotte"
 },
 {
@@ -2580,6 +3376,18 @@
 "g": "seance"
 },
 {
+"t": "Remontée en 1 seconde.",
+"g": "mascotte"
+},
+{
+"t": "Remontée par contraction fessiers et adducteurs.",
+"g": "mascotte"
+},
+{
+"t": "Respiration 1 min 10.",
+"g": "mascotte"
+},
+{
 "t": "Respiration abdominale.",
 "g": "seance"
 },
@@ -2588,12 +3396,20 @@
 "g": "seance"
 },
 {
+"t": "Respiration diaphragmatique avec activation du transverse au niveau du nombril.",
+"g": "mascotte"
+},
+{
 "t": "Respiration diaphragmatique de clôture.",
 "g": "seance"
 },
 {
 "t": "Respiration diaphragmatique et activation du transverse.",
 "g": "seance"
+},
+{
+"t": "Respiration libre.",
+"g": "mascotte"
 },
 {
 "t": "Respirez calmement.",
@@ -2628,6 +3444,10 @@
 "g": "seance"
 },
 {
+"t": "Rotations de tronc assis 54 s.",
+"g": "mascotte"
+},
+{
 "t": "Rotations des chevilles.",
 "g": "seance"
 },
@@ -2660,6 +3480,10 @@
 "g": "seance"
 },
 {
+"t": "Rythme personnel, qualité prime sur vitesse.",
+"g": "mascotte"
+},
+{
 "t": "répétition",
 "g": "seance"
 },
@@ -2672,12 +3496,20 @@
 "g": "seance"
 },
 {
+"t": "S'il décolle, réduis l'amplitude.",
+"g": "mascotte"
+},
+{
 "t": "Salut, je suis ton coach !",
 "g": "mascotte"
 },
 {
 "t": "Savasana.",
 "g": "seance"
+},
+{
+"t": "Savasana: allongé sur le dos, relâchement progressif de bas en haut.",
+"g": "mascotte"
 },
 {
 "t": "seconde",
@@ -2696,6 +3528,10 @@
 "g": "mascotte"
 },
 {
+"t": "Semaines 1 et 2 : sur les genoux, hanches au-dessus des genoux, mains devant.",
+"g": "mascotte"
+},
+{
 "t": "Serrez les fessiers en remontant.",
 "g": "seance"
 },
@@ -2704,7 +3540,15 @@
 "g": "seance"
 },
 {
+"t": "Seule la compétition de haut niveau était associée à plus d'arthrose (13,3 %).",
+"g": "mascotte"
+},
+{
 "t": "Si c'est juste une petite fatigue, adapte la séance à ton ressenti : moins de répétitions, moins de tours, une amplitude plus petite ou un rythme plus doux.",
+"g": "mascotte"
+},
+{
+"t": "Si tu as eu une douleur nouvelle entre-temps, parles-en à ton kiné.",
 "g": "mascotte"
 },
 {
@@ -2756,6 +3600,18 @@
 "g": "seance"
 },
 {
+"t": "Sur 40 études, les fumeurs mettent en moyenne près d'un mois de plus à consolider une fracture.",
+"g": "mascotte"
+},
+{
+"t": "Sur Android : dans Chrome, touche les trois points puis « Installer l'application ».",
+"g": "mascotte"
+},
+{
+"t": "Sur iPhone : dans Safari, touche Partager puis « Sur l'écran d'accueil ».",
+"g": "mascotte"
+},
+{
 "t": "Séance arrêtée.",
 "g": "seance"
 },
@@ -2796,6 +3652,14 @@
 "g": "seance"
 },
 {
+"t": "Série A bras en Y à 45 degrés, élever bras et jambes 2 secondes.",
+"g": "mascotte"
+},
+{
+"t": "Série B bras en W coudes fléchis, omoplates rapprochées.",
+"g": "mascotte"
+},
+{
 "t": "Talon vers la fesse, genoux serrés, main sur le mur.",
 "g": "seance"
 },
@@ -2806,6 +3670,30 @@
 {
 "t": "Talons au sol, genoux dans l'axe des pieds, dos neutre.",
 "g": "seance"
+},
+{
+"t": "Tendre la main droite devant et la jambe gauche derrière, et tenir.",
+"g": "mascotte"
+},
+{
+"t": "Tenir 1 seconde.",
+"g": "mascotte"
+},
+{
+"t": "Tenir 2 secondes en haut.",
+"g": "mascotte"
+},
+{
+"t": "Tenir 2 secondes en haut, descente lente 3 secondes.",
+"g": "mascotte"
+},
+{
+"t": "Tenir en respirant normalement : 30 s en semaine 1, 45 s en semaine 2, 1 min à partir de la semaine 3.",
+"g": "mascotte"
+},
+{
+"t": "Tenir sur un pied, yeux ouverts 20 secondes puis yeux fermés 20 secondes.",
+"g": "mascotte"
 },
 {
 "t": "Terminé.",
@@ -2908,7 +3796,23 @@
 "g": "seance"
 },
 {
+"t": "Toute la poussée vient du fessier de la jambe au sol.",
+"g": "mascotte"
+},
+{
 "t": "Toutes les douleurs signalées pendant les exercices avec « J'ai mal » sont regroupées dans Suivi, avec la zone, le niveau et l'exercice.",
+"g": "mascotte"
+},
+{
+"t": "Transition sol debout essentielle.",
+"g": "mascotte"
+},
+{
+"t": "Transverse activé.",
+"g": "mascotte"
+},
+{
+"t": "Travaille les deltoïdes comme un développé épaules.",
 "g": "mascotte"
 },
 {
@@ -2925,6 +3829,10 @@
 },
 {
 "t": "Tu as noté des séances difficiles, alors on garde le même volume.",
+"g": "mascotte"
+},
+{
+"t": "Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.",
 "g": "mascotte"
 },
 {
@@ -2968,12 +3876,24 @@
 "g": "mascotte"
 },
 {
+"t": "Une douleur vive ou qui augmente, on arrête.",
+"g": "mascotte"
+},
+{
 "t": "Une douleur à surveiller est dans l'articulation ou à un point précis, vive, augmente pendant l'exercice ou te réveille la nuit.",
 "g": "mascotte"
 },
 {
 "t": "Une ligne droite de la tête aux pieds.",
 "g": "seance"
+},
+{
+"t": "Une méta-analyse de 16 études montre que le bénéfice est maximal autour de 30 à 60 minutes de renforcement musculaire par semaine, et encore plus grand quand il est associé à une activité d'endurance comme la marche.",
+"g": "mascotte"
+},
+{
+"t": "Une revue Cochrane montre que les personnes à qui l'on conseille de rester actives ont un peu moins mal et reprennent plus facilement leurs activités que celles à qui l'on conseille le repos au lit.",
+"g": "mascotte"
 },
 {
 "t": "Une seule ligne de la tête aux talons.",
@@ -3008,6 +3928,10 @@
 "g": "seance"
 },
 {
+"t": "Vérifie aussi que ton téléphone n'est pas en mode silencieux.",
+"g": "mascotte"
+},
+{
 "t": "W : rapprochez les omoplates.",
 "g": "seance"
 },
@@ -3028,8 +3952,16 @@
 "g": "seance"
 },
 {
+"t": "À partir de la semaine 3 : position en V inversé sur les pieds, fessiers en l'air.",
+"g": "mascotte"
+},
+{
 "t": "À quatre pattes, mains sous les épaules, genoux sous les hanches, dos plat, transverse activé.",
 "g": "seance"
+},
+{
+"t": "À quatre pattes, rachis horizontal.",
+"g": "mascotte"
 },
 {
 "t": "Ça prend 30 secondes !",
@@ -3044,12 +3976,24 @@
 "g": "seance"
 },
 {
+"t": "Élever la cuisse vers le plafond par extension de hanche pure sans rotation du bassin.",
+"g": "mascotte"
+},
+{
+"t": "Élever latéralement la jambe tendue à 30 à 40 degrés sans incliner le tronc.",
+"g": "mascotte"
+},
+{
 "t": "Épaule droite.",
 "g": "seance"
 },
 {
 "t": "Épaule gauche",
 "g": "seance"
+},
+{
+"t": "Épaules basses et en arrière.",
+"g": "mascotte"
 },
 {
 "t": "Épaules basses et en arrière, coudes à 90° maximum.",
@@ -3086,6 +4030,10 @@
 {
 "t": "Étirement du dos (position de l'enfant).",
 "g": "seance"
+},
+{
+"t": "Étirements corps entier 3 minutes, 30 secondes par groupe.",
+"g": "mascotte"
 },
 {
 "t": "Étirements terminés.",
