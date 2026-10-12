@@ -2798,7 +2798,9 @@ function kfvInit() {
         KFV.map = (m && m.clips) || {}; if (m && m.base) KFV.base = m.base;
         if (!Object.keys(KFV.map).length) return;
         setTimeout(function () { kfvPreloadAll("seance"); }, 2500);     // tout ce qui se dit pendant une séance
-        setTimeout(function () { kfvPreloadAll("mascotte"); }, 15000); // puis la mascotte
+        // puis la mascotte, sauf en mode économie de données ou connexion lente (elle se charge alors à la demande)
+        var cn = navigator.connection || {};
+        if (!cn.saveData && !/2g|3g/.test(cn.effectiveType || "")) setTimeout(function () { kfvPreloadAll("mascotte"); }, 15000);
       }).catch(function () {});
   } catch (e) {}
 }
@@ -2956,8 +2958,10 @@ function processSpeechQueue() {
   var next = function (delay) { if (finished) return; finished = true; clearTimeout(kfSpeechWatch); setTimeout(processSpeechQueue, delay); };
   var ents = kfvResolve(text);
   // Le fichier n'est pas encore chargé : on lui laisse un court instant plutôt que de changer de voix
-  if (ents && !kfvReady(ents) && !item.waited && Date.now() - item.at < item.ttl - 400) {
-    item.waited = true; speechQueue.unshift(item); finished = true;
+  // (une longue réponse de la mascotte peut attendre un peu plus : plusieurs fichiers à charger)
+  if (ents && !kfvReady(ents) && (item.waits || 0) < 6 && Date.now() - item.at < item.ttl - 400) {
+    item.waits = (item.waits || 0) + 1; if (item.prio < 2) item.ttl = Math.max(item.ttl, 3200);
+    speechQueue.unshift(item); finished = true;
     kfSpeechWatch = setTimeout(processSpeechQueue, 350);
     return;
   }
