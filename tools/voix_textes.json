@@ -128,7 +128,7 @@
 "g": "mascotte"
 },
 {
-"t": "17.",
+"t": "17",
 "g": "seance"
 },
 {
@@ -140,7 +140,7 @@
 "g": "mascotte"
 },
 {
-"t": "18",
+"t": "18.",
 "g": "seance"
 },
 {
@@ -152,7 +152,7 @@
 "g": "mascotte"
 },
 {
-"t": "19",
+"t": "19.",
 "g": "seance"
 },
 {
@@ -196,7 +196,7 @@
 "g": "mascotte"
 },
 {
-"t": "21",
+"t": "21.",
 "g": "seance"
 },
 {
@@ -208,7 +208,7 @@
 "g": "mascotte"
 },
 {
-"t": "22",
+"t": "22.",
 "g": "seance"
 },
 {
@@ -220,7 +220,7 @@
 "g": "mascotte"
 },
 {
-"t": "23",
+"t": "23.",
 "g": "seance"
 },
 {
@@ -1448,7 +1448,7 @@
 "g": "seance"
 },
 {
-"t": "Côté droit.",
+"t": "Côté droit",
 "g": "seance"
 },
 {
@@ -3558,6 +3558,10 @@
 {
 "t": "Savasana: allongé sur le dos, relâchement progressif de bas en haut.",
 "g": "mascotte"
+},
+{
+"t": "Se débloque quand un exercice orange du même groupe est devenu facile, ou après 2 semaines",
+"g": "compose"
 },
 {
 "t": "seconde",
