@@ -364,13 +364,13 @@
     if (withPain.length < MIN_DAYS) return null;
     if (withPain.length >= 14) {
       var e = avg(withPain.slice(-14, -7).map(function (d) { return +map[d].pain; })) - avg(withPain.slice(-7).map(function (d) { return +map[d].pain; }));
-      if (e >= 0.8) return { id: "baisse", good: true, text: "Ta douleur a baissé de " + fmt1(e) + " point" + (e >= 2 ? "s" : "") + " en une semaine. Bien joué, continue comme ça !" };
+      if (e >= 0.8) { var pts = Math.max(1, Math.round(e)); return { id: "baisse", good: true, text: "Ta douleur a baissé d'environ " + pts + " point" + (pts >= 2 ? "s" : "") + " en une semaine. Bien joué, continue comme ça !" }; }
       if (e <= -1.5) return { id: "hausse", good: false, text: "Ta douleur a un peu augmenté cette semaine. Si ça continue, parles-en à ton kiné : il pourra adapter le programme." };
     }
     var recent = withPain.slice(-28), after = [], other = [];
     recent.forEach(function (d) { (sessOn(addDays(d, -1)).length ? after : other).push(+map[d].pain); });
     if (after.length >= 3 && other.length >= 3 && avg(other) - avg(after) >= 1)
-      return { id: "lendemain", good: true, text: "Tu as remarqué ? Ta douleur est plus basse les lendemains de séance : " + fmt1(avg(after)) + " contre " + fmt1(avg(other)) + ". Bouger te fait du bien !" };
+      return { id: "lendemain", good: true, text: "Tu as remarqué ? Ta douleur est plus basse les lendemains de séance. Bouger te fait du bien !" };
     var bad = [], good = [];
     recent.forEach(function (d) { var s = map[d].sleep; if (s === 2) bad.push(+map[d].pain); else if (s === 0) good.push(+map[d].pain); });
     if (bad.length >= 3 && good.length >= 3 && avg(bad) - avg(good) >= 1.5)
