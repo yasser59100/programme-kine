@@ -16,7 +16,7 @@
 "g": "mascotte"
 },
 {
-"t": "10.",
+"t": "10",
 "g": "seance"
 },
 {
@@ -72,7 +72,7 @@
 "g": "mascotte"
 },
 {
-"t": "13",
+"t": "13.",
 "g": "seance"
 },
 {
@@ -176,7 +176,7 @@
 "g": "mascotte"
 },
 {
-"t": "20.",
+"t": "20",
 "g": "seance"
 },
 {
@@ -196,7 +196,7 @@
 "g": "mascotte"
 },
 {
-"t": "21.",
+"t": "21",
 "g": "seance"
 },
 {
@@ -208,7 +208,7 @@
 "g": "mascotte"
 },
 {
-"t": "22.",
+"t": "22",
 "g": "seance"
 },
 {
@@ -220,7 +220,7 @@
 "g": "mascotte"
 },
 {
-"t": "23.",
+"t": "23",
 "g": "seance"
 },
 {
@@ -308,7 +308,7 @@
 "g": "mascotte"
 },
 {
-"t": "3",
+"t": "3.",
 "g": "seance"
 },
 {
@@ -776,7 +776,7 @@
 "g": "seance"
 },
 {
-"t": "8",
+"t": "8.",
 "g": "seance"
 },
 {
@@ -992,6 +992,10 @@
 "g": "mascotte"
 },
 {
+"t": "Après une mauvaise nuit, ta douleur monte.",
+"g": "mascotte"
+},
+{
 "t": "Après une nuit blanche, les participants ressentaient la douleur pour une chaleur plus faible.",
 "g": "mascotte"
 },
@@ -1164,7 +1168,15 @@
 "g": "seance"
 },
 {
+"t": "Bien joué, continue comme ça !",
+"g": "mascotte"
+},
+{
 "t": "Bienvenue !",
+"g": "mascotte"
+},
+{
+"t": "Bouger te fait du bien !",
 "g": "mascotte"
 },
 {
@@ -1336,6 +1348,10 @@
 "g": "mascotte"
 },
 {
+"t": "Coche-les juste au-dessus.",
+"g": "compose"
+},
+{
 "t": "Cohérence cardiaque.",
 "g": "seance"
 },
@@ -1432,7 +1448,7 @@
 "g": "seance"
 },
 {
-"t": "Côté droit",
+"t": "Côté droit.",
 "g": "seance"
 },
 {
@@ -1556,6 +1572,10 @@
 "g": "seance"
 },
 {
+"t": "Deux rouges au maximum, et ils se débloquent quand tu progresses.",
+"g": "compose"
+},
+{
 "t": "Devant",
 "g": "seance"
 },
@@ -1648,6 +1668,10 @@
 "g": "mascotte"
 },
 {
+"t": "Déjà 3 exercices pour ce groupe : varie un peu, ton corps te dira merci.",
+"g": "compose"
+},
+{
 "t": "Déjà la moitié, bravo.",
 "g": "seance"
 },
@@ -1685,6 +1709,26 @@
 },
 {
 "t": "Encore",
+"g": "compose"
+},
+{
+"t": "Encore 1 exercice et ta séance est prête !",
+"g": "compose"
+},
+{
+"t": "Encore 2 exercices et ta séance est prête !",
+"g": "compose"
+},
+{
+"t": "Encore 3 exercices et ta séance est prête !",
+"g": "compose"
+},
+{
+"t": "Encore 4 exercices et ta séance est prête !",
+"g": "compose"
+},
+{
+"t": "Encore 5 exercices et ta séance est prête !",
 "g": "compose"
 },
 {
@@ -2474,6 +2518,10 @@
 {
 "t": "Les coudes restent près de la tête et pointent vers le plafond.",
 "g": "seance"
+},
+{
+"t": "Les couleurs, c'est la difficulté : vert facile, orange intermédiaire, rouge difficile.",
+"g": "compose"
 },
 {
 "t": "Les fesses reculent, le dos reste plat.",
@@ -3564,6 +3612,14 @@
 "g": "compose"
 },
 {
+"t": "Si ça continue, parles-en à ton kiné : il pourra adapter le programme.",
+"g": "mascotte"
+},
+{
+"t": "Soigner ton sommeil, c'est aussi soigner ta douleur.",
+"g": "mascotte"
+},
+{
 "t": "Solide comme un roc.",
 "g": "seance"
 },
@@ -3660,6 +3716,50 @@
 "g": "mascotte"
 },
 {
+"t": "Ta douleur a baissé d'environ 1 point en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 2 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 3 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 4 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 5 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 6 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 7 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 8 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a baissé d'environ 9 points en une semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur a un peu augmenté cette semaine.",
+"g": "mascotte"
+},
+{
+"t": "Ta douleur est plus basse les lendemains de séance.",
+"g": "mascotte"
+},
+{
 "t": "Talon vers la fesse, genoux serrés, main sur le mur.",
 "g": "seance"
 },
@@ -3738,6 +3838,10 @@
 {
 "t": "Touche l'icône soleil ou lune en haut de l'accueil pour changer de thème.",
 "g": "mascotte"
+},
+{
+"t": "Touche un groupe pour voir ses exercices, et un exercice pour me voir le faire.",
+"g": "compose"
 },
 {
 "t": "Touche un jour pour voir le détail.",
@@ -3828,8 +3932,24 @@
 "g": "seance"
 },
 {
+"t": "Tu as déjà 2 exercices rouges : choisis plutôt un orange ou un vert.",
+"g": "compose"
+},
+{
+"t": "Tu as déjà 8 exercices, c'est le maximum pour une séance.",
+"g": "compose"
+},
+{
 "t": "Tu as noté des séances difficiles, alors on garde le même volume.",
 "g": "mascotte"
+},
+{
+"t": "Tu as remarqué ?",
+"g": "mascotte"
+},
+{
+"t": "Tu as un élastique ou des haltères ?",
+"g": "compose"
 },
 {
 "t": "Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.",
