@@ -1122,6 +1122,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
     renderer.outputEncoding = T.sRGBEncoding;
+    renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
 
     var scene = new T.Scene();
     var camera = new T.PerspectiveCamera(32, 1, 0.1, 50);
@@ -1131,6 +1132,8 @@
     sun.shadow.camera.left = -1.4; sun.shadow.camera.right = 1.4; sun.shadow.camera.top = 1.4; sun.shadow.camera.bottom = -1.4;
     scene.add(sun);
     var fill = new T.DirectionalLight(0xffffff, 0.35); fill.position.set(-2, 1.5, -1); scene.add(fill);
+    // lumière de contour bleutée, derrière : la silhouette se détache du fond sombre
+    var rim = new T.DirectionalLight(0x9fdcff, 0.55); rim.position.set(-0.8, 2.2, -2.6); scene.add(rim);
     var ground = new T.Mesh(new T.CircleGeometry(1.4, 48), new T.ShadowMaterial({ opacity: 0.28 }));
     ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
     var ring = new T.Mesh(new T.RingGeometry(0.62, 0.64, 64), new T.MeshBasicMaterial({ color: 0x3d8ef0, transparent: true, opacity: 0.25 }));
@@ -1138,14 +1141,24 @@
 
     var lin = function (c) { return new T.Color(c).convertSRGBToLinear(); };
     var mat = function (c, r) { return new T.MeshStandardMaterial({ color: lin(c), roughness: r || 0.85, side: T.DoubleSide }); };
-    var M = { skin: mat(AVATAR.skin), hair: mat(AVATAR.hair), fade: mat(AVATAR.fade), pants: mat(AVATAR.pants),
-              shirt: mat(AVATAR.shirt), shoes: mat(AVATAR.shoes), sole: mat(AVATAR.sole), lips: mat(AVATAR.lips),
-              eyes: mat(AVATAR.eyes), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95),
+    var M = { skin: mat(AVATAR.skin, 0.62), hair: mat(AVATAR.hair, 0.9), fade: mat(AVATAR.fade), pants: mat(AVATAR.pants, 0.92),
+              shirt: mat(AVATAR.shirt, 0.8), shoes: mat(AVATAR.shoes, 0.55), sole: mat(AVATAR.sole, 0.7), lips: mat(AVATAR.lips, 0.6),
+              eyes: mat(AVATAR.eyes, 0.3), white: mat("#F4F1EC", 0.4), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95),
               load: new T.MeshStandardMaterial({ color: lin("#7cc4ff"), roughness: 0.2, transparent: true, opacity: 0.75 }),
               cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75), trim: mat(AVATAR.print, 0.8) };
     function mesh(geo, m, parent) { var o = new T.Mesh(geo, m); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
     function ball(r, m, parent) { return mesh(new T.SphereGeometry(r, 24, 16), m, parent); }
     function bone(r, len, m, parent) { var o = mesh(new T.CylinderGeometry(r, r, len, 20), m, parent); o.position.y = -len / 2; return o; }
+    // Membre fuselé (plus large en haut, galbe du muscle) au lieu d'un tube droit
+    function limb(r0, r1, len, m, parent, bulgeAt, bulge) {
+      var pts = [], n = 10;
+      for (var i = 0; i <= n; i++) {
+        var t = i / n, r = r0 + (r1 - r0) * t;
+        r *= 1 + (bulge || 0) * Math.exp(-Math.pow((t - (bulgeAt || 0.35)) / 0.22, 2));
+        pts.push(new T.Vector2(r, -t * len));
+      }
+      return mesh(new T.LatheGeometry(pts, 24), m, parent);
+    }
     function group(parent, x, y, z) { var g = new T.Group(); g.position.set(x || 0, y || 0, z || 0); parent.add(g); return g; }
 
     // T-shirt imprimé
@@ -1167,12 +1180,14 @@
     var pelvis = group(scene); pelvis.rotation.order = "YXZ";
     var pm = mesh(new T.CylinderGeometry(0.155, 0.15, 0.16, 28), M.pants, pelvis); pm.scale.z = 0.72; pm.position.y = 0.03;
     var spine = group(pelvis); spine.rotation.order = "YXZ";
-    var shirt = mesh(new T.CylinderGeometry(0.185, 0.16, 0.46, 40, 16, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.9 }), spine);
+    var shirt = mesh(new T.CylinderGeometry(0.185, 0.16, 0.46, 40, 16, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.85, side: T.DoubleSide }), spine);
     shirt.userData.base = shirt.geometry.attributes.position.array.slice();
     shirt.scale.z = 0.66; shirt.position.y = 0.29;
     var chestTop = mesh(new T.SphereGeometry(0.185, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), M.shirt, spine);
     chestTop.scale.set(1, 0.28, 0.66); chestTop.position.y = 0.52;
     mesh(new T.CylinderGeometry(0.048, 0.052, 0.11, 20), M.skin, spine).position.y = 0.58;
+    var hem = mesh(new T.TorusGeometry(0.16, 0.012, 8, 40), M.shirt, spine); // ourlet : le bas du t-shirt est net
+    hem.rotation.x = Math.PI / 2; hem.scale.set(1, 0.66, 1); hem.position.y = 0.065;
     var collar = mesh(new T.TorusGeometry(0.058, 0.011, 10, 36), M.trim, spine); // col côtelé bleu
     collar.rotation.x = Math.PI / 2; collar.scale.set(1.08, 0.82, 1); collar.position.y = 0.548;
 
@@ -1180,7 +1195,8 @@
     ball(0.12, M.skin, head).scale.set(0.92, 1.08, 1);
     [-1, 1].forEach(function (side) {
       var ear = ball(0.03, M.skin, head); ear.position.set(side * 0.112, 0, -0.005); ear.scale.set(0.45, 1, 0.8);
-      ball(0.013, M.eyes, head).position.set(side * 0.04, 0.018, 0.108);
+      var ew = ball(0.017, M.white, head); ew.position.set(side * 0.04, 0.018, 0.1); ew.scale.set(1.15, 0.85, 0.6);
+      ball(0.011, M.eyes, head).position.set(side * 0.04, 0.018, 0.111);
       var brow = mesh(new T.BoxGeometry(0.042, 0.009, 0.012), M.hair, head);
       brow.position.set(side * 0.041, 0.047, 0.11); brow.rotation.z = side * -0.12;
       mesh(new T.BoxGeometry(0.01, 0.06, 0.03), M.hair, head).position.set(side * 0.104, -0.002, 0.03);
@@ -1194,15 +1210,19 @@
     var q2 = ball(0.045, M.hair, head); q2.scale.set(1.3, 0.45, 1); q2.position.set(-0.045, 0.108, 0.07); q2.rotation.z = -0.35;
     mesh(new T.SphereGeometry(0.1235, 40, 16, Math.PI / 2 - 1.45, 2.9, Math.PI * 0.56, Math.PI * 0.36), M.hair, head).scale.set(0.93, 1.09, 1.02);
     mesh(new T.BoxGeometry(0.05, 0.012, 0.012), M.hair, head).position.set(0, -0.036, 0.121);
-    mesh(new T.BoxGeometry(0.032, 0.007, 0.01), M.lips, head).position.set(0, -0.054, 0.124);
+    var smile = mesh(new T.TorusGeometry(0.017, 0.0045, 6, 18, Math.PI), M.lips, head); // léger sourire
+    smile.rotation.z = Math.PI; smile.position.set(0, -0.048, 0.121); smile.scale.set(1, 0.55, 1);
 
     function makeArm(side) {
       var sh = group(spine, side * LEN.shX, LEN.shY, 0); sh.rotation.order = "XZY";
-      ball(0.068, M.shirt, sh); bone(0.06, 0.12, M.shirt, sh); bone(0.045, LEN.upper, M.skin, sh);
+      ball(0.068, M.shirt, sh); bone(0.06, 0.12, M.shirt, sh); limb(0.047, 0.04, LEN.upper, M.skin, sh, 0.35, 0.12);
       mesh(new T.CylinderGeometry(0.0615, 0.0615, 0.02, 24), M.trim, sh).position.y = -0.112; // bord de manche bleu
       var el = group(sh, 0, -LEN.upper, 0);
-      ball(0.044, M.skin, el); bone(0.04, LEN.fore, M.skin, el);
-      ball(0.047, M.skin, el).position.y = -LEN.fore;
+      ball(0.042, M.skin, el); limb(0.041, 0.031, LEN.fore, M.skin, el, 0.22, 0.1);
+      // main : paume aplatie et pouce, à la place d'une boule
+      var hand = group(el, 0, -LEN.fore, 0);
+      var palm = ball(0.043, M.skin, hand); palm.scale.set(0.82, 1.05, 0.5); palm.position.y = -0.026;
+      var thumb = ball(0.016, M.skin, hand); thumb.scale.set(0.9, 1.7, 0.9); thumb.position.set(side * -0.028, -0.014, 0.012); thumb.rotation.z = side * 0.5;
       var load = new T.Group(); load.position.y = -LEN.fore; el.add(load); load.visible = false;
       var bottle = mesh(new T.CylinderGeometry(0.036, 0.036, 0.19, 20), M.load, load); bottle.rotation.z = Math.PI / 2;
       var cap = mesh(new T.CylinderGeometry(0.016, 0.016, 0.03, 12), M.cap, load); cap.rotation.z = Math.PI / 2; cap.position.x = 0.11;
@@ -1210,14 +1230,15 @@
     }
     function makeLeg(side) {
       var hip = group(pelvis, side * LEN.hipX, 0, 0); hip.rotation.order = "XZY";
-      ball(0.078, M.pants, hip); bone(0.075, LEN.thigh, M.pants, hip);
+      ball(0.078, M.pants, hip); limb(0.078, 0.058, LEN.thigh, M.pants, hip, 0.3, 0.06);
       var knee = group(hip, 0, -LEN.thigh, 0);
-      ball(0.066, M.pants, knee); bone(0.058, LEN.shank, M.pants, knee);
+      ball(0.062, M.pants, knee); limb(0.06, 0.047, LEN.shank, M.pants, knee, 0.28, 0.1);
       var ankle = group(knee, 0, -LEN.shank, 0);
       ball(0.05, M.pants, ankle);
-      mesh(new T.BoxGeometry(0.105, 0.028, 0.27), M.sole, ankle).position.set(0, -0.076, 0.055);
-      mesh(new T.BoxGeometry(0.098, 0.07, 0.24), M.shoes, ankle).position.set(0, -0.03, 0.045);
-      var toe = ball(0.049, M.shoes, ankle); toe.scale.set(1, 0.72, 1); toe.position.set(0, -0.043, 0.155);
+      // basket : semelle arrondie, dessus bombé, bande bleue au talon
+      var sole = mesh(new T.CylinderGeometry(1, 1, 1, 32), M.sole, ankle); sole.scale.set(0.056, 0.026, 0.142); sole.position.set(0, -0.077, 0.055);
+      var upper = mesh(new T.SphereGeometry(1, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.shoes, ankle); upper.scale.set(0.053, 0.072, 0.13); upper.position.set(0, -0.064, 0.05);
+      var heel = ball(1, M.trim, ankle); heel.scale.set(0.034, 0.028, 0.02); heel.position.set(0, -0.05, -0.068);
       return { side: side, hip: hip, knee: knee, ankle: ankle };
     }
     var legs = { L: makeLeg(1), R: makeLeg(-1) };

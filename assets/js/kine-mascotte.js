@@ -389,10 +389,10 @@
 
   /* ════════ Portrait, pour les moments où l'avatar 3D est déjà occupé (séance) ════════ */
   function portrait() {
-    var c = get("kf-masc-face3"); if (c) return c;
+    var c = get("kf-masc-face4"); if (c) return c;
     if (!register() || !window.THREE) return null;
     var g = $("rep-guide"); if (g && g.classList.contains("open")) return null;
-    try { var u = KineAvatar.snapshot(NAME + "_face", 120); if (u) { set("kf-masc-face3", u); return u; } } catch (e) {}
+    try { var u = KineAvatar.snapshot(NAME + "_face", 120); if (u) { set("kf-masc-face4", u); return u; } } catch (e) {}
     return null;
   }
   function coachHtml(text) {
@@ -414,10 +414,10 @@
     talk("Je peux t'aider ?");
   }
   function peekImg() {
-    var c = get("kf-masc-peek"); if (c) return c;
+    var c = get("kf-masc-peek2"); if (c) return c;
     if (!register() || !window.THREE) return null;
     var g = $("rep-guide"); if (g && g.classList.contains("open")) return null;
-    try { var u = KineAvatar.snapshot(NAME + "_peek", 160); if (u) { set("kf-masc-peek", u); return u; } } catch (e) {}
+    try { var u = KineAvatar.snapshot(NAME + "_peek", 160); if (u) { set("kf-masc-peek2", u); return u; } } catch (e) {}
     return null;
   }
   function peekTick() {
