@@ -1180,24 +1180,27 @@
     var pelvis = group(scene); pelvis.rotation.order = "YXZ";
     var pm = mesh(new T.CylinderGeometry(0.155, 0.15, 0.16, 28), M.pants, pelvis); pm.scale.z = 0.72; pm.position.y = 0.03;
     var spine = group(pelvis); spine.rotation.order = "YXZ";
-    var shirt = mesh(new T.CylinderGeometry(0.185, 0.16, 0.46, 40, 16, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.85, side: T.DoubleSide }), spine);
+    var shirt = mesh(new T.CylinderGeometry(0.2, 0.152, 0.46, 40, 16, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.85, side: T.DoubleSide }), spine);
     shirt.userData.base = shirt.geometry.attributes.position.array.slice();
     shirt.scale.z = 0.66; shirt.position.y = 0.29;
-    var chestTop = mesh(new T.SphereGeometry(0.185, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), M.shirt, spine);
-    chestTop.scale.set(1, 0.28, 0.66); chestTop.position.y = 0.52;
-    mesh(new T.CylinderGeometry(0.048, 0.052, 0.11, 20), M.skin, spine).position.y = 0.58;
-    var hem = mesh(new T.TorusGeometry(0.16, 0.012, 8, 40), M.shirt, spine); // ourlet : le bas du t-shirt est net
+    var chestTop = mesh(new T.SphereGeometry(0.2, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), M.shirt, spine);
+    chestTop.scale.set(1, 0.26, 0.68); chestTop.position.y = 0.52;
+    mesh(new T.CylinderGeometry(0.052, 0.059, 0.11, 20), M.skin, spine).position.y = 0.58;
+    var hem = mesh(new T.TorusGeometry(0.153, 0.012, 8, 40), M.shirt, spine); // ourlet : le bas du t-shirt est net
     hem.rotation.x = Math.PI / 2; hem.scale.set(1, 0.66, 1); hem.position.y = 0.065;
     var collar = mesh(new T.TorusGeometry(0.058, 0.011, 10, 36), M.trim, spine); // col côtelé bleu
     collar.rotation.x = Math.PI / 2; collar.scale.set(1.08, 0.82, 1); collar.position.y = 0.548;
 
     var head = group(spine, 0, 0.72, 0);
+    var face = { eyes: [], mouth: null, next: 0, blink: 0 };
     ball(0.12, M.skin, head).scale.set(0.92, 1.08, 1);
     [-1, 1].forEach(function (side) {
       var ear = ball(0.03, M.skin, head); ear.position.set(side * 0.112, 0, -0.005); ear.scale.set(0.45, 1, 0.8);
-      var ew = ball(0.017, M.white, head); ew.position.set(side * 0.04, 0.018, 0.1); ew.scale.set(1.15, 0.85, 0.6);
-      ball(0.011, M.eyes, head).position.set(side * 0.04, 0.018, 0.111);
-      var brow = mesh(new T.BoxGeometry(0.042, 0.009, 0.012), M.hair, head);
+      var eye = group(head, side * 0.04, 0.018, 0);
+      var ew = ball(0.017, M.white, eye); ew.position.z = 0.1; ew.scale.set(1.15, 0.85, 0.6);
+      ball(0.011, M.eyes, eye).position.z = 0.111;
+      face.eyes.push(eye);
+      var brow = mesh(new T.BoxGeometry(0.044, 0.011, 0.014), M.hair, head);
       brow.position.set(side * 0.041, 0.047, 0.11); brow.rotation.z = side * -0.12;
       mesh(new T.BoxGeometry(0.01, 0.06, 0.03), M.hair, head).position.set(side * 0.104, -0.002, 0.03);
     });
@@ -1212,13 +1215,14 @@
     mesh(new T.BoxGeometry(0.05, 0.012, 0.012), M.hair, head).position.set(0, -0.036, 0.121);
     var smile = mesh(new T.TorusGeometry(0.017, 0.0045, 6, 18, Math.PI), M.lips, head); // léger sourire
     smile.rotation.z = Math.PI; smile.position.set(0, -0.048, 0.121); smile.scale.set(1, 0.55, 1);
+    face.smile = smile; face.mouth = ball(0.017, mat("#6B2620", 0.6), head); face.mouth.position.set(0, -0.058, 0.113); face.mouth.scale.set(1, 0.08, 0.45);
 
     function makeArm(side) {
       var sh = group(spine, side * LEN.shX, LEN.shY, 0); sh.rotation.order = "XZY";
-      ball(0.068, M.shirt, sh); bone(0.06, 0.12, M.shirt, sh); limb(0.047, 0.04, LEN.upper, M.skin, sh, 0.35, 0.12);
-      mesh(new T.CylinderGeometry(0.0615, 0.0615, 0.02, 24), M.trim, sh).position.y = -0.112; // bord de manche bleu
+      var delt = ball(0.075, M.shirt, sh); delt.scale.set(1.05, 1, 0.95); bone(0.064, 0.12, M.shirt, sh); limb(0.051, 0.04, LEN.upper, M.skin, sh, 0.38, 0.16);
+      mesh(new T.CylinderGeometry(0.0655, 0.0655, 0.02, 24), M.trim, sh).position.y = -0.112; // bord de manche bleu
       var el = group(sh, 0, -LEN.upper, 0);
-      ball(0.042, M.skin, el); limb(0.041, 0.031, LEN.fore, M.skin, el, 0.22, 0.1);
+      ball(0.042, M.skin, el); limb(0.043, 0.031, LEN.fore, M.skin, el, 0.2, 0.14);
       // main : paume aplatie et pouce, à la place d'une boule
       var hand = group(el, 0, -LEN.fore, 0);
       var palm = ball(0.043, M.skin, hand); palm.scale.set(0.82, 1.05, 0.5); palm.position.y = -0.026;
@@ -1228,17 +1232,32 @@
       var cap = mesh(new T.CylinderGeometry(0.016, 0.016, 0.03, 12), M.cap, load); cap.rotation.z = Math.PI / 2; cap.position.x = 0.11;
       return { side: side, sh: sh, el: el, load: load };
     }
+    // Jogging : bande claire sur le côté extérieur de chaque jambe
+    function pantsTex(u) {
+      var c = document.createElement("canvas"); c.width = 128; c.height = 8; var g = c.getContext("2d");
+      g.fillStyle = AVATAR.pants; g.fillRect(0, 0, 128, 8);
+      g.fillStyle = "#D9DEE3"; g.fillRect(Math.round(u * 128) - 3, 0, 2, 8); g.fillRect(Math.round(u * 128) + 1, 0, 2, 8);
+      var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.wrapS = T.RepeatWrapping; return t;
+    }
+    var pantsSide = { "1": new T.MeshStandardMaterial({ map: pantsTex(0.25), roughness: 0.92, side: T.DoubleSide }),
+                      "-1": new T.MeshStandardMaterial({ map: pantsTex(0.75), roughness: 0.92, side: T.DoubleSide }) };
+    var waist = mesh(new T.TorusGeometry(0.15, 0.016, 8, 40), mat("#2C2F35", 0.9), pelvis); // ceinture élastique
+    waist.rotation.x = Math.PI / 2; waist.scale.set(1, 0.72, 1); waist.position.y = 0.1;
     function makeLeg(side) {
       var hip = group(pelvis, side * LEN.hipX, 0, 0); hip.rotation.order = "XZY";
-      ball(0.078, M.pants, hip); limb(0.078, 0.058, LEN.thigh, M.pants, hip, 0.3, 0.06);
+      ball(0.08, M.pants, hip); limb(0.082, 0.058, LEN.thigh, pantsSide[side], hip, 0.3, 0.08);
       var knee = group(hip, 0, -LEN.thigh, 0);
-      ball(0.062, M.pants, knee); limb(0.06, 0.047, LEN.shank, M.pants, knee, 0.28, 0.1);
+      ball(0.062, M.pants, knee); limb(0.06, 0.046, LEN.shank, pantsSide[side], knee, 0.25, 0.14);
       var ankle = group(knee, 0, -LEN.shank, 0);
       ball(0.05, M.pants, ankle);
       // basket : semelle arrondie, dessus bombé, bande bleue au talon
       var sole = mesh(new T.CylinderGeometry(1, 1, 1, 32), M.sole, ankle); sole.scale.set(0.056, 0.026, 0.142); sole.position.set(0, -0.077, 0.055);
       var upper = mesh(new T.SphereGeometry(1, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), M.shoes, ankle); upper.scale.set(0.053, 0.072, 0.13); upper.position.set(0, -0.064, 0.05);
       var heel = ball(1, M.trim, ankle); heel.scale.set(0.034, 0.028, 0.02); heel.position.set(0, -0.05, -0.068);
+      [-1, 1].forEach(function (sd) { // bande bleue sur chaque flanc de la chaussure
+        var st = ball(1, M.trim, ankle); st.scale.set(0.005, 0.016, 0.062); st.position.set(sd * 0.05, -0.062, 0.06); st.rotation.x = -0.28;
+      });
+      var tongue = ball(1, M.shoes, ankle); tongue.scale.set(0.03, 0.02, 0.05); tongue.position.set(0, -0.012, 0.075); tongue.rotation.x = 0.5;
       return { side: side, hip: hip, knee: knee, ankle: ankle };
     }
     var legs = { L: makeLeg(1), R: makeLeg(-1) };
@@ -1285,7 +1304,7 @@
     }
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
-    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0,
+    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0, face: face,
              head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops };
   }
 
@@ -1485,6 +1504,18 @@
   }
   var easeInOut = function (x) { return x * x * x * (10 + x * (6 * x - 15)); }; // minimum jerk
 
+  // Clignement des yeux de temps en temps ; bouche qui s'ouvre au rythme de la voix quand Yass parle
+  function animateFace(now) {
+    var f = R && R.face; if (!f) return;
+    if (!f.next) f.next = now + 2500 + Math.random() * 2500;
+    var close = 1;
+    if (now >= f.next) { var k = (now - f.next) / 140; if (k >= 1) f.next = now + 2800 + Math.random() * 3200; else close = Math.max(0.1, Math.abs(1 - 2 * k)); }
+    f.eyes.forEach(function (e) { e.scale.y = close; });
+    var talking = typeof isSpeaking !== "undefined" && isSpeaking;
+    var open = talking ? 0.35 + 0.8 * Math.abs(Math.sin(now * 0.019)) * (0.6 + 0.4 * Math.sin(now * 0.0047)) : 0.08;
+    if (f.mouth) f.mouth.scale.y += (open - f.mouth.scale.y) * 0.45;
+    if (f.smile) f.smile.position.y = -0.048 - Math.max(0, f.mouth.scale.y - 0.08) * 0.009;   // la lèvre du bas descend avec la bouche
+  }
   function frame(now) {
     raf = requestAnimationFrame(frame);
     if (paused && tween) tween.start += now - lastNow; // figé pendant la pause
@@ -1495,6 +1526,7 @@
       if (k >= 1) { current = tween.to; tween = null; }
     }
     applyPose(current);
+    animateFace(now);
     var v = R.view;
     v.yaw += (v.yawGoal - v.yaw) * 0.12;
     placeCamera(def, v.yaw);
