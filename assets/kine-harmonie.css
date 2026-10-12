@@ -178,3 +178,19 @@
 .kg-opt b { font-size: 1rem; }
 .kg-opt small { font-size: 0.85rem; color: var(--text2); }
 .kg-opt.on { border: 2px solid var(--h-sel-border, #00E5F5); background: var(--h-sel-bg, rgba(0, 229, 245, 0.14)); }
+
+/* ═══ Barre du bas : collée en bas, fond plein (rien ne se voit à travers ni en dessous) ═══ */
+:root:root .bottom-nav {
+  left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important;
+  border-radius: 0 !important; border: none !important; border-top: 1px solid var(--border2) !important;
+  background: #0E141F !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, 0.6) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important; overflow: visible;
+}
+:root:root[data-theme="light"] .bottom-nav { background: #FFFFFF !important; box-shadow: 0 -6px 20px -12px rgba(15, 23, 42, 0.25) !important; }
+:root:root .bnav-btn { padding-top: 9px !important; padding-bottom: 8px !important; }
+/* La tête du coach dépasse toujours, mais « Ma séance » s'aligne sur les autres libellés */
+:root:root .bnav-coach .bnav-face { margin-top: -20px !important; }
+/* Le bas des pages reste lisible au-dessus de la barre */
+:root:root .page { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important; }
+:root:root .signature { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
