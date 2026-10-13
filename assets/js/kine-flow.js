@@ -488,7 +488,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       ? "<div class='kf-note'>Pendant la séance : " + pains.map(function (x) { return "<strong>" + esc(x.zone.toLowerCase()) + ", " + x.intensite + "/10</strong> (" + esc(x.exercice) + ", " + esc(x.action) + ")"; }).join(" ; ") + "</div>" : "";
 
     sheet.innerHTML = "<div class='kf-sheet-body'>" +
-      "<div><div class='kf-h1'>Séance terminée, bravo</div><div class='kf-sub'>" + esc(day.label) + ", Semaine " + week() + "</div></div>" +
+      "<div><div class='kf-h1'>Votre bilan</div><div class='kf-sub'>" + esc(day.label) + ", Semaine " + week() + "</div></div>" +
       "<div class='kf-stats'>" +
         "<div class='kf-stat'><b>" + done + "/" + total + "</b><span>exercices</span></div>" +
         "<div class='kf-stat'><b>" + duration + " min</b><span>durée</span></div>" +

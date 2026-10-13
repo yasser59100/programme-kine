@@ -194,3 +194,30 @@
 /* Le bas des pages reste lisible au-dessus de la barre */
 :root:root .page { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important; }
 :root:root .signature { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+
+/* ═══ Célébration de fin de séance ═══ */
+#kf-cele { position: fixed; inset: 0; z-index: 4900; display: none; background: radial-gradient(90% 60% at 50% 30%, rgba(0, 242, 254, 0.16), transparent 70%), var(--bg, #0B0F17); overflow: hidden; }
+#kf-cele.open { display: block; animation: cele-in .35s ease; }
+@keyframes cele-in { from { opacity: 0; } to { opacity: 1; } }
+.cele-confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.cele-in { position: relative; height: 100%; max-width: 520px; margin: 0 auto; box-sizing: border-box; padding: calc(16px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+.cele-stage { flex: 1 1 0; min-height: 160px; width: 100%; display: flex; align-items: center; justify-content: center; }
+.cele-stage canvas { max-height: 100%; width: auto !important; height: auto !important; max-width: 100%; }
+.cele-trophy { font-size: 96px; }
+.cele-h { margin: 0; font-size: clamp(1.7rem, 7.5vw, 2.2rem); font-weight: 800; letter-spacing: -0.03em; color: var(--text); animation: cele-pop .5s .15s both cubic-bezier(.2, .9, .3, 1.3); }
+.cele-sub { margin: 0; font-size: 1.02rem; line-height: 1.45; color: var(--lx-soft, var(--text2)); max-width: 30ch; }
+@keyframes cele-pop { from { transform: scale(.8); opacity: 0; } to { transform: none; opacity: 1; } }
+.cele-week { display: flex; gap: 10px; margin: 8px 0 4px; }
+.cele-week i { width: 30px; height: 30px; border-radius: 15px; border: 2px solid var(--border2); box-sizing: border-box; }
+.cele-week i.on { background: linear-gradient(135deg, #00F2FE, #4FACFE); border-color: transparent; }
+.cele-week i.new { animation: cele-dot .7s .6s both cubic-bezier(.2, .9, .3, 1.5); box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.18); }
+@keyframes cele-dot { 0% { transform: scale(0); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
+.cele-stats { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; border-top: 1px solid var(--border2); border-bottom: 1px solid var(--border2); margin: 6px 0 4px; }
+.cele-stats div { padding: 12px 4px; display: flex; flex-direction: column; gap: 2px; }
+.cele-stats div + div { border-left: 1px solid var(--border2); }
+.cele-stats b { font-size: 1.35rem; color: var(--text); }
+.cele-stats span { font-size: 0.8rem; color: var(--text2); }
+.cele-go { margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { #kf-cele.open, .cele-h, .cele-week i.new { animation: none; } }
+:root[data-theme="light"] #kf-cele { background: radial-gradient(90% 60% at 50% 30%, rgba(0, 194, 214, 0.14), transparent 70%), #F0F4F8; }
