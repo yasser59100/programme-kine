@@ -323,3 +323,6 @@ html[data-theme="light"] .ki-why summary { color: #0a8a5f; }
 html[data-theme="light"] .ki-vf-all, html[data-theme="light"] .ki-vf-tag { color: #6a4fd0 !important; }
 .ki-more { width: 100%; min-height: 46px; border-radius: 14px; border: 1px solid rgba(167, 139, 250, .5); background: rgba(167, 139, 250, .12); color: var(--text); font: 700 .98rem var(--font); cursor: pointer; }
 html[data-theme="light"] .ki-more { border-color: rgba(120, 90, 220, .45); background: rgba(120, 90, 220, .08); }
+.kn-msg { min-height: 1.2em; margin: 14px 0 0; font-size: .92rem; font-weight: 600; color: #FFC56B; }
+.kn-note { margin-top: 10px; font-size: .84rem; }
+html[data-theme="light"] .kn-msg { color: #a86400; }

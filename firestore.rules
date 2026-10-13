@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Compte du kiné (connexion Google)
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == "yasser@ladraa-kine.be"
+        && request.auth.token.email_verified == true;
+    }
+
+    // Programme officiel : lu par tous, modifié seulement par le kiné
+    match /programme/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Communauté : lecture pour tous ; on publie seulement sous son propre compte ;
+    // on supprime ses propres messages, le kiné peut tout modérer
+    match /messages/{msgId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+    }
+
+    // Compteur anonyme des séances terminées
+    match /completions/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['j', 'timestamp'])
+        && request.resource.data.j is string && request.resource.data.j.size() < 20;
+      allow update, delete: if isAdmin();
+    }
+
+    // Notifications du jour : clé publique publiée par l'envoyeur
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Abonnements aux notifications : chaque téléphone écrit le sien, personne ne peut les lire
+    match /push/{id} {
+      allow read: if false;
+      allow create, update: if request.resource.data.keys().hasOnly(['sub', 'hour', 'kind', 'tz', 'created', 'last'])
+        && request.resource.data.hour is int && request.resource.data.hour >= 6 && request.resource.data.hour <= 22
+        && request.resource.data.kind in ['both', 'savoir', 'vf']
+        && request.resource.data.tz is string && request.resource.data.tz.size() < 60
+        && request.resource.data.sub.endpoint is string && request.resource.data.sub.endpoint.matches('https://.*');
+      allow delete: if true;
+    }
+  }
+}

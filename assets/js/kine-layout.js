@@ -164,6 +164,7 @@
         (window.KineMascotte ? "<button onclick='KineMascotte.faq()'><span>Une question ? Demande à Yass</span><span aria-hidden='true'>›</span></button>" +
           "<button onclick='KineMascotte.bouge()'><span>Bouger 2 minutes avec Yass</span><span aria-hidden='true'>›</span></button>" : "") +
         (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Yass, ton coach</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivé" : "activé") + "</span></button>" : "") +
+        (window.KineNotifs && KineNotifs.available() ? "<button onclick='KineNotifs.open()'><span>Notifications du jour</span><span class='kr-sw'>" + KineNotifs.label() + "</span></button>" : "") +
         (window.KineGuide ? "<button onclick='KineGuide.menu()'><span>Guidage sonore</span><span class='kr-sw' id='kg-current'>" + KineGuide.label().toLowerCase() + "</span></button>" : "") +
         "<button onclick='KineLayout.bigText()' aria-pressed='" + bigOn() + "'><span>Taille du texte</span><span class='kr-sw'>" + (bigOn() ? "grande" : "normale") + "</span></button>" +
       "</div>" +

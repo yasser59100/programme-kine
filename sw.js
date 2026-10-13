@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v45';
+const VERSION = 'kineforce-v46';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const APP_FILES = [
   './',
@@ -25,6 +25,7 @@ const APP_FILES = [
   'assets/js/kine-metronome.js',
   'assets/js/kine-celebration.js',
   'assets/js/kine-idees.js',
+  'assets/js/kine-notifs.js',
   'assets/js/kine-createur.js',
   'assets/js/kine-eveil.js',
   'assets/kine-premium.css',
@@ -114,5 +115,26 @@ self.addEventListener('notificationclick', function (e) {
   e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (cls) {
     if (cls.length > 0) return cls[0].focus();
     return clients.openWindow(e.notification.data.url || './');
+  }));
+});
+
+// ── Notifications du jour (« Le saviez-vous ? », « Vrai ou faux ») ──
+self.addEventListener('push', function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || 'KinéForce', {
+    body: d.body || '', icon: 'assets/icons/icon-192.png', badge: 'assets/icons/icon-192.png',
+    tag: d.tag || 'kf-jour', data: { url: d.url || './' }
+  }));
+});
+self.addEventListener('notificationclick', function (e) {
+  e.notification.close();
+  var url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
+  var what = new URL(url).searchParams.get('ouvrir');
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].url.indexOf(self.registration.scope) === 0 && 'focus' in list[i]) { list[i].postMessage({ kfOuvrir: what }); return list[i].focus(); }
+    }
+    return self.clients.openWindow(url);
   }));
 });

@@ -109,6 +109,13 @@ window.fbSetProgramme = async function(data) {
   if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("admin");
   await setDoc(doc(db, "programme", "officiel"), data);
 };
+// ── NOTIFICATIONS DU JOUR : abonnement (adresse technique du téléphone, heure, fuseau ; aucune donnée de santé) ──
+window.fbPushKey = async function() {
+  var snap = await getDoc(doc(db, "config", "push"));
+  return snap.exists() ? snap.data().publicKey : null;
+};
+window.fbPushSave = async function(id, data) { await setDoc(doc(db, "push", id), data); };
+window.fbPushDelete = async function(id) { await deleteDoc(doc(db, "push", id)); };
 window.dispatchEvent(new Event("kf-fb-ready"));
 
 // ── COMPTEUR ANONYME DES SÉANCES TERMINÉES (aucune donnée personnelle : ni compte, ni nom) ──
@@ -4407,5 +4414,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-metronome.js" defer></script>
 <script src="assets/js/kine-celebration.js" defer></script>
 <script src="assets/js/kine-idees.js" defer></script>
+<script src="assets/js/kine-notifs.js" defer></script>
 </body>
 </html>

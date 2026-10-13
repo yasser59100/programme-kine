@@ -1,0 +1,31 @@
+name: Notifications du jour
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency: notifs
+jobs:
+  envoyer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HAS_SA: ${{ secrets.FIREBASE_SA != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.HAS_SA == 'true'
+      - uses: actions/setup-node@v4
+        if: env.HAS_SA == 'true'
+        with:
+          node-version: 20
+      - name: Installer
+        if: env.HAS_SA == 'true'
+        run: npm install --no-save --no-audit --no-fund --prefix tools/push firebase-admin@12 web-push@3
+      - name: Envoyer
+        if: env.HAS_SA == 'true'
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: node tools/push/envoi.mjs
+      - if: env.HAS_SA != 'true'
+        run: echo "Secret FIREBASE_SA pas encore ajouté, rien à faire."
