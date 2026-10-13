@@ -351,34 +351,66 @@
     { q: "Avec de l'arthrose, il vaut mieux éviter de bouger.", a: false,
       e: "Le mouvement nourrit le cartilage et les muscles protègent l'articulation. L'exercice est le premier traitement recommandé de l'arthrose.", s: "OARSI, 2019" }
   ];
-  function weekNo() { var d = new Date(), m = new Date(d); m.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return Math.floor((Date.UTC(m.getFullYear(), m.getMonth(), m.getDate())) / 604800000); }
-  function vfIdx() { return weekNo() % VF.length; }
+  // Une question par jour ; l'historique garde la dernière réponse à chaque question
+  function dayNo() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); }
+  function vfIdx() { return dayNo() % VF.length; }
   function spoken(i) { var v = VF[i]; return (v.a ? "C'est vrai. " : "C'est faux. ") + v.e; }
+  function hist() { var h = jget("kf-vf-hist", {}); return h && typeof h === "object" ? h : {}; }
+  function answered() {                       // les questions déjà répondues, la plus récente d'abord
+    var h = hist();
+    return Object.keys(h).filter(function (i) { return VF[+i]; }).map(function (i) { return { i: +i, a: h[i].a, d: h[i].d }; })
+      .sort(function (x, y) { return x.d < y.d ? 1 : x.d > y.d ? -1 : 0; });
+  }
   var VF_ICON = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='9'/><path d='M9.2 9.2a3 3 0 0 1 5.6 1.3c0 2-2.8 2.4-2.8 4'/><path d='M12 17.5h.01'/></svg>";
+  function verdict(v, mine) {
+    var good = mine === v.a;
+    return "<b class='" + (good ? "ok" : "ko") + "'>" + (good ? "Bien vu ! " : "Pas tout à fait. ") + (v.a ? "C'est vrai." : "C'est faux.") + "</b>";
+  }
   function vfCard() {
-    var i = vfIdx(), v = VF[i], ans = jget("kf-vf", {}), x = ans[weekNo()];
-    var mine = typeof x === "boolean" ? x : (x && x.i === i ? x.a : null);   // la réponse vaut pour la question de la semaine
+    var i = vfIdx(), v = VF[i], h = hist()[i], mine = h && h.d === iso() ? h.a : null, n = answered().length;
     var c = document.createElement("div");
     c.className = "ki-vf"; c.id = "ki-vf";
     var face = window.KineMascotte && KineMascotte.portrait && yassOn() ? KineMascotte.portrait() : null;
-    var html = "<span class='ks-tag'>" + VF_ICON + "Vrai ou faux de la semaine</span><p class='ki-q'>« " + esc(v.q) + " »</p>";
+    var html = "<span class='ks-tag'>" + VF_ICON + "Vrai ou faux du jour</span><p class='ki-q'>« " + esc(v.q) + " »</p>";
     if (mine == null) {
       html += "<div class='ki-vf-b'><button type='button' onclick='KineIdees._vf(true)'>Vrai</button><button type='button' onclick='KineIdees._vf(false)'>Faux</button></div>";
     } else {
-      var good = mine === v.a;
       html += "<div class='ki-vf-r'>" + (face ? "<img src='" + face + "' alt=''>" : "") +
-        "<div><b class='" + (good ? "ok" : "ko") + "'>" + (good ? "Bien vu ! " : "Pas tout à fait. ") + (v.a ? "C'est vrai." : "C'est faux.") + "</b>" +
-        "<p>" + esc(v.e) + "</p>" + (v.s ? "<small>" + esc(v.s) + "</small>" : "") +
-        "<button type='button' class='ki-replay' onclick='KineIdees._vfSay()'>Écouter Yass</button></div></div>";
+        "<div>" + verdict(v, mine) + "<p>" + esc(v.e) + "</p>" + (v.s ? "<small>" + esc(v.s) + "</small>" : "") +
+        "<button type='button' class='ki-replay' onclick='KineIdees._vfSay(" + i + ")'>Écouter Yass</button></div></div>";
     }
+    if (n) html += "<button type='button' class='ki-vf-all' onclick='KineIdees.vfList(0)'><span>Mes réponses (" + n + ")</span><span aria-hidden='true'>›</span></button>";
     c.innerHTML = html;
     return c;
   }
   function vfAnswer(a) {
-    var ans = jget("kf-vf", {}); ans[weekNo()] = { i: vfIdx(), a: a }; jset("kf-vf", ans);
+    var h = hist(); h[vfIdx()] = { a: a, d: iso() }; jset("kf-vf-hist", h);
     var old = $("ki-vf"); if (old) old.replaceWith(vfCard());
     say(spoken(vfIdx()));
   }
+  // Revoir les questions déjà répondues, comme les fiches « Le saviez-vous ? »
+  function vfList(k) {
+    var L = answered(); if (!L.length) return;
+    k = (k + L.length) % L.length;
+    var it = L[k], v = VF[it.i], sh = $("ki-vf-sheet");
+    if (!sh) { sh = document.createElement("div"); sh.id = "ki-vf-sheet"; sh.className = "kf-sheet ks-sheet"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "Mes réponses au vrai ou faux"); document.body.appendChild(sh); }
+    sh.innerHTML = "<div class='kf-sheet-body ks-body'>" +
+      "<button class='kf-back' onclick='KineIdees.vfClose()' aria-label='Fermer'>←</button>" +
+      "<div class='ks-tag ki-vf-tag'>" + VF_ICON + "Vrai ou faux · répondu le " + dfr(it.d) + "</div>" +
+      "<h2 class='ks-h'>« " + esc(v.q) + " »</h2>" +
+      "<div class='ki-vf-r'><div>" + verdict(v, it.a) + "<small>Votre réponse : " + (it.a ? "vrai" : "faux") + "</small></div></div>" +
+      "<p class='ks-p'>" + esc(v.e) + "</p>" +
+      (v.s ? "<div class='ks-ref'><span>Source</span><strong>" + esc(v.s) + "</strong></div>" : "") +
+      "<button type='button' class='ki-replay' onclick='KineIdees._vfSay(" + it.i + ")'>Écouter Yass</button>" +
+      "<p class='ks-note'>Ces informations générales ne remplacent pas l'avis de votre kinésithérapeute ou de votre médecin.</p>" +
+      "</div><div class='kf-sheet-foot ks-foot'>" +
+      "<button class='seq-btn-secondary' onclick='KineIdees.vfList(" + (k - 1) + ")' aria-label='Précédent'>‹</button>" +
+      "<span class='ks-count'>" + (k + 1) + " sur " + L.length + "</span>" +
+      "<button class='seq-btn-secondary' onclick='KineIdees.vfList(" + (k + 1) + ")' aria-label='Suivant'>›</button></div>";
+    sh.classList.add("open");
+    var body = sh.querySelector(".ks-body"); if (body) body.scrollTop = 0;
+  }
+  function vfClose() { var sh = $("ki-vf-sheet"); if (sh) sh.classList.remove("open"); if (typeof stopSpeech === "function") stopSpeech(); }
 
   /* ════════ 4. Séance express ════════ */
   // Durée estimée d'un exercice (mêmes calculs que l'accueil), pour viser environ 10 minutes
@@ -451,7 +483,7 @@
     usage: usage, goals: goals, goalCard: goalCard, goalEdit: goalEdit, goalRate: goalRate, summaryLines: summaryLines, due: due,
     vf: VF, vfIdx: vfIdx, spoken: spoken, express: express, defineExpress: defineExpress, decorate: decorate, USAGE: USAGE, usageFull: usageFull,
     _pick: pick, _sugg: sugg, _chk: chk, _saveNew: saveNew, _del: del, _saveRate: saveRate, _close: closeSheet,
-    _vf: vfAnswer, _vfSay: function () { say(spoken(vfIdx())); }
+    _vf: vfAnswer, _vfSay: function (i) { say(spoken(i == null ? vfIdx() : i)); }, vfList: vfList, vfClose: vfClose, answered: answered
   };
 
   function init() {

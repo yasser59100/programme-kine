@@ -314,3 +314,10 @@ html[data-theme="light"] .ki-vf-r b.ko { color: #a86400; }
 .kf-tuto .ki-why p, .kf-tuto .ki-why ul { font-size: .86rem; }
 html[data-theme="light"] .ki-why { background: rgba(10, 138, 95, .06); border-color: rgba(10, 138, 95, .28); }
 html[data-theme="light"] .ki-why summary { color: #0a8a5f; }
+.ki-vf-all { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 2px; padding: 8px 0 0; border: none; border-top: 1px solid rgba(167, 139, 250, .25); background: none; color: #B9A3FF; font: 600 .92rem var(--font); cursor: pointer; }
+.ki-vf-all span:last-child { font-size: 1.3rem; }
+.ki-vf-tag { color: #B9A3FF !important; }
+#ki-vf-sheet .ki-vf-r b { font-size: 1.1rem; }
+#ki-vf-sheet .ki-vf-r small { display: block; margin-top: 2px; font-size: .88rem; color: var(--text2); }
+#ki-vf-sheet .ki-replay { align-self: flex-start; }
+html[data-theme="light"] .ki-vf-all, html[data-theme="light"] .ki-vf-tag { color: #6a4fd0 !important; }
