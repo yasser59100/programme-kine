@@ -20,112 +20,131 @@
 
   /* ════════ 3. À quoi ça sert dans la vie ════════ */
   var USAGE = {
-    "Squat bilatéral": "Se lever d'une chaise ou des toilettes sans les mains.",
-    "Fentes avant unilatérales": "Monter les escaliers et se relever d'un genou posé au sol.",
-    "Chaise contre le mur": "Rester debout longtemps et descendre une pente sans fatiguer.",
-    "Pont ischio-jambiers talons sur chaise": "Marcher d'un bon pas et protéger l'arrière du genou.",
-    "Élévation des talons": "Marcher plus longtemps et attraper un objet en hauteur.",
-    "Step-up sur marche": "Monter les escaliers ou un trottoir sans la rampe.",
-    "Rotation externe d'épaule": "Lever le bras pour se coiffer ou attraper en hauteur.",
-    "Pompes sur genoux": "Se relever du sol et pousser une porte lourde.",
-    "Dips sur chaise": "Se lever d'un fauteuil en poussant sur les accoudoirs.",
-    "Pike push-up": "Ranger un objet sur une étagère haute.",
-    "Superman en Y et en W": "Se tenir droit, assis comme debout.",
-    "Crunch abdominal contrôlé": "Se redresser dans le lit plus facilement.",
-    "Portefeuille (V-up)": "Sortir du lit ou de la voiture d'un seul mouvement.",
-    "Dead bug": "Garder le dos stable en portant un enfant ou des courses.",
-    "Superman quadrupédique en gainage": "Se pencher et se relever sans tirer sur le dos.",
-    "Ciseaux et vélo": "Monter dans une voiture et enjamber un obstacle.",
-    "Plank — gainage avant-bras": "Porter et pousser sans se faire mal au dos.",
-    "Side plank sur genoux": "Porter un sac d'un seul côté sans pencher.",
-    "Squat sumo": "Ramasser un objet au sol, se baisser vers un enfant.",
-    "Donkey kick": "Monter les marches et marcher en côte.",
-    "Pont de hanche": "Se retourner dans le lit et monter les escaliers.",
-    "Clamshell": "Garder le genou bien aligné quand on marche.",
-    "Abduction hanche debout": "Tenir sur une jambe pour enfiler un pantalon.",
-    "Pont fessier unilatéral": "Monter les marches deux à deux, trottiner.",
-    "Squat + élévation bras": "Ranger les courses, du sol jusqu'au placard du haut.",
-    "Inchworm et pompes": "Se mettre au sol et se relever facilement.",
-    "Fente latérale avec toucher sol": "Ramasser un objet sur le côté, jardiner.",
-    "Burpee modifié sans saut": "Savoir se relever du sol, par exemple après une chute.",
-    "Équilibre unipodal": "Moins de risques de chute, enfiler ses chaussettes debout.",
-    "Assis-debout de chaise": "Se lever d'une chaise, du canapé ou des toilettes.",
-    "Extension de genou assis": "Monter les escaliers et se lever sans s'appuyer.",
-    "Fente arrière": "Descendre les escaliers et ramasser un objet en douceur.",
-    "Squat bulgare": "Monter une grande marche, reprendre le sport.",
-    "Fire hydrant": "Enjamber le bord de la baignoire ou de la voiture.",
-    "Abduction couché sur le côté": "Marcher sans se déhancher.",
-    "Hip thrust épaules sur canapé": "Se relever, pousser, marcher d'un bon pas.",
-    "Good morning debout": "Se pencher au-dessus de l'évier sans mal de dos.",
-    "Soulevé de terre roumain unipodal": "Ramasser un objet léger en restant en équilibre.",
-    "Leg curl serviette au sol": "Courir et accélérer sans se blesser derrière la cuisse.",
-    "Nordic curl assisté": "Protéger l'arrière de la cuisse pendant le sport.",
-    "Marche sur les talons": "Ne plus accrocher le pied sur un tapis ou un trottoir.",
-    "Élévation des talons genoux fléchis": "Monter les côtes et les escaliers à pied.",
-    "Élévation des talons unipodale": "Marcher longtemps et tenir sur la pointe d'un pied.",
-    "Excentrique mollet sur marche": "Soulager le tendon d'Achille, marcher et courir.",
-    "Extension lombaire couché sur le ventre": "Rester debout ou assis longtemps sans mal de dos.",
-    "Superman bras-jambe opposés": "Garder le dos stable en marchant et en portant.",
-    "Pont en marche": "Marcher d'un bon pas et monter les escaliers.",
-    "Bear plank": "Jouer au sol avec les enfants et se relever.",
-    "Planche latérale complète": "Porter une valise d'une seule main.",
-    "Mountain climber lent": "Monter les escaliers sans être essoufflé.",
-    "Rotation externe couché sur le côté": "Se coiffer, attraper sa ceinture de sécurité.",
-    "Élévation latérale": "Étendre le linge, ranger en hauteur.",
-    "Wall slides": "Lever les bras au-dessus de la tête sans pincement.",
-    "Élévation en Y": "Lever les bras en hauteur, garder les épaules en arrière.",
-    "Pompes contre le mur": "Pousser une porte, se relever en s'appuyant.",
-    "Pompes inclinées": "Se relever du sol en poussant sur les bras.",
-    "Pompes complètes": "Pousser fort et se relever du sol facilement.",
-    "T au sol": "Se tenir droit devant l'écran.",
-    "Rowing un bras appui chaise": "Tirer une porte, porter un seau.",
-    "Rowing deux bras penché": "Soulever un carton en gardant le dos droit.",
-    "Tirage inversé sous une table": "Tirer, grimper, se hisser.",
-    "Curl biceps": "Porter les courses ou un enfant dans les bras.",
-    "Extension triceps au-dessus de la tête": "Ranger en hauteur, pousser pour se lever.",
-    "Curl marteau tempo lent": "Porter un sac, une casserole, ouvrir un bocal.",
-    "Tandem talon-pointe": "Marcher sur un chemin étroit sans perdre l'équilibre.",
-    "Unipodal yeux fermés": "Garder l'équilibre dans le noir, la nuit.",
-    "Unipodal sur coussin": "Marcher sur l'herbe, le sable ou un sol inégal.",
-    "Toucher en étoile unipodal": "Se rattraper quand on trébuche.",
-    "Chat-vache": "Dérouiller le dos le matin.",
-    "Rotation thoracique à quatre pattes": "Se retourner pour regarder derrière soi en voiture.",
-    "Fente psoas dynamique": "Marcher à grands pas en restant bien droit.",
-    "Essuie-glace genoux pliés": "Se tourner dans le lit, assouplir le bas du dos.",
-    "Montées de genoux": "Monter les escaliers et enjamber un obstacle.",
-    "Jumping jack sans saut": "Le cœur et le souffle, sans choc pour les articulations.",
-    "Skater latéral sans saut": "Faire un pas de côté rapide pour se rattraper.",
-    "Rotation externe à l'élastique": "Lever le bras pour se coiffer sans douleur d'épaule.",
-    "Rotation interne à l'élastique": "Mettre la main dans le dos, attacher un vêtement.",
-    "Pull-apart à l'élastique": "Garder les épaules ouvertes et se tenir droit.",
-    "Tirage horizontal à l'élastique": "Tirer une porte, un tiroir, une valise.",
-    "Face pull à l'élastique": "Épaules en arrière, nuque moins tendue au bureau.",
-    "Pallof press": "Porter une charge sans se tordre, tenir un chien en laisse.",
-    "Squat élastique aux genoux": "Se lever d'une chaise sans que les genoux rentrent.",
-    "Extension terminale du genou": "Tendre complètement le genou pour bien marcher.",
-    "Marche latérale élastique": "Marcher sans se déhancher, plus stable.",
-    "Goblet squat": "Se baisser en portant un objet devant soi.",
-    "Soulevé de terre roumain avec charge": "Soulever un carton du sol sans se faire mal au dos.",
-    "Développé épaules assis": "Ranger une valise en hauteur.",
-    "Fente avec charge": "Monter les escaliers avec les courses.",
-    "Hip thrust lesté": "Plus de force pour se relever, pousser et monter."
+    "Squat bilatéral": { s: "Le squat fait travailler ensemble les quadriceps (devant de la cuisse) et les fessiers, les deux moteurs qui redressent le corps. En descendant lentement, les muscles apprennent à freiner, ce qui protège aussi les genoux.", e: ["Se lever d'une chaise, du canapé ou des toilettes sans les mains", "S'accroupir pour ramasser un objet ou jouer avec un enfant", "Sortir de la voiture plus facilement"] },
+    "Fentes avant unilatérales": { s: "Une jambe porte presque tout le poids du corps : quadriceps et fessier travaillent plus fort, et l'équilibre est sollicité en même temps. C'est un mouvement très proche de la marche et des escaliers.", e: ["Monter les escaliers d'un pas sûr", "Se relever d'un genou posé au sol", "Faire un grand pas pour éviter une flaque"] },
+    "Chaise contre le mur": { s: "Les quadriceps restent contractés sans bouger : c'est un effort isométrique. Il renforce l'endurance de la cuisse et calme souvent les douleurs de genou, car l'articulation ne frotte pas pendant l'effort.", e: ["Rester debout longtemps, en cuisine ou dans une file d'attente", "Descendre une pente ou des escaliers sans cuisses qui brûlent", "Tenir une position à demi accroupie pour bricoler ou jardiner"] },
+    "Pont ischio-jambiers talons sur chaise": { s: "Les ischio-jambiers, à l'arrière de la cuisse, plient le genou et tirent la hanche vers l'arrière. Les renforcer équilibre la jambe et soulage le genou et le bas du dos.", e: ["Marcher d'un bon pas sans fatigue derrière les cuisses", "Monter une côte en poussant bien sur les jambes", "Reprendre la course ou le vélo"] },
+    "Élévation des talons": { s: "Les mollets propulsent le corps à chaque pas. Plus ils sont forts, plus la marche est économique, et plus la cheville est stable sur un sol irrégulier.", e: ["Marcher plus longtemps sans fatigue", "Se mettre sur la pointe des pieds pour attraper un objet en hauteur", "Garder l'équilibre dans un bus ou un tram qui freine"] },
+    "Step-up sur marche": { s: "Monter sur une marche demande de pousser tout le poids du corps avec une seule jambe. C'est exactement l'effort des escaliers, avec en plus l'équilibre du bassin.", e: ["Monter les escaliers sans la rampe", "Monter sur un trottoir ou dans un bus", "Grimper sur un escabeau en toute sécurité"] },
+    "Rotation externe d'épaule": { s: "Les petits muscles de la coiffe des rotateurs tiennent la tête de l'humérus bien centrée dans l'épaule. Quand ils sont forts, le bras se lève sans que l'épaule se coince.", e: ["Se coiffer ou se laver les cheveux", "Attraper un objet sur une étagère haute", "Lancer une balle à un enfant"] },
+    "Pompes sur genoux": { s: "Les pectoraux, l'avant des épaules et les triceps poussent ensemble, pendant que le ventre garde le corps gainé. On travaille la poussée sans porter tout son poids.", e: ["Se relever du sol en poussant sur les bras", "Pousser une porte lourde ou un chariot", "Se redresser dans le lit"] },
+    "Dips sur chaise": { s: "Les triceps, à l'arrière du bras, tendent le coude. Ce sont eux qui poussent quand on s'appuie sur les mains pour se lever.", e: ["Se lever d'un fauteuil en poussant sur les accoudoirs", "Sortir de la baignoire en s'appuyant sur le bord", "Se repositionner sur une chaise"] },
+    "Pike push-up": { s: "Les épaules poussent vers le haut, presque à la verticale. On renforce les deltoïdes et les triceps dans la position du bras levé.", e: ["Ranger une valise ou un carton en hauteur", "Fermer le coffre de la voiture", "Accrocher un rideau ou changer une ampoule"] },
+    "Superman en Y et en W": { s: "Les muscles entre les omoplates et le long du dos redressent le haut du corps. Ils compensent les heures passées penché vers l'avant, sur un écran ou au volant.", e: ["Se tenir droit, assis comme debout", "Moins de tension dans la nuque après une journée de bureau", "Lever les bras au-dessus de la tête plus facilement"] },
+    "Crunch abdominal contrôlé": { s: "Le grand droit de l'abdomen enroule le haut du corps vers le bassin. En contrôlant le mouvement, on renforce le ventre sans tirer sur la nuque.", e: ["Se redresser dans le lit le matin", "Se relever d'une position allongée au sol", "Mieux tousser ou éternuer sans douleur"] },
+    "Portefeuille (V-up)": { s: "Le ventre et les fléchisseurs de hanche travaillent ensemble pour rapprocher le buste et les jambes. C'est un renforcement complet de l'avant du tronc.", e: ["Sortir du lit d'un seul mouvement", "S'asseoir en voiture en levant les jambes", "Enfiler un pantalon assis"] },
+    "Dead bug": { s: "Les abdominaux profonds gardent le bas du dos immobile pendant que bras et jambes bougent. C'est la base de la stabilité du tronc : un dos protégé pendant que le reste du corps travaille.", e: ["Porter un enfant ou des courses sans se faire mal au dos", "Passer l'aspirateur ou le balai sans douleur", "Garder le dos stable en marchant vite"] },
+    "Superman quadrupédique en gainage": { s: "À quatre pattes, on tend un bras et la jambe opposée : les muscles du dos et des fessiers travaillent en croix, comme pendant la marche. Le tronc apprend à rester stable sur un appui réduit.", e: ["Se pencher et se relever sans tirer sur le dos", "Faire son lit ou ramasser un jouet", "Jardiner à genoux"] },
+    "Ciseaux et vélo": { s: "Le ventre maintient le bassin pendant que les jambes bougent en alternance. On renforce les abdominaux et les fléchisseurs de hanche, qui lèvent la jambe.", e: ["Monter dans une voiture et lever la jambe par-dessus le seuil", "Enjamber un obstacle ou le bord de la baignoire", "Monter les escaliers sans traîner les pieds"] },
+    "Plank — gainage avant-bras": { s: "Tous les muscles du tronc se contractent en même temps pour garder le corps droit comme une planche. C'est une « ceinture » naturelle qui protège la colonne quand on porte ou qu'on pousse.", e: ["Porter des courses ou un pack d'eau", "Pousser un meuble ou une poussette", "Rester debout longtemps sans mal de dos"] },
+    "Side plank sur genoux": { s: "Les muscles du côté du tronc (obliques et carré des lombes) empêchent le corps de pencher sur le côté. Ils travaillent dès qu'on porte une charge d'une seule main.", e: ["Porter un sac lourd d'un seul côté sans pencher", "Porter un enfant sur la hanche", "Garder l'équilibre en marchant sur un sol irrégulier"] },
+    "Squat sumo": { s: "Pieds écartés, le squat sollicite davantage les fessiers et l'intérieur des cuisses (adducteurs). Cette position large est souvent plus confortable pour les hanches.", e: ["Ramasser un objet au sol en gardant le dos droit", "Se baisser vers un enfant ou un animal", "Soulever un panier à linge posé par terre"] },
+    "Donkey kick": { s: "Le grand fessier tend la hanche vers l'arrière. C'est le muscle le plus puissant du corps : il propulse à chaque pas et dans chaque marche d'escalier.", e: ["Monter les escaliers sans tirer sur la rampe", "Marcher en côte", "Se relever d'une position accroupie"] },
+    "Pont de hanche": { s: "Les fessiers et les ischio-jambiers soulèvent le bassin. On renforce l'arrière de la chaîne des jambes, qui soutient le bas du dos.", e: ["Se retourner dans le lit ou se remonter vers l'oreiller", "Monter les escaliers", "Moins de douleurs dans le bas du dos en position debout"] },
+    "Clamshell": { s: "Le moyen fessier, sur le côté de la hanche, tourne la cuisse vers l'extérieur. Il empêche le genou de rentrer vers l'intérieur à chaque pas, une cause fréquente de douleur au genou.", e: ["Marcher avec le genou bien aligné", "Descendre les escaliers sans douleur au genou", "Se stabiliser sur une jambe pour enfiler une chaussure"] },
+    "Abduction hanche debout": { s: "Le moyen fessier écarte la jambe et, surtout, tient le bassin à l'horizontale quand on est sur un pied. Sans lui, la hanche s'affaisse à chaque pas.", e: ["Tenir sur une jambe pour enfiler un pantalon", "Marcher sans se déhancher", "Faire un pas de côté pour éviter quelqu'un"] },
+    "Pont fessier unilatéral": { s: "Le pont sur une jambe double le travail du fessier et oblige le bassin à rester stable. On corrige souvent ainsi un côté plus faible que l'autre.", e: ["Monter les marches deux à deux", "Trottiner ou courir après un bus", "Se relever du sol en poussant sur une jambe"] },
+    "Squat + élévation bras": { s: "Jambes et épaules travaillent dans un même geste : on descend, on remonte et on lève les bras. Le corps apprend à coordonner le bas et le haut, comme dans la vie.", e: ["Ranger les courses, du sol jusqu'au placard du haut", "Soulever un carton et le poser sur une étagère", "Accrocher le linge sur un fil"] },
+    "Inchworm et pompes": { s: "On passe de debout à la planche avec les mains, puis on revient : l'arrière des jambes s'assouplit, et les épaules et le ventre se renforcent. C'est un vrai travail du passage au sol.", e: ["Se mettre au sol et se relever facilement", "Jouer par terre avec les enfants", "Chercher un objet tombé sous un meuble"] },
+    "Fente latérale avec toucher sol": { s: "La jambe qui plie travaille fort pendant que l'intérieur de l'autre cuisse s'étire. On renforce les mouvements sur le côté, souvent oubliés.", e: ["Ramasser un objet tombé sur le côté", "Jardiner ou désherber", "Se rattraper par un pas de côté"] },
+    "Burpee modifié sans saut": { s: "On descend au sol, on passe en planche, puis on se relève : tout le corps travaille, et le cœur aussi. C'est l'entraînement du relevé du sol.", e: ["Savoir se relever seul après une chute", "S'asseoir et se relever du sol, à la plage ou au parc", "Monter le souffle sans choc pour les articulations"] },
+    "Équilibre unipodal": { s: "Sur un pied, la cheville, la hanche et le cerveau corrigent sans arrêt de petits déséquilibres. Ce réflexe s'entretient, et il réduit le risque de chute.", e: ["Enfiler ses chaussettes ou son pantalon debout", "Moins de risques de chute", "Monter dans une baignoire ou enjamber un obstacle"] },
+    "Assis-debout de chaise": { s: "C'est le squat le plus utile : quadriceps et fessiers redressent le corps depuis une assise. Le nombre d'assis-debout en 30 secondes est même un test médical de la force des jambes.", e: ["Se lever d'une chaise, du canapé ou des toilettes", "Sortir de la voiture", "Rester autonome au quotidien"] },
+    "Extension de genou assis": { s: "Le quadriceps tend le genou, sans poids sur l'articulation. C'est souvent le premier exercice après une opération ou une douleur du genou.", e: ["Monter les escaliers", "Se lever sans s'appuyer sur les mains", "Tendre complètement la jambe en marchant"] },
+    "Fente arrière": { s: "En reculant, la jambe avant freine la descente : le genou est moins sollicité qu'avec une fente avant. Quadriceps et fessiers travaillent en douceur.", e: ["Descendre les escaliers en contrôle", "Poser un genou au sol pour ramasser un objet", "Reculer sans perdre l'équilibre"] },
+    "Squat bulgare": { s: "Le pied arrière posé sur une chaise, presque tout le poids est sur la jambe avant. C'est un des exercices au poids du corps les plus efficaces pour la cuisse et le fessier.", e: ["Monter une grande marche ou un rocher en randonnée", "Reprendre le sport (course, ski, football)", "Se relever d'un genou sans les mains"] },
+    "Fire hydrant": { s: "À quatre pattes, on écarte la jambe pliée sur le côté : le moyen fessier et les rotateurs de hanche travaillent. Ils stabilisent la hanche dans tous les mouvements latéraux.", e: ["Enjamber le bord de la baignoire ou de la voiture", "Monter sur un vélo", "Garder la hanche stable en marchant"] },
+    "Abduction couché sur le côté": { s: "Couché, on lève la jambe sur le côté : le moyen fessier travaille seul, sans compensation. C'est le muscle qui tient le bassin droit à chaque pas.", e: ["Marcher sans se déhancher", "Soulager une douleur sur le côté de la hanche", "Tenir debout sur une jambe"] },
+    "Hip thrust épaules sur canapé": { s: "Les épaules en appui, le bassin monte plus haut qu'un simple pont : le grand fessier travaille sur toute son amplitude. C'est l'exercice de référence pour ce muscle.", e: ["Se relever d'une chaise basse", "Pousser une charge lourde, comme une voiture en panne", "Marcher d'un bon pas en côte"] },
+    "Good morning debout": { s: "On se penche en avant en gardant le dos droit : ce sont les hanches qui plient, pas le bas du dos. L'arrière des cuisses et les muscles du dos apprennent à travailler ensemble.", e: ["Se pencher au-dessus de l'évier ou du lavabo sans douleur", "Faire la vaisselle ou se brosser les dents penché", "Soulever un objet léger avec le bon geste"] },
+    "Soulevé de terre roumain unipodal": { s: "Sur une jambe, on se penche en avant : l'arrière de la cuisse s'étire en travaillant, et la cheville et la hanche gèrent l'équilibre. Force et équilibre en un seul geste.", e: ["Ramasser un objet léger en restant en équilibre", "Se pencher pour attraper quelque chose sans plier le dos", "Mieux se rattraper en cas de déséquilibre"] },
+    "Leg curl serviette au sol": { s: "Les ischio-jambiers plient le genou en tirant les talons vers les fesses. Ils freinent la jambe à chaque foulée : quand ils sont faibles, ils se blessent facilement.", e: ["Courir et accélérer sans claquage derrière la cuisse", "Marcher vite", "Protéger le genou dans les changements de direction"] },
+    "Nordic curl assisté": { s: "On freine lentement la chute du buste avec l'arrière des cuisses. Ce travail en freinage (excentrique) réduit nettement les blessures des ischio-jambiers chez les sportifs.", e: ["Protéger l'arrière de la cuisse pendant le sport", "Courir ou sprinter avec confiance", "Freiner sans risque dans les descentes"] },
+    "Marche sur les talons": { s: "Le muscle à l'avant du tibia relève la pointe du pied. Quand il est faible, le pied traîne et accroche les obstacles.", e: ["Ne plus accrocher le pied sur un tapis ou une marche", "Moins de risques de trébucher", "Marcher plus sûrement en descente"] },
+    "Élévation des talons genoux fléchis": { s: "Genoux pliés, c'est le soléaire, le muscle profond du mollet, qui travaille. Il soutient la cheville quand on marche longtemps et dans les côtes.", e: ["Monter les côtes et les escaliers à pied", "Marcher longtemps sans fatigue des mollets", "Soulager le tendon d'Achille"] },
+    "Élévation des talons unipodale": { s: "Sur un pied, le mollet porte tout le poids du corps, comme à chaque pas de course ou de marche rapide. C'est aussi un excellent travail d'équilibre de la cheville.", e: ["Marcher longtemps et vite", "Tenir sur la pointe d'un pied", "Moins d'entorses de cheville"] },
+    "Excentrique mollet sur marche": { s: "On redescend lentement le talon sous le niveau de la marche : le mollet travaille en freinant. Ce travail lent aide le tendon d'Achille à se renforcer et à se réparer.", e: ["Soulager une douleur du tendon d'Achille", "Reprendre la marche ou la course", "Descendre les escaliers plus en souplesse"] },
+    "Extension lombaire couché sur le ventre": { s: "Les muscles le long de la colonne redressent le dos. Les entraîner progressivement les rend plus endurants et diminue souvent les douleurs lombaires.", e: ["Rester debout ou assis longtemps sans mal de dos", "Se redresser après s'être penché", "Porter un sac à dos"] },
+    "Superman bras-jambe opposés": { s: "Comme pendant la marche, le bras et la jambe opposés travaillent ensemble : les muscles du dos et des fessiers se coordonnent en croix.", e: ["Garder le dos stable en marchant", "Porter une charge sans se cambrer", "Nager le crawl plus facilement"] },
+    "Pont en marche": { s: "Le bassin reste en l'air pendant qu'on lève un pied, puis l'autre : les fessiers travaillent chacun leur tour en empêchant le bassin de basculer.", e: ["Marcher d'un bon pas sans se déhancher", "Monter les escaliers", "Moins de douleurs au bas du dos"] },
+    "Bear plank": { s: "À quatre pattes, genoux décollés du sol : épaules, ventre et cuisses travaillent ensemble pour tenir la position. C'est un gainage proche des gestes au sol.", e: ["Jouer au sol avec les enfants", "Se relever du sol plus facilement", "Ramper ou chercher sous un meuble"] },
+    "Planche latérale complète": { s: "Sur le côté, tout le flanc du corps (obliques, moyen fessier, épaule) tient la ligne droite. C'est le gainage latéral le plus complet.", e: ["Porter une valise d'une seule main", "Porter un seau d'eau ou un sac de courses lourd", "Garder l'équilibre si on est bousculé"] },
+    "Mountain climber lent": { s: "En planche, on ramène un genou puis l'autre vers la poitrine : le ventre stabilise, les hanches plient, le cœur accélère un peu.", e: ["Monter les escaliers sans être essoufflé", "Lever le genou haut pour enjamber un obstacle", "Améliorer le souffle sans sauter"] },
+    "Rotation externe couché sur le côté": { s: "Couché, le bras tourne vers l'extérieur avec un petit poids : on isole l'infra-épineux, un des muscles clés de la coiffe des rotateurs.", e: ["Se coiffer ou mettre un chapeau", "Attraper sa ceinture de sécurité", "Lever le bras sans douleur d'épaule"] },
+    "Élévation latérale": { s: "Le deltoïde, le muscle rond de l'épaule, écarte le bras du corps. Il travaille dans tous les gestes où les bras s'éloignent du tronc.", e: ["Étendre le linge", "Ranger en hauteur", "Porter un plateau ou un carton à bout de bras"] },
+    "Wall slides": { s: "Dos au mur, on glisse les bras vers le haut : les muscles qui font tourner l'omoplate apprennent à bien la positionner, ce qui libère la place pour lever le bras.", e: ["Lever les bras au-dessus de la tête sans pincement", "Changer une ampoule ou attraper un objet en hauteur", "Se tenir plus droit"] },
+    "Élévation en Y": { s: "Bras en Y, le bas du trapèze tire les omoplates vers le bas et l'arrière. C'est souvent le muscle oublié des épaules douloureuses.", e: ["Lever les bras en hauteur sans douleur", "Garder les épaules en arrière, pas enroulées", "Moins de tension dans la nuque"] },
+    "Pompes contre le mur": { s: "La version la plus douce de la pompe : pectoraux, épaules et triceps poussent, avec une petite partie du poids du corps seulement.", e: ["Pousser une porte", "Se relever en s'appuyant contre un mur ou un meuble", "Se rattraper avec les mains en cas de déséquilibre"] },
+    "Pompes inclinées": { s: "Les mains sur une table ou un plan de travail : on pousse une plus grande part du poids qu'au mur, en gardant le corps gainé.", e: ["Se relever du sol en poussant sur les bras", "Pousser un meuble", "Porter un objet lourd devant soi"] },
+    "Pompes complètes": { s: "La pompe classique fait pousser environ deux tiers du poids du corps : pectoraux, épaules, triceps et gainage du ventre travaillent ensemble.", e: ["Se relever du sol facilement", "Pousser fort, par exemple une voiture", "Garder des bras solides pour se rattraper en cas de chute"] },
+    "T au sol": { s: "À plat ventre, bras en croix : on renforce les muscles entre les omoplates qui ramènent les épaules en arrière.", e: ["Se tenir droit devant l'écran", "Moins de douleur dans le haut du dos", "Ouvrir les bras pour serrer quelqu'un sans gêne"] },
+    "Rowing un bras appui chaise": { s: "Le grand dorsal et les muscles entre les omoplates tirent le coude vers l'arrière. C'est le geste opposé de la pompe, indispensable pour l'équilibre de l'épaule.", e: ["Tirer une porte lourde", "Porter un seau ou un sac", "Démarrer une tondeuse à lanceur"] },
+    "Rowing deux bras penché": { s: "Penché en avant, dos droit, on tire les deux bras : le dos travaille en tirant et reste gainé en même temps.", e: ["Soulever un carton en gardant le dos droit", "Ramer en kayak", "Se tenir droit plus longtemps"] },
+    "Tirage inversé sous une table": { s: "On tire son propre poids vers une table : le dos et les biceps travaillent fort. C'est l'exercice de traction le plus accessible à la maison.", e: ["Se hisser, grimper", "Tirer une charge vers soi", "Se relever en se tirant sur une rampe"] },
+    "Curl biceps": { s: "Le biceps plie le coude et tourne la paume vers le haut. Il travaille dès qu'on porte quelque chose devant soi.", e: ["Porter les courses ou un enfant dans les bras", "Soulever une casserole pleine", "Ouvrir un pot en vissant"] },
+    "Extension triceps au-dessus de la tête": { s: "Le triceps tend le coude, ici bras levé. Il pousse dans tous les gestes en hauteur.", e: ["Ranger un objet en hauteur", "Pousser sur les bras pour se lever", "Se laver le dos"] },
+    "Curl marteau tempo lent": { s: "Prise pouce vers le haut, on renforce le biceps et les muscles de l'avant-bras, qui serrent la main. Le tempo lent augmente le travail sans charge lourde.", e: ["Porter un sac par la poignée", "Tenir une casserole ou un arrosoir", "Ouvrir un bocal"] },
+    "Tandem talon-pointe": { s: "Un pied devant l'autre, la base d'appui est très étroite : les muscles des chevilles et des hanches corrigent sans arrêt. C'est un test classique de l'équilibre.", e: ["Marcher sur un chemin étroit ou un trottoir encombré", "Moins de risques de chute", "Se retourner sans perdre l'équilibre"] },
+    "Unipodal yeux fermés": { s: "Sans la vue, le corps doit se fier aux capteurs des pieds, des articulations et de l'oreille interne. On les entraîne à prendre le relais.", e: ["Garder l'équilibre dans le noir, la nuit", "Rester stable en fermant les yeux sous la douche", "Mieux se rattraper en cas de déséquilibre"] },
+    "Unipodal sur coussin": { s: "Le coussin rend le sol instable : la cheville réagit plus vite et plus souvent. C'est un bon entraînement après une entorse.", e: ["Marcher sur l'herbe, le sable ou un chemin", "Moins d'entorses de cheville", "Rester stable sur un sol glissant"] },
+    "Toucher en étoile unipodal": { s: "Sur un pied, l'autre jambe va toucher loin dans plusieurs directions : équilibre, force et contrôle du genou travaillent en même temps.", e: ["Se rattraper quand on trébuche", "Attraper un objet loin de soi sans tomber", "Reprendre un sport avec changements de direction"] },
+    "Chat-vache": { s: "On arrondit puis on creuse le dos, vertèbre par vertèbre. Le mouvement nourrit les disques et assouplit la colonne sans forcer.", e: ["Dérouiller le dos le matin", "Soulager un dos raide après être resté assis", "Se pencher plus facilement"] },
+    "Rotation thoracique à quatre pattes": { s: "Le haut du dos tourne pendant que le bas reste stable. Retrouver cette rotation soulage souvent la nuque et le bas du dos, qui compensent.", e: ["Se retourner pour regarder derrière soi en voiture", "Attraper un objet sur le siège arrière", "Jouer au golf ou au tennis"] },
+    "Fente psoas dynamique": { s: "Le psoas, à l'avant de la hanche, se raccourcit quand on reste assis longtemps. Cette fente l'étire en mouvement et redonne de l'amplitude à la hanche.", e: ["Marcher à grands pas en restant bien droit", "Se redresser après une longue période assise", "Moins de tiraillements dans le bas du dos"] },
+    "Essuie-glace genoux pliés": { s: "Les genoux basculent d'un côté à l'autre : le bas du dos tourne doucement et les obliques travaillent. C'est une mobilisation douce de la colonne.", e: ["Se tourner dans le lit", "Assouplir le bas du dos", "Sortir du lit en roulant sur le côté"] },
+    "Montées de genoux": { s: "On lève les genoux en rythme : les fléchisseurs de hanche travaillent et le cœur accélère. C'est un échauffement et un cardio sans saut.", e: ["Monter les escaliers sans traîner les pieds", "Enjamber un obstacle", "Améliorer le souffle"] },
+    "Jumping jack sans saut": { s: "Bras et jambes s'écartent en rythme, sans quitter le sol : le cœur et la respiration travaillent sans choc pour les articulations.", e: ["Améliorer le souffle au quotidien", "S'échauffer avant une activité", "Bouger sans abîmer genoux et hanches"] },
+    "Skater latéral sans saut": { s: "Un grand pas de côté, puis l'autre : les fessiers et l'intérieur des cuisses freinent et relancent le mouvement latéral.", e: ["Faire un pas de côté rapide pour se rattraper", "Éviter quelqu'un sur le trottoir", "Reprendre le tennis ou le football"] },
+    "Rotation externe à l'élastique": { s: "L'élastique résiste quand le bras tourne vers l'extérieur : la coiffe des rotateurs se renforce et garde l'épaule centrée.", e: ["Se coiffer sans douleur d'épaule", "Lancer ou servir au tennis", "Attraper un objet en hauteur"] },
+    "Rotation interne à l'élastique": { s: "Le subscapulaire, devant l'omoplate, tourne le bras vers l'intérieur. Il est indispensable aux gestes derrière le dos.", e: ["Mettre la main dans le dos", "Attacher un soutien-gorge ou rentrer sa chemise", "Mettre la main dans sa poche arrière"] },
+    "Pull-apart à l'élastique": { s: "On écarte l'élastique bras tendus : l'arrière des épaules et les muscles entre les omoplates ramènent les épaules en arrière.", e: ["Garder les épaules ouvertes", "Se tenir droit devant l'écran", "Moins de tensions dans le haut du dos"] },
+    "Tirage horizontal à l'élastique": { s: "Le dos tire l'élastique vers soi, coudes près du corps : c'est le geste de tirer, avec une résistance progressive.", e: ["Tirer une porte ou un tiroir lourd", "Tirer une valise à roulettes", "Ramer"] },
+    "Face pull à l'élastique": { s: "On tire vers le visage en ouvrant les coudes : l'arrière des épaules et les rotateurs externes travaillent ensemble. C'est l'exercice anti-épaules enroulées.", e: ["Garder les épaules en arrière", "Moins de tension dans la nuque au bureau", "Lever les bras au-dessus de la tête plus librement"] },
+    "Pallof press": { s: "On pousse l'élastique devant soi en résistant à la rotation : le tronc apprend à ne pas se tordre quand une force tire sur le côté.", e: ["Porter une charge sans se tordre", "Tenir un chien qui tire en laisse", "Garder l'équilibre dans un transport qui freine"] },
+    "Squat élastique aux genoux": { s: "L'élastique tire les genoux vers l'intérieur et les fessiers doivent résister : le genou reste dans l'axe pendant la flexion.", e: ["Se lever d'une chaise sans que les genoux rentrent", "Descendre les escaliers sans douleur au genou", "Protéger le genou dans les sports"] },
+    "Extension terminale du genou": { s: "L'élastique derrière le genou oblige le quadriceps à finir le mouvement : on récupère les derniers degrés d'extension, souvent perdus après une blessure.", e: ["Tendre complètement le genou pour bien marcher", "Rester debout sans fatigue du genou", "Récupérer après une opération du genou"] },
+    "Marche latérale élastique": { s: "En marchant de côté contre l'élastique, le moyen fessier travaille à chaque pas pour garder le bassin stable.", e: ["Marcher sans se déhancher", "Être plus stable sur une jambe", "Moins de douleurs au genou et à la hanche"] },
+    "Goblet squat": { s: "Le poids tenu devant la poitrine aide à garder le buste droit : jambes et fessiers travaillent davantage, et le dos reste protégé.", e: ["Se baisser en portant un objet devant soi, comme un enfant", "Poser un carton au sol", "Se relever avec une charge dans les bras"] },
+    "Soulevé de terre roumain avec charge": { s: "Avec une charge, on plie à la hanche, dos droit : fessiers et ischio-jambiers soulèvent le poids, pas le bas du dos. C'est le geste de base pour soulever sans se blesser.", e: ["Soulever un carton du sol sans mal de dos", "Sortir les courses du coffre", "Porter un pack d'eau"] },
+    "Développé épaules assis": { s: "Assis, on pousse la charge au-dessus de la tête : les deltoïdes et les triceps travaillent sans que le dos compense.", e: ["Ranger une valise en hauteur", "Mettre un objet lourd sur une armoire", "Lever les bras avec une charge sans douleur"] },
+    "Fente avec charge": { s: "La fente devient plus exigeante avec un poids : cuisses et fessiers travaillent comme lorsqu'on monte chargé.", e: ["Monter les escaliers avec les courses", "Porter un enfant en montant", "Randonner avec un sac à dos"] },
+    "Hip thrust lesté": { s: "Le hip thrust avec une charge sur le bassin pousse le grand fessier près de son maximum. C'est l'exercice le plus efficace pour gagner de la force de hanche.", e: ["Plus de force pour se relever et monter", "Pousser une charge lourde", "Courir et sprinter plus fort"] }
   };
   function usage(name) { return USAGE[name] || null; }
+  function low(t) { return t.charAt(0).toLowerCase() + t.slice(1); }
   var USE_ICON = "<svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 12l2-2 7-7 7 7 2 2'/><path d='M5 10v10h14V10'/></svg>";
-  function usageHtml(name) { var u = usage(name); return u ? "<span class='ki-use'>" + USE_ICON + "<span>" + esc(u) + "</span></span>" : ""; }
+  // Version courte (listes) : les exemples du quotidien
+  function usageShort(name) {
+    var u = usage(name); if (!u) return "";
+    return "<span class='ki-use'>" + USE_ICON + "<span>Utile pour " + esc(u.e.map(low).join(", ")) + ".</span></span>";
+  }
+  // Version complète (fiche, tuto, page du programme) : l'explication, puis les exemples
+  function usageFull(name) {
+    var u = usage(name); if (!u) return "";
+    return "<div class='ki-why'><div class='ki-why-h'>" + USE_ICON + "À quoi ça sert</div><p>" + esc(u.s) + "</p>" +
+      "<div class='ki-why-k'>Dans la vie de tous les jours</div><ul>" + u.e.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>";
+  }
 
-  // Ajoute la ligne dans l'aperçu de séance, la bibliothèque, la démonstration et le tuto « Première fois »
+  // Ajoute l'explication dans l'aperçu de séance, la bibliothèque, la démonstration, le tuto « Première fois » et la page du programme
   function decorate(root) {
     if (!root || !root.querySelectorAll) return;
     root.querySelectorAll(".kf-ex .kf-ex-name, .kb-ex .pg-day-t > b").forEach(function (b) {
       var host = b.parentNode; if (host.querySelector(".ki-use")) return;
-      var u = usageHtml(b.textContent.trim()); if (u) host.insertAdjacentHTML("beforeend", u);
+      var u = usageShort(b.textContent.trim()); if (u) host.insertAdjacentHTML("beforeend", u);
     });
     root.querySelectorAll("#kf-demo .kf-h1, .kf-tuto-h").forEach(function (h) {
-      var host = h.parentNode; if (host.querySelector(".ki-use")) return;
-      var u = usageHtml(h.textContent.trim()); if (!u) return;
-      var after = h.nextElementSibling && h.nextElementSibling.classList.contains("kf-sub") ? h.nextElementSibling : h;
-      after.insertAdjacentHTML("afterend", u.replace("ki-use", "ki-use big"));
+      var host = h.parentNode; if (host.querySelector(".ki-why")) return;
+      var u = usageFull(h.textContent.trim()); if (!u) return;
+      if (h.classList.contains("kf-tuto-h")) { var pts = host.querySelector(".kf-tuto-pts"); (pts || h).insertAdjacentHTML("afterend", u); return; }
+      host = h.closest(".kf-sheet-body") || host;
+      var cue = host.querySelector(".pg-cue") || host.querySelector(".v2-stage");
+      if (cue) cue.insertAdjacentHTML("afterend", u); else h.insertAdjacentHTML("afterend", u);
+    });
+    if (typeof SEQ_DAYS !== "undefined") root.querySelectorAll(".ex[id^='ex-day']").forEach(function (card) {
+      if (card.querySelector(".ki-why")) return;
+      var m = /^ex-(day\d+)-(\d+)$/.exec(card.id), ex = m && SEQ_DAYS[m[1]] && SEQ_DAYS[m[1]].exercises[+m[2]];
+      var u = ex && usageFull(ex.name), d = card.querySelector(".ex-desc");
+      if (u && d) d.insertAdjacentHTML("afterend", u);
     });
   }
   var watched = {};
@@ -396,7 +415,7 @@
 
   window.KineIdees = {
     usage: usage, goals: goals, goalCard: goalCard, goalEdit: goalEdit, goalRate: goalRate, summaryLines: summaryLines, due: due,
-    vf: VF, vfIdx: vfIdx, spoken: spoken, express: express, defineExpress: defineExpress, decorate: decorate, USAGE: USAGE,
+    vf: VF, vfIdx: vfIdx, spoken: spoken, express: express, defineExpress: defineExpress, decorate: decorate, USAGE: USAGE, usageFull: usageFull,
     _pick: pick, _sugg: sugg, _chk: chk, _saveNew: saveNew, _del: del, _saveRate: saveRate, _close: closeSheet,
     _vf: vfAnswer, _vfSay: function () { say(spoken(vfIdx())); }
   };
@@ -405,6 +424,7 @@
     var box = $("today-card");
     if (box) { placeHome(); new MutationObserver(function () { if (!$("ki-vf") || !$("ki-express")) placeHome(); }).observe(box, { childList: true }); }
     watchSheets();
+    decorate(document.body);
     new MutationObserver(watchSheets).observe(document.body, { childList: true });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
