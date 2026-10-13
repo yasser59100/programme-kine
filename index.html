@@ -2,6 +2,20 @@
 <html lang="fr" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<script>
+/* Démarrage : thème appliqué tout de suite, et la page reste cachée derrière un écran de démarrage
+   tant que la nouvelle interface n'est pas dessinée (sinon l'ancienne apparaît une fraction de seconde) */
+(function(){var d=document.documentElement;try{d.setAttribute('data-theme',localStorage.getItem('kf-theme')||'dark');}catch(e){}
+d.classList.add('kf-boot');setTimeout(function(){d.classList.remove('kf-boot');},4000);})();
+</script>
+<style>
+html.kf-boot{background:#0B0F17}
+html.kf-boot[data-theme="light"]{background:#F0F4F8}
+html.kf-boot body{visibility:hidden}
+html.kf-boot body::before{visibility:visible;content:"KinéForce";position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+  font:800 30px/1 'Outfit',system-ui,sans-serif;letter-spacing:-0.02em;color:#EEF3FA;background:#0B0F17}
+html.kf-boot[data-theme="light"] body::before{color:#0f172a;background:#F0F4F8}
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>KinéForce — Yasser Ladraa</title>

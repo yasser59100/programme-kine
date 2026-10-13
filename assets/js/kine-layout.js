@@ -264,7 +264,9 @@
   function renderAllLx() { renderHome(); renderSuivi(); renderProg(); }
   window.KineLayout = { render: renderAllLx, chart: chart, bigText: bigText };
   function init() {
-    arrangeGuide(); renderAllLx();
+    try { arrangeGuide(); renderAllLx(); } catch (e) {}
+    // la nouvelle interface est dessinée : on lève l'écran de démarrage
+    requestAnimationFrame(function () { document.documentElement.classList.remove("kf-boot"); });
     if (typeof renderAll === "function" && !renderAll.__lx) {
       var base = renderAll;
       renderAll = function () { base.apply(this, arguments); renderAllLx(); };
