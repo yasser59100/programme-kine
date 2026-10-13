@@ -290,28 +290,64 @@
 
   /* ════════ 2. Vrai ou faux de la semaine ════════ */
   var VF = [
+    { q: "Faire craquer son dos ou ses doigts abîme les articulations.", a: false,
+      e: "Le bruit vient d'une petite bulle de gaz qui se forme dans le liquide de l'articulation. Les études n'ont pas trouvé plus d'arthrose chez ceux qui font craquer leurs doigts.", s: "deWeber et al., JABFM, 2011" },
+    { q: "S'étirer avant le sport évite les courbatures.", a: false,
+      e: "Les études montrent que les étirements ne réduisent presque pas les courbatures. Un échauffement progressif prépare mieux le corps.", s: "Herbert et al., Cochrane, 2011" },
     { q: "Avoir mal pendant un exercice veut dire qu'on s'abîme.", a: false,
       e: "La douleur est une alarme, souvent plus sensible que nécessaire. Une gêne jusqu'à 5 sur 10, qui se calme dans les 24 heures, est acceptable pendant la rééducation.", s: "Smith et al., BJSM, 2017" },
+    { q: "Le froid ou le chaud peuvent soulager une douleur.", a: true,
+      e: "Ils brouillent en partie le signal de douleur envoyé au cerveau. Le froid calme un gonflement récent, le chaud détend les muscles raides.", s: "" },
+    { q: "Plus on a mal, plus la blessure est grave.", a: false,
+      e: "L'intensité de la douleur ne reflète pas la gravité des dégâts. Un petit choc peut faire très mal, et une vraie lésion peut passer presque inaperçue.", s: "" },
     { q: "Avec un mal de dos, le mieux est de rester au lit.", a: false,
       e: "Rester alité ralentit la récupération. Rester actif, même doucement, aide le dos à guérir plus vite.", s: "Dahm et al., Cochrane, 2010" },
+    { q: "Une hernie discale peut se résorber toute seule.", a: true,
+      e: "Dans beaucoup de cas, le corps fait régresser la hernie en quelques mois. Les plus grosses sont même celles qui diminuent le plus souvent.", s: "Chiu et al., Clin Rehabil, 2015" },
+    { q: "Le renforcement musculaire est mauvais pour les articulations.", a: false,
+      e: "Des muscles forts absorbent les chocs et soulagent les articulations. Le renforcement fait partie des traitements recommandés de l'arthrose du genou et de la hanche.", s: "OARSI, 2019" },
     { q: "Avoir des courbatures le lendemain d'une séance, c'est normal.", a: true,
       e: "Elles arrivent un à deux jours après un effort inhabituel et disparaissent en quelques jours. Elles diminuent à mesure que le corps s'habitue.", s: "" },
+    { q: "Il faut attendre de ne plus avoir mal du tout pour reprendre le sport.", a: false,
+      e: "Une reprise progressive, avec une gêne légère qui se calme, vaut souvent mieux qu'un repos complet. Votre kiné vous aide à doser l'effort.", s: "" },
+    { q: "Bien dormir aide les muscles à récupérer.", a: true,
+      e: "C'est pendant le sommeil profond que le corps répare les tissus. Sept à neuf heures par nuit, c'est l'idéal pour un adulte.", s: "" },
     { q: "Il existe une posture parfaite à garder toute la journée.", a: false,
       e: "Aucune posture n'est dangereuse en soi : c'est de rester figé trop longtemps qui fatigue. La meilleure posture, c'est la suivante, alors bougez souvent.", s: "Slater et al., BJSM, 2019" },
+    { q: "Le gainage, ça sert seulement à avoir un ventre plat.", a: false,
+      e: "Le gainage apprend aux muscles du tronc à protéger la colonne quand on porte, pousse ou se penche. C'est utile pour le dos, pas seulement pour l'apparence.", s: "" },
+    { q: "Le mal de dos vient presque toujours d'une vertèbre déplacée.", a: false,
+      e: "Les vertèbres ne se déplacent pas comme on l'imagine. Dans la grande majorité des cas, aucune lésion grave n'est trouvée, et le dos s'améliore en restant actif.", s: "Maher et al., The Lancet, 2017" },
     { q: "Soulever une charge le dos rond est forcément dangereux.", a: false,
       e: "Le dos est solide et fait pour se plier. Les études ne montrent pas que le dos rond cause plus de douleur ; l'important, c'est d'y aller progressivement.", s: "Saraceni et al., JOSPT, 2020" },
+    { q: "La plupart des lombalgies récentes s'améliorent en quelques semaines.", a: true,
+      e: "La douleur diminue nettement dans les six premières semaines chez la plupart des personnes. Rester actif aide à aller mieux plus vite.", s: "Menezes Costa et al., CMAJ, 2012" },
+    { q: "Bouger quand on a mal peut libérer des antidouleurs naturels.", a: true,
+      e: "L'effort libère des substances, comme les endorphines, qui atténuent la douleur. C'est pour ça qu'on se sent souvent mieux après une séance.", s: "" },
     { q: "Une IRM qui montre une hernie explique forcément la douleur.", a: false,
       e: "Beaucoup de personnes sans aucune douleur ont des hernies ou de l'usure à l'IRM. Ce sont souvent des signes normaux de l'âge, comme les cheveux gris.", s: "Brinjikji et al., AJNR, 2015" },
+    { q: "Respirer lentement peut aider à calmer la douleur.", a: true,
+      e: "Une respiration lente, environ six respirations par minute, apaise le système nerveux. C'est la cohérence cardiaque de vos étirements.", s: "" },
+    { q: "Un genou qui craque est forcément un genou abîmé.", a: false,
+      e: "Les craquements sont très fréquents, même chez les personnes en bonne santé. Sans douleur ni gonflement, ils ne sont pas inquiétants.", s: "" },
     { q: "Après 70 ans, il est trop tard pour se muscler.", a: false,
       e: "On gagne de la force à tout âge, même après 90 ans. Le renforcement améliore la marche et réduit le risque de chute.", s: "Fiatarone et al., JAMA, 1990" },
+    { q: "Les antidouleurs suffisent pour guérir un mal de dos.", a: false,
+      e: "Ils peuvent soulager un moment, mais ils ne réparent rien. Le mouvement et l'exercice restent le traitement le plus efficace sur la durée.", s: "" },
+    { q: "Le stress peut rendre la douleur plus forte.", a: true,
+      e: "Le cerveau règle le volume de la douleur, et le stress le monte. Respirer, bouger et se détendre aident à le baisser.", s: "" },
+    { q: "Avoir des jambes fortes réduit le risque de chute.", a: true,
+      e: "Des cuisses et des mollets forts rattrapent mieux un déséquilibre. Avec des exercices d'équilibre, le renforcement réduit nettement les chutes.", s: "Sherrington et al., Cochrane, 2019" },
     { q: "Si je rate une séance, je dois tout recommencer.", a: false,
       e: "Une séance manquée ne fait pas perdre vos progrès. Reprenez simplement à la suivante : c'est la régularité sur plusieurs semaines qui compte.", s: "" },
+    { q: "Avoir peur de bouger peut entretenir la douleur.", a: true,
+      e: "Quand on évite un geste par peur, les muscles s'affaiblissent et le geste devient plus difficile. Le reprendre petit à petit rassure le corps et le cerveau.", s: "" },
+    { q: "S'échauffer avant l'effort ne sert pas à grand-chose.", a: false,
+      e: "L'échauffement réchauffe les muscles, active la circulation et réveille la coordination. Il réduit le risque de blessure, surtout dans les sports avec des changements de direction.", s: "" },
     { q: "Mal dormir peut augmenter la douleur.", a: true,
       e: "Une mauvaise nuit rend le système nerveux plus sensible à la douleur. Prendre soin de son sommeil fait partie du traitement.", s: "Finan et al., J Pain, 2013" },
     { q: "Marcher régulièrement aide à éviter que le mal de dos revienne.", a: true,
       e: "Une grande étude de 2024 montre qu'un programme de marche progressif réduit nettement les rechutes. Environ 30 minutes, 5 fois par semaine, à votre rythme.", s: "Pocovi et al., The Lancet, 2024" },
-    { q: "Le stress peut rendre la douleur plus forte.", a: true,
-      e: "Le cerveau règle le volume de la douleur, et le stress le monte. Respirer, bouger et se détendre aident à le baisser.", s: "" },
     { q: "Avec de l'arthrose, il vaut mieux éviter de bouger.", a: false,
       e: "Le mouvement nourrit le cartilage et les muscles protègent l'articulation. L'exercice est le premier traitement recommandé de l'arthrose.", s: "OARSI, 2019" }
   ];
@@ -320,7 +356,8 @@
   function spoken(i) { var v = VF[i]; return (v.a ? "C'est vrai. " : "C'est faux. ") + v.e; }
   var VF_ICON = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='9'/><path d='M9.2 9.2a3 3 0 0 1 5.6 1.3c0 2-2.8 2.4-2.8 4'/><path d='M12 17.5h.01'/></svg>";
   function vfCard() {
-    var i = vfIdx(), v = VF[i], ans = jget("kf-vf", {}), mine = ans[weekNo()];
+    var i = vfIdx(), v = VF[i], ans = jget("kf-vf", {}), x = ans[weekNo()];
+    var mine = typeof x === "boolean" ? x : (x && x.i === i ? x.a : null);   // la réponse vaut pour la question de la semaine
     var c = document.createElement("div");
     c.className = "ki-vf"; c.id = "ki-vf";
     var face = window.KineMascotte && KineMascotte.portrait && yassOn() ? KineMascotte.portrait() : null;
@@ -338,7 +375,7 @@
     return c;
   }
   function vfAnswer(a) {
-    var ans = jget("kf-vf", {}); ans[weekNo()] = a; jset("kf-vf", ans);
+    var ans = jget("kf-vf", {}); ans[weekNo()] = { i: vfIdx(), a: a }; jset("kf-vf", ans);
     var old = $("ki-vf"); if (old) old.replaceWith(vfCard());
     say(spoken(vfIdx()));
   }
