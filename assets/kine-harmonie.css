@@ -299,13 +299,18 @@ html[data-theme="light"] .ki-vf-r b.ko { color: #a86400; }
 .ki-erow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .ki-del { padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(255, 92, 115, .45); background: none; color: #FF5C73; font: 600 .85rem var(--font); cursor: pointer; }
 :root:root #ki-sheet .seq-btn-main:disabled { opacity: .45 !important; }
-.ki-why { margin: 10px 0 4px; padding: 12px 14px; border-radius: 14px; background: rgba(60, 242, 176, .07); border: 1px solid rgba(60, 242, 176, .28); color: var(--text); text-align: left; }
-.ki-why-h { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #3CF2B0; }
-.ki-why p { margin: 6px 0 8px; font-size: .92rem; line-height: 1.45; }
+.ki-why { margin: 10px 0 4px; border-radius: 14px; background: rgba(60, 242, 176, .07); border: 1px solid rgba(60, 242, 176, .28); color: var(--text); text-align: left; }
+.ki-why summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; list-style: none; cursor: pointer; font-size: .95rem; font-weight: 700; color: #3CF2B0; }
+.ki-why summary::-webkit-details-marker { display: none; }
+.ki-why summary span { flex: 1; }
+.ki-why summary i { font-style: normal; font-size: 1.3rem; transition: transform .2s; }
+.ki-why[open] summary i { transform: rotate(90deg); }
+.ki-why-b { padding: 0 14px 12px; }
+.ki-why p { margin: 0 0 8px; font-size: .92rem; line-height: 1.45; }
 .ki-why-k { font-size: .82rem; font-weight: 700; color: var(--text2); }
 .ki-why ul { margin: 4px 0 0; padding-left: 18px; font-size: .9rem; line-height: 1.45; }
 .ki-why li { margin: 2px 0; }
 .kf-tuto .ki-why { margin: 8px 0; }
 .kf-tuto .ki-why p, .kf-tuto .ki-why ul { font-size: .86rem; }
 html[data-theme="light"] .ki-why { background: rgba(10, 138, 95, .06); border-color: rgba(10, 138, 95, .28); }
-html[data-theme="light"] .ki-why-h { color: #0a8a5f; }
+html[data-theme="light"] .ki-why summary { color: #0a8a5f; }

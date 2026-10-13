@@ -121,17 +121,14 @@
   // Version complète (fiche, tuto, page du programme) : l'explication, puis les exemples
   function usageFull(name) {
     var u = usage(name); if (!u) return "";
-    return "<div class='ki-why'><div class='ki-why-h'>" + USE_ICON + "À quoi ça sert</div><p>" + esc(u.s) + "</p>" +
-      "<div class='ki-why-k'>Dans la vie de tous les jours</div><ul>" + u.e.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>";
+    return "<details class='ki-why'><summary>" + USE_ICON + "<span>À quoi ça sert ?</span><i aria-hidden='true'>›</i></summary><div class='ki-why-b'><p>" + esc(u.s) + "</p>" +
+      "<div class='ki-why-k'>Dans la vie de tous les jours</div><ul>" + u.e.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div></details>";
   }
 
   // Ajoute l'explication dans l'aperçu de séance, la bibliothèque, la démonstration, le tuto « Première fois » et la page du programme
   function decorate(root) {
     if (!root || !root.querySelectorAll) return;
-    root.querySelectorAll(".kf-ex .kf-ex-name, .kb-ex .pg-day-t > b").forEach(function (b) {
-      var host = b.parentNode; if (host.querySelector(".ki-use")) return;
-      var u = usageShort(b.textContent.trim()); if (u) host.insertAdjacentHTML("beforeend", u);
-    });
+    // Dans les listes, rien : l'explication s'ouvre seulement si on appuie dessus, dans la fiche
     root.querySelectorAll("#kf-demo .kf-h1, .kf-tuto-h").forEach(function (h) {
       var host = h.parentNode; if (host.querySelector(".ki-why")) return;
       var u = usageFull(h.textContent.trim()); if (!u) return;
