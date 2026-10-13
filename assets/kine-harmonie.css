@@ -221,3 +221,17 @@
 .cele-go { margin-top: 6px; }
 @media (prefers-reduced-motion: reduce) { #kf-cele.open, .cele-h, .cele-week i.new { animation: none; } }
 :root[data-theme="light"] #kf-cele { background: radial-gradient(90% 60% at 50% 30%, rgba(0, 194, 214, 0.14), transparent 70%), #F0F4F8; }
+
+/* ═══ Écrans vides ═══ */
+.su-welcome { margin: 20px 0 6px; padding: 22px 20px; border-radius: var(--h-r-card, 20px); background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
+.su-face { width: 64px; height: 64px; border-radius: 32px; object-fit: cover; object-position: 50% 28%; background: radial-gradient(circle at 50% 40%, rgba(0, 242, 254, 0.3), transparent 70%); }
+.su-wh { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+.su-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.su-steps li { display: flex; gap: 12px; align-items: flex-start; }
+.su-steps b { flex: 0 0 28px; height: 28px; border-radius: 14px; display: grid; place-items: center; font-size: 0.9rem; color: var(--h-accent, #00E5F5); background: var(--h-sel-bg, rgba(0, 229, 245, 0.14)); }
+.su-steps span { display: flex; flex-direction: column; gap: 2px; font-size: 0.92rem; line-height: 1.4; color: var(--text2); }
+.su-steps strong { color: var(--text); font-size: 1rem; }
+#page-community .community-stats:not(.on) { display: none !important; }
+.mx-empty-card { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; padding: 16px; margin-top: 8px; border-radius: var(--h-r-card, 20px); border: 2px dashed var(--border2); background: transparent; color: var(--text2); font: inherit; font-size: 0.92rem; line-height: 1.4; cursor: pointer; }
+.mx-empty-card strong { display: block; color: var(--text); font-size: 1rem; }
+.mx-plus { flex: 0 0 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; font-size: 1.5rem; font-weight: 700; color: var(--h-accent, #00E5F5); background: var(--h-sel-bg, rgba(0, 229, 245, 0.14)); }

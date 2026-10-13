@@ -2224,9 +2224,11 @@ function loadFirebaseFeed(){
 function loadCommunityStats(){
   if(!window.fbGetStats) return;
   window.fbGetStats().then(function(stats){
-    document.getElementById("cs-members").textContent = stats.members || "—";
-    document.getElementById("cs-seances").textContent = stats.total || "—";
-    document.getElementById("cs-week").textContent = stats.week || "—";
+    if (!stats) return;
+    document.getElementById("cs-members").textContent = stats.members || 0;
+    document.getElementById("cs-seances").textContent = stats.total || 0;
+    document.getElementById("cs-week").textContent = stats.week || 0;
+    var row = document.querySelector("#page-community .community-stats"); if (row) row.classList.add("on");   // les chiffres n'apparaissent qu'une fois connus
   });
 }
 

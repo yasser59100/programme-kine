@@ -138,10 +138,22 @@
     }).join("");
     var C = window.KineCheckin;
     var now = new Date();
+    // Premier jour : au lieu d'un anneau gris et de cases vides, un accueil qui explique la suite
+    var fresh = !ss.length, welcome = "";
+    if (fresh) {
+      var first = (dayMap()[now.getDay()]) || Object.keys(SEQ_DAYS)[0];
+      var face = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null;
+      welcome = "<div class='su-welcome'>" + (face ? "<img class='su-face' src='" + face + "' alt=''>" : "") +
+        "<h2 class='su-wh'>Votre suivi commence ici</h2>" +
+        "<ol class='su-steps'>" +
+          "<li><b>1</b><span><strong>Faites votre première séance</strong>Yass vous guide, mouvement par mouvement.</span></li>" +
+          "<li><b>2</b><span><strong>Notez votre ressenti</strong>30 secondes par jour : douleur, sommeil, moral.</span></li>" +
+          "<li><b>3</b><span><strong>Voyez vos progrès</strong>Votre semaine, votre régularité et vos courbes s'affichent ici.</span></li>" +
+        "</ol><button class='lx-cta' onclick=\"openPreview('" + first + "')\">Commencer ma première séance</button></div>";
+    }
     box.innerHTML =
       "<h1 class='lx-title'>Mon suivi</h1><p class='lx-date'>" + cap(WD[now.getDay()]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
-      (C ? C.ring() + C.cta() + C.week() : "") +
-      "<p class='lx-lede kr-sum'>" + summary + "</p>" + alert +
+      (fresh ? welcome + (C ? C.cta() + C.week() : "") : (C ? C.ring() + C.cta() + C.week() : "") + "<p class='lx-lede kr-sum'>" + summary + "</p>") + alert +
       (C ? C.insights() : "<div class='lx-chart'>" + chart(ss) + "</div>") +
       "<div class='kr-links'>" +
         "<button onclick='KineCheckin.calendar()'><span>Calendrier</span><span aria-hidden='true'>›</span></button>" +
@@ -150,7 +162,7 @@
         "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
         (window.KineMascotte ? "<button onclick='KineMascotte.faq()'><span>Une question ? Demande à Yass</span><span aria-hidden='true'>›</span></button>" +
           "<button onclick='KineMascotte.bouge()'><span>Bouger 2 minutes avec Yass</span><span aria-hidden='true'>›</span></button>" : "") +
-        (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Yass, ton coach</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivée" : "activée") + "</span></button>" : "") +
+        (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Yass, ton coach</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivé" : "activé") + "</span></button>" : "") +
         (window.KineGuide ? "<button onclick='KineGuide.menu()'><span>Guidage sonore</span><span class='kr-sw' id='kg-current'>" + KineGuide.label().toLowerCase() + "</span></button>" : "") +
         "<button onclick='KineLayout.bigText()' aria-pressed='" + bigOn() + "'><span>Taille du texte</span><span class='kr-sw'>" + (bigOn() ? "grande" : "normale") + "</span></button>" +
       "</div>" +

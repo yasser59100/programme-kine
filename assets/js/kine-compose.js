@@ -245,7 +245,7 @@ var KineCompose = (function () {
       var dots = s.ex.map(function (n) { return "<i class='kb-dot c" + KineBiblio.color(n) + "'></i>"; }).join("");
       return "<div class='mx-mine'><button class='mx-sess' onclick='KineCompose.start(" + q(s.id) + ")'><b>" + esc(s.name) + "</b><span>" + dots + "</span><small>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small><em>Lancer ›</em></button>" +
         "<div class='mx-tools'><button aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button><button aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div></div>";
-    }).join("") : "<p class='mx-empty'>Aucune séance pour l'instant. Crée la première, ça prend une minute.</p>";
+    }).join("") : "<button type='button' class='mx-empty-card' onclick='KineCompose.open()'><span class='mx-plus' aria-hidden='true'>+</span><span><strong>Crée ta première séance</strong>Choisis 5 à 8 exercices, ça prend une minute.</span></button>";
     var groups = KineBiblio.groups.map(function (g) {
       var it = all.filter(function (e) { return e.group === g[0] && (!e.gear || gear[e.gear]); }); if (!it.length) return "";
       var t = thumb(it[0].name);
