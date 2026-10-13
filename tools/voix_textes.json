@@ -4490,5 +4490,253 @@
 {
 "t": "Votre kiné vous aide à doser l'effort.",
 "g": "mascotte"
+},
+{
+"t": "3",
+"g": "seance"
+},
+{
+"t": "4",
+"g": "seance"
+},
+{
+"t": "Avec l'exercice progressif, le sommeil et une meilleure compréhension de la douleur, l'alarme se recalibre.",
+"g": "mascotte"
+},
+{
+"t": "Beaucoup de pieds plats ne posent aucun problème.",
+"g": "mascotte"
+},
+{
+"t": "Bloquer la respiration fait monter la tension artérielle.",
+"g": "mascotte"
+},
+{
+"t": "Buvez régulièrement, sans attendre d'avoir soif.",
+"g": "mascotte"
+},
+{
+"t": "C'est le principe de votre programme.",
+"g": "mascotte"
+},
+{
+"t": "C'est un des buts de votre programme.",
+"g": "mascotte"
+},
+{
+"t": "C'est une protection contre l'ostéoporose et les fractures.",
+"g": "mascotte"
+},
+{
+"t": "Ce qui compte, c'est de les faire, pas l'endroit.",
+"g": "mascotte"
+},
+{
+"t": "Ces pratiques associent mouvement, respiration et détente.",
+"g": "mascotte"
+},
+{
+"t": "Chez les coureurs de loisir, l'arthrose du genou et de la hanche n'est pas plus fréquente que chez les sédentaires.",
+"g": "mascotte"
+},
+{
+"t": "Couper les longues périodes assises détend les muscles et nourrit les disques.",
+"g": "mascotte"
+},
+{
+"t": "Des mouvements doux et un renforcement adapté aident à récupérer.",
+"g": "mascotte"
+},
+{
+"t": "Elles aident la lombalgie chronique, comme les autres formes d'exercice.",
+"g": "mascotte"
+},
+{
+"t": "Environ 7 000 pas par jour sont déjà associés à une baisse nette de la mortalité.",
+"g": "mascotte"
+},
+{
+"t": "Expirez pendant l'effort et inspirez au retour.",
+"g": "mascotte"
+},
+{
+"t": "Il est souvent conseillé en cas d'arthrose du genou, avec une selle bien réglée.",
+"g": "mascotte"
+},
+{
+"t": "Il peut indiquer qu'il faut adapter la charge.",
+"g": "mascotte"
+},
+{
+"t": "Il suffit d'augmenter la charge progressivement.",
+"g": "mascotte"
+},
+{
+"t": "Immobiliser une épaule trop longtemps la raidit.",
+"g": "mascotte"
+},
+{
+"t": "L'acide lactique disparaît environ une heure après l'effort.",
+"g": "mascotte"
+},
+{
+"t": "L'activité physique améliore la qualité du sommeil, surtout le sommeil profond.",
+"g": "mascotte"
+},
+{
+"t": "L'opération est réservée à des situations précises.",
+"g": "mascotte"
+},
+{
+"t": "La confiance et l'optimisme sont liés à une meilleure récupération après une blessure.",
+"g": "mascotte"
+},
+{
+"t": "La douleur est toujours réelle, même sans lésion visible.",
+"g": "mascotte"
+},
+{
+"t": "La marche fait travailler le cœur, les muscles et les os.",
+"g": "mascotte"
+},
+{
+"t": "La nicotine resserre les vaisseaux, donc moins d'oxygène arrive aux tissus.",
+"g": "mascotte"
+},
+{
+"t": "La plupart des sciatiques s'améliorent sans chirurgie, en quelques semaines à quelques mois.",
+"g": "mascotte"
+},
+{
+"t": "Le cartilage s'adapte aux charges progressives.",
+"g": "mascotte"
+},
+{
+"t": "Le meilleur matelas, c'est surtout celui sur lequel vous dormez bien.",
+"g": "mascotte"
+},
+{
+"t": "Le poids du corps suffit à renforcer les muscles, à condition d'augmenter peu à peu la difficulté.",
+"g": "mascotte"
+},
+{
+"t": "Le renforcement apporte surtout de la force, du tonus et des os plus solides.",
+"g": "mascotte"
+},
+{
+"t": "Le repos total l'affaiblit.",
+"g": "mascotte"
+},
+{
+"t": "Le système nerveux peut devenir trop sensible, et cela se soigne, notamment par le mouvement.",
+"g": "mascotte"
+},
+{
+"t": "Le vélo fait travailler les cuisses sans choc.",
+"g": "mascotte"
+},
+{
+"t": "Les abdominaux renforcent les muscles, mais c'est l'activité générale et l'alimentation qui font maigrir.",
+"g": "mascotte"
+},
+{
+"t": "Les courbatures viennent de petites lésions des fibres musculaires, qui se réparent en quelques jours.",
+"g": "mascotte"
+},
+{
+"t": "Les fractures consolident plus lentement chez les fumeurs.",
+"g": "mascotte"
+},
+{
+"t": "Les glisser dans la routine du quotidien aide à tenir sur la durée.",
+"g": "mascotte"
+},
+{
+"t": "Les os se densifient quand les muscles tirent dessus et qu'on porte son poids.",
+"g": "mascotte"
+},
+{
+"t": "Les semelles se discutent seulement en cas de douleur.",
+"g": "mascotte"
+},
+{
+"t": "Les tendons s'adaptent à l'entraînement à tout âge, simplement plus lentement.",
+"g": "mascotte"
+},
+{
+"t": "Les tremblements montrent simplement que le muscle travaille près de sa limite.",
+"g": "mascotte"
+},
+{
+"t": "Les étirements améliorent la souplesse, mais pas la force.",
+"g": "mascotte"
+},
+{
+"t": "Même une petite déshydratation diminue la force et l'endurance.",
+"g": "mascotte"
+},
+{
+"t": "On ne peut pas choisir où le corps perd sa graisse.",
+"g": "mascotte"
+},
+{
+"t": "Perdre quelques kilos soulage nettement des genoux arthrosiques.",
+"g": "mascotte"
+},
+{
+"t": "Porter une ceinture en permanence ne prévient pas le mal de dos.",
+"g": "mascotte"
+},
+{
+"t": "Pour être plus fort, il faut faire travailler le muscle contre une résistance.",
+"g": "mascotte"
+},
+{
+"t": "Prendre beaucoup de volume demande des années d'entraînement intensif et une alimentation adaptée.",
+"g": "mascotte"
+},
+{
+"t": "Renforcer ses propres muscles du tronc est plus utile.",
+"g": "mascotte"
+},
+{
+"t": "Sans douleur, c'est normal.",
+"g": "mascotte"
+},
+{
+"t": "Se fixer de petits objectifs atteignables aide beaucoup.",
+"g": "mascotte"
+},
+{
+"t": "Si elle dure ou augmente, on allège la séance suivante et on en parle au kiné.",
+"g": "mascotte"
+},
+{
+"t": "Un gonflement qui apparaît ou augmente doit être signalé à votre kiné.",
+"g": "mascotte"
+},
+{
+"t": "Un matelas moyennement ferme semble plus confortable pour la plupart des personnes qui ont mal au dos.",
+"g": "mascotte"
+},
+{
+"t": "Un tendon douloureux guérit mieux avec une charge adaptée et progressive.",
+"g": "mascotte"
+},
+{
+"t": "Une gêne qui revient à son niveau habituel en 24 heures est acceptable.",
+"g": "mascotte"
+},
+{
+"t": "Une minute de marche toutes les heures, c'est déjà bien.",
+"g": "mascotte"
+},
+{
+"t": "À chaque pas, le genou supporte plusieurs fois le poids du corps.",
+"g": "mascotte"
+},
+{
+"t": "Évitez simplement un effort intense juste avant le coucher.",
+"g": "mascotte"
 }
 ]
