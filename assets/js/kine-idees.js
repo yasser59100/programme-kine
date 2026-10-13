@@ -437,12 +437,22 @@
     var good = mine === v.a;
     return "<b class='" + (good ? "ok" : "ko") + "'>" + (good ? "Bien vu ! " : "Pas tout à fait. ") + (v.a ? "C'est vrai." : "C'est faux.") + "</b>";
   }
+  // « Encore une question » : une question jamais répondue, au hasard (jamais celle du jour)
+  var extra = null;
+  function pool() { var h = hist(), t = vfIdx(), out = []; for (var k = 0; k < VF.length; k++) if (k !== t && !h[k]) out.push(k); return out; }
+  function vfMore() {
+    var p = pool(); if (!p.length) return;
+    extra = p[Math.floor(Math.random() * p.length)];
+    var old = $("ki-vf"); if (old) old.replaceWith(vfCard());
+    if (typeof stopSpeech === "function") stopSpeech();
+  }
   function vfCard() {
-    var i = vfIdx(), v = VF[i], h = hist()[i], mine = h && h.d === iso() ? h.a : null, n = answered().length;
+    var i = extra != null ? extra : vfIdx(), v = VF[i], h = hist()[i], n = answered().length;
+    var mine = h && (extra != null || h.d === iso()) ? h.a : null;
     var c = document.createElement("div");
     c.className = "ki-vf"; c.id = "ki-vf";
     var face = window.KineMascotte && KineMascotte.portrait && yassOn() ? KineMascotte.portrait() : null;
-    var html = "<span class='ks-tag'>" + VF_ICON + "Vrai ou faux du jour</span><p class='ki-q'>« " + esc(v.q) + " »</p>";
+    var html = "<span class='ks-tag'>" + VF_ICON + (extra != null ? "Vrai ou faux, encore une" : "Vrai ou faux du jour") + "</span><p class='ki-q'>« " + esc(v.q) + " »</p>";
     if (mine == null) {
       html += "<div class='ki-vf-b'><button type='button' onclick='KineIdees._vf(true)'>Vrai</button><button type='button' onclick='KineIdees._vf(false)'>Faux</button></div>";
     } else {
@@ -450,14 +460,17 @@
         "<div>" + verdict(v, mine) + "<p>" + esc(v.e) + "</p>" + (v.s ? "<small>" + esc(v.s) + "</small>" : "") +
         "<button type='button' class='ki-replay' onclick='KineIdees._vfSay(" + i + ")'>Écouter Yass</button></div></div>";
     }
+    var today = hist()[vfIdx()], todayDone = today && today.d === iso();
+    if (mine != null && todayDone && pool().length) html += "<button type='button' class='ki-more' onclick='KineIdees.vfMore()'>Encore une question</button>";
     if (n) html += "<button type='button' class='ki-vf-all' onclick='KineIdees.vfList(0)'><span>Mes réponses (" + n + ")</span><span aria-hidden='true'>›</span></button>";
     c.innerHTML = html;
     return c;
   }
   function vfAnswer(a) {
-    var h = hist(); h[vfIdx()] = { a: a, d: iso() }; saveHist(h);
+    var i = extra != null ? extra : vfIdx();
+    var h = hist(); h[i] = { a: a, d: iso() }; saveHist(h);
     var old = $("ki-vf"); if (old) old.replaceWith(vfCard());
-    say(spoken(vfIdx()));
+    say(spoken(i));
   }
   // Revoir les questions déjà répondues, comme les fiches « Le saviez-vous ? »
   function vfList(k) {
@@ -554,7 +567,7 @@
     usage: usage, goals: goals, goalCard: goalCard, goalEdit: goalEdit, goalRate: goalRate, summaryLines: summaryLines, due: due,
     vf: VF, vfIdx: vfIdx, spoken: spoken, express: express, defineExpress: defineExpress, decorate: decorate, USAGE: USAGE, usageFull: usageFull,
     _pick: pick, _sugg: sugg, _chk: chk, _saveNew: saveNew, _del: del, _saveRate: saveRate, _close: closeSheet,
-    _vf: vfAnswer, _vfSay: function (i) { say(spoken(i == null ? vfIdx() : i)); }, vfList: vfList, vfClose: vfClose, answered: answered
+    _vf: vfAnswer, _vfSay: function (i) { say(spoken(i == null ? vfIdx() : i)); }, vfList: vfList, vfClose: vfClose, vfMore: vfMore, answered: answered
   };
 
   function init() {

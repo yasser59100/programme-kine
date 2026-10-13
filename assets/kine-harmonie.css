@@ -321,3 +321,5 @@ html[data-theme="light"] .ki-why summary { color: #0a8a5f; }
 #ki-vf-sheet .ki-vf-r small { display: block; margin-top: 2px; font-size: .88rem; color: var(--text2); }
 #ki-vf-sheet .ki-replay { align-self: flex-start; }
 html[data-theme="light"] .ki-vf-all, html[data-theme="light"] .ki-vf-tag { color: #6a4fd0 !important; }
+.ki-more { width: 100%; min-height: 46px; border-radius: 14px; border: 1px solid rgba(167, 139, 250, .5); background: rgba(167, 139, 250, .12); color: var(--text); font: 700 .98rem var(--font); cursor: pointer; }
+html[data-theme="light"] .ki-more { border-color: rgba(120, 90, 220, .45); background: rgba(120, 90, 220, .08); }
