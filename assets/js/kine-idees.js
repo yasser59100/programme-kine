@@ -290,6 +290,66 @@
 
   /* ════════ 2. Vrai ou faux de la semaine ════════ */
   var VF = [
+    { q: "Courir abîme forcément les genoux.", a: false,
+      e: "Chez les coureurs de loisir, l'arthrose du genou et de la hanche n'est pas plus fréquente que chez les sédentaires. Le cartilage s'adapte aux charges progressives.", s: "Alentorn-Geli et al., JOSPT, 2017" },
+    { q: "Marcher d'un bon pas est un vrai exercice pour la santé.", a: true,
+      e: "La marche fait travailler le cœur, les muscles et les os. Environ 7 000 pas par jour sont déjà associés à une baisse nette de la mortalité.", s: "Paluch et al., Lancet Public Health, 2022" },
+    { q: "Le repos complet est le meilleur traitement d'une tendinite.", a: false,
+      e: "Un tendon douloureux guérit mieux avec une charge adaptée et progressive. Le repos total l'affaiblit.", s: "" },
+    { q: "Le système nerveux peut apprendre à moins amplifier la douleur.", a: true,
+      e: "Avec l'exercice progressif, le sommeil et une meilleure compréhension de la douleur, l'alarme se recalibre. C'est un des buts de votre programme.", s: "" },
+    { q: "Un matelas très dur est meilleur pour le dos.", a: false,
+      e: "Un matelas moyennement ferme semble plus confortable pour la plupart des personnes qui ont mal au dos. Le meilleur matelas, c'est surtout celui sur lequel vous dormez bien.", s: "Kovacs et al., The Lancet, 2003" },
+    { q: "On peut se muscler sans aucun matériel.", a: true,
+      e: "Le poids du corps suffit à renforcer les muscles, à condition d'augmenter peu à peu la difficulté. C'est le principe de votre programme.", s: "" },
+    { q: "Une sciatique se soigne presque toujours par une opération.", a: false,
+      e: "La plupart des sciatiques s'améliorent sans chirurgie, en quelques semaines à quelques mois. L'opération est réservée à des situations précises.", s: "" },
+    { q: "Bouger dans la journée aide à mieux dormir.", a: true,
+      e: "L'activité physique améliore la qualité du sommeil, surtout le sommeil profond. Évitez simplement un effort intense juste avant le coucher.", s: "" },
+    { q: "Une douleur chronique, c'est dans la tête, donc imaginaire.", a: false,
+      e: "La douleur est toujours réelle, même sans lésion visible. Le système nerveux peut devenir trop sensible, et cela se soigne, notamment par le mouvement.", s: "" },
+    { q: "Le surpoids augmente la charge sur les genoux.", a: true,
+      e: "À chaque pas, le genou supporte plusieurs fois le poids du corps. Perdre quelques kilos soulage nettement des genoux arthrosiques.", s: "Messier et al., Arthritis Rheum, 2005" },
+    { q: "Porter une ceinture lombaire tous les jours protège le dos.", a: false,
+      e: "Porter une ceinture en permanence ne prévient pas le mal de dos. Renforcer ses propres muscles du tronc est plus utile.", s: "van Duijvenbode et al., Cochrane, 2008" },
+    { q: "Le vélo est un sport doux pour les genoux.", a: true,
+      e: "Le vélo fait travailler les cuisses sans choc. Il est souvent conseillé en cas d'arthrose du genou, avec une selle bien réglée.", s: "" },
+    { q: "Faire des abdos fait maigrir du ventre.", a: false,
+      e: "On ne peut pas choisir où le corps perd sa graisse. Les abdominaux renforcent les muscles, mais c'est l'activité générale et l'alimentation qui font maigrir.", s: "Vispute et al., JSCR, 2011" },
+    { q: "Le renforcement musculaire rend aussi les os plus solides.", a: true,
+      e: "Les os se densifient quand les muscles tirent dessus et qu'on porte son poids. C'est une protection contre l'ostéoporose et les fractures.", s: "" },
+    { q: "Avoir mal le lendemain d'une séance veut dire qu'il faut tout arrêter.", a: false,
+      e: "Une gêne qui revient à son niveau habituel en 24 heures est acceptable. Si elle dure ou augmente, on allège la séance suivante et on en parle au kiné.", s: "" },
+    { q: "Le yoga et le tai-chi peuvent soulager le mal de dos.", a: true,
+      e: "Ces pratiques associent mouvement, respiration et détente. Elles aident la lombalgie chronique, comme les autres formes d'exercice.", s: "" },
+    { q: "Une épaule douloureuse doit rester immobile.", a: false,
+      e: "Immobiliser une épaule trop longtemps la raidit. Des mouvements doux et un renforcement adapté aident à récupérer.", s: "" },
+    { q: "Le moral influence la récupération.", a: true,
+      e: "La confiance et l'optimisme sont liés à une meilleure récupération après une blessure. Se fixer de petits objectifs atteignables aide beaucoup.", s: "" },
+    { q: "Les étirements rendent plus fort.", a: false,
+      e: "Les étirements améliorent la souplesse, mais pas la force. Pour être plus fort, il faut faire travailler le muscle contre une résistance.", s: "" },
+    { q: "Faire ses exercices devant la télé, ça compte aussi.", a: true,
+      e: "Ce qui compte, c'est de les faire, pas l'endroit. Les glisser dans la routine du quotidien aide à tenir sur la durée.", s: "" },
+    { q: "Il faut bloquer sa respiration pendant l'effort.", a: false,
+      e: "Bloquer la respiration fait monter la tension artérielle. Expirez pendant l'effort et inspirez au retour.", s: "" },
+    { q: "Bien s'hydrater compte aussi pour les muscles.", a: true,
+      e: "Même une petite déshydratation diminue la force et l'endurance. Buvez régulièrement, sans attendre d'avoir soif.", s: "" },
+    { q: "Après 40 ans, les tendons ne peuvent plus se renforcer.", a: false,
+      e: "Les tendons s'adaptent à l'entraînement à tout âge, simplement plus lentement. Il suffit d'augmenter la charge progressivement.", s: "" },
+    { q: "Fumer ralentit la cicatrisation des os et des tendons.", a: true,
+      e: "La nicotine resserre les vaisseaux, donc moins d'oxygène arrive aux tissus. Les fractures consolident plus lentement chez les fumeurs.", s: "" },
+    { q: "Les courbatures sont dues à l'acide lactique.", a: false,
+      e: "L'acide lactique disparaît environ une heure après l'effort. Les courbatures viennent de petites lésions des fibres musculaires, qui se réparent en quelques jours.", s: "" },
+    { q: "Se lever et bouger toutes les heures fait du bien au dos.", a: true,
+      e: "Couper les longues périodes assises détend les muscles et nourrit les disques. Une minute de marche toutes les heures, c'est déjà bien.", s: "" },
+    { q: "Un muscle qui tremble pendant l'effort, c'est dangereux.", a: false,
+      e: "Les tremblements montrent simplement que le muscle travaille près de sa limite. Sans douleur, c'est normal.", s: "" },
+    { q: "Une articulation qui gonfle après l'effort, ce n'est jamais grave.", a: false,
+      e: "Un gonflement qui apparaît ou augmente doit être signalé à votre kiné. Il peut indiquer qu'il faut adapter la charge.", s: "" },
+    { q: "Il faut des semelles orthopédiques pour tous les pieds plats.", a: false,
+      e: "Beaucoup de pieds plats ne posent aucun problème. Les semelles se discutent seulement en cas de douleur.", s: "" },
+    { q: "Se muscler rend forcément très musclé et massif.", a: false,
+      e: "Prendre beaucoup de volume demande des années d'entraînement intensif et une alimentation adaptée. Le renforcement apporte surtout de la force, du tonus et des os plus solides.", s: "" },
     { q: "Faire craquer son dos ou ses doigts abîme les articulations.", a: false,
       e: "Le bruit vient d'une petite bulle de gaz qui se forme dans le liquide de l'articulation. Les études n'ont pas trouvé plus d'arthrose chez ceux qui font craquer leurs doigts.", s: "deWeber et al., JABFM, 2011" },
     { q: "S'étirer avant le sport évite les courbatures.", a: false,
@@ -355,10 +415,21 @@
   function dayNo() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); }
   function vfIdx() { return dayNo() % VF.length; }
   function spoken(i) { var v = VF[i]; return (v.a ? "C'est vrai. " : "C'est faux. ") + v.e; }
-  function hist() { var h = jget("kf-vf-hist", {}); return h && typeof h === "object" ? h : {}; }
+  // Historique rangé par question (le texte), pour rester juste quand on ajoute des questions
+  function qIndex(q) { for (var i = 0; i < VF.length; i++) if (VF[i].q === q) return i; return -1; }
+  function hist() {                           // { indice actuel: { a, d } }
+    var raw = jget("kf-vf-hist", {}), h = {};
+    if (!raw || typeof raw !== "object") return h;
+    Object.keys(raw).forEach(function (k) {
+      var i = /^\d+$/.test(k) ? +k + 30 : qIndex(k);   // anciennes réponses (liste de 30, rangées par numéro)
+      if (VF[i] && raw[k]) h[i] = raw[k];
+    });
+    return h;
+  }
+  function saveHist(h) { var o = {}; Object.keys(h).forEach(function (i) { o[VF[+i].q] = h[i]; }); jset("kf-vf-hist", o); }
   function answered() {                       // les questions déjà répondues, la plus récente d'abord
     var h = hist();
-    return Object.keys(h).filter(function (i) { return VF[+i]; }).map(function (i) { return { i: +i, a: h[i].a, d: h[i].d }; })
+    return Object.keys(h).map(function (i) { return { i: +i, a: h[i].a, d: h[i].d }; })
       .sort(function (x, y) { return x.d < y.d ? 1 : x.d > y.d ? -1 : 0; });
   }
   var VF_ICON = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='9'/><path d='M9.2 9.2a3 3 0 0 1 5.6 1.3c0 2-2.8 2.4-2.8 4'/><path d='M12 17.5h.01'/></svg>";
@@ -384,7 +455,7 @@
     return c;
   }
   function vfAnswer(a) {
-    var h = hist(); h[vfIdx()] = { a: a, d: iso() }; jset("kf-vf-hist", h);
+    var h = hist(); h[vfIdx()] = { a: a, d: iso() }; saveHist(h);
     var old = $("ki-vf"); if (old) old.replaceWith(vfCard());
     say(spoken(vfIdx()));
   }
