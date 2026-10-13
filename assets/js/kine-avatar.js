@@ -1192,15 +1192,11 @@
     collar.rotation.x = Math.PI / 2; collar.scale.set(1.08, 0.82, 1); collar.position.y = 0.548;
 
     var head = group(spine, 0, 0.72, 0);
-    var face = { eyes: [], mouth: null, next: 0, blink: 0 };
     ball(0.12, M.skin, head).scale.set(0.92, 1.08, 1);
     [-1, 1].forEach(function (side) {
       var ear = ball(0.03, M.skin, head); ear.position.set(side * 0.112, 0, -0.005); ear.scale.set(0.45, 1, 0.8);
-      var eye = group(head, side * 0.04, 0.018, 0);
-      var ew = ball(0.017, M.white, eye); ew.position.z = 0.1; ew.scale.set(1.15, 0.85, 0.6);
-      ball(0.011, M.eyes, eye).position.z = 0.111;
-      face.eyes.push(eye);
-      var brow = mesh(new T.BoxGeometry(0.044, 0.011, 0.014), M.hair, head);
+      ball(0.013, M.eyes, head).position.set(side * 0.04, 0.018, 0.108);
+      var brow = mesh(new T.BoxGeometry(0.042, 0.009, 0.012), M.hair, head);
       brow.position.set(side * 0.041, 0.047, 0.11); brow.rotation.z = side * -0.12;
       mesh(new T.BoxGeometry(0.01, 0.06, 0.03), M.hair, head).position.set(side * 0.104, -0.002, 0.03);
     });
@@ -1213,9 +1209,7 @@
     var q2 = ball(0.045, M.hair, head); q2.scale.set(1.3, 0.45, 1); q2.position.set(-0.045, 0.108, 0.07); q2.rotation.z = -0.35;
     mesh(new T.SphereGeometry(0.1235, 40, 16, Math.PI / 2 - 1.45, 2.9, Math.PI * 0.56, Math.PI * 0.36), M.hair, head).scale.set(0.93, 1.09, 1.02);
     mesh(new T.BoxGeometry(0.05, 0.012, 0.012), M.hair, head).position.set(0, -0.036, 0.121);
-    var smile = mesh(new T.TorusGeometry(0.017, 0.0045, 6, 18, Math.PI), M.lips, head); // léger sourire
-    smile.rotation.z = Math.PI; smile.position.set(0, -0.048, 0.121); smile.scale.set(1, 0.55, 1);
-    face.smile = smile; face.mouth = ball(0.017, mat("#6B2620", 0.6), head); face.mouth.position.set(0, -0.058, 0.113); face.mouth.scale.set(1, 0.08, 0.45);
+    mesh(new T.BoxGeometry(0.032, 0.007, 0.01), M.lips, head).position.set(0, -0.054, 0.124);
 
     function makeArm(side) {
       var sh = group(spine, side * LEN.shX, LEN.shY, 0); sh.rotation.order = "XZY";
@@ -1304,7 +1298,7 @@
     }
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
-    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0, face: face,
+    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0,
              head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops };
   }
 
@@ -1504,18 +1498,6 @@
   }
   var easeInOut = function (x) { return x * x * x * (10 + x * (6 * x - 15)); }; // minimum jerk
 
-  // Clignement des yeux de temps en temps ; bouche qui s'ouvre au rythme de la voix quand Yass parle
-  function animateFace(now) {
-    var f = R && R.face; if (!f) return;
-    if (!f.next) f.next = now + 2500 + Math.random() * 2500;
-    var close = 1;
-    if (now >= f.next) { var k = (now - f.next) / 140; if (k >= 1) f.next = now + 2800 + Math.random() * 3200; else close = Math.max(0.1, Math.abs(1 - 2 * k)); }
-    f.eyes.forEach(function (e) { e.scale.y = close; });
-    var talking = typeof isSpeaking !== "undefined" && isSpeaking;
-    var open = talking ? 0.35 + 0.8 * Math.abs(Math.sin(now * 0.019)) * (0.6 + 0.4 * Math.sin(now * 0.0047)) : 0.08;
-    if (f.mouth) f.mouth.scale.y += (open - f.mouth.scale.y) * 0.45;
-    if (f.smile) f.smile.position.y = -0.048 - Math.max(0, f.mouth.scale.y - 0.08) * 0.009;   // la lèvre du bas descend avec la bouche
-  }
   function frame(now) {
     raf = requestAnimationFrame(frame);
     if (paused && tween) tween.start += now - lastNow; // figé pendant la pause
@@ -1526,7 +1508,6 @@
       if (k >= 1) { current = tween.to; tween = null; }
     }
     applyPose(current);
-    animateFace(now);
     var v = R.view;
     v.yaw += (v.yawGoal - v.yaw) * 0.12;
     placeCamera(def, v.yaw);
