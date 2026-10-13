@@ -1,4 +1,4 @@
-abonnement 200 {'tier': 'starter', 'character_count': 27889, 'character_limit': 40000}
-à générer : 1 phrases, 90 caractères ; reste sur l'abonnement : 12111
-0 / 1
-fini : 1043 phrases dans l'appli ; 0 échecs ; caractères utilisés 27889 / 40000
+abonnement 200 {'tier': 'starter', 'character_count': 27927, 'character_limit': 40000}
+à générer : 33 phrases, 1947 caractères ; reste sur l'abonnement : 12073
+0 / 33
+fini : 1076 phrases dans l'appli ; 0 échecs ; caractères utilisés 27927 / 40000
