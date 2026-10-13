@@ -235,3 +235,67 @@
 .mx-empty-card { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; padding: 16px; margin-top: 8px; border-radius: var(--h-r-card, 20px); border: 2px dashed var(--border2); background: transparent; color: var(--text2); font: inherit; font-size: 0.92rem; line-height: 1.4; cursor: pointer; }
 .mx-empty-card strong { display: block; color: var(--text); font-size: 1rem; }
 .mx-plus { flex: 0 0 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; font-size: 1.5rem; font-weight: 700; color: var(--h-accent, #00E5F5); background: var(--h-sel-bg, rgba(0, 229, 245, 0.14)); }
+
+/* ════════ Idées du quotidien : objectif PSFS, vrai ou faux, à quoi ça sert, séance express ════════ */
+.ki-use { display: flex; align-items: flex-start; gap: 6px; margin-top: 6px; font-size: .84rem; font-weight: 600; line-height: 1.35; color: #3CF2B0; }
+.ki-use svg { flex: none; margin-top: 2px; }
+.ki-use.big { font-size: .95rem; margin: 8px 0 2px; padding: 9px 12px; border-radius: 12px; background: rgba(60, 242, 176, .09); border: 1px solid rgba(60, 242, 176, .28); }
+.kb-ex .pg-day-t .ki-use { font-size: .8rem; margin-top: 4px; }
+html[data-theme="light"] .ki-use { color: #0a8a5f; }
+html[data-theme="light"] .ki-use.big { background: rgba(10, 138, 95, .07); border-color: rgba(10, 138, 95, .3); }
+
+.ki-express { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 10px; padding: 12px 14px; border-radius: 16px; border: 1px dashed rgba(255, 197, 107, .5); background: rgba(255, 197, 107, .07); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ki-express .ki-x-ic { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(255, 197, 107, .18); color: #FFC56B; }
+.ki-express .ki-x-t { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ki-express b { font-size: .98rem; }
+.ki-express small { font-size: .82rem; color: var(--text2); line-height: 1.3; }
+.ki-express > span:last-child { font-size: 1.3rem; color: #FFC56B; }
+html[data-theme="light"] .ki-express { border-color: rgba(190, 120, 0, .45); background: rgba(255, 197, 107, .12); }
+html[data-theme="light"] .ki-express .ki-x-ic, html[data-theme="light"] .ki-express > span:last-child { color: #a86400; }
+
+.ki-vf { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 6px; padding: 16px; border-radius: 20px; border: 1px solid rgba(167, 139, 250, .35); background: linear-gradient(160deg, rgba(167, 139, 250, .12), transparent 70%), var(--card, #0f1923); }
+.ki-vf .ks-tag { color: #B9A3FF; }
+.ki-q { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3; }
+.ki-vf-b { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ki-vf-b button { min-height: 48px; border-radius: 14px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font: 700 1rem var(--font); cursor: pointer; }
+.ki-vf-r { display: flex; gap: 12px; align-items: flex-start; }
+.ki-vf-r img { flex: none; width: 54px; height: 54px; border-radius: 50%; background: rgba(167, 139, 250, .15); object-fit: cover; }
+.ki-vf-r b { display: block; font-size: 1rem; }
+.ki-vf-r b.ok { color: #3CF2B0; }
+.ki-vf-r b.ko { color: #FFC56B; }
+.ki-vf-r p { margin: 4px 0; font-size: .93rem; line-height: 1.45; color: var(--text); }
+.ki-vf-r small { display: block; font-size: .78rem; color: var(--text2); }
+.ki-replay { margin-top: 8px; padding: 6px 12px; border-radius: 16px; border: 1px solid rgba(167, 139, 250, .45); background: none; color: #B9A3FF; font: 600 .85rem var(--font); cursor: pointer; }
+html[data-theme="light"] .ki-vf { background: linear-gradient(160deg, rgba(120, 90, 220, .08), transparent 70%), #fff; border-color: rgba(120, 90, 220, .3); }
+html[data-theme="light"] .ki-vf .ks-tag, html[data-theme="light"] .ki-replay { color: #6a4fd0; }
+html[data-theme="light"] .ki-vf-r b.ok { color: #0a8a5f; }
+html[data-theme="light"] .ki-vf-r b.ko { color: #a86400; }
+
+.ki-goal { margin-top: 10px; padding: 16px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface); }
+.ki-goal.ki-empty p { margin: 0; font-size: .95rem; line-height: 1.45; }
+.ki-goal .lx-cta { margin-top: 16px; }
+.ki-grow { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.ki-grow:last-of-type { border-bottom: none; }
+.ki-gt b { display: block; font-size: 1rem; line-height: 1.3; }
+.ki-gt small { font-size: .82rem; color: var(--text2); }
+.ki-gv { display: flex; align-items: baseline; gap: 2px; }
+.ki-gv b { font-size: 1.6rem; line-height: 1; }
+.ki-gv span { font-size: .85rem; color: var(--text2); }
+.ki-gv em { margin-left: 6px; font-style: normal; font-weight: 700; font-size: .85rem; color: var(--text2); }
+.ki-gv em.up { color: #3CF2B0; }
+.ki-gv em.down { color: #FF5C73; }
+.ki-bar { grid-column: 1 / -1; position: relative; height: 8px; border-radius: 4px; background: var(--surface2); }
+.ki-bar i { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: linear-gradient(90deg, #4FACFE, #3CF2B0); }
+.ki-bar s { position: absolute; top: -3px; width: 2px; height: 14px; margin-left: -1px; background: var(--text2); }
+.ki-next { margin: 12px 0 0; }
+.ki-scale { display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; margin-top: 8px; }
+.ki-n { min-height: 44px; padding: 0; border-radius: 10px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font: 700 .95rem var(--font); cursor: pointer; }
+.ki-n.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.ki-ends { display: flex; justify-content: space-between; margin-top: 4px; font-size: .78rem; color: var(--text2); }
+.ki-rate { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.ki-rate b { display: block; font-size: 1.02rem; }
+.ki-rate small { font-size: .82rem; color: var(--text2); }
+.ki-chips { flex-wrap: wrap; }
+.ki-erow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.ki-del { padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(255, 92, 115, .45); background: none; color: #FF5C73; font: 600 .85rem var(--font); cursor: pointer; }
+:root:root #ki-sheet .seq-btn-main:disabled { opacity: .45 !important; }

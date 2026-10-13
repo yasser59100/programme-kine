@@ -154,6 +154,7 @@
     box.innerHTML =
       "<h1 class='lx-title'>Mon suivi</h1><p class='lx-date'>" + cap(WD[now.getDay()]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
       (fresh ? welcome + (C ? C.cta() + C.week() : "") : (C ? C.ring() + C.cta() + C.week() : "") + "<p class='lx-lede kr-sum'>" + summary + "</p>") + alert +
+      (window.KineIdees ? KineIdees.goalCard() : "") +
       (C ? C.insights() : "<div class='lx-chart'>" + chart(ss) + "</div>") +
       "<div class='kr-links'>" +
         "<button onclick='KineCheckin.calendar()'><span>Calendrier</span><span aria-hidden='true'>›</span></button>" +

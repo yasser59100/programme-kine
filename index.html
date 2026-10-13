@@ -3047,6 +3047,7 @@ function _launchSeq(dayId) {
   var lastSem = s.length && s[0].semaine ? s[0].semaine : "";
   seqTotalSeries = (lastSem.includes("3")||lastSem.includes("4")) ? 3 : 2;
   if (window.KineProgress) { KineProgress.markStart(); seqTotalSeries = KineProgress.plan().series; }
+  if (SEQ_DAYS[dayId] && SEQ_DAYS[dayId].tours) seqTotalSeries = SEQ_DAYS[dayId].tours;
   document.getElementById("seq-overlay").classList.add("open");
   document.body.style.overflow = "hidden";
   renderSeqExercise();
@@ -4083,7 +4084,8 @@ function seqCircuitNext(noRest) {
   var d = SEQ_DAYS[seqCurrentDay], works = [];
   d.exercises.forEach(function(e, i) { if (e.phase === "work") works.push(i); });
   var pos = works.indexOf(seqExIdx), tour = seqSerieIdx, next, nextTour, rest, title, auto = true;
-  var trans = d.circuit ? CIRCUIT_TRANSITION : ROUND_TRANSITION, tourRest = d.circuit ? CIRCUIT_TOUR_REST : ROUND_TOUR_REST;
+  var trans = d.circuit ? CIRCUIT_TRANSITION : ROUND_TRANSITION, tourRest = d.tourRest || (d.circuit ? CIRCUIT_TOUR_REST : ROUND_TOUR_REST);
+  var hasCool = works.length && works[works.length - 1] + 1 < d.exercises.length;
   var lastTour = tour >= seqTotalSeries - 1, done = seqExIdx;
   if (pos < works.length - 1) {
     next = works[pos + 1]; nextTour = tour; rest = trans; title = "Récupération";
@@ -4093,8 +4095,8 @@ function seqCircuitNext(noRest) {
   } else {
     next = works[works.length - 1] + 1; nextTour = 0; auto = false;
     // dernier exercice : une courte pause pour donner son avis avant les étirements
-    rest = d.circuit || noRest ? 0 : 20; title = "Dernier tour terminé";
-    speak(d.circuit ? "Circuit terminé. Place aux étirements." : "Dernier tour terminé. Place aux étirements.");
+    rest = d.circuit || noRest || !hasCool ? 0 : 20; title = "Dernier tour terminé";
+    speak(!hasCool ? "Dernier tour terminé. Bravo !" : d.circuit ? "Circuit terminé. Place aux étirements." : "Dernier tour terminé. Place aux étirements.");
   }
   var go = function() {
     seqExIdx = next; seqSerieIdx = nextTour;
@@ -4404,5 +4406,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-harmonie.js" defer></script>
 <script src="assets/js/kine-metronome.js" defer></script>
 <script src="assets/js/kine-celebration.js" defer></script>
+<script src="assets/js/kine-idees.js" defer></script>
 </body>
 </html>
