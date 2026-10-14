@@ -1,0 +1,28 @@
+name: Regles Firebase
+on:
+  push:
+    branches: [main]
+    paths: [firestore.rules]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HAS_SA: ${{ secrets.FIREBASE_SA != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.HAS_SA == 'true'
+      - name: Publier les regles Firestore
+        if: env.HAS_SA == 'true'
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx -y firebase-tools@13 deploy --only firestore:rules --project programme-kine --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"
+      - if: env.HAS_SA != 'true'
+        run: echo "Secret FIREBASE_SA pas encore ajouté."
