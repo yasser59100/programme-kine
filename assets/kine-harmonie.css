@@ -326,3 +326,22 @@ html[data-theme="light"] .ki-more { border-color: rgba(120, 90, 220, .45); backg
 .kn-msg { min-height: 1.2em; margin: 14px 0 0; font-size: .92rem; font-weight: 600; color: #FFC56B; }
 .kn-note { margin-top: 10px; font-size: .84rem; }
 html[data-theme="light"] .kn-msg { color: #a86400; }
+
+/* ════════ Les mots du kiné ════════ */
+.kx-term { text-decoration: underline dotted; text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: #4FACFE; cursor: help; border-radius: 3px; }
+.kx-term:focus-visible { outline: 2px solid #4FACFE; outline-offset: 1px; }
+#kx-pop { position: fixed; inset: 0; z-index: 10050; display: none; align-items: flex-end; justify-content: center; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: rgba(0, 0, 0, .45); }
+#kx-pop.open { display: flex; animation: fadeIn .15s ease; }
+.kx-card { width: 100%; max-width: 480px; padding: 18px; border-radius: 22px; background: var(--surface, #111a26); border: 1px solid var(--border2); box-shadow: 0 12px 40px rgba(0, 0, 0, .4); }
+.kx-tag { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #4FACFE; }
+.kx-h { margin-top: 4px; font-size: 1.3rem; font-weight: 800; }
+.kx-card p { margin: 8px 0 14px; font-size: 1rem; line-height: 1.5; }
+.kx-btns { display: flex; gap: 10px; align-items: center; }
+.kx-all { flex: 1; min-height: 48px; border: none; background: none; color: var(--blue); font: 600 .95rem var(--font); cursor: pointer; }
+:root:root .kx-ok { flex: 1; width: auto !important; margin: 0 !important; }
+.kx-search { width: 100%; margin: 12px 0 4px; }
+.kx-row { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.kx-row b { font-size: 1rem; }
+.kx-row span { font-size: .92rem; line-height: 1.45; color: var(--text2); }
+html[data-theme="light"] .kx-tag { color: #1f6fd1; }
+html[data-theme="light"] .kx-term { text-decoration-color: #1f6fd1; }

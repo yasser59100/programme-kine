@@ -162,6 +162,7 @@
         "<button onclick='KineSuivi.open(\"historique\")'><span>Historique des séances</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
         (window.KineMascotte ? "<button onclick='KineMascotte.faq()'><span>Une question ? Demande à Yass</span><span aria-hidden='true'>›</span></button>" +
+          (window.KineLexique ? "<button onclick='KineLexique.open()'><span>Les mots du kiné expliqués</span><span aria-hidden='true'>›</span></button>" : "") +
           "<button onclick='KineMascotte.bouge()'><span>Bouger 2 minutes avec Yass</span><span aria-hidden='true'>›</span></button>" : "") +
         (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Yass, ton coach</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivé" : "activé") + "</span></button>" : "") +
         (window.KineNotifs && KineNotifs.available() ? "<button onclick='KineNotifs.open()'><span>Notifications du jour</span><span class='kr-sw'>" + KineNotifs.label() + "</span></button>" : "") +
