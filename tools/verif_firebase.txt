@@ -1,0 +1,18 @@
+== lecture config/push (doit marcher)
+{
+  "name": "projects/programme-kine/databases/(default)/documents/config/push",
+  "fields": {
+    "publicKey": {
+      "stringValue": "BD1NGyuuINWo8G0JyKhH4lqT5VLOTQxTrJ9Rvw5CYZSLdIlGQ608Xb6Zn6zyekW9ITsnPRR-jj0qzviK1Wwrr54"
+    }
+  },
+  "createTime": "2026-10-14T09:21:15.258893Z",
+  "updateTime": "
+== lecture programme/officiel (doit marcher)
+404
+== lecture des abonnements push (doit etre refusee)
+403
+== ecriture programme sans compte (doit etre refusee)
+403
+== abonnement mal forme (doit etre refuse)
+403
