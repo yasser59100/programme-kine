@@ -1,0 +1,23 @@
+name: Verif Firebase
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  verif:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tester les regles comme un telephone (sans compte)
+        run: |
+          B="https://firestore.googleapis.com/v1/projects/programme-kine/databases/(default)/documents"
+          {
+            echo "== lecture config/push (doit marcher)"; curl -s "$B/config/push" | head -c 300; echo
+            echo "== lecture programme/officiel (doit marcher)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/programme/officiel"
+            echo "== lecture des abonnements push (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/push"
+            echo "== ecriture programme sans compte (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"x":{"stringValue":"test"}}}' "$B/programme/test-verif"
+            echo "== abonnement mal forme (doit etre refuse)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"hour":{"integerValue":"3"}}}' "$B/push/test-verif"
+          } > /tmp/verif.txt 2>&1
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git checkout -q -B diag && cp /tmp/verif.txt tools/verif_firebase.txt && git add tools/verif_firebase.txt && git commit -q -m "Verif [skip ci]" && git push -q -f origin diag
