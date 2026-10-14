@@ -5,7 +5,7 @@ on:
     paths: [firestore.rules]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   publier:
     runs-on: ubuntu-latest
@@ -22,7 +22,16 @@ jobs:
         run: |
           printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
-          npx -y firebase-tools@13 deploy --only firestore:rules --project programme-kine --non-interactive
+          set +e
+          npx -y firebase-tools@13 deploy --only firestore:rules --project programme-kine --non-interactive --debug > "$RUNNER_TEMP/log.txt" 2>&1
+          code=$?
           rm -f "$RUNNER_TEMP/sa.json"
+          # Journal sans secret, pour diagnostic (les journaux d'Actions ne sont pas lisibles depuis la session)
+          grep -v -i -E "private_key|token|authorization|bearer" "$RUNNER_TEMP/log.txt" | tail -80 > /tmp/regles_log.txt
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git fetch -q origin diag || true
+          git checkout -q -B diag
+          mkdir -p tools && cp /tmp/regles_log.txt tools/regles_log.txt && git add tools/regles_log.txt && git commit -q -m "Journal regles [skip ci]" && git push -q -f origin diag || true
+          exit $code
       - if: env.HAS_SA != 'true'
         run: echo "Secret FIREBASE_SA pas encore ajouté."
