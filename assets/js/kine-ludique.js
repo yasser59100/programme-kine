@@ -125,55 +125,36 @@
     io.observe(node); vis.push(io);
   }
 
-  /* ════════ 2. Schémas animés ════════ */
+  /* ════════ 2. Illustrations : Yass met en scène le conseil, avec le chiffre clé en grand ════════ */
   var GROUP = { "Activité": "walk", "Marche": "walk", "Sédentarité": "walk", "Mal de dos": "back", "Imagerie": "back", "Os": "back",
     "Genou": "knee", "Ménisque": "knee", "Arthrose": "knee", "Articulations": "knee", "Renforcement": "muscle", "Force": "muscle", "Sport": "muscle",
-    "Cerveau": "brain", "Mémoire": "brain", "Moral": "brain", "Lien social": "brain", "Sommeil": "sleep", "Équilibre": "balance", "Mobilité": "balance", "Tabac": "lungs" };
-  var SC = {
-    walk: "<svg viewBox='0 0 120 120'><rect class='lq-bg' width='120' height='120' rx='26'/>" +
-      [0, 1, 2, 3, 4].map(function (i) { var x = 18 + i * 20, y = i % 2 ? 66 : 82; return "<g class='lq-foot' style='animation-delay:" + (i * .35) + "s' transform='translate(" + x + " " + y + ") rotate(-80)'><ellipse rx='7' ry='4.5' fill='#4B5BFF'/><circle cx='9' cy='-3' r='1.8' fill='#4B5BFF'/><circle cx='9.5' cy='1' r='1.6' fill='#4B5BFF'/></g>"; }).join("") +
-      "<path class='lq-dash' d='M12 100 H108' stroke='#19C3A0' stroke-width='4' stroke-linecap='round'/><text x='60' y='38' text-anchor='middle' class='lq-num'>7 000</text></svg>",
-    back: "<svg viewBox='0 0 120 120'><rect class='lq-bg' width='120' height='120' rx='26'/><g class='lq-spine'>" +
-      [0, 1, 2, 3, 4, 5].map(function (i) { return "<g class='lq-vert' style='animation-delay:" + (i * .12) + "s'><rect x='48' y='" + (18 + i * 15) + "' width='24' height='11' rx='4' fill='#4B5BFF'/><rect x='52' y='" + (29.5 + i * 15) + "' width='16' height='3' rx='1.5' class='lq-disc'/></g>"; }).join("") +
-      "</g><path class='lq-arc' d='M84 30 q16 30 0 60' fill='none' stroke='#19C3A0' stroke-width='3' stroke-linecap='round' stroke-dasharray='4 6'/></svg>",
-    knee: "<svg viewBox='0 0 120 120'><rect class='lq-bg' width='120' height='120' rx='26'/>" +
-      "<rect x='52' y='12' width='16' height='46' rx='8' fill='#C9D2FF'/><circle cx='60' cy='58' r='13' fill='#C9D2FF'/>" +
-      "<g class='lq-shin'><rect x='52' y='62' width='16' height='46' rx='8' fill='#4B5BFF'/><circle cx='60' cy='64' r='10' fill='#4B5BFF'/></g>" +
-      "<circle class='lq-glow' cx='60' cy='61' r='6' fill='#19C3A0'/></svg>",
-    muscle: "<svg viewBox='0 0 120 120'><rect class='lq-bg' width='120' height='120' rx='26'/>" +
-      "<line x1='14' y1='60' x2='30' y2='60' stroke='#8A98AB' stroke-width='4' stroke-linecap='round'/><line x1='90' y1='60' x2='106' y2='60' stroke='#8A98AB' stroke-width='4' stroke-linecap='round'/>" +
-      "<g class='lq-belly'><ellipse cx='60' cy='60' rx='32' ry='16' fill='#FF8F6B'/><path d='M34 56 Q60 46 86 56 M32 62 Q60 72 88 62 M36 60 H84' stroke='#E5684A' stroke-width='1.6' fill='none'/></g>" +
-      "<g class='lq-up'><path d='M60 30 l-7 8 h14 z' fill='#19C3A0'/><path d='M60 22 l-7 8 h14 z' fill='#19C3A0' opacity='.5'/></g></svg>",
-    brain: "<svg viewBox='0 0 120 120'><rect class='lq-bg' width='120' height='120' rx='26'/>" +
-      "<path d='M60 26c-10-8-30-4-32 12-12 4-12 24 0 28 0 14 18 22 32 12 14 10 32 2 32-12 12-4 12-24 0-28-2-16-22-20-32-12z' fill='#E4ECFF' stroke='#4B5BFF' stroke-width='3'/>" +
-      "<path d='M60 28v54M42 46l18 10 18-10M44 66l16-10 16 10' stroke='#4B5BFF' stroke-width='2' fill='none' opacity='.5'/>" +
-      [[42, 46], [78, 46], [60, 56], [44, 66], [76, 66]].map(function (p, i) { return "<circle class='lq-node' style='animation-delay:" + (i * .3) + "s' cx='" + p[0] + "' cy='" + p[1] + "' r='4.5' fill='#19C3A0'/>"; }).join("") + "</svg>",
-    sleep: "<svg viewBox='0 0 120 120'><rect class='lq-bg lq-night' width='120' height='120' rx='26'/>" +
-      "<path class='lq-moon' d='M70 30a30 30 0 1 0 22 50 26 26 0 1 1-22-50z' fill='#FFD27A'/>" +
-      ["Z", "z", "z"].map(function (z, i) { return "<text class='lq-z' style='animation-delay:" + (i * .7) + "s' x='" + (30 + i * 9) + "' y='" + (54 - i * 10) + "' font-size='" + (18 - i * 3) + "'>" + z + "</text>"; }).join("") + "</svg>",
-    balance: "<svg viewBox='0 0 120 120'><rect class='lq-bg' width='120' height='120' rx='26'/>" +
-      "<path d='M52 100 L60 86 L68 100 Z' fill='#8A98AB'/><g class='lq-tilt'><rect x='22' y='82' width='76' height='5' rx='2.5' fill='#4B5BFF'/>" +
-      "<circle cx='60' cy='36' r='7' fill='#0F1D2E'/><path d='M60 44 V66 M60 66 L52 82 M60 66 L68 82 M40 52 H80' stroke='#0F1D2E' stroke-width='5' stroke-linecap='round'/></g></svg>",
-    lungs: "<svg viewBox='0 0 120 120'><rect class='lq-bg' width='120' height='120' rx='26'/><path d='M60 22V52' stroke='#8A98AB' stroke-width='5' stroke-linecap='round'/>" +
-      "<g class='lq-breath'><path d='M56 50c-14-6-28 6-28 28 0 14 10 20 20 16 6-2 8-8 8-16z' fill='#FF8F9E'/><path d='M64 50c14-6 28 6 28 28 0 14-10 20-20 16-6-2-8-8-8-16z' fill='#FF8F9E'/></g>" +
-      "<g class='lq-nosmoke'><circle cx='94' cy='26' r='14' fill='#fff' stroke='#E5484D' stroke-width='3'/><rect x='84' y='24' width='18' height='5' rx='1' fill='#8A98AB'/><path d='M84 36 L104 16' stroke='#E5484D' stroke-width='3'/></g></svg>"
-  };
-  function scene(theme) { return SC[GROUP[theme] || "walk"]; }
+    "Cerveau": "brain", "Mémoire": "brain", "Moral": "moral", "Lien social": "moral", "Sommeil": "sleep", "Équilibre": "balance", "Mobilité": "balance", "Tabac": "lungs" };
+  function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function hero(t, big) {
+    var g = GROUP[t.theme] || "walk";
+    return "<div class='lq-hero g-" + g + (big ? " big" : "") + "' aria-hidden='true'>" +
+      "<span class='lq-ring'></span>" +
+      "<div class='lq-stat'><b>" + esc(t.stat) + "</b><span>" + esc(t.statLabel) + "</span></div>" +
+      "<img src='assets/illus/" + g + ".webp' alt='' class='lq-ill lq-" + g + "'></div>";
+  }
   function decorateSavoir() {
     var c = $("ks-card"); if (!c || c.__lq || !window.KineSavoir) return;
     c.__lq = 1;
     var t = KineSavoir.tips[KineSavoir.today()]; if (!t) return;
-    var s = document.createElement("span"); s.className = "lq-sc"; s.setAttribute("aria-hidden", "true"); s.innerHTML = scene(t.theme);
-    c.classList.add("lq-ks"); c.appendChild(s);
+    c.classList.add("lq-ks"); c.insertAdjacentHTML("afterbegin", hero(t, false));
   }
   function hookSavoirSheet() {
     if (!window.KineSavoir || KineSavoir.open.__lq) return;
     var base = KineSavoir.open;
     KineSavoir.open = function (i) {
       base.apply(this, arguments);
-      var sh = $("ks-sheet"), tag = sh && sh.querySelector(".ks-tag"), n = sh && sh.querySelector(".ks-count");
+      var sh = $("ks-sheet"), body = sh && sh.querySelector(".ks-body"), n = sh && sh.querySelector(".ks-count");
       var k = n ? (parseInt(n.textContent, 10) || 1) - 1 : 0, t = KineSavoir.tips[k];
-      if (tag && t && !sh.querySelector(".lq-big")) { var d = document.createElement("div"); d.className = "lq-sc lq-big"; d.setAttribute("aria-hidden", "true"); d.innerHTML = scene(t.theme); tag.parentNode.insertBefore(d, tag.nextSibling); }
+      if (body && t && !sh.querySelector(".lq-hero")) {
+        var back = body.querySelector(".kf-back");
+        (back || body.firstChild).insertAdjacentHTML(back ? "afterend" : "beforebegin", hero(t, true));
+        sh.classList.add("lq-sheet");
+      }
     };
     KineSavoir.open.__lq = true;
   }
@@ -185,5 +166,5 @@
     document.addEventListener("visibilitychange", function () { if (document.hidden) stopYass(); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 60); }); else setTimeout(init, 60);
-  window.KineLudique = { scene: scene, _stop: stopYass };
+  window.KineLudique = { hero: hero, _stop: stopYass };
 })();

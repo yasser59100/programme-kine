@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v73';
+const VERSION = 'kineforce-v74';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
@@ -50,6 +50,15 @@ const APP_FILES = [
   'assets/lumiere/yass-salut.webp',
   'assets/lumiere/yass-bravo.webp',
   'assets/lumiere/video-fente.webp',
+  'assets/illus/walk.webp',
+  'assets/illus/back.webp',
+  'assets/illus/knee.webp',
+  'assets/illus/muscle.webp',
+  'assets/illus/brain.webp',
+  'assets/illus/moral.webp',
+  'assets/illus/sleep.webp',
+  'assets/illus/balance.webp',
+  'assets/illus/lungs.webp',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png'
 ];

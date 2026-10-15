@@ -304,34 +304,31 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 .lq-conf i { position: absolute; top: 40%; width: 8px; height: 12px; border-radius: 2px; animation: lqConf 1.4s cubic-bezier(.2, .7, .4, 1) both; }
 @keyframes lqConf { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 30% { transform: translate(calc(var(--dx) * .5), -90px) rotate(calc(var(--r) * .4)); } 100% { transform: translate(var(--dx), 160px) rotate(var(--r)); opacity: 0; } }
 
-/* ════════ Schémas animés « Le saviez-vous ? » ════════ */
-:root:root:root .ks-card.lq-ks { display: grid !important; grid-template-columns: 1fr 84px; column-gap: 12px; align-items: center; text-align: left; }
-.ks-card.lq-ks > :not(.lq-sc) { grid-column: 1; }
-.ks-card.lq-ks .lq-sc { grid-column: 2; grid-row: 1 / span 3; width: 84px; height: 84px; }
-.lq-sc svg { width: 100%; height: 100%; display: block; }
-.lq-big { width: 150px; height: 150px; margin: 6px auto 4px; }
-.lq-bg { fill: #EEF2FF; } .lq-night { fill: #1B2A40; }
-.lq-num { font: 800 17px "Bricolage", system-ui; fill: #0F1D2E; }
-.lq-foot { opacity: 0; animation: lqStep 2.6s infinite; }
-@keyframes lqStep { 0%, 8% { opacity: 0; } 14%, 70% { opacity: 1; } 85%, 100% { opacity: 0; } }
-.lq-dash { stroke-dasharray: 96; animation: lqDash 2.6s infinite; }
-@keyframes lqDash { from { stroke-dashoffset: 96; } 70%, to { stroke-dashoffset: 0; } }
-.lq-vert { transform-box: fill-box; transform-origin: 50% 50%; animation: lqVert 2.4s ease-in-out infinite; }
-@keyframes lqVert { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px) rotate(4deg); } }
-.lq-disc { fill: #19C3A0; animation: lqPulse 2.4s ease-in-out infinite; }
-.lq-arc { animation: lqDash2 2.4s linear infinite; } @keyframes lqDash2 { to { stroke-dashoffset: -20; } }
-.lq-shin { transform-origin: 60px 62px; animation: lqKnee 2.4s ease-in-out infinite; }
-@keyframes lqKnee { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-55deg); } }
-.lq-glow { animation: lqPulse 2.4s ease-in-out infinite; transform-origin: 60px 61px; }
-@keyframes lqPulse { 0%, 100% { opacity: .5; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.25); } }
-.lq-belly { transform-origin: 60px 60px; animation: lqFlex 1.8s ease-in-out infinite; }
-@keyframes lqFlex { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(.82, 1.35); } }
-.lq-up { animation: lqUp 1.8s ease-in-out infinite; } @keyframes lqUp { 0%, 100% { transform: translateY(4px); opacity: .4; } 50% { transform: translateY(-4px); opacity: 1; } }
-.lq-node { transform-box: fill-box; transform-origin: center; animation: lqPulse 1.5s ease-in-out infinite; }
-.lq-moon { animation: lqBob 4s ease-in-out infinite; } @keyframes lqBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-.lq-z { fill: #fff; font-weight: 800; font-family: "Bricolage", system-ui; opacity: 0; animation: lqZ 2.1s ease-out infinite; }
-@keyframes lqZ { 0% { opacity: 0; transform: translate(0, 6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(-8px, -18px); } }
-.lq-tilt { transform-origin: 60px 86px; animation: lqTilt 3s ease-in-out infinite; } @keyframes lqTilt { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
-.lq-breath { transform-origin: 60px 60px; animation: lqBreath 3.2s ease-in-out infinite; } @keyframes lqBreath { 0%, 100% { transform: scale(.9); } 50% { transform: scale(1.06); } }
-.lq-nosmoke { animation: lqBob 3s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .lq-sc * { animation: none !important; opacity: 1; } }
+/* ════════ « Le saviez-vous ? » illustré : Yass met en scène, chiffre clé en grand ════════ */
+:root:root:root .ks-card.lq-ks { display: flex !important; flex-direction: column; align-items: stretch; text-align: left; padding: 0 !important; overflow: hidden; gap: 0 !important; }
+.ks-card.lq-ks > .ks-tag { margin: 14px 16px 0; } .ks-card.lq-ks > .ks-title { margin: 6px 16px 0; font-family: var(--lu-head); font-weight: 800; font-size: 1.08rem; letter-spacing: -.015em; line-height: 1.25; } .ks-card.lq-ks > .ks-src { margin: 8px 16px 14px; }
+.lq-hero { flex: none; position: relative; height: 132px; overflow: hidden; display: flex; align-items: center; padding: 0 16px; }
+.lq-hero.big { height: 210px; border-radius: 26px; margin: 10px 0 14px; padding: 0 22px; }
+.lq-ring { position: absolute; right: -40px; top: -50px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255, 255, 255, .18); }
+.lq-hero.big .lq-ring { right: -30px; top: -40px; width: 300px; height: 300px; }
+.lq-stat { position: relative; z-index: 2; max-width: 56%; color: #fff; }
+.lq-stat b { display: block; font: 800 2.1rem/1 var(--lu-head); letter-spacing: -.04em; }
+.lq-hero.big .lq-stat b { font-size: 3rem; }
+.lq-stat span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 6px; font-size: .76rem; line-height: 1.3; opacity: .92; font-weight: 600; }
+.lq-hero.big .lq-stat span { font-size: .88rem; -webkit-line-clamp: 4; }
+.lq-ill { position: absolute; z-index: 1; right: 10px; bottom: -6px; height: 128px; filter: drop-shadow(0 10px 12px rgba(10, 20, 60, .3)); animation: lqIn .6s cubic-bezier(.2, .9, .3, 1.2) both; }
+.lq-hero.big .lq-ill { height: 200px; right: 14px; }
+.lq-ill.lq-back, .lq-ill.lq-sleep { height: auto; width: 46%; bottom: 8px; }
+.lq-hero.big .lq-ill.lq-back, .lq-hero.big .lq-ill.lq-sleep { height: auto; width: 52%; bottom: 18px; }
+@keyframes lqIn { from { transform: translateY(18px) scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
+.g-walk { background: linear-gradient(135deg, #19C3A0, #0E9B7E); }
+.g-back { background: linear-gradient(135deg, #5867FF, #3341E0); }
+.g-knee { background: linear-gradient(135deg, #FF9F6E, #F2734B); }
+.g-muscle { background: linear-gradient(135deg, #FF7A7A, #E5484D); }
+.g-brain { background: linear-gradient(135deg, #9B7BFF, #6A4FD0); }
+.g-moral { background: linear-gradient(135deg, #FFC24B, #F59E0B); }
+.g-sleep { background: linear-gradient(135deg, #2B3E63, #142038); }
+.g-balance { background: linear-gradient(135deg, #38BDF8, #0284C7); }
+.g-lungs { background: linear-gradient(135deg, #F472B6, #DB2777); }
+.lq-sheet .lq-hero ~ .ks-stat { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .lq-ill { animation: none; } }
