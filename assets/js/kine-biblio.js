@@ -11,7 +11,7 @@ var KineBiblio = (function () {
   var GROUPS = [
     ["genou", "Genou et quadriceps"], ["hanche", "Hanche et fessiers"], ["ischio", "Ischio-jambiers"], ["mollet", "Mollets et cheville"],
     ["dos", "Dos bas"], ["gainage", "Gainage"], ["epaule", "Épaules"], ["poussee", "Poussée"], ["tirage", "Tirage et dos haut"],
-    ["bras", "Bras"], ["equilibre", "Équilibre"], ["mobilite", "Mobilité"], ["cardio", "Cardio doux"]
+    ["bras", "Bras"], ["equilibre", "Équilibre"], ["mobilite", "Mobilité"], ["cardio", "Cardio doux"], ["reactif", "Réactivité (couleurs)"]
   ];
   var COLORS = { 1: ["vert", "Facile"], 2: ["orange", "Intermédiaire"], 3: ["rouge", "Difficile"] };
 
@@ -606,6 +606,8 @@ var KineBiblio = (function () {
     }
     return withHidden ? FULL : FULL.filter(function (e) { return !(window.KineOfficiel && KineOfficiel.hidden(e.name)); });
   }
+  // Exercices ajoutés par d'autres modules (ex. exercices réactifs) : ils rejoignent la bibliothèque et « Ma séance »
+  function extend(list) { list.forEach(function (e) { if (!NEW.some(function (x) { return x.name === e.name; })) NEW.push(e); }); FULL = null; }
   function find(name) { var a = all(true); for (var i = 0; i < a.length; i++) if (a[i].name === name) return a[i]; return null; }
 
   // Couleur du moment : la base, +1 si l'exercice est passé en tempo lent (charges progressives)
@@ -644,7 +646,7 @@ var KineBiblio = (function () {
       var items = list.filter(function (e) { return e.group === gr[0]; }).sort(function (a, b) { return a.color - b.color; });
       if (!items.length) return "";
       return "<div class='kf-phase' style='color:var(--text2)'>" + esc(gr[1]) + "</div>" + items.map(function (e) {
-        var thumb = window.KineAvatar && KineAvatar.supports(e.name) ? KineAvatar.snapshot(e.name, 104) : null, c = color(e.name);
+        var thumb = e.thumb || (window.KineAvatar && KineAvatar.supports(e.name) ? KineAvatar.snapshot(e.name, 104) : null), c = color(e.name);
         return "<button class='pg-ex kb-ex' onclick='KineBiblio.demo(" + JSON.stringify(e.name).replace(/'/g, "&#39;") + ")'>" +
           (thumb ? "<img src='" + thumb + "' alt=''>" : "<span class='pg-fig' aria-hidden='true'></span>") +
           "<span class='pg-day-t'><b>" + dot(c) + esc(e.name) + "</b><span>" + (e.isNew ? "<em class='kb-new'>Nouveau</em> " : "") + esc(COLORS[c][1]) + ", " + esc(e.repsLabel) + (e.kit && e.kit.length ? ", " + esc(e.kit.join(", ")) : "") + "</span></span><span class='pg-chev' aria-hidden='true'>›</span></button>";
@@ -661,13 +663,14 @@ var KineBiblio = (function () {
   function close() { var el = $("kb-sheet"); if (el) el.classList.remove("open"); }
   function demo(name) {
     var e = find(name); if (!e) return;
+    if (e.reactif && window.KineReactif) { KineReactif.open(e.reactif); return; }
     wire();
     var cur = e.day && typeof SEQ_DAYS !== "undefined" && SEQ_DAYS[e.day] && SEQ_DAYS[e.day].exercises[e.idx];
     if (cur && cur.name === e.name && typeof openDemo === "function") { openDemo(e.day, e.idx); return; }
     if (typeof openDemoEx === "function") openDemoEx(e);
   }
 
-  return { groups: GROUPS, colors: COLORS, all: all, find: find, color: color, open: open, close: close, demo: demo, wire: wire, NEW: NEW,
+  return { groups: GROUPS, colors: COLORS, all: all, find: find, extend: extend, color: color, open: open, close: close, demo: demo, wire: wire, NEW: NEW,
            reset: function () { FULL = null; }, baseColor: function (n) { var e = find(n); return e ? e.base : 0; } };
 })();
 window.KineBiblio = KineBiblio;

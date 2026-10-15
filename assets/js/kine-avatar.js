@@ -130,9 +130,9 @@
      sides: "blocks", sideWord: "jambe", labelSwap: true, camera: { yaw: 1.25, dist: 4.4, ty: 0.7, tz: 0 }, props: ["chair"], chair: { z: -0.14 }, start: "up", thumb: "down",
      poses: {
        up: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.88, 0.2], r: [6, 0, 0] }, spine: [4, 0, 0],
-         L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }),
+         L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75, pole: [0, -1, 0.45] } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }),
        down: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.6, -0.02], r: [12, 0, 0] }, spine: [8, 0, 0],
-         L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } })
+         L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75, pole: [0, -1, 0.45] } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } })
      },
      steps: [step("down", 2, "On descend", "On descend", "down"), step("up", 1, "On remonte", "On pousse dans le talon avant", "up")]
    },
@@ -1136,7 +1136,7 @@
       timed: { seconds: 40 }, camera: { yaw: 1.4, pitch: 0.2, dist: 4.8, ty: 0.55, tz: 0.7 }, start: "stand", thumb: "plank",
       poses: {
         stand: merge(STAND(0.12, 0), { LA: { hand: { at: [0.23, 0.9, 0.03], pole: [0.3, 0, -1] } }, RA: { hand: { at: [-0.23, 0.9, 0.03], pole: [-0.3, 0, -1] } } }),
-        fold:  merge(STAND(0.12, 0), { pelvis: { p: [0, 0.9, -0.12], r: [150, 0, 0] }, spine: [0, 0, 0], head: 20,
+        fold:  merge(STAND(0.12, 0), { pelvis: { p: [0, 0.87, -0.1], r: [95, 0, 0] }, spine: [55, 0, 0], head: 20,
                  LA: { hand: { at: [0.22, 0.047, 0.38], pole: [0.3, 0.5, -1] } }, RA: { hand: { at: [-0.22, 0.047, 0.38], pole: [-0.3, 0.5, -1] } } }),
         plank: merge(PLANK_FEET, { pelvis: { p: [0, 0.426, 0.976], r: [70.8, 0, 0] }, spine: [0, 0, 0], head: 0,
                  LA: { hand: { at: [0.24, 0.047, 1.44], pole: [0.6, 0.3, -0.7] } }, RA: { hand: { at: [-0.24, 0.047, 1.44], pole: [-0.6, 0.3, -0.7] } } }),
@@ -1991,6 +1991,40 @@
     },
 
     // Mesure des angles articulaires d'une pose (contrôle des amplitudes)
+    // Contrôle qualité : genou qui ne pointe pas dans l'axe du pied (rotation de hanche anormale) — pour les tests
+    _audit: function () {
+      if (!R) { R = build(); if (!R) return null; }
+      var T = R.T, out = [], w = function (g) { var v = new T.Vector3(); g.getWorldPosition(v); return v; };
+      Object.keys(EX).forEach(function (name) {
+        var d = EX[name]; if (!d || !d.poses || name.indexOf("__") === 0) return;
+        Object.keys(d.poses).forEach(function (pn) {
+          ["L", "R"].forEach(function (sd) {
+            var p = d.poses[pn]; if (sd === "R") p = mirror(p);
+            try { def = d; applyPose(p); } catch (e) { return; }
+            R.pelvis.updateMatrixWorld(true);
+            ["L", "R"].forEach(function (s2) {
+              var g = R.legs[s2], H = w(g.hip), K = w(g.knee), A = w(g.ankle);
+              var axis = A.clone().sub(H).normalize(), thigh = K.clone().sub(H), shank = A.clone().sub(K);
+              var flex = Math.round(thigh.angleTo(shank) * 180 / Math.PI);
+              if (flex < 20) return;
+              // Rotation de la cuisse : axe de flexion du genou comparé à l'axe gauche-droite du bassin, autour de la cuisse
+              var tq = new T.Quaternion(), pq = new T.Quaternion(); g.knee.getWorldQuaternion(tq); R.pelvis.getWorldQuaternion(pq);
+              var th = thigh.clone().normalize();
+              var hx = new T.Vector3(1, 0, 0).applyQuaternion(tq), px = new T.Vector3(1, 0, 0).applyQuaternion(pq);
+              hx.sub(th.clone().multiplyScalar(hx.dot(th))); px.sub(th.clone().multiplyScalar(px.dot(th)));
+              if (hx.length() < 1e-4 || px.length() < 1e-4) return;
+              var dev = Math.round(hx.angleTo(px) * 180 / Math.PI); if (dev > 90) dev = 180 - dev;
+              if (dev > 40) out.push({ ex: name, pose: pn, side: sd, leg: s2, flex: flex, dev: dev });
+              // Genou qui part vers l'arrière ou vers le haut par rapport à l'avant du bassin (pli à l'envers)
+              var mid = H.clone().add(A).multiplyScalar(0.5), kd = K.clone().sub(mid); kd.sub(axis.clone().multiplyScalar(kd.dot(axis)));
+              var pf = new T.Vector3(0, 0, 1).applyQuaternion(pq); pf.sub(axis.clone().multiplyScalar(pf.dot(axis)));
+              if (kd.length() > 1e-4 && pf.length() > 1e-4) { var back = Math.round(kd.angleTo(pf) * 180 / Math.PI); if (back > 100) out.push({ ex: name, pose: pn, side: sd, leg: s2, flex: flex, dev: "arrière " + back }); }
+            });
+          });
+        });
+      });
+      return out;
+    },
     measure: function (name, poseName, side) {
       var d = EX[name]; if (!d || !d.poses || !window.THREE) return null;
       if (!R) { R = build(); if (!R) return null; }

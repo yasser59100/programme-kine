@@ -133,7 +133,7 @@
              : ex.id === "unipodal" || ex.id === "chasses1" ? M(L.STAND(0.11, 6), { pelvis: { p: [0.07, 0.9, 0], r: [6, 0, 0] }, L: { foot: { at: [0.1, 0, 0.12], yaw: 6 } }, R: { foot: { at: [-0.1, 0.16, 0.06], yaw: -6 } } }, ARMS_BAL)
              : ex.id === "chasses" ? M(L.STAND(0.17, 8), { pelvis: { p: [0, 0.86, 0], r: [14, 0, 0] }, spine: [8, 0, 0] }, ARMS_BAL)
              : ex.id === "bulgare" ? M(L.STAND(0.1, 0), { pelvis: { p: [0, 0.8, 0.16], r: [10, 0, 0] }, spine: [6, 0, 0],
-                 L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }, { LA: { ang: [30, 18, 0, 40] }, RA: { ang: [30, 18, 0, 40] } })
+                 L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75, pole: [0, -1, 0.45] } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }, { LA: { ang: [30, 18, 0, 40] }, RA: { ang: [30, 18, 0, 40] } })
              : ex.id === "squat" ? L.STAND(0.17, 10)
              : L.STAND(0.11, 6);
     if (ex.id === "chasses1") base = M(base, { R: { foot: { at: [-0.12, 0.36, -0.2], yaw: -6, lift: 30 } } });
@@ -157,7 +157,7 @@
         poses["c" + i] = M(base, P, { LA: { ang: [14, 16, 0, 30] }, RA: { ang: [14, 16, 0, 30] } });
       } else if (ex.id === "bulgare") {   // petit saut sur la jambe avant vers le plot, le pied arrière reste sur la chaise
         var fx = -0.1 + (x + 0.1) * 0.72, fz = 0.36 + (z - 0.36) * 0.72, dx = fx + 0.1, dz = fz - 0.36;
-        var rear = { L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } } };
+        var rear = { L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75, pole: [0, -1, 0.45] } } };
         poses["j" + i] = M(base, rear, { pelvis: { p: [dx * 0.35, 0.9, 0.16 + dz * 0.35], r: [6, 0, 0] }, R: { foot: { at: [-0.1 + dx * 0.5, 0.12, 0.36 + dz * 0.5], yaw: 0 } },
                                          LA: { ang: [55, 20, 0, 30] }, RA: { ang: [55, 20, 0, 30] } });
         poses["c" + i] = M(base, rear, { pelvis: { p: [dx * 0.55, 0.7, 0.16 + dz * 0.55], r: [14, 0, 0] }, spine: [8, 0, 0], R: { foot: { at: [fx, 0, fz], yaw: x * 20 } } });
@@ -229,15 +229,17 @@
   }
 
   /* ── Écran de réglage ── */
-  function open(exoId) {
-    var s = settings(); if (exoId) s.exo = exoId;
+  var SESS = null;   // lancé depuis une séance : { onDone } (la série validée fait avancer la séance)
+  function open(exoId, sess) {
+    if (sess !== undefined) SESS = sess || null;
+    var s = settings(); if (exoId) { s.exo = exoId; save(s); }
     var el = $("kr-sheet");
     if (!el) { el = document.createElement("div"); el.id = "kr-sheet"; el.className = "kf-sheet"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Exercices réactifs"); document.body.appendChild(el); }
     var ex = exoOf(s.exo), hist = jget("kf-reactif-hist", []), last = hist.filter(function (h) { return h.exo === ex.id; })[0];
     var chip = function (cls, val, cur, txt) { return "<button type='button' class='" + (val === cur ? "sel" : "") + "' onclick='KineReactif._set(\"" + cls + "\"," + JSON.stringify(val) + ")'>" + txt + "</button>"; };
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineReactif.close()' aria-label='Retour'>←</button>" +
       "<div class='kf-h1'>Exercices réactifs</div><div class='kf-sub'>L'écran s'allume d'une couleur et Yass l'annonce : allez toucher le plot de cette couleur, le plus vite possible, puis revenez.</div>" +
-      "<div class='kr-exos'>" + EXOS.map(function (e) {
+      (SESS ? "<p class='kr-sesstag'>Dans votre séance" + (SESS.serie ? " : série " + SESS.serie : "") + ". Réglez la série, puis « C'est parti ».</p><div class='kr-exos' style='display:none'>" : "<div class='kr-exos'>") + EXOS.map(function (e) {
         return "<button type='button' class='kr-exo" + (e.id === ex.id ? " on" : "") + "' onclick='KineReactif._set(\"exo\",\"" + e.id + "\")'><i class='kb-dot c" + e.level + "'></i><b>" + esc(e.name) + "</b><span>" + LVL[e.level][1] + (e.sides ? ", des deux côtés" : "") + "</span></button>";
       }).join("") + "</div>" +
       "<div class='kr-place'>" + (window.KineAvatar && KineAvatar.lib ? "<div class='kr-demo'><div class='kr-stage'></div><span class='kr-tag'></span></div>" : "") + diagram(ex, mine(s)) +
@@ -267,7 +269,7 @@
     else { if (s.cols.length >= 4) s.cols.shift(); s.cols.push(id); }
     save(s); var el = $("kr-sheet"), top = el ? el.querySelector(".kf-sheet-body").scrollTop : 0; open(); if (el) el.querySelector(".kf-sheet-body").scrollTop = top;
   }
-  function close() { var el = $("kr-sheet"); if (el) el.classList.remove("open"); demoId++; if (el && el.querySelector(".kr-stage canvas") && window.KineAvatar) KineAvatar.hide(); }
+  function close() { var el = $("kr-sheet"); if (el) el.classList.remove("open"); demoId++; if (!run) SESS = SESS && SESS.starting ? SESS : null; if (el && el.querySelector(".kr-stage canvas") && window.KineAvatar) KineAvatar.hide(); }
 
   /* ── La série ── */
   var run = null, wake = null;
@@ -299,7 +301,9 @@
 
   function start() {
     var s = settings(), ex = exoOf(s.exo), r = RYTHMES.filter(function (x) { return x[0] === s.rythme; })[0] || RYTHMES[1];
+    if (SESS) SESS.starting = true;
     close();
+    if (SESS) SESS.starting = false;
     if (typeof getAudioCtx === "function") { var ctx = getAudioCtx(); if (ctx && ctx.state === "suspended") ctx.resume(); }
     if (typeof kfvPreloadAll === "function") { try { kfvPreloadAll(); } catch (e) {} }
     try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e) {}
@@ -366,7 +370,9 @@
     if (complete) {
       paint("#0E141F", "#fff", "Bravo !", r.done + " couleurs touchées. Notez si une douleur est apparue, et pensez à boire un peu d'eau.", "");
       say("Série terminée, bravo !"); if (typeof playStartBeep === "function") playStartBeep();
-      var el = screen(); el.querySelector(".kr-btns").innerHTML = "<button type='button' onclick='KineReactif.again()'>Recommencer</button><button type='button' onclick='KineReactif.stop()'>Terminer</button>";
+      var el = screen();
+      el.querySelector(".kr-btns").innerHTML = SESS ? "<button type='button' onclick='KineReactif.next()'>Continuer la séance</button>"
+        : "<button type='button' onclick='KineReactif.again()'>Recommencer</button><button type='button' onclick='KineReactif.stop()'>Terminer</button>";
     } else quit();
   }
   function quit() {
@@ -404,7 +410,33 @@
   }
 
   window.KineReactif = { open: open, close: close, start: start, stop: function () { if (run && run.i > 0 && run.done < run.total) finish(false); else quit(); }, pause: pause,
-    again: function () { quit(); open(); }, _set: setOpt, _col: toggleCol, _avDef: avDef, exos: EXOS, colors: COLS };
-  function init() { watch(); new MutationObserver(watch).observe(document.body, { childList: true }); }
+    _sess: function () { return SESS; }, again: function () { quit(); open(); }, next: function () { var cb = SESS && SESS.onDone; quit(); SESS = null; if (cb) cb(); }, _set: setOpt, _col: toggleCol, _avDef: avDef, exos: EXOS, colors: COLS };
+  /* ── Les exercices réactifs rejoignent la bibliothèque et « Ma séance » ── */
+  function thumb(cols) {
+    var svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 104 104'><rect width='104' height='104' rx='16' fill='#101826'/>" +
+      cols.map(function (c, i) { var x = 22 + i * 30; return "<path d='M" + (x - 11) + " 70 L" + x + " 38 L" + (x + 11) + " 70 Z' fill='" + c + "'/><rect x='" + (x - 14) + "' y='69' width='28' height='5' rx='2' fill='" + c + "' opacity='.7'/>"; }).join("") + "</svg>";
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+  function addToLibrary() {
+    if (!window.KineBiblio || !KineBiblio.extend) return;
+    KineBiblio.extend(EXOS.map(function (e, i) {
+      return { name: e.name, group: "reactif", color: e.level, kit: [e.kit], reactif: e.id, thumb: thumb([COLS[i % 4].hex, COLS[(i + 1) % 4].hex, COLS[(i + 2) % 4].hex]),
+               repsLabel: "15 couleurs" + (e.sides ? " par " + e.sideWord : ""), desc: e.place + " " + e.action, cue: e.cue,
+               tip: "Avant chaque série, choisissez vos couleurs, le nombre de couleurs, le rythme et les pièges.",
+               stop: "Arrêt si une douleur atteint 5 sur 10, en cas de vertige ou de perte d'équilibre." };
+    }));
+  }
+  // Dans une séance : un exercice réactif ouvre ses réglages puis la série en couleurs, au lieu du guide de répétitions
+  function hookSession() {
+    if (typeof window.tryLaunchRepGuide !== "function" || window.tryLaunchRepGuide.__kr) return;
+    var base = window.tryLaunchRepGuide;
+    window.tryLaunchRepGuide = function (ex, serie, onDone) {
+      var e = ex && ex.phase === "work" && window.KineBiblio && KineBiblio.find(ex.name);
+      if (e && e.reactif) { open(e.reactif, { onDone: onDone, serie: serie }); return true; }
+      return base.apply(this, arguments);
+    };
+    window.tryLaunchRepGuide.__kr = true;
+  }
+  function init() { addToLibrary(); hookSession(); watch(); new MutationObserver(watch).observe(document.body, { childList: true }); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

@@ -552,6 +552,22 @@ html.kf-theme-anim, html.kf-theme-anim * { transition: background-color .35s eas
 #kcam-run .kcam-pick b { font-size: 1.05rem; }
 #kcam-run .kcam-pick small { grid-column: 1; color: var(--text2); font-size: .85rem; }
 #kcam-run .kcam-pick span { grid-row: 1 / span 2; grid-column: 2; color: var(--blue); font-size: 1.3rem; }
-.kcam-sess { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 8px 0 2px; padding: 11px 14px; border-radius: 14px; border: 1px solid rgba(34, 211, 238, .45); background: rgba(34, 211, 238, .08); color: var(--text); font: inherit; font-weight: 700; font-size: .95rem; }
+.kcam-sessrow { display: flex; gap: 8px; margin: 8px 0 2px; }
+.kcam-sessset { flex: none; width: 46px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); font-size: 1.1rem; }
+.kcam-sess { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 0; padding: 11px 14px; border-radius: 14px; border: 1px solid rgba(34, 211, 238, .45); background: rgba(34, 211, 238, .08); color: var(--text); font: inherit; font-weight: 700; font-size: .95rem; }
 .kcam-sess .kcam-tag { display: inline-block; font-style: normal; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 999px; background: rgba(255, 138, 43, .18); color: #FF8A2B; }
 #rep-guide:not([data-state="ready"]) #kcam-sess { display: none; }
+.kr-sesstag { margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; background: rgba(79,172,254,.12); font-weight: 600; font-size: .92rem; }
+/* Accès anticipé au niveau rouge */
+.kc-early-card { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; margin: 10px 0 4px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255, 77, 94, .45); background: rgba(255, 77, 94, .08); color: inherit; font: inherit; text-align: left; }
+.kc-early-card small { color: var(--text2); font-size: .85rem; }
+#kc-early .kc-eq { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+#kc-early .kc-eqi { padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+#kc-early .kc-eqi p { margin: 0 0 8px; line-height: 1.4; }
+#kc-early .kc-eres { margin: 14px 0 4px; padding: 12px 14px; border-radius: 14px; line-height: 1.45; }
+#kc-early .kc-eres:empty { display: none; }
+#kc-early .kc-eres.ok { background: rgba(46, 204, 113, .12); border: 1px solid rgba(46, 204, 113, .45); }
+#kc-early .kc-eres.no { background: rgba(255, 138, 43, .12); border: 1px solid rgba(255, 138, 43, .45); }
+
+.kcam-mode { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+.kcam-mode small { color: var(--text2); font-size: .85rem; line-height: 1.35; }

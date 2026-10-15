@@ -373,7 +373,36 @@
         var p = PROF[k];
         return "<button type='button' onclick='KineCamera.open(\"" + k + "\")'><b>" + esc(p.title) + "</b><small>" + (p.mode === "hold" ? "Tenue chronométrée" : "Répétitions comptées") + ", " +
           (p.views === "both" ? "de face ou de profil" : p.views === "profil" ? "de profil" : "de face") + "</small><span aria-hidden='true'>›</span></button>";
-      }).join("") + "</div></div>";
+      }).join("") + "</div>" + modeHtml() + "</div>";
+  }
+  /* Pendant les séances : jamais, bouton proposé (par défaut) ou caméra lancée d'office */
+  var MODES = [["off", "Jamais"], ["ask", "Bouton proposé"], ["auto", "Automatique"]];
+  function mode() { var m = jget("kf-cam-sess", "ask"); return m === "off" || m === "auto" ? m : "ask"; }
+  function modeHtml() {
+    var m = mode();
+    return "<div class='kcam-mode'><b>Pendant mes séances</b><div class='kf-chips'>" + MODES.map(function (x) {
+      return "<button type='button' class='" + (x[0] === m ? "sel" : "") + "' onclick='KineCamera.setMode(\"" + x[0] + "\")'>" + x[1] + "</button>"; }).join("") + "</div>" +
+      "<small id='kcam-mode-h'>" + modeHint(m) + "</small></div>";
+  }
+  function modeHint(m) {
+    return m === "off" ? "La caméra n'apparaît pas pendant les séances. Vous pouvez toujours l'ouvrir d'ici."
+      : m === "auto" ? "Pour les exercices compatibles, la caméra s'ouvre d'elle-même au début de chaque série."
+      : "Pour les exercices compatibles, un bouton propose de faire la série devant la caméra.";
+  }
+  function setMode(m) {
+    jset("kf-cam-sess", m);
+    document.querySelectorAll(".kcam-mode").forEach(function (box) {
+      box.querySelectorAll("button").forEach(function (b) { b.classList.toggle("sel", b.getAttribute("onclick").indexOf('"' + m + '"') >= 0); });
+      var h = box.querySelector("small"); if (h) h.textContent = modeHint(m);
+    });
+    if (m !== "off") sessionButton(); else { var b = $("kcam-sess"); if (b) b.remove(); }
+  }
+  function modeSheet() {
+    var el = $("kcam-modesheet");
+    if (!el) { el = document.createElement("div"); el.id = "kcam-modesheet"; el.className = "kf-sheet"; el.setAttribute("role", "dialog"); document.body.appendChild(el); }
+    el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='document.getElementById(\"kcam-modesheet\").classList.remove(\"open\")' aria-label='Retour'>←</button>" +
+      "<div class='kf-h1'>La caméra pendant les séances</div>" + modeHtml() + "</div>";
+    el.classList.add("open");
   }
   function open(pid, opt) {
     if (!pid || !PROF[pid]) { picker(); return; }
@@ -633,11 +662,20 @@
     var ov = $("seq-overlay"); if (!ov || !ov.classList.contains("open") || typeof SEQ_DAYS === "undefined") return;
     var ex = SEQ_DAYS[seqCurrentDay] && SEQ_DAYS[seqCurrentDay].exercises[seqExIdx];
     var pid = ex && EX_MAP[ex.name]; if (!pid) return;
+    var m = mode(); if (m === "off") return;
     var anchor = $("kv-level") || $("rg2-cue"); if (!anchor) return;
-    var b = document.createElement("button"); b.type = "button"; b.id = "kcam-sess"; b.className = "kcam-sess";
-    b.innerHTML = "<span aria-hidden='true'>📷</span> Faire cette série devant la caméra <em class='kcam-tag'>essai</em>";
-    b.onclick = function () { open(pid, { session: true, target: targetOf(ex), ex: ex.name }); };
+    var opts = { session: true, target: targetOf(ex), ex: ex.name };
+    var b = document.createElement("div"); b.id = "kcam-sess"; b.className = "kcam-sessrow";
+    b.innerHTML = "<button type='button' class='kcam-sess'><span aria-hidden='true'>📷</span> Faire cette série devant la caméra <em class='kcam-tag'>essai</em></button>" +
+      "<button type='button' class='kcam-sessset' aria-label='Réglage de la caméra pendant les séances'>⚙</button>";
+    b.firstChild.onclick = function () { open(pid, opts); };
+    b.lastChild.onclick = modeSheet;
     anchor.parentNode.insertBefore(b, anchor.nextSibling);
+    // Mode automatique : la caméra s'ouvre seule (une fois par série, quand l'écran de l'exercice est prêt)
+    if (m === "auto" && !(S || ($("kcam-run") && $("kcam-run").classList.contains("open")))) {
+      var key = seqCurrentDay + ":" + seqExIdx + ":" + (window.rgState ? rgState.currentSerie : "");
+      if (window.__kcamAuto !== key) { window.__kcamAuto = key; setTimeout(function () { open(pid, opts); if ($("kcam-go")) start(); }, 400); }
+    }
   }
   function hookSession() {
     if (typeof window.launchRepGuide !== "function" || window.launchRepGuide.__kcam) return;
@@ -661,7 +699,7 @@
   function watch() { var box = $("kb-sheet"); if (!box || box.__kcam) return; box.__kcam = 1; new MutationObserver(libCard).observe(box, { childList: true }); libCard(); }
 
   function mute() { var m = !muted(); jset("kf-cam-mute", m ? 1 : 0); var b = $("kcam-snd"); if (b) b.textContent = m ? "🔇" : "🔊"; if (!m) say("Bien !"); }
-  window.KineCamera = { open: open, close: close, finish: finish, flip: flip, replay: replay, mute: mute, validate: validate,
+  window.KineCamera = { setMode: setMode, mode: mode, modeSheet: modeSheet, open: open, close: close, finish: finish, flip: flip, replay: replay, mute: mute, validate: validate,
     again: function () { open(PRID, OPT); }, forExercise: function (n) { return EX_MAP[n] || null; },
     _state: function () { return A; } };
   function init() { watch(); new MutationObserver(watch).observe(document.body, { childList: true }); hookSession(); setTimeout(hookSession, 1600); }

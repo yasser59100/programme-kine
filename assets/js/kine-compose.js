@@ -12,7 +12,7 @@ var KineCompose = (function () {
   var MIN = 5, MAX = 8, MAX_RED = 2, MAX_GROUP = 3, UNLOCK_DAYS = 14, MAX_MIN = 45;
   var GKEY = "kf-gear", KEY = "kf-custom", ZKEY = "kf-zones", PKEY = "kf-kine-pin", UKEY = "kf-reds-open";
   var REGION = { genou: "bas", hanche: "bas", ischio: "bas", mollet: "bas", epaule: "haut", poussee: "haut", tirage: "haut", bras: "haut",
-                 dos: "tronc", gainage: "tronc", equilibre: "autre", mobilite: "autre", cardio: "autre" };
+                 dos: "tronc", gainage: "tronc", equilibre: "autre", mobilite: "autre", cardio: "autre", reactif: "autre" };
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function jget(k, d) { try { var v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
@@ -40,7 +40,68 @@ var KineCompose = (function () {
       if (o.group !== e.group || KineBiblio.color(o.name) !== 2) return false;
       var r = window.KineLevel && KineLevel.get(o.name); return !!(r && (r.d > 0 || r.tempo));
     });
-    return mastered ? null : "Se débloque quand un exercice orange du même groupe est devenu facile, ou après 2 semaines";
+    return mastered ? null : "Se débloque quand un exercice orange du même groupe est devenu facile, après 2 semaines, ou avec l'accès anticipé";
+  }
+
+  /* ════════ Accès anticipé au niveau rouge : pour ceux qui ont fini leur rééducation ════════
+     6 questions, toutes à « oui » pour ouvrir les exercices difficiles. Les zones réglées par le kiné restent prioritaires.
+     Le résultat figure dans le résumé envoyé au kiné. */
+  var EKEY = "kf-reds-early";
+  var EQ = [
+    ["fini", "Ma rééducation est terminée, ou mon kiné m'a dit que je pouvais continuer seul."],
+    ["repos", "Je n'ai pas de douleur au repos, et pas plus de 2 sur 10 pendant l'effort."],
+    ["orange", "Je fais les exercices orange sans douleur et sans compenser (par exemple 3 séries de 12 squats)."],
+    ["unipodal", "Je tiens 30 secondes sur une jambe, de chaque côté, sans me tenir."],
+    ["escalier", "Je monte et descends un escalier normalement, sans me tenir à la rampe."],
+    ["recent", "Je n'ai eu ni opération ni nouvelle blessure ces 3 derniers mois."]
+  ];
+  var eAns = {};
+  function needEarly() {
+    if (jget(UKEY, false) || daysUsed() >= UNLOCK_DAYS) return false;
+    return KineBiblio.all().some(function (e) { return KineBiblio.color(e.name) === 3 && lockReason(e) && zones()[e.group] !== "nored" && zones()[e.group] !== "off"; });
+  }
+  function earlyOpen() {
+    eAns = {};
+    var el = $("kc-early");
+    if (!el) { el = document.createElement("div"); el.id = "kc-early"; el.className = "kf-sheet"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Accès anticipé au niveau difficile"); document.body.appendChild(el); }
+    var last = jget(EKEY, null);
+    el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCompose.earlyClose()' aria-label='Retour'>←</button>" +
+      "<div class='kf-h1'>Accès anticipé au niveau difficile</div>" +
+      "<div class='kf-sub'>Pour ceux qui ont terminé leur rééducation. Répondez honnêtement : les exercices rouges demandent un corps prêt. Si une seule réponse est « non », on continue encore un peu en orange.</div>" +
+      (last && !last.ok ? "<p class='lx-muted'>Dernier essai le " + esc(last.d) + ".</p>" : "") +
+      "<div class='kc-eq'>" + EQ.map(function (q, i) {
+        return "<div class='kc-eqi' data-k='" + q[0] + "'><p><b>" + (i + 1) + ".</b> " + esc(q[1]) + "</p><div class='kf-chips'>" +
+          "<button type='button' onclick='KineCompose.earlyAns(\"" + q[0] + "\",1,this)'>Oui</button><button type='button' onclick='KineCompose.earlyAns(\"" + q[0] + "\",0,this)'>Non</button></div></div>";
+      }).join("") + "</div><p class='kc-eres' id='kc-eres' role='status'></p></div>" +
+      "<div class='kf-sheet-foot'><button class='seq-btn-main' id='kc-ego' disabled onclick='KineCompose.earlyCheck()'>Valider mes réponses</button></div>";
+    el.classList.add("open");
+  }
+  function earlyAns(k, v, btn) {
+    eAns[k] = v;
+    btn.parentNode.querySelectorAll("button").forEach(function (b) { b.classList.toggle("sel", b === btn); });
+    var b = $("kc-ego"); if (b) b.disabled = Object.keys(eAns).length < EQ.length;
+  }
+  function earlyCheck() {
+    var no = EQ.filter(function (q) { return !eAns[q[0]]; }), d = new Date(), ds = d.getDate() + "/" + (d.getMonth() + 1);
+    var r = $("kc-eres"), foot = $("kc-ego");
+    jset(EKEY, { ok: !no.length, d: ds, no: no.map(function (q) { return q[0]; }) });
+    if (!no.length) {
+      jset(UKEY, true);
+      r.innerHTML = "<strong>C'est ouvert !</strong> Les exercices rouges sont disponibles dans « Ma séance » et la bibliothèque. Gardez au plus 2 exercices rouges par séance, et arrêtez si une douleur dépasse 5 sur 10.";
+      r.className = "kc-eres ok";
+      foot.textContent = "Composer ma séance"; foot.disabled = false; foot.onclick = function () { earlyClose(); render(); };
+    } else {
+      r.innerHTML = "<strong>Pas encore.</strong> " + no.map(function (q) { return esc(q[1].replace(/\.$/, "")); }).join(" ; ") + " : c'est à travailler d'abord. " +
+        "Continuez les exercices orange : le niveau rouge s'ouvre aussi tout seul quand un orange du même groupe devient facile, ou après 2 semaines. Parlez-en à votre kiné au besoin.";
+      r.className = "kc-eres no";
+      foot.textContent = "Compris"; foot.onclick = function () { earlyClose(); };
+    }
+    r.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  function earlyClose() { var el = $("kc-early"); if (el) el.classList.remove("open"); if ($("kc-sheet") && $("kc-sheet").classList.contains("open")) render(); }
+  function earlyLines() {
+    var e = jget(EKEY, null); if (!e) return [];
+    return ["", "Accès anticipé au niveau rouge (questionnaire du patient) : " + (e.ok ? "accordé" : "refusé (" + e.no.join(", ") + ")") + " le " + e.d + "."];
   }
   // Ce qui empêche d'ajouter cet exercice à la sélection
   function addBlock(sel, e) {
@@ -132,6 +193,7 @@ var KineCompose = (function () {
       "<div class='kc-gear'><b>Mon matériel</b>" + [["elastique", "Un élastique"], ["charge", "Haltères ou charges"]].map(function (g) {
         var on = !!jget(GKEY, {})[g[0]];
         return "<button type='button' class='kb-chip" + (on ? " on" : "") + "' aria-pressed='" + on + "' onclick='KineCompose.gear(\"" + g[0] + "\")'>" + (on ? "✓ " : "") + g[1] + "</button>"; }).join("") + "</div>" +
+      (needEarly() ? "<button type='button' class='kc-early-card' onclick='KineCompose.early()'><b>🔓 Rééducation terminée ?</b><small>Accès anticipé aux exercices difficiles : 6 questions</small></button>" : "") +
       (chosen ? "<div class='kc-tray'>" + chosen + "<div class='kf-sub'>L'ordre alterne les groupes musculaires pour que chacun récupère.</div></div>" : "") +
       groups + "</div>" +
       "<div class='kf-sheet-foot kc-foot'><input id='kc-name' class='kc-name' maxlength='30' placeholder='Nom de la séance' value='" + esc(title) + "' oninput='KineCompose.name(this.value)'>" +
@@ -290,6 +352,7 @@ var KineCompose = (function () {
     name: function (v) { title = v; }, saved: function () { return jget(KEY, []); },
     gear: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); var y = sheet().scrollTop; render(); sheet().scrollTop = y; }, kine: kine, pin: pin, zone: zone,
     reds: function (v) { jset(UKEY, !!v); },
+    early: earlyOpen, earlyAns: earlyAns, earlyCheck: earlyCheck, earlyClose: earlyClose, earlyLines: earlyLines,
     lock: function () { kineOpen = 0; close(); },
     resetPin: function () { try { localStorage.removeItem(PKEY); } catch (e) {} kineOpen = 0; kine(); },
     rules: { MIN: MIN, MAX: MAX, MAX_RED: MAX_RED, MAX_GROUP: MAX_GROUP }
