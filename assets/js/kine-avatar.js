@@ -38,6 +38,8 @@
     var r = yaw * Math.PI / 180, bx = 0.12 * Math.sin(r), bz = 0.12 * Math.cos(r);
     return { L: { foot: { at: [x + bx, y || 0, z + bz], yaw: yaw } }, R: { foot: { at: [-x - bx, y || 0, z + bz], yaw: -yaw } } };
   }
+  // Main posée sur un bâton derrière la nuque, repérée sur le buste (elle suit les rotations et la bascule)
+  function BACK_HAND(sg) { return { hand: { at: [sg * 0.4, 0.53, -0.11], pole: [sg * 0.7, -1, 0.15], sp: true } }; }
   function STAND(fx, yaw) { return merge({ pelvis: { p: [0, "auto", 0], r: [0, 0, 0] }, spine: [2, 0, 0], head: 0 }, feet(fx, 0, yaw), ARMS_RELAXED); }
 
   // Décubitus dorsal : tête vers -z, pieds vers +z
@@ -577,22 +579,21 @@
 
    // ── Bibliothèque, lot 6 : matériel de la maison (bâton, ballon, serviette, bouteilles) et poids du corps ──
    "Élévation du bâton bras tendus": {
-     tool: "stick", noIso: true, camera: { yaw: 0.9, dist: 4.1, ty: 1.1 }, start: "down", thumb: "up",
-     poses: { down: merge(STAND(0.11, 6), { LA: { hand: { at: [0.24, 0.86, 0.2], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.24, 0.86, 0.2], pole: [-1, 0, 0] } } }),
-              up: merge(STAND(0.11, 6), { LA: { hand: { at: [0.24, 2.0, 0.06], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.24, 2.0, 0.06], pole: [-1, 0, 0] } } }) },
+     tool: "stick", noIso: true, camera: { yaw: 0.55, dist: 4.1, ty: 1.1 }, start: "down", thumb: "up",
+     poses: { down: merge(STAND(0.11, 6), { LA: { hand: { at: [0.3, 0.88, 0.26], pole: [1, -0.3, 0] } }, RA: { hand: { at: [-0.3, 0.88, 0.26], pole: [-1, -0.3, 0] } } }),
+              up: merge(STAND(0.11, 6), { LA: { hand: { at: [0.3, 1.98, 0.06], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.3, 1.98, 0.06], pole: [-1, 0, 0] } } }) },
      steps: [step("up", 2, "On monte le bâton", "On monte, bras tendus", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 2, "On redescend", "On redescend", "down")]
    },
    "Rotation du buste bâton sur les épaules": {
-     tool: "stick", sides: "alternate", noIso: true, camera: { yaw: 0.25, pitch: 0.25, dist: 4.0, ty: 1.15 }, start: "mid", thumb: "turn",
-     poses: { mid: merge(STAND(0.15, 8), { LA: { hand: { at: [0.46, 1.47, -0.06], pole: [0.4, -1, 0] } }, RA: { hand: { at: [-0.46, 1.47, -0.06], pole: [-0.4, -1, 0] } } }),
-              turn: merge(STAND(0.15, 8), { spine: [2, 0, 35], LA: { hand: { at: [0.342, 1.47, -0.313], pole: [0.4, -1, 0] } }, RA: { hand: { at: [-0.411, 1.47, 0.215], pole: [-0.4, -1, 0] } } }) },
+     tool: "stickBack", sides: "alternate", noIso: true, camera: { yaw: 0.35, pitch: 0.55, dist: 3.9, ty: 1.2 }, start: "mid", thumb: "turn",
+     poses: { mid: merge(STAND(0.15, 8), { LA: BACK_HAND(1), RA: BACK_HAND(-1) }),
+              turn: merge(STAND(0.15, 8), { spine: [2, 0, 38], head: 0, LA: BACK_HAND(1), RA: BACK_HAND(-1) }) },
      steps: [step("turn", 2, "On tourne le buste", "On tourne, le bassin reste face", "up"), step("mid", 2, "Retour au centre", "Retour au centre", "down")]
    },
    "Good morning au bâton": {
-     tool: "stick", camera: { yaw: 1.35, dist: 4.1, ty: 0.95 }, start: "up", thumb: "down",
-     poses: { up: merge(STAND(0.12, 6), { LA: { hand: { at: [0.46, 1.47, -0.06], pole: [0.4, -1, 0] } }, RA: { hand: { at: [-0.46, 1.47, -0.06], pole: [-0.4, -1, 0] } } }),
-              down: merge(STAND(0.12, 6), { pelvis: { p: [0, "auto", -0.14], r: [55, 0, 0] }, spine: [0, 0, 0], head: -15,
-                LA: { hand: { at: [0.46, 1.08, 0.36], pole: [0.4, -0.2, -1] } }, RA: { hand: { at: [-0.46, 1.08, 0.36], pole: [-0.4, -0.2, -1] } } }) },
+     tool: "stickBack", camera: { yaw: 0.85, pitch: 0.18, dist: 4.0, ty: 0.95 }, start: "up", thumb: "down",
+     poses: { up: merge(STAND(0.12, 6), { LA: BACK_HAND(1), RA: BACK_HAND(-1) }),
+              down: merge(STAND(0.12, 6), { pelvis: { p: [0, "auto", -0.14], r: [55, 0, 0] }, spine: [8, 0, 0], head: -20, LA: BACK_HAND(1), RA: BACK_HAND(-1) }) },
      steps: [step("down", 2.5, "On bascule en avant", "Dos droit, on bascule", "down"), step("up", 1.5, "On se redresse", "On serre les fessiers, on remonte", "up")]
    },
    "Serrage de ballon entre les genoux": {
@@ -1369,22 +1370,19 @@
 
     /* Squelette : bassin, puis colonne, puis tête / épaules, puis coudes ; bassin, puis hanches, puis genoux, puis chevilles */
     var pelvis = group(scene); pelvis.rotation.order = "YXZ";
-    var pm = mesh(new T.CylinderGeometry(0.155, 0.152, 0.16, 28), M.pants, pelvis); pm.scale.z = 0.72; pm.position.y = 0.03;
-    // Bassin plus réaliste : volume arrondi des hanches, fessiers, et liaison avec le haut des cuisses
-    var hips = ball(1, M.pants, pelvis); hips.scale.set(0.162, 0.1, 0.118); hips.position.set(0, -0.025, 0.0);
-    [-1, 1].forEach(function (sd) {
-      var gl = ball(1, M.pants, pelvis); gl.scale.set(0.084, 0.095, 0.076); gl.position.set(sd * 0.066, -0.045, -0.062);
-      var gs = ball(1, M.pants, pelvis); gs.scale.set(0.06, 0.085, 0.085); gs.position.set(sd * 0.128, -0.02, -0.005);   // galbe du côté de la hanche
-    });
+    // Bassin : un seul volume lisse, un peu plus étroit que le bas du t-shirt pour que celui-ci le recouvre entièrement
+    var pm = mesh(new T.CylinderGeometry(0.14, 0.15, 0.15, 32), M.pants, pelvis); pm.scale.z = 0.64; pm.position.y = 0.0;
+    var seat = mesh(new T.SphereGeometry(1, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), M.pants, pelvis);   // dessous arrondi, entre les cuisses
+    seat.scale.set(0.15, 0.06, 0.099); seat.position.y = -0.075;
     var spine = group(pelvis); spine.rotation.order = "YXZ";
-    var shirt = mesh(new T.CylinderGeometry(0.2, 0.152, 0.46, 40, 16, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.85, side: T.DoubleSide }), spine);
+    var shirt = mesh(new T.CylinderGeometry(0.2, 0.184, 0.55, 40, 18, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.85, side: T.DoubleSide }), spine);
     shirt.userData.base = shirt.geometry.attributes.position.array.slice();
-    shirt.scale.z = 0.66; shirt.position.y = 0.29;
+    shirt.scale.z = 0.72; shirt.position.y = 0.245;
     var chestTop = mesh(new T.SphereGeometry(0.2, 32, 12, 0, Math.PI * 2, 0, Math.PI / 2), M.shirt, spine);
     chestTop.scale.set(1, 0.26, 0.68); chestTop.position.y = 0.52;
     mesh(new T.CylinderGeometry(0.052, 0.059, 0.11, 20), M.skin, spine).position.y = 0.58;
-    var hem = mesh(new T.TorusGeometry(0.153, 0.012, 8, 40), M.shirt, spine); // ourlet : le bas du t-shirt est net
-    hem.rotation.x = Math.PI / 2; hem.scale.set(1, 0.66, 1); hem.position.y = 0.065;
+    var hem = mesh(new T.TorusGeometry(0.185, 0.012, 8, 40), M.shirt, spine); // ourlet : le bas du t-shirt est net
+    hem.rotation.x = Math.PI / 2; hem.scale.set(1, 0.72, 1); hem.position.y = -0.03; hem.name = "hem";
     var collar = mesh(new T.TorusGeometry(0.058, 0.011, 10, 36), M.trim, spine); // col côtelé bleu
     collar.rotation.x = Math.PI / 2; collar.scale.set(1.08, 0.82, 1); collar.position.y = 0.548;
 
@@ -1433,10 +1431,10 @@
     var pantsSide = { "1": new T.MeshStandardMaterial({ map: pantsTex(0.25), roughness: 0.92, side: T.DoubleSide }),
                       "-1": new T.MeshStandardMaterial({ map: pantsTex(0.75), roughness: 0.92, side: T.DoubleSide }) };
     var waist = mesh(new T.TorusGeometry(0.15, 0.016, 8, 40), mat("#2C2F35", 0.9), pelvis); // ceinture élastique
-    waist.rotation.x = Math.PI / 2; waist.scale.set(1, 0.72, 1); waist.position.y = 0.1;
+    waist.rotation.x = Math.PI / 2; waist.scale.set(0.95, 0.66, 1); waist.position.y = 0.04; waist.visible = false;   // caché sous le t-shirt
     function makeLeg(side) {
       var hip = group(pelvis, side * LEN.hipX, 0, 0); hip.rotation.order = "XZY";
-      ball(0.086, M.pants, hip); limb(0.086, 0.058, LEN.thigh, pantsSide[side], hip, 0.3, 0.08);
+      ball(0.078, M.pants, hip); limb(0.078, 0.058, LEN.thigh, pantsSide[side], hip, 0.3, 0.08);
       var knee = group(hip, 0, -LEN.thigh, 0);
       ball(0.062, M.pants, knee); limb(0.06, 0.046, LEN.shank, pantsSide[side], knee, 0.25, 0.14);
       var ankle = group(knee, 0, -LEN.shank, 0);
@@ -1503,7 +1501,7 @@
     for (var tk in tools) tools[tk].visible = false;
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
-    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0,
+    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, curveNow: 0,
              head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops, tools: tools };
   }
 
@@ -1563,14 +1561,17 @@
     R.spine.rotation.set(sp[0] * D2R, sp[2] * D2R, sp[1] * D2R);
     R.head.rotation.set((p.head || 0) * D2R, (p.headY || 0) * D2R, (p.headZ || 0) * D2R);
     // Courbure du dos : + = cyphose (dos rond), − = lordose (dos creux)
-    var cv = p.curve || 0;
-    if (Math.abs(cv - R.curveNow) > 0.002) {
-      var pos = R.shirt.geometry.attributes.position, b = R.shirt.userData.base;
+    var cv = p.curve || 0, tw = sp[2] * D2R;
+    // Rotation du buste : le bas du t-shirt reste face au bassin (sinon il tourne avec les épaules et laisse dépasser le bassin)
+    if (Math.abs(cv - R.curveNow) > 0.002 || Math.abs(tw - (R.twistNow || 0)) > 0.002) {
+      var pos = R.shirt.geometry.attributes.position, b = R.shirt.userData.base, zs = R.shirt.scale.z;
       for (var i = 0; i < pos.count; i++) {
-        var y = b[i * 3 + 1], u = y / 0.23;
-        pos.setZ(i, b[i * 3 + 2] - cv * 0.095 * (1 - u * u));
+        var y = b[i * 3 + 1], u = y / 0.275, x = b[i * 3], z = (b[i * 3 + 2] - cv * 0.095 * (1 - u * u)) * zs;
+        var wt = Math.min(1, Math.max(0, (0.06 - y) / 0.335)), a = -tw * wt * wt, ca = Math.cos(a), sa = Math.sin(a);
+        pos.setX(i, x * ca + z * sa); pos.setZ(i, (-x * sa + z * ca) / zs);
       }
-      pos.needsUpdate = true; R.shirt.geometry.computeVertexNormals(); R.curveNow = cv;
+      pos.needsUpdate = true; R.shirt.geometry.computeVertexNormals(); R.curveNow = cv; R.twistNow = tw;
+      R.hem.rotation.set(Math.PI / 2, 0, tw);
     }
     R.pelvis.updateMatrixWorld(true);
 
@@ -1592,7 +1593,12 @@
     ["L", "R"].forEach(function (s) {
       var g = R.arms[s], A = p[s + "A"] || {}, sg = g.side;
       if (A.hand) {
-        ik2(g.sh, g.el, V(A.hand.at), LEN.upper, LEN.fore, V(A.hand.pole || [sg, -1, -0.5]), true);
+        var tgt = V(A.hand.at), pl = V(A.hand.pole || [sg, -1, -0.5]);
+        if (A.hand.sp) {   // main repérée sur le buste (bâton sur les épaules) : elle suit la colonne
+          R.spine.updateMatrixWorld(true); tgt = R.spine.localToWorld(tgt);
+          var qs = new R.T.Quaternion(); R.spine.getWorldQuaternion(qs); pl.applyQuaternion(qs);
+        }
+        ik2(g.sh, g.el, tgt, LEN.upper, LEN.fore, pl, true);
       } else {
         var a = A.ang || [0, 0, 0, 0];
         g.sh.rotation.set(-a[0] * D2R, sg * a[2] * D2R, sg * a[1] * D2R);
@@ -1636,6 +1642,12 @@
       if (tool === "book") { R.head.getWorldQuaternion(q); var hp = w(R.head).add(new T.Vector3(0, 0.27, 0.0).applyQuaternion(q)); m0.position.copy(hp); m0.quaternion.copy(q); }
       else { R.spine.getWorldQuaternion(q); var sp = w(R.spine).add(new T.Vector3(0, 0.1, -0.2).applyQuaternion(q)); m0.position.copy(sp); m0.scale.set(1, 1, 1); }
       m0.visible = true; return;
+    }
+    if (tool === "stickBack") {   // bâton posé sur le haut du dos, derrière la nuque : il suit le buste
+      var qb = new T.Quaternion(), st = R.tools.stick; R.spine.getWorldQuaternion(qb);
+      st.position.copy(R.spine.localToWorld(new T.Vector3(0, 0.5, -0.12)));
+      st.quaternion.copy(qb).multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0, 0, 1), Math.PI / 2));
+      st.scale.set(1, 1.25, 1); st.visible = true; return;
     }
     if (tool === "ballKnees") {
       var b = R.tools.ball, kL = w(R.legs.L.knee), kR = w(R.legs.R.knee);
