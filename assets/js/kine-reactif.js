@@ -41,11 +41,11 @@
       av: [[0.62, 0.74], [0, 0.98], [-0.62, 0.74], [-1.0, 0.06]] },
     { id: "bulgare", name: "Sauts bulgares réactifs", level: 3, sides: true, sideWord: "jambe",
       kit: "une chaise stable calée contre un mur, et vos plots",
-      place: "Dos à la chaise, posez le dessus du pied arrière sur l'assise, le pied avant un grand pas devant. Posez les plots au sol autour du pied avant, à environ 30 cm : un à gauche, un devant, un à droite, et un en diagonale si vous en avez quatre.",
+      place: "Dos à la chaise, posez le dessus du pied arrière sur l'assise, le pied avant un grand pas devant. Posez les plots au sol autour du pied avant, à 40 ou 50 cm : un à gauche, un devant, un à droite, et un en diagonale si vous en avez quatre.",
       action: "À chaque couleur, faites un petit saut sur la jambe avant pour atterrir à côté du plot de cette couleur, genou fléchi, puis un petit saut pour revenir au centre. Le pied arrière reste sur la chaise.",
       cue: "Atterrissez en douceur, genou souple et dans l'axe du pied. Commencez par de tout petits sauts.",
-      spots: [[90, 98], [150, 52], [210, 98], [105, 58]], chair: true, feet: "split",
-      av: [[0.26, 0.42], [-0.1, 0.8], [-0.46, 0.42], [0.16, 0.74]] },
+      spots: [[68, 100], [150, 38], [232, 100], [92, 50]], chair: true, feet: "split",
+      av: [[0.42, 0.4], [-0.1, 0.9], [-0.62, 0.4], [0.28, 0.8]] },
     { id: "chasses", name: "Pas chassés réactifs", level: 2, sides: false,
       kit: "vos plots et environ 3 mètres d'espace sur les côtés",
       place: "Debout au centre, légèrement fléchi. Posez un plot loin à gauche et un loin à droite (environ 3 pas chassés), puis les autres devant et derrière vous si vous en avez plus.",
@@ -175,7 +175,7 @@
       }
     });
     // Vu de dos, légèrement en hauteur : la gauche de l'écran est la gauche de Yass, comme sur le schéma vu de dessus
-    return { camera: ex.id === "bulgare" ? { yaw: 1.95, pitch: 0.75, dist: 4.0, ty: 0.55, tz: 0.15 }
+    return { camera: ex.id === "bulgare" ? { yaw: 2.35, pitch: 0.95, dist: 4.4, ty: 0.45, tz: 0.25 }
                    : ex.id === "assis" ? { yaw: Math.PI - 0.95, pitch: 0.5, dist: 4.0, ty: 0.55, tz: 0.1 }
                    : ex.id === "chasses" ? { yaw: Math.PI - 0.25, pitch: 0.5, dist: 5.6, ty: 0.75 }
                    : { yaw: Math.PI - 0.4, pitch: 0.48, dist: 4.6, ty: 0.8, tz: 0.2 },
