@@ -148,7 +148,98 @@ var KineScenes = (function () {
     9: { bg: "xray", cam: CAM_WALK, poses: function () { return walk(70, 45, 12); },
       deco: "<div class='lq-road'></div><div class='tp-ok'><b>✓</b> genoux en bon état</div>",
       run: function (c) { c.xray(true); cls(c, "moving", true); cls(c, "xr", true); loop(c, function () { return rep([["wA", 0.28], ["wB", 0.28]], 8); }); } }
+,
+
+    /* 11. Fumer retarde la consolidation : fissure qui se referme sans tabac, qui reste avec */
+    10: { bg: "xray", cam: CAM_FRONT, poses: function () { return yassPoses(); },
+      deco: "<div class='tp-crack'><svg viewBox='0 0 20 40'><path d='M10 0 L4 10 L14 18 L5 27 L13 34 L9 40' fill='none' stroke='#FF4D4D' stroke-width='3.5' stroke-linejoin='round' stroke-linecap='round'/></svg></div><div class='tp-cig'>🚬<i></i><i></i></div><div class='tp-tag' data-t></div>",
+      run: function (c) { c.xray(true); cls(c, "xr", true); loop(c, function () {
+        return [function () { cls(c, "smoke", false); cls(c, "healed", false); tag(c, "Sans tabac"); }, ["y_idle", 0.5], ["~", 1600], function () { cls(c, "healed", true); tag(c, "Os consolidé ✓"); }, ["y_thumb", 0.5], ["~", 1800],
+          function () { cls(c, "healed", false); cls(c, "smoke", true); tag(c, "Avec tabac"); }, ["y_open", 0.6], ["~", 2400], function () { tag(c, "Toujours fissuré ×2,2"); }, ["~", 1800]];
+      }); } },
+
+    /* 12. L'exercice aide à soigner la déprime : un nuage de pluie, il bouge, le soleil revient */
+    11: { bg: "rain", cam: { yaw: 0.35, dist: 4.7, ty: 1.2, pitch: 0.06 }, poses: function () { return all(yassPoses(), from("Jumping jack sans saut", "j_"), { sad: M(P(YASS, "idle"), { head: 24, spine: [14, 0, 0] }) }); },
+      deco: "<div class='tp-cloud'><i></i><i></i><i></i><i></i></div><div class='tp-sun'></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "sunny", false); }, ["sad", 0.8], ["~", 2200]].concat(rep([["j_oL", 0.45], ["j_up", 0.35], ["j_oR", 0.45], ["j_up", 0.35]], 2))
+          .concat([function () { cls(c, "sunny", true); }]).concat(rep([["j_oL", 0.45], ["j_up", 0.35], ["j_oR", 0.45], ["j_up", 0.35]], 1))
+          .concat([["y_cheer1", 0.45], ["y_cheer2", 0.3], ["y_cheer1", 0.3], ["~", 1600]]);
+      }); } },
+
+    /* 13. Les exercices d'équilibre réduisent les chutes : sur une jambe, il vacille mais tient */
+    12: { bg: "balance", cam: { yaw: 0.9, dist: 4.3, ty: 0.9, pitch: 0.06 }, poses: function () { return all(from("Montées de genoux", "m_"), yassPoses()); },
+      deco: "<div class='tp-tag' data-t></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "wobble", true); tag(c, "Il vacille…"); }, ["m_kL", 0.7], ["~", 2400], function () { cls(c, "wobble", false); tag(c, "…mais il tient ✓"); }, ["~", 1200], ["m_up", 0.5],
+          function () { cls(c, "wobble", true); tag(c, "Il vacille…"); }, ["m_kR", 0.7], ["~", 2400], function () { cls(c, "wobble", false); tag(c, "…mais il tient ✓"); }, ["~", 1200], ["y_thumb", 0.5], ["~", 900], ["m_up", 0.5]];
+      }); } },
+
+    /* 14. On gagne de la force à 90 ans : 90 bougies, puis squats, la force grimpe */
+    13: { bg: "moral", cam: { yaw: 0.65, dist: 4.4, ty: 0.9, pitch: 0.06 }, poses: function () { return all(from("Squat bilatéral", ""), yassPoses()); },
+      deco: "<div class='tp-cake'><b>90</b><span></span></div><div class='tp-gauge'><small>Force des cuisses</small><span><i></i></span><b data-c>+0 %</b></div>",
+      run: function (c) { loop(c, function () {
+        var l = [function () { cls(c, "cake", true); bar(c, ".tp-gauge i", 4, 0); c.q("[data-c]").textContent = "+0 %"; }, ["y_wave1", 0.45], ["y_wave2", 0.3], ["y_wave1", 0.3], ["~", 1200], function () { cls(c, "cake", false); count(c, "[data-c]", 0, 174, 5200, function (n) { return "+" + Math.round(n) + " %"; }); setTimeout(function () { bar(c, ".tp-gauge i", 100, 5200); }, 40); }];
+        return l.concat(rep([["down", 0.9], ["up", 0.7]], 3)).concat([["y_cheer1", 0.45], ["y_cheer2", 0.3], ["~", 1600]]);
+      }); } },
+
+    /* 15. La force de la main : il serre, l'aiguille du dynamomètre monte */
+    14: { bg: "muscle", cam: { yaw: 0.6, dist: 3.4, ty: 1.1, pitch: 0.04 }, poses: function () { return all(yassPoses(), { grip: M(P(YASS, "thumb"), { head: 6 }) }); },
+      deco: "<div class='tp-dyn'><svg viewBox='0 0 100 56'><path d='M8 52a42 42 0 0 1 84 0' fill='none' stroke='rgba(255,255,255,.3)' stroke-width='9' stroke-linecap='round'/><path class='tp-arc' d='M8 52a42 42 0 0 1 84 0' fill='none' stroke='#fff' stroke-width='9' stroke-linecap='round' pathLength='100'/><line class='tp-needle' x1='50' y1='52' x2='50' y2='16' stroke='#0F1D2E' stroke-width='4' stroke-linecap='round'/><circle cx='50' cy='52' r='5' fill='#0F1D2E'/></svg><b data-c>0 kg</b></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "squeeze", false); c.q("[data-c]").textContent = "0 kg"; }, ["y_idle", 0.6], ["~", 700], ["grip", 0.6], function () { cls(c, "squeeze", true); count(c, "[data-c]", 0, 38, 2200, function (n) { return Math.max(0, Math.round(n)) + " kg"; }); }, ["~", 2600], ["y_thumb", 0.4], ["~", 1500], ["y_idle", 0.6]];
+      }); } },
+
+    /* 16. S'asseoir et se relever du sol : il s'assoit par terre, puis se relève sans les mains */
+    15: { bg: "balance", cam: { yaw: 1.1, dist: 4.4, ty: 0.75, pitch: 0.1 }, poses: function () { return all(from("Squat bilatéral", "s_"), yassPoses(), { floor: floorSit() }); },
+      deco: "<div class='tp-tag' data-t></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { tag(c, ""); }, ["s_up", 0.5], ["s_down", 1], ["floor", 1.1], ["~", 1500], function () { tag(c, "Sans les mains !"); }, ["s_down", 1.1], ["s_up", 0.9], ["y_cheer1", 0.45], ["y_cheer2", 0.3], ["y_cheer1", 0.3], ["~", 1500]];
+      }); } },
+
+    /* 17. La vitesse de marche reflète la santé : il accélère, le compteur de vitesse monte */
+    16: { bg: "walk", cam: CAM_WALK, poses: function () { return all(walk(), yassPoses()); },
+      deco: "<div class='lq-road'></div><div class='tp-count'><b data-c>0,8</b><small>m/s</small></div>",
+      run: function (c) { loop(c, function () {
+        var l = [function () { cls(c, "moving", true); c.band.style.setProperty("--road", "1.2s"); count(c, "[data-c]", 0.8, 1.3, 6000, function (n) { return n.toFixed(1).replace(".", ","); }); }];
+        [0.55, 0.5, 0.45, 0.4, 0.36, 0.33, 0.3, 0.28].forEach(function (d, i) { l.push(function () { c.band.style.setProperty("--road", (1.2 - i * 0.11).toFixed(2) + "s"); }); l.push(["wA", d]); l.push(["wB", d]); });
+        return l.concat([function () { cls(c, "moving", false); }, ["y_thumb", 0.5], ["~", 1500], ["stand", 0.5]]);
+      }); } },
+
+    /* 18. L'exercice soulage l'arthrose du genou : extension de genou, genou aux rayons X, la douleur baisse */
+    17: { bg: "xray", cam: { yaw: 1.3, dist: 4.2, ty: 0.7, pitch: 0.08 }, props: ["chair"], poses: function () { return from("Extension de genou assis", ""); },
+      deco: "<div class='tp-pain'><small>Douleur au genou</small><b data-c>7</b><span>/10</span><div class='tp-dots'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>",
+      run: function (c) { var n = 7; c.xray(true); cls(c, "xr", true); loop(c, function () {
+        var l = [function () { n = 7; setPain(c, n); }];
+        for (var r = 0; r < 4; r++) l = l.concat([["up", 1], ["~", 500], ["down", 0.9], function () { setPain(c, --n); }]);
+        return l.concat([["~", 1600]]);
+      }); } },
+
+    /* 19. IRM : de l'usure à l'image, mais aucune douleur */
+    18: { bg: "xray", cam: { yaw: 1.35, pitch: 0.2, dist: 5, ty: 0.8 }, poses: function () { return all({ lie: lie() }, yassPoses()); },
+      deco: "<div class='tp-table'></div><div class='tp-mri'></div><div class='tp-screen'><small>IRM</small><b>Disque « usé »</b></div><div class='tp-tag' data-t></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "inmri", false); cls(c, "result", false); cls(c, "awake", false); tag(c, ""); }, ["lie", 0.6], ["~", 300], function () { cls(c, "inmri", true); }, ["~", 2400], function () { cls(c, "result", true); }, ["~", 1600],
+          function () { cls(c, "inmri", false); cls(c, "awake", true); tag(c, "Douleur : 0 / 10"); }, ["y_idle", 0.9], ["y_thumb", 0.5], ["~", 2000]];
+      }); } },
+
+    /* 20. Un kilo perdu, c'est 4 kilos de moins sur le genou à chaque pas */
+    19: { bg: "knee", cam: CAM_WALK, poses: function () { return all(walk(), yassPoses()); },
+      deco: "<div class='lq-road'></div><div class='tp-kg'>1 kg</div><div class='tp-knee'>−4 kg<small>sur le genou à chaque pas</small></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "moving", true); cls(c, "drop", false); cls(c, "light", false); }].concat(rep([["wA", 0.45], ["wB", 0.45]], 2))
+          .concat([function () { cls(c, "drop", true); }]).concat(rep([["wA", 0.45], ["wB", 0.45]], 1))
+          .concat([function () { cls(c, "light", true); }]).concat(rep([["wA", 0.4], ["wB", 0.4]], 3))
+          .concat([function () { cls(c, "moving", false); }, ["y_thumb", 0.5], ["~", 1500], ["stand", 0.5]]);
+      }); } }
   };
+  function tag(c, t) { var el = c.q("[data-t]"); if (el) { el.textContent = t; el.classList.toggle("on", !!t); } }
+  function floorSit() {
+    var idle = P(YASS, "idle");
+    return M(idle, { pelvis: { p: [0, 0.13, -0.05], r: [-8, 0, 0] }, spine: [12, 0, 0], head: 6,
+      L: { foot: { at: [0.13, 0, 0.62], yaw: 6, pole: [0.1, 1, 0.3] } }, R: { foot: { at: [-0.13, 0, 0.62], yaw: -6, pole: [-0.1, 1, 0.3] } },
+      LA: { hand: { at: [0.26, 0.03, -0.12], pole: [1, 0.3, 0] } }, RA: { hand: { at: [-0.26, 0.03, -0.12], pole: [-1, 0.3, 0] } } });
+  }
   function setPain(c, n) {
     var b = c.q("[data-c]"); if (b) b.textContent = n;
     var dots = c.band.querySelectorAll(".tp-dots i"); [].forEach.call(dots, function (d, i) { d.className = i < n ? (n >= 6 ? "r" : n >= 4 ? "o" : "g") : ""; });
