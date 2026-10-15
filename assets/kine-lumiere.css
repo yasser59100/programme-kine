@@ -383,3 +383,10 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 @keyframes lqPlus { 0% { opacity: 0; transform: translateY(8px) scale(.6); } 25% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: translateY(-34px); } }
 .lq-sheet .lq-hero ~ .ks-stat { display: none !important; }
 @media (prefers-reduced-motion: reduce) { .lq-hero *, .lq-hero .lq-st { animation: none !important; } }
+/* repos au lit */
+.s-bed { background: linear-gradient(160deg, #3B4A75, #1B2546); transition: background .6s; }
+.s-bed.awake { background: linear-gradient(135deg, #19C3A0, #0E9B7E); }
+.lq-bed { position: absolute; z-index: 1; right: calc(var(--h) * .08); bottom: calc(var(--h) * .12); width: calc(var(--h) * .86); height: calc(var(--h) * .2); border-radius: 10px 10px 4px 4px; background: linear-gradient(180deg, #E9EEFF, #C9D2FF); box-shadow: 0 4px 0 #8C97C9; }
+.lq-bed::before { content: ""; position: absolute; left: 6px; top: -14px; width: 26%; height: 16px; border-radius: 8px; background: #fff; }
+.lq-bed::after { content: ""; position: absolute; right: -6px; top: -30px; width: 8px; height: calc(100% + 34px); border-radius: 4px; background: #8C97C9; }
+.s-bed.awake .lq-zz { opacity: 0; }

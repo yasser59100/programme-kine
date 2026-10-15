@@ -131,7 +131,7 @@
      tabac → il respire, la fumée s'en va ; équilibre → sur une jambe ; force → il soulève, « +1 » à chaque répétition. */
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   var RULES = [
-    ["tomb", /décès|mortalit|mourir/i], ["walk", /\bpas\b|march|walkback|sédentar|assis/i], ["sleep", /sommeil|dorm|nuit/i],
+    ["tomb", /décès|mortalit|mourir/i], ["walk", /\bpas\b|march|walkback|sédentar|assis/i], ["sleep", /sommeil|dorm|nuit/i], ["bed", /\bau lit\b|alité|repos au lit/i],
     ["back", /\bdos\b|lombalg|lombaire/i], ["xray", /arthros|cartilag|ménisque|genou|\bos\b|osseu|imagerie|irm|radio|articul|fracture/i],
     ["brain", /cerveau|mémoire|démence|cognit|alzheimer/i], ["moral", /déprim|moral|dépress|anxi|social|ami|isol|stress/i],
     ["lungs", /tabac|fum|cigaret|poumon/i], ["balance", /équilibre|chute|tomber|mobilit/i], ["muscle", /./]
@@ -143,11 +143,13 @@
     for (var j = 0; j < RULES.length - 1; j++) if (RULES[j][1].test(b)) return RULES[j][0];
     return "muscle";
   }
-  var IMG = { tomb: "moral", walk: "walk", sleep: "sleep", back: "back", xray: "knee", brain: "brain", moral: "moral", lungs: "lungs", balance: "balance", muscle: "muscle" };
+  var IMG = { bed: "sleep", tomb: "moral", walk: "walk", sleep: "sleep", back: "back", xray: "knee", brain: "brain", moral: "moral", lungs: "lungs", balance: "balance", muscle: "muscle" };
   var MASC = { yaw: 0.3, dist: 3.9, ty: 0.98, pitch: 0.06 };
   var SCN = {
     tomb:    { def: YASS, cam: MASC, seq: [["cheer1", 0.45], ["cheer2", 0.3], ["cheer1", 0.3], ["cheer2", 0.3], ["thumb", 0.6], ["thumb", 1.6], ["idle", 0.8]] },
     walk:    { def: "__walk", cam: { yaw: -1.57, dist: 4.2, ty: 0.9, pitch: 0.05 }, seq: [["wA", 0.48], ["wB", 0.48]], loop: true },
+    // repos au lit contre rester actif : il dort dans son lit… puis se lève et bouge
+    bed:     { def: "__bed", cam: { yaw: 1.35, pitch: 0.22, dist: 5, ty: 0.85 }, seq: [["lie", 2.4], ["lie", 0.4], ["stand", 0.9], ["cheer1", 0.4], ["cheer2", 0.3], ["cheer1", 0.3], ["cheer2", 0.3], ["thumb", 1.2], ["stand", 0.6], ["lie", 1.1]], loop: true },
     sleep:   { def: "Pont de hanche", cam: { yaw: 1.35, pitch: 0.38, dist: 4.2, ty: 0.42 }, seq: [["down", 2.2], ["down", 2.2]], loop: true },
     back:    { def: "Bird-dog", cam: { yaw: 1.3, pitch: 0.24, dist: 4.9, ty: 0.62, tz: 0.15 }, seq: [["up", 1.6], ["up", 1.4], ["down", 1.4]], loop: true, xray: true },
     xray:    { def: "Squat bilatéral", cam: { yaw: 0.85, dist: 4.2, ty: 0.85, pitch: 0.1 }, seq: [["down", 1.5], ["up", 1.1]], loop: true, xray: true },
@@ -160,6 +162,7 @@
   var DECO = {
     tomb: "<div class='lq-tomb'><b>R.I.P.</b></div><div class='lq-ground'></div><div class='lq-dirt'>" + "<i></i>".repeat(9) + "</div>",
     walk: "<div class='lq-road'></div>",
+    bed: "<div class='lq-bed'></div><div class='lq-zz'><i>Z</i><i>z</i><i>z</i></div>",
     sleep: "<div class='lq-moon'></div><div class='lq-zz'><i>Z</i><i>z</i><i>z</i></div>",
     back: "<div class='lq-scan'></div>", xray: "<div class='lq-scan'></div>",
     brain: "<div class='lq-brain'><svg viewBox='0 0 64 52'><path d='M32 6c-6-5-17-2-18 7-7 2-7 14 0 16 0 8 10 13 18 7 8 6 18 1 18-7 7-2 7-14 0-16-1-9-12-12-18-7z' fill='#fff' fill-opacity='.18' stroke='#fff' stroke-width='2.5'/><path d='M32 8v34M22 18l10 6 10-6M23 30l9-6 9 6' stroke='#fff' stroke-width='1.6' fill='none' opacity='.6'/></svg><i></i><i></i><i></i></div>",
@@ -174,6 +177,12 @@
     // une jambe reste posée au sol (le bassin se cale dessus), l'autre passe devant
     var a = function (sw) { var o = {}; o[sw] = { ang: [30, 2, 0, 38, 0] }; o[sw + "A"] = { ang: [-25, 8, 0, 25] }; o[sw === "L" ? "RA" : "LA"] = { ang: [28, 8, 0, 25] }; o.spine = [5, 0, 0]; return L.merge(base, o); };
     KineAvatar.register("__walk", { camera: { yaw: -1.57 }, start: "wA", thumb: "wA", poses: { wA: a("L"), wB: a("R") } });
+  }
+  function bedDef() {
+    if (KineAvatar._def("__bed")) return;
+    var p = KineAvatar._def("Pont de hanche"), m = KineAvatar._def(YASS); if (!p || !m) return;
+    var lie = KineAvatar.lib.merge(p.poses.down, { pelvis: { p: [0, 0.42, 0], r: [-90, 0, 0] } });
+    KineAvatar.register("__bed", { camera: { yaw: 1.35 }, start: "lie", thumb: "lie", poses: { lie: lie, stand: m.poses.idle, cheer1: m.poses.cheer1, cheer2: m.poses.cheer2, thumb: m.poses.thumb } });
   }
   function hero(t, big, k) {
     var kd = k || kind(t);
@@ -190,6 +199,7 @@
     if (!L || !L.avatar || !window.KineAvatar) return;
     if (sc.def === YASS && M && M.portrait) M.portrait();
     if (sc.def === "__walk") walkDef();
+    if (sc.def === "__bed") bedDef();
     var def = KineAvatar._def(sc.def); if (!def) return;
     stopScene(slot);
     var me = { band: band, dead: false, timers: [] }; running[slot] = me;
@@ -211,6 +221,7 @@
         if (i >= sc.seq.length) { if (!sc.loop && k !== "tomb") return; i = 0; }
         var s = sc.seq[i++]; A.step({ pose: s[0], dur: s[1] });
         if (sc.plus && s[0] === sc.plus) plusOne(band);
+        if (k === "bed") band.classList.toggle("awake", s[0] !== "lie");
         T(next, s[1] * 1000 + 30);
       })();
       if (sc.xray) xrayLoop(me, A, alive, T);
