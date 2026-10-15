@@ -5766,5 +5766,121 @@
  {
   "t": "Sauts latéraux sur une jambe réactifs",
   "g": "seance"
+ },
+ {
+  "t": "Placez-vous de profil, s'il vous plaît.",
+  "g": "camera"
+ },
+ {
+  "t": "Placez-vous face à la caméra, s'il vous plaît.",
+  "g": "camera"
+ },
+ {
+  "t": "Objectif atteint, bravo !",
+  "g": "camera"
+ },
+ {
+  "t": "Descendez plus lentement.",
+  "g": "camera"
+ },
+ {
+  "t": "Remontez en contrôlant.",
+  "g": "camera"
+ },
+ {
+  "t": "Montez en contrôlant.",
+  "g": "camera"
+ },
+ {
+  "t": "Tenez une seconde en haut.",
+  "g": "camera"
+ },
+ {
+  "t": "Buste droit !",
+  "g": "camera"
+ },
+ {
+  "t": "Genou dans l'axe du pied !",
+  "g": "camera"
+ },
+ {
+  "t": "Bassin bien horizontal !",
+  "g": "camera"
+ },
+ {
+  "t": "Restez bien droit !",
+  "g": "camera"
+ },
+ {
+  "t": "Montez les hanches plus haut !",
+  "g": "camera"
+ },
+ {
+  "t": "Ne cambrez pas, serrez les fessiers !",
+  "g": "camera"
+ },
+ {
+  "t": "Fesses trop hautes !",
+  "g": "camera"
+ },
+ {
+  "t": "Le bassin s'affaisse, rentrez le ventre !",
+  "g": "camera"
+ },
+ {
+  "t": "Attention au genou.",
+  "g": "camera"
+ },
+ {
+  "t": "Attention au bassin.",
+  "g": "camera"
+ },
+ {
+  "t": "Attention à la hauteur.",
+  "g": "camera"
+ },
+ {
+  "t": "Attention au dos.",
+  "g": "camera"
+ },
+ {
+  "t": "C'est bon, je vous vois. Faites vos fentes, à votre rythme.",
+  "g": "camera"
+ },
+ {
+  "t": "Allongez-vous sur le dos, genoux pliés, de profil.",
+  "g": "camera"
+ },
+ {
+  "t": "C'est bon, je vous vois. Montez les hanches, à votre rythme.",
+  "g": "camera"
+ },
+ {
+  "t": "Restez debout, face à la caméra.",
+  "g": "camera"
+ },
+ {
+  "t": "Levez un pied, je lance le chrono.",
+  "g": "camera"
+ },
+ {
+  "t": "Mettez-vous en planche, de profil.",
+  "g": "camera"
+ },
+ {
+  "t": "C'est parti, tenez la position.",
+  "g": "camera"
+ },
+ {
+  "t": "Pied posé. On reprend quand vous voulez.",
+  "g": "camera"
+ },
+ {
+  "t": "Chrono en pause, replacez-vous.",
+  "g": "camera"
+ },
+ {
+  "t": "Objectif atteint, bravo ! Changez de jambe.",
+  "g": "camera"
  }
 ]

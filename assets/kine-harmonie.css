@@ -547,3 +547,11 @@ html.kf-theme-anim, html.kf-theme-anim * { transition: background-color .35s eas
 #kcam-run .kcam-prog { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.2); overflow: hidden; }
 #kcam-run .kcam-prog i { display: block; height: 100%; width: 0; background: #22D3EE; }
 #kcam-run .kcam-replay-btn { margin-top: 4px; }
+#kcam-run .kcam-pick { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+#kcam-run .kcam-pick button { display: grid; grid-template-columns: 1fr auto; align-items: center; text-align: left; gap: 2px 10px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: inherit; font: inherit; }
+#kcam-run .kcam-pick b { font-size: 1.05rem; }
+#kcam-run .kcam-pick small { grid-column: 1; color: var(--text2); font-size: .85rem; }
+#kcam-run .kcam-pick span { grid-row: 1 / span 2; grid-column: 2; color: var(--blue); font-size: 1.3rem; }
+.kcam-sess { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin: 8px 0 2px; padding: 11px 14px; border-radius: 14px; border: 1px solid rgba(34, 211, 238, .45); background: rgba(34, 211, 238, .08); color: var(--text); font: inherit; font-weight: 700; font-size: .95rem; }
+.kcam-sess .kcam-tag { display: inline-block; font-style: normal; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 999px; background: rgba(255, 138, 43, .18); color: #FF8A2B; }
+#rep-guide:not([data-state="ready"]) #kcam-sess { display: none; }

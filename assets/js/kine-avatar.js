@@ -1909,6 +1909,7 @@
     hasSteps: function (name) { return !!(EX[name] && EX[name].steps); },
     // Mouvements supplémentaires (échauffements, étirements) déclarés par kine-routines.js
     register: function (name, d) { EX[name] = d; },
+    _def: function (name) { return EX[name]; },
     lib: { merge: merge, STAND: STAND, feet: feet, step: step, QUAD: QUAD, FOREARMS: FOREARMS,
            SUPINE_FEET: SUPINE_FEET, SUPINE_HANDS: SUPINE_HANDS, BRIDGE_DOWN: BRIDGE_DOWN },
     startOf: function (name) { var d = EX[name]; return d && d.poses ? startPose(d) : null; },
