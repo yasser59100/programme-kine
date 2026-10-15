@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v58';
+const VERSION = 'kineforce-v59';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const APP_FILES = [
   './',

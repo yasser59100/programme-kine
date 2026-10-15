@@ -2777,7 +2777,23 @@ var SEQ_DAYS = {
 
 // ── AUDIO SYSTEM ──
 var audioCtx = null;
+// iPhone : par défaut le son de l'appli est coupé par le bouton silencieux. On le range dans la catégorie
+// « lecture » (comme une vidéo ou un podcast) pour que la voix de Yass s'entende même en mode silencieux.
+var kfSilentEl = null;
+function kfAudioPlayback() {
+  try { if (navigator.audioSession && navigator.audioSession.type !== "playback") navigator.audioSession.type = "playback"; } catch(e){}
+  if (navigator.audioSession || kfSilentEl || !/iphone|ipad|ipod/i.test(navigator.userAgent)) return;
+  try {   // anciens iPhone : un son muet en boucle bascule la page en mode « lecture »
+    kfSilentEl = document.createElement("audio");
+    kfSilentEl.setAttribute("playsinline", ""); kfSilentEl.setAttribute("x-webkit-airplay", "deny");
+    kfSilentEl.loop = true; kfSilentEl.preload = "auto"; kfSilentEl.src = "data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
+    var pr = kfSilentEl.play(); if (pr && pr.catch) pr.catch(function(){ kfSilentEl = null; });
+  } catch(e){ kfSilentEl = null; }
+}
+["touchend", "click"].forEach(function (t) { document.addEventListener(t, kfAudioPlayback, { capture: true, passive: true }); });
+document.addEventListener("visibilitychange", function () { if (document.hidden && kfSilentEl) { try { kfSilentEl.pause(); } catch(e){} kfSilentEl = null; } });
 function getAudioCtx() {
+  kfAudioPlayback();
   if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
   return audioCtx;
 }
