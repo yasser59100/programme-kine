@@ -136,6 +136,7 @@
                  L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }, { LA: { ang: [30, 18, 0, 40] }, RA: { ang: [30, 18, 0, 40] } })
              : ex.id === "squat" ? L.STAND(0.17, 10)
              : L.STAND(0.11, 6);
+    if (ex.id === "chasses1") base = M(base, { R: { foot: { at: [-0.12, 0.36, -0.2], yaw: -6, lift: 30 } } });
     var poses = { mid: base };
     ex.av.slice(0, n).forEach(function (c, i) {
       var x = c[0], z = c[1], d = Math.sqrt(x * x + z * z), ux = x / d, uz = z / d, th = Math.atan2(x, z) * 180 / Math.PI;
@@ -162,7 +163,7 @@
         poses["c" + i] = M(base, rear, { pelvis: { p: [dx * 0.55, 0.7, 0.16 + dz * 0.55], r: [14, 0, 0] }, spine: [8, 0, 0], R: { foot: { at: [fx, 0, fz], yaw: x * 20 } } });
       } else if (ex.id === "chasses1") {   // saut sur la jambe gauche vers le plot, l'autre pied reste en l'air
         var ax = x - ux * 0.16, az = z - uz * 0.16 + 0.04, hx = (ax - 0.1) * 0.5 + 0.1, hz = (az - 0.12) * 0.5 + 0.12;
-        var tuck = function (px, pz, y) { return { foot: { at: [px - 0.2, y, pz - 0.06], yaw: -6 } }; };
+        var tuck = function (px, pz, y) { return { foot: { at: [px - 0.18, y + 0.2, pz - 0.3], yaw: -6, lift: 30 } }; };   // jambe libre bien fléchie, pied derrière
         poses["j" + i] = M(base, { pelvis: { p: [hx - 0.03, 1.0, hz - 0.12], r: [8, 0, ux * -6] }, L: { foot: { at: [hx, 0.14, hz], yaw: 6, lift: -15 } }, R: tuck(hx, hz, 0.24),
                                    LA: { ang: [30, 45, 0, 30] }, RA: { ang: [30, 45, 0, 30] } });
         poses["c" + i] = M(base, { pelvis: { p: [ax - 0.03, 0.84, az - 0.14], r: [16, 0, 0] }, spine: [6, 0, 0], L: { foot: { at: [ax, 0, az], yaw: 6 } }, R: tuck(ax, az, 0.16) });
