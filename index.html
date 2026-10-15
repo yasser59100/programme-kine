@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="fr" data-theme="light" class="lu">
 <head>
 <meta charset="UTF-8">
 <script>
 /* Démarrage : thème appliqué tout de suite, et la page reste cachée derrière un écran de démarrage
    tant que la nouvelle interface n'est pas dessinée (sinon l'ancienne apparaît une fraction de seconde) */
-(function(){var d=document.documentElement;try{d.setAttribute('data-theme',localStorage.getItem('kf-theme')||'dark');}catch(e){}
+(function(){var d=document.documentElement;try{d.setAttribute('data-theme','light');d.classList.add('lu');}catch(e){}
 d.classList.add('kf-boot');setTimeout(function(){d.classList.remove('kf-boot');},4000);})();
 </script>
 <style>
@@ -1078,6 +1078,9 @@ input,select,textarea{font-family:var(--font);}
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/kine-premium.css">
 <link rel="stylesheet" href="assets/kine-harmonie.css">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/figtree-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/kine-lumiere.css">
 </head>
 <body>
 
@@ -1832,10 +1835,10 @@ input,select,textarea{font-family:var(--font);}
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
-  <button class="bnav-btn active" onclick="showPage('home')" id="bn-home"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><span>Accueil</span></button>
-  <button class="bnav-btn" onclick="showPage('guide')" id="bn-guide"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"/></svg></span><span>Programme</span></button>
-  <button class="bnav-btn bnav-coach" onclick="showPage('mes');window.KineCompose&&KineCompose.tab()" id="bn-mes" aria-label="Ma séance"><span class="bnav-icon bnav-face" id="bn-mes-face"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></span><span>Ma séance</span></button>
-  <button class="bnav-btn" onclick="showPage('suivi')" id="bn-suivi"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span><span>Suivi</span></button>
+  <button class="bnav-btn active" onclick="showPage('home')" id="bn-home"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span><span>Aujourd'hui</span></button>
+  <button class="bnav-btn" onclick="showPage('guide')" id="bn-guide"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg></span><span>Exercices</span></button>
+  <button class="bnav-btn bnav-coach" onclick="window.KineLumiere&&KineLumiere.hub()" id="bn-mes" aria-label="Yass, ton coach"><span class="bnav-icon bnav-face" id="bn-mes-face"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></span><span>Yass</span></button>
+  <button class="bnav-btn" onclick="showPage('suivi')" id="bn-suivi"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span><span>Progrès</span></button>
   <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg></span><span>Communauté</span></button>
 </nav>
 
@@ -1858,7 +1861,7 @@ function toggleDark(){
 }
 (function(){
   try{
-    var t=localStorage.getItem('kf-theme')||'dark';
+    var t='light';
     document.documentElement.setAttribute('data-theme',t);
     document.addEventListener('DOMContentLoaded',function(){
       var b=document.getElementById('dark-btn');
@@ -1868,7 +1871,7 @@ function toggleDark(){
 })();
 
 // ══ NAVIGATION ══
-var pageMap={home:'bn-home',guide:'bn-guide',mes:'bn-mes',day0:null,day1:null,day2:null,day3:null,day4:null,suivi:'bn-suivi',community:'bn-community'};
+var pageMap={home:'bn-home',guide:'bn-guide',mes:'bn-guide',day0:null,day1:null,day2:null,day3:null,day4:null,suivi:'bn-suivi',community:'bn-community'};
 function showPage(id){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('active');});
@@ -4439,5 +4442,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-reactif.js" defer></script>
 <script src="assets/js/kine-camera.js" defer></script>
 <script src="assets/js/kine-explique.js" defer></script>
+<script src="assets/js/kine-lumiere.js" defer></script>
 </body>
 </html>

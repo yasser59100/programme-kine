@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v66';
+const VERSION = 'kineforce-v67';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
@@ -34,10 +34,21 @@ const APP_FILES = [
   'assets/js/kine-reactif.js',
   'assets/js/kine-camera.js',
   'assets/js/kine-explique.js',
+  'assets/js/kine-lumiere.js',
   'assets/js/kine-createur.js',
   'assets/js/kine-eveil.js',
   'assets/kine-premium.css',
   'assets/kine-harmonie.css',
+  'assets/kine-lumiere.css',
+  'assets/fonts/bricolage-grotesque-latin-700-normal.woff2',
+  'assets/fonts/bricolage-grotesque-latin-800-normal.woff2',
+  'assets/fonts/figtree-latin-400-normal.woff2',
+  'assets/fonts/figtree-latin-500-normal.woff2',
+  'assets/fonts/figtree-latin-600-normal.woff2',
+  'assets/fonts/figtree-latin-700-normal.woff2',
+  'assets/lumiere/yass-salut.webp',
+  'assets/lumiere/yass-bravo.webp',
+  'assets/lumiere/video-fente.webp',
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png'
 ];

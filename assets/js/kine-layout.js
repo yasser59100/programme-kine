@@ -48,48 +48,55 @@
     var target = todayId, when = "aujourd'hui";
     if (!todayId) for (var i = 1; i <= 7; i++) { var n = map[(dow + i) % 7]; if (n) { target = n; when = WD[(dow + i) % 7]; break; } }
     var doneToday = todayId && ss.some(function (s) { return s.date === today && String(s.seance || "").indexOf(codeOf(todayId)) === 0; });
-    var head, lede, cta;
+    var kick, cta, lede = "", state;
     if (!ss.length && !todayId) {
       // Nouveau patient un jour sans séance prévue : il peut commencer tout de suite
-      target = Object.keys(SEQ_DAYS)[0];
-      head = "Prêt pour votre première séance ?";
-      lede = "Pas besoin d'attendre : commencez par <strong>" + esc(nameOf(target)) + "</strong>, environ " + minutes(target) + " minutes, " + kitText(target) + ".";
-      cta = "Commencer ma première séance";
+      target = Object.keys(SEQ_DAYS)[0]; state = "first";
+      kick = "Votre première séance"; cta = "Commencer";
     } else if (todayId && !doneToday) {
-      head = "Aujourd'hui, " + nameOf(todayId) + ".";
-      lede = "Semaine " + w + " sur 4. Environ " + minutes(todayId) + " minutes, " + kitText(todayId) + ".";
-      cta = "Commencer la séance";
+      state = "today"; kick = "Séance du jour, semaine " + w + " sur 4"; cta = "Commencer";
     } else if (doneToday) {
-      head = "Séance faite, bravo.";
+      state = "done"; kick = "Séance faite, bravo !";
       var nx = null; for (var j = 1; j <= 7; j++) { var m = map[(dow + j) % 7]; if (m) { nx = [m, WD[(dow + j) % 7]]; break; } }
-      lede = nx ? "Prochaine séance " + nx[1] + " : <strong>" + esc(nameOf(nx[0])) + "</strong>." : "";
-      if (nx) target = nx[0];
+      if (nx) { target = nx[0]; lede = "Prochaine séance " + nx[1]; }
       cta = "Voir la prochaine séance";
     } else {
-      head = "Aujourd'hui, repos.";
-      lede = "Prochaine séance " + when + " : <strong>" + esc(nameOf(target)) + "</strong>, environ " + minutes(target) + " minutes, " + kitText(target) + ".";
-      cta = "Préparer la séance de " + when;
+      state = "rest"; kick = "Aujourd'hui, repos. Prochaine séance " + when; cta = "Préparer la séance";
     }
-    // Frise de la semaine
-    var order = [1, 2, 3, 4, 5, 6, 0], lastDone = -1, dots = "";
+    // La semaine : un jour par pastille, coché quand la séance est faite
+    var order = [1, 2, 3, 4, 5, 6, 0], days = "", mon0 = parse(mon);
     order.forEach(function (d, i) {
       var id = map[d], c = id ? codeOf(id) : null, done = c && doneCodes.indexOf(c) >= 0;
-      if (done) lastDone = i;
-      dots += "<div class='lx-day" + (!id ? " rest" : "") + (done ? " done" : "") + (d === dow ? " lx-today" : "") + "'><i></i><span>" + WS[d] + (c ? "<b>" + c + "</b>" : "") + "</span></div>";
+      var dd = new Date(mon0); dd.setDate(mon0.getDate() + i);
+      days += "<div class='lu-day" + (!id ? " rest" : "") + (done ? " ok" : "") + (d === dow ? " now" : "") + "'>" + WS[d] + "<b>" + (done ? "✓" : dd.getDate()) + "</b><i>" + (c || "repos") + "</i></div>";
     });
-    var fill = lastDone < 0 ? 0 : (lastDone / 6) * 86;
     var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : comme prévu par votre programme, on reprend en semaine 1.</p>"
                : st.cycleDone ? "<p class='lx-rule'>Cycle de 4 semaines terminé. Parlez-en à votre kinésithérapeute pour la suite.</p>"
-               : st.week >= 2 && window.KineProgress && KineProgress.painHold && KineProgress.painHold() ? "<p class='lx-rule red'><b>Douleur de 5 sur 10 ou plus à plusieurs reprises.</b> Par prudence, on reste à 2 tours, sans augmenter la difficulté, jusqu'à ce que ça se calme. Parlez-en à votre kiné.</p>" : "";
+               : st.week >= 2 && window.KineProgress && KineProgress.painHold && KineProgress.painHold() ? "<p class='lx-rule red'><b>Douleur de 5 sur 10 ou plus à plusieurs reprises.</b> Par prudence, on reste à 2 tours, sans augmenter la difficulté, jusqu'à ce que la douleur baisse.</p>" : "";
     var others = Object.keys(SEQ_DAYS).filter(function (id) { return id !== target; }).map(function (id) {
       return "<button class='lx-item' onclick=\"openPreview('" + id + "')\"><span class='lx-j'>" + codeOf(id) + "</span><span>" + esc(cap(nameOf(id))) + "</span><span class='lx-t'>" + minutes(id) + " min</span></button>";
     }).join("");
+    var nWork = SEQ_DAYS[target].exercises.filter(function (e) { return e.phase === "work"; }).length;
+    var h = now.getHours(), who = typeof currentUser !== "undefined" && currentUser && currentUser.name ? String(currentUser.name).split(" ")[0] : "";
+    var hello = (h >= 18 || h < 4 ? "Bonsoir" : "Bonjour") + (who ? "<br>" + esc(cap(who)) : "");
+    var xd = window.KineIdees && KineIdees.defineExpress ? KineIdees.defineExpress(target) : null;
+    var ICAM = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round' aria-hidden='true'><path d='M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><circle cx='12' cy='13' r='3.5'/></svg>";
+    var IZAP = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round' aria-hidden='true'><path d='M13 2 4 14h7l-1 8 9-12h-7z'/></svg>";
     box.innerHTML =
-      "<p class='lx-date'>" + cap(WD[dow]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
-      "<h1 class='lx-headline'>" + esc(head) + "</h1>" + (lede ? "<p class='lx-lede'>" + lede + "</p>" : "") + banner +
-      "<div class='lx-week'><span class='lx-fill' style='width:" + fill + "%'></span>" + dots + "</div>" +
-      "<button class='lx-cta' onclick=\"openPreview('" + target + "')\">" + esc(cta) + "</button>" +
-      "<button class='lx-link' onclick=\"openExplain('" + target + "')\">Voir les exercices</button>" +
+      "<div class='lu-top'><p class='lx-date'>" + cap(WD[dow]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
+        "<button class='lu-me' onclick='handleAuthClick()' aria-label='" + (who ? "Mon compte" : "Connexion") + "'>" + (who ? esc(who.charAt(0).toUpperCase()) : "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21a8 8 0 0 1 16 0'/></svg>") + "</button></div>" +
+      "<h1 class='lu-hello'>" + hello + "</h1>" +
+      "<div class='lu-days'>" + days + "</div>" + banner +
+      "<div class='lu-slab lu-" + state + "'><img src='assets/lumiere/" + (state === "done" ? "yass-bravo" : "yass-salut") + ".webp' alt='' class='lu-yass'>" +
+        "<p class='lu-k'>" + esc(kick) + "</p>" +
+        "<h2 class='lu-t'>" + esc(cap(nameOf(target))) + "</h2>" +
+        "<p class='lu-m'>" + (lede ? esc(lede) + ". " : "") + nWork + " exercices, " + minutes(target) + " minutes, " + kitText(target) + "</p>" +
+        "<button class='lx-cta lu-go' onclick=\"openPreview('" + target + "')\"><svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>" + esc(cta) + "</button>" +
+        "<button class='lx-link lu-see' onclick=\"openExplain('" + target + "')\">Voir les exercices</button></div>" +
+      "<div class='lu-duo'>" +
+        (window.KineCamera ? "<button class='lu-blk lu-vid' id='lu-video' onclick='KineCamera.open()'><span class='lu-ic'>" + ICAM + "</span><b>Tester en vidéo</b><small>Yass regarde ton mouvement et te corrige</small></button>" : "") +
+        (xd ? "<button class='lu-blk lu-exp' id='ki-express' onclick=\"KineIdees.express('" + target + "')\"><span class='lu-ic'>" + IZAP + "</span><b>" + (xd.minutes || 10) + " minutes</b><small>Séance express, pas le temps</small></button>" : "") +
+      "</div>" +
       (window.KineCheckin ? KineCheckin.homeReminder() : "") +
       "<h2 class='lx-section'>Faire une autre séance</h2><div class='lx-list'>" + others + "</div>";
     var page = $("page-home"); if (page) page.classList.add("lx");
@@ -151,25 +158,23 @@
           "<li><b>3</b><span><strong>Voyez vos progrès</strong>Votre semaine, votre régularité et vos courbes s'affichent ici.</span></li>" +
         "</ol><button class='lx-cta' onclick=\"openPreview('" + first + "')\">Commencer ma première séance</button></div>";
     }
-    box.innerHTML =
-      "<h1 class='lx-title'>Mon suivi</h1><p class='lx-date'>" + cap(WD[now.getDay()]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
-      (fresh ? welcome + (C ? C.cta() + C.week() : "") : (C ? C.ring() + C.cta() + C.week() : "") + "<p class='lx-lede kr-sum'>" + summary + "</p>") + alert +
-      (window.KineIdees ? KineIdees.goalCard() : "") +
+    var GEAR = "<button class='lu-gear' onclick='KineLumiere.settings()' aria-label='Réglages'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='3'/><path d='M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'/></svg></button>";
+    var head = "<div class='lu-ph'><h1 class='lx-title'>Progrès</h1>" + (window.KineLumiere ? GEAR : "") + "</div>";
+    box.innerHTML = head +
+      (fresh ? welcome + (C ? C.cta() + C.week() : "")
+             : kpis(cyc, wk) + (C ? C.cta() : "") + alert + weekBars(ss) +
+               (window.KineIdees ? KineIdees.goalCard() : "") +
+               "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>" +
+               (C ? C.week() : "")) +
+      (fresh && window.KineIdees ? KineIdees.goalCard() : "") +
       (C ? C.insights() : "<div class='lx-chart'>" + chart(ss) + "</div>") +
-      "<div class='kr-links'>" +
+      "<h2 class='lx-section'>Mon historique</h2><div class='kr-links'>" +
         "<button onclick='KineCheckin.calendar()'><span>Calendrier</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineCheckin.chart()'><span>Douleur et effort, la courbe</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"historique\")'><span>Historique des séances</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
-        (window.KineMascotte ? "<button onclick='KineMascotte.faq()'><span>Une question ? Demande à Yass</span><span aria-hidden='true'>›</span></button>" +
-          (window.KineLexique ? "<button onclick='KineLexique.open()'><span>Les mots du kiné expliqués</span><span aria-hidden='true'>›</span></button>" : "") +
-          "<button onclick='KineMascotte.bouge()'><span>Bouger 2 minutes avec Yass</span><span aria-hidden='true'>›</span></button>" : "") +
-        (window.KineMascotte ? "<button onclick='KineMascotte.off(!KineMascotte.isOff())' aria-pressed='" + !KineMascotte.isOff() + "'><span>Yass, ton coach</span><span class='kr-sw'>" + (KineMascotte.isOff() ? "désactivé" : "activé") + "</span></button>" : "") +
-        (window.KineNotifs && KineNotifs.available() ? "<button onclick='KineNotifs.open()'><span>Notifications du jour</span><span class='kr-sw'>" + KineNotifs.label() + "</span></button>" : "") +
-        (window.KineGuide ? "<button onclick='KineGuide.menu()'><span>Guidage sonore</span><span class='kr-sw' id='kg-current'>" + KineGuide.label().toLowerCase() + "</span></button>" : "") +
-        "<button onclick='KineLayout.bigText()' aria-pressed='" + bigOn() + "'><span>Taille du texte</span><span class='kr-sw'>" + (bigOn() ? "grande" : "normale") + "</span></button>" +
       "</div>" +
-      "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer à mon kiné</button>" +
+      (fresh ? "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>" : "") +
       beforeAfter();
     // Les badges ne sont plus affichés
     ["badges-suivi", "badges-home"].forEach(function (id) {
@@ -178,6 +183,32 @@
       b.remove();
     });
     var page = $("page-suivi"); if (page) page.classList.add("lx");
+  }
+
+
+  /* ════════ Progrès : trois chiffres et les séances par semaine ════════ */
+  function kpis(cyc, wk) {
+    var pts = list().filter(function (s) { return s.douleur != null && s.douleur !== ""; }).map(function (s) { return [s.date, +s.douleur]; }).sort(function (a, b) { return a[0] < b[0] ? -1 : 1; });
+    var third;
+    if (pts.length >= 4) {
+      var av = function (a) { return a.reduce(function (t, x) { return t + x[1]; }, 0) / a.length; };
+      var d = Math.round(av(pts.slice(-2)) - av(pts.slice(0, 2)));
+      third = "<div class='" + (d < 0 ? "good" : d > 0 ? "bad" : "") + "'><b>" + (d > 0 ? "+" + d : d < 0 ? "−" + (-d) : "0") + "</b><small>point" + (Math.abs(d) > 1 ? "s" : "") + " de douleur depuis le début</small></div>";
+    } else if (pts.length) third = "<div><b>" + pts[pts.length - 1][1] + "<small style='display:inline;font-size:.9rem'>/10</small></b><small>douleur à la dernière séance</small></div>";
+    else third = "<div><b>—</b><small>douleur, après votre bilan de séance</small></div>";
+    return "<div class='lu-kpi'><div class='d'><b>" + cyc.length + "</b><small>séance" + (cyc.length > 1 ? "s" : "") + " faite" + (cyc.length > 1 ? "s" : "") + "</small></div>" +
+      "<div><b>" + wk + "</b><small>cette semaine</small></div>" + third + "</div>";
+  }
+  function weekBars(ss) {
+    var m0 = parse(monday()), cols = [], max = 1;
+    for (var i = 3; i >= 0; i--) {
+      var a = new Date(m0); a.setDate(m0.getDate() - 7 * i); var b = new Date(a); b.setDate(a.getDate() + 7);
+      var A = iso(a), B = iso(b), n = ss.filter(function (s) { var d = String(s.date).slice(0, 10); return d >= A && d < B; }).length;
+      max = Math.max(max, n); cols.push([i === 0 ? "cette sem." : a.getDate() + " " + ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."][a.getMonth()], n, i === 0]);
+    }
+    return "<div class='lu-bars'><b>Mes séances par semaine</b><div class='lu-bars-in'>" + cols.map(function (c) {
+      return "<div class='" + (c[2] ? "hi" : "") + "'><em>" + c[1] + "</em><i style='height:" + Math.max(5, Math.round(c[1] / Math.max(max, 3) * 100)) + "%'></i>" + c[0] + "</div>";
+    }).join("") + "</div></div>";
   }
 
   /* ════════ Avant / maintenant : première semaine de suivi comparée aux 7 derniers jours ════════ */
