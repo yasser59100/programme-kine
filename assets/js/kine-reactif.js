@@ -87,7 +87,7 @@
   function diagram(ex, cols) {
     var cones = ex.spots.slice(0, cols.length).map(function (p, i) {
       var c = cols[i];
-      return "<g><path d='M" + (p[0] - 11) + " " + (p[1] + 9) + " L" + p[0] + " " + (p[1] - 12) + " L" + (p[0] + 11) + " " + (p[1] + 9) + " Z' fill='" + c.hex + "' stroke='rgba(0,0,0,.35)' stroke-width='1.2'/>" +
+      return "<g><path d='M" + (p[0] - 11) + " " + (p[1] + 9) + " L" + p[0] + " " + (p[1] - 12) + " L" + (p[0] + 11) + " " + (p[1] + 9) + " Z' fill='" + c.hex + "' stroke='" + (c.ring ? "rgba(255,255,255,.75)" : "rgba(0,0,0,.35)") + "' stroke-width='1.5'/>" +
         "<rect x='" + (p[0] - 14) + "' y='" + (p[1] + 8) + "' width='28' height='4' rx='2' fill='" + c.hex + "' opacity='.7'/></g>";
     }).join("");
     var cx = 150, cy = ex.chair ? 128 : (ex.feet === "one" ? 100 : ex.feet === "seat" ? 95 : 110);
