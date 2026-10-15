@@ -228,6 +228,29 @@
     })();
   }
 
+  // Petite démo dans une vignette (bibliothèque) : l'avatar touche les plots tant que la case est au centre de l'écran
+  function mini(box, id, alive) {
+    if (!box || !window.KineAvatar || !KineAvatar.lib) return false;
+    var ex = exoOf(id), cols = COLS.slice(0, 3), avHop = ex.id === "bulgare" || ex.id === "chasses1";
+    KineAvatar.register("__kr_mini", avDef(ex, cols));
+    if (!KineAvatar.show(box, "__kr_mini")) return false;
+    var last = -1;
+    function wait(ms, f) { setTimeout(function () { if (alive()) f(); }, ms); }
+    (function cycle() {
+      var i; do { i = Math.floor(Math.random() * cols.length); } while (i === last && cols.length > 1); last = i;
+      if (avHop) {
+        KineAvatar.step({ pose: "j" + i, dur: 0.28 });
+        wait(280, function () { KineAvatar.step({ pose: "c" + i, dur: 0.24 });
+          wait(900, function () { KineAvatar.step({ pose: "j" + i, dur: 0.26 });
+            wait(260, function () { KineAvatar.step({ pose: "mid", dur: 0.26 }); wait(900, cycle); }); }); });
+        return;
+      }
+      KineAvatar.step({ pose: "c" + i, dur: 0.8 });
+      wait(1200, function () { KineAvatar.step({ pose: "mid", dur: 0.7 }); wait(1000, cycle); });
+    })();
+    return true;
+  }
+
   /* ── Écran de réglage ── */
   var SESS = null;   // lancé depuis une séance : { onDone } (la série validée fait avancer la séance)
   function open(exoId, sess) {
@@ -411,12 +434,12 @@
   }
 
   window.KineReactif = { open: open, close: close, start: start, stop: function () { if (run && run.i > 0 && run.done < run.total) finish(false); else quit(); }, pause: pause,
-    _sess: function () { return SESS; }, again: function () { quit(); open(); }, next: function () { var cb = SESS && SESS.onDone; quit(); SESS = null; if (cb) cb(); }, _set: setOpt, _col: toggleCol, _avDef: avDef, exos: EXOS, colors: COLS };
+    mini: mini, _sess: function () { return SESS; }, again: function () { quit(); open(); }, next: function () { var cb = SESS && SESS.onDone; quit(); SESS = null; if (cb) cb(); }, _set: setOpt, _col: toggleCol, _avDef: avDef, exos: EXOS, colors: COLS };
   /* ── Les exercices réactifs rejoignent la bibliothèque et « Ma séance » ── */
   function thumb(cols) {
     var svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 104 104'><rect width='104' height='104' rx='16' fill='#101826'/>" +
       cols.map(function (c, i) { var x = 22 + i * 30; return "<path d='M" + (x - 11) + " 70 L" + x + " 38 L" + (x + 11) + " 70 Z' fill='" + c + "'/><rect x='" + (x - 14) + "' y='69' width='28' height='5' rx='2' fill='" + c + "' opacity='.7'/>"; }).join("") + "</svg>";
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg).replace(/'/g, "%27");
   }
   function addToLibrary() {
     if (!window.KineBiblio || !KineBiblio.extend) return;

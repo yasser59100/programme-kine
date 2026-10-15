@@ -406,7 +406,8 @@
     if (busy() || !appear()) return;
     mode = "faq"; clearTimeout(timer);
     var noted = window.KineCheckin && KineCheckin.get(iso());
-    bubble("Je peux t'aider ?", "",
+    if (window.KineLumiere && KineLumiere.menuHtml) bubble("Je peux t'aider ?", KineLumiere.menuHtml(!noted), "<button class='km-later' onclick='KineMascotte.hide()'>Fermer</button>");
+    else bubble("Je peux t'aider ?", "",
       "<button class='km-go' onclick='KineMascotte.faq()'>Une question</button>" +
       "<button class='km-later' onclick='KineMascotte.bouge()'>Bouger 2 minutes</button>" +
       (noted ? "" : "<button class='km-later' onclick='KineMascotte.act(\"ressenti\")'>Noter mon ressenti</button>") +

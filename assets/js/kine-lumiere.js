@@ -54,6 +54,19 @@ var KineLumiere = (function () {
     sheet(h, "lu-hub");
     if (M && M.isOff && !M.isOff() && typeof speak === "function" && (typeof seqSoundOn === "undefined" || seqSoundOn)) { try { speak("Je peux t'aider ?", { prio: 1, now: true, ttl: 4000 }); } catch (e) {} }
   }
+  // Les mêmes choix, dans la bulle de Yass (sa tête sur le côté de l'écran)
+  function go(js) { if (window.KineMascotte) KineMascotte.hide(); setTimeout(function () { (new Function(js))(); }, 200); }
+  function menuHtml(canNote) {
+    var M = window.KineMascotte, it = function (js, t, sub) { return "<button class='lu-row' onclick=\"KineLumiere.go('" + js + "')\"><span><b>" + esc(t) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>" + CHEV + "</button>"; };
+    return (window.KineCamera ? "<button class='lu-hub-vid' onclick=\"KineLumiere.go('KineCamera.open()')\"><span class='lu-ic'>" + ICAM + "</span><span><b>Tester en vidéo</b><small>Je regarde ton mouvement et je te corrige</small></span>" + CHEV + "</button>" : "") +
+      "<div class='lu-rows'>" +
+        (M ? it("KineMascotte.faq()", "Poser une question", "Douleur, matériel, programme…") : "") +
+        (M ? it("KineMascotte.bouge()", "Bouger 2 minutes avec moi", "Une pause active, debout") : "") +
+        (window.KineCheckin && canNote ? it("KineCheckin.open()", "Noter mon ressenti", "30 secondes") : "") +
+        (window.KineLexique ? it("KineLexique.open()", "Les mots du kiné expliqués", "") : "") +
+        it("KineLumiere.settings()", "Réglages", "Coach, son, taille du texte") +
+      "</div>";
+  }
   function iso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
 
   function bigOn() { try { return localStorage.getItem("kf-big") === "1"; } catch (e) { return false; } }
@@ -105,7 +118,7 @@ var KineLumiere = (function () {
       groups.map(function (g) { return all.some(function (e) { return e.group === g[0]; }) ? "<button class='lu-chip" + (filt === g[0] ? " on" : "") + "' onclick=\"KineLumiere.filter('" + g[0] + "')\">" + esc(SHORT[g[0]] || g[1]) + "</button>" : ""; }).join("");
     var card = function (e) {
       var c = KineBiblio.color(e.name), cam = camOf(e.name), src = e.thumb || thumbs[e.name];
-      return "<div class='lu-card'><button class='lu-card-b' onclick='KineBiblio.demo(" + q(e.name) + ")'>" +
+      return "<div class='lu-card' data-n='" + esc(e.name) + "'" + (e.reactif ? " data-r='" + esc(e.reactif) + "'" : "") + "><button class='lu-card-b' onclick='KineBiblio.demo(" + q(e.name) + ")'>" +
         "<span class='lu-im'>" + (src ? "<img src='" + src + "' alt=''>" : "<img data-n='" + esc(e.name) + "' alt=''>") + "</span>" +
         "<span class='lu-d'><b><i class='lu-lvl c" + c + "'></i>" + esc(e.name) + "</b><small>" + esc(e.repsLabel || "") + "</small></span></button>" +
         (cam ? "<button class='lu-camb' aria-label='Tester " + esc(e.name) + " en vidéo' onclick=\"KineCamera.open('" + cam + "')\">" + ICAM + "</button>" : "") + "</div>";
@@ -123,6 +136,7 @@ var KineLumiere = (function () {
       "<p class='lu-legend'><span><i class='lu-lvl c1'></i>Facile</span><span><i class='lu-lvl c2'></i>Intermédiaire</span><span><i class='lu-lvl c3'></i>Difficile</span>" + (nCam ? "<span class='lu-leg-cam'>" + ICAM + "testable en vidéo</span>" : "") + "</p>" +
       body;
     lazyThumbs(box);
+    setTimeout(liveCheck, 450);
   }
   // Les vignettes 3D se dessinent au fil du défilement, quelques-unes à la fois
   var io = null, queue = [], busy = false;
@@ -151,6 +165,67 @@ var KineLumiere = (function () {
   }
   function filter(f) { filt = f; renderLib(); var c = document.querySelector("#lu-lib .lu-chips"); if (c) { var on = c.querySelector(".on"); if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest", inline: "center" }); } }
 
+  /* ════════ La case au centre de l'écran s'anime : Yass fait l'exercice ════════ */
+  var live = null, liveId = 0, chkRaf = 0;
+  function liveStop() {
+    if (!live) return;
+    var L = live; live = null; liveId++;
+    if (L.box.querySelector("canvas") && window.KineAvatar) KineAvatar.hide();
+    if (L.box.isConnected) { L.box.innerHTML = L.html; L.box.classList.remove("lu-live"); }
+  }
+  function blocked() {
+    var page = $("page-guide");
+    if (!page || !page.classList.contains("active") || !page.classList.contains("lu-t-lib") || document.hidden) return true;
+    return !!document.querySelector(".kf-sheet.open, #rep-guide.open, #seq-overlay.open, #kf-masc.open, #kcam-run.open, #lu-sheet.open, #kf-routine.open");
+  }
+  function liveCheck() {
+    chkRaf = 0;
+    if (!window.KineAvatar || !window.KineBiblio || blocked()) { liveStop(); return; }
+    if (live && !live.box.querySelector("canvas")) liveStop();   // l'avatar est parti ailleurs (Yass, une séance)
+    var cards = document.querySelectorAll("#lu-lib .lu-card"), vh = window.innerHeight, cy = vh * 0.46, best = null, bd = 1e9;
+    for (var i = 0; i < cards.length; i++) {
+      var r = cards[i].getBoundingClientRect(); if (r.bottom < 90 || r.top > vh - 110) continue;
+      var d = Math.abs(r.top + r.height / 2 - cy) + (r.left > window.innerWidth / 2 ? 1 : 0); if (d < bd) { bd = d; best = cards[i]; }
+    }
+    if (!best) { liveStop(); return; }
+    if (live && live.card === best) return;
+    liveStop(); start(best);
+  }
+  function start(card) {
+    var box = card.querySelector(".lu-im"), name = card.getAttribute("data-n"), rid = card.getAttribute("data-r"); if (!box || !name) return;
+    var L = { card: card, box: box, html: box.innerHTML }, id = ++liveId;
+    var alive = function () { return id === liveId && box.isConnected && !!box.querySelector("canvas"); };
+    live = L; box.classList.add("lu-live");
+    var ok = rid && window.KineReactif && KineReactif.mini ? KineReactif.mini(box, rid, alive) : (KineAvatar.supports(name) && KineAvatar.show(box, name));
+    if (!ok) { live = null; box.innerHTML = L.html; box.classList.remove("lu-live"); return; }
+    if (KineAvatar.pause) KineAvatar.pause(false);
+    if (rid) return;
+    var e = KineBiblio.find(name) || {}, wk = window.KineProgress ? (KineProgress.state().week || 1) : 1;
+    var inf = KineAvatar.info(name, e.repsLabel || "10 répétitions", wk), rep = 1, alt = (inf && inf.perSide ? inf.perSide : 1) + 1;
+    var startPose = KineAvatar.startOf(name);
+    function cycle() {
+      if (!alive()) return;
+      var st = (KineAvatar.plan(name, rep, inf, wk).steps || []).filter(function (x) { return x.pose; });
+      rep = rep === 1 && inf && inf.sides ? alt : 1;
+      var k = 0;
+      (function nx() {
+        if (!alive()) return;
+        if (k >= st.length) {
+          if (st.length < 2 && startPose) { KineAvatar.step({ pose: startPose, dur: 0.8, side: st[0] ? st[0].side : "L" }); setTimeout(cycle, 1100); }
+          else setTimeout(cycle, 250);
+          return;
+        }
+        var s0 = st[k++], d = Math.min(Math.max(s0.dur || 1, 0.3), 2.5);
+        KineAvatar.step({ pose: s0.pose, dur: Math.min(d, 1.6), side: s0.side });
+        setTimeout(nx, d * 1000 + 60);
+      })();
+    }
+    setTimeout(cycle, 300);
+  }
+  function queueCheck() { if (!chkRaf) chkRaf = requestAnimationFrame(liveCheck); }
+  window.addEventListener("scroll", queueCheck, { passive: true });
+  setInterval(function () { if (live || !blocked()) liveCheck(); }, 1500);
+
   /* ════════ Navigation ════════ */
   function hookNav() {
     if (typeof window.showPage !== "function" || window.showPage.__lu) return;
@@ -177,6 +252,6 @@ var KineLumiere = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);
 
-  return { hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
+  return { go: go, menuHtml: menuHtml, _live: function () { return live && live.card.getAttribute("data-n"); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
 })();
 window.KineLumiere = KineLumiere;

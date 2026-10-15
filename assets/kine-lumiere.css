@@ -255,3 +255,12 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 .lu-pduo .lu-ic { background: var(--lu-ciel); color: var(--lu-ind2); font: 800 1.1rem var(--lu-head); margin-bottom: 10px; }
 .lu-pduo b { font: 800 .98rem/1.1 var(--lu-head); letter-spacing: -.015em; margin-top: auto; }
 .lu-pduo small { font-size: .76rem; color: var(--text3); margin-top: 4px; }
+
+/* Vignette animée : Yass fait l'exercice quand la case passe au centre de l'écran */
+.lu-im.lu-live { background: radial-gradient(70% 70% at 50% 60%, #E4ECFF, #F4F7FC); }
+.lu-im canvas { width: 100% !important; height: 100% !important; display: block; }
+.lu-card:has(.lu-live) { border-color: #C9D2FF; box-shadow: 0 10px 22px -16px rgba(51, 65, 224, .55); }
+/* Les choix dans la bulle de Yass */
+#kf-masc #km-list .lu-hub-vid { margin: 4px 0 10px; }
+#kf-masc #km-list .lu-rows { margin-bottom: 4px; }
+#kf-masc #km-list .lu-row { padding: 12px 14px; }
