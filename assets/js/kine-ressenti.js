@@ -61,7 +61,7 @@
   }
   function adherenceHtml() {
     var a = adherence(); if (!a) return "";
-    var col = a.pct >= 80 ? "#00d4e6" : a.pct >= 50 ? "#f5a524" : "#f87171";
+    var col = a.pct >= 80 ? "#4B5BFF" : a.pct >= 50 ? "#f5a524" : "#f87171";
     return "<div class='kr-adh'><div class='kr-adh-t'><span>Régularité sur 14 jours</span><b style='color:" + col + "'>" + a.pct + " %</b></div>" +
       "<div class='kr-prog'><span style='width:" + a.pct + "%;background:" + col + "'></span></div>" +
       "<div class='kr-muted'>" + a.done + " séance" + (a.done > 1 ? "s" : "") + " faite" + (a.done > 1 ? "s" : "") + " sur " + a.planned + " prévue" + (a.planned > 1 ? "s" : "") + "." +
@@ -157,7 +157,7 @@
   function ring() {
     var st = state(), size = 250, cx = 125, cy = 125, R = 113, r0 = 96;
     var started = !!st.start, day = started ? Math.min(28, st.dayInCycle || 1) : 0;
-    var defs = "<defs><linearGradient id='kr-g' x1='0' x2='1'><stop offset='0' stop-color='#00e5f5'/><stop offset='1' stop-color='#4f8ff7'/></linearGradient></defs>";
+    var defs = "<defs><linearGradient id='kr-g' x1='0' x2='1'><stop offset='0' stop-color='#4B5BFF'/><stop offset='1' stop-color='#7B88FF'/></linearGradient></defs>";
     var h = defs + "<circle cx='125' cy='125' r='" + r0 + "' fill='none' style='stroke:var(--kr-track)' stroke-width='10'/>";
     if (day > 0) {
       var a = Math.min(0.9999, day / 28) * 2 * Math.PI, x = cx + r0 * Math.sin(a), y = cy - r0 * Math.cos(a);
@@ -167,7 +167,7 @@
       var t = (d - 0.5) / 28 * 2 * Math.PI, px = cx + R * Math.sin(t), py = cy - R * Math.cos(t);
       var date = started ? addDays(st.start, d - 1) : null, past = started && d <= day;
       var done = date && sessOn(date).length, hurt = date && hurtOn(date), noted = date && get(date);
-      var col = hurt ? "#f87171" : done ? "#00d4e6" : noted ? "var(--kr-noted)" : past ? "var(--kr-past)" : "var(--kr-future)";
+      var col = hurt ? "#f87171" : done ? "#4B5BFF" : noted ? "var(--kr-noted)" : past ? "var(--kr-past)" : "var(--kr-future)";
       h += "<circle cx='" + px.toFixed(1) + "' cy='" + py.toFixed(1) + "' r='" + (done || hurt ? 6 : 4) + "' style='fill:" + col + "'/>";
       if (d === day) h += "<circle cx='" + px.toFixed(1) + "' cy='" + py.toFixed(1) + "' r='10' fill='none' style='stroke:var(--text)' stroke-width='2'/>";
     }
@@ -176,7 +176,7 @@
     else if (st.cycleDone) centre = "<div class='kr-k'>Programme</div><div class='kr-big sm'>Terminé</div><div class='kr-s'>28 jours sur 28</div><div class='kr-n'>Parlez-en à votre kiné pour la suite.</div>";
     else centre = "<div class='kr-k'>Semaine " + st.week + "</div><div class='kr-big'>Jour " + day + "</div><div class='kr-s'>sur 28 jours</div>" + (nx ? "<div class='kr-n'>" + esc(nx) + "</div>" : "");
     return "<div class='kr-ring' role='img' aria-label='" + (started ? "Jour " + day + " sur 28 du programme" : "Programme pas encore commencé") + "'><svg viewBox='0 0 250 250' width='" + size + "' height='" + size + "'>" + h + "</svg><div class='kr-c'>" + centre + "</div></div>" +
-      "<div class='kr-legend'><span><i style='background:#00d4e6'></i>Séance faite</span><span><i style='background:#f87171'></i>Douleur</span><span><i style='background:var(--kr-noted)'></i>Ressenti noté</span></div>";
+      "<div class='kr-legend'><span><i style='background:#4B5BFF'></i>Séance faite</span><span><i style='background:#f87171'></i>Douleur</span><span><i style='background:var(--kr-noted)'></i>Ressenti noté</span></div>";
   }
   function nextSession() {
     var map = dayMap(), today = iso(), doneToday = sessOn(today).length;
@@ -235,7 +235,7 @@
         : "Les séances ne changent pas votre douleur du lendemain.";
       var note = diff <= -1 ? " Une légère hausse peut être normale au début ; si elle dure ou dépasse 5 sur 10, parlez-en à votre kiné." : "";
       cards.push("<div class='kr-card'><div class='kr-lab'>" + TREND + "Ce que montrent vos données</div><div class='kr-ins'>" + title + "</div>" +
-        bars([[a, "après séance", "#00d4e6"], [o, "autres jours", "#3a4a5e"]]) +
+        bars([[a, "après séance", "#4B5BFF"], [o, "autres jours", "#3a4a5e"]]) +
         "<div class='kr-muted'>Douleur moyenne sur 10, d'après vos " + recent.length + " derniers jours notés." + note + "</div></div>");
     }
     // 2. Sommeil et douleur (la nuit notée est celle qui précède)
@@ -289,7 +289,7 @@
       "<h2 class='kr-h'>Calendrier</h2>" +
       "<div class='kr-mhead'><button onclick='KineCheckin.month(-1)' aria-label='Mois précédent'>‹</button><span>" + cap(MO[m]) + " " + y + "</span><button onclick='KineCheckin.month(1)' aria-label='Mois suivant'>›</button></div>" +
       h +
-      "" + adherenceHtml() + "<div class='kr-legend wrap'><span><i style='background:#00d4e6'></i>Séance faite</span><span><i class='dash'></i>Prévue</span><span><i style='background:#f5a524'></i>Manquée</span><span><i style='background:#f87171'></i>Douleur 5 et plus</span><span><i style='background:var(--kr-noted)'></i>Ressenti noté</span></div>" +
+      "" + adherenceHtml() + "<div class='kr-legend wrap'><span><i style='background:#4B5BFF'></i>Séance faite</span><span><i class='dash'></i>Prévue</span><span><i style='background:#f5a524'></i>Manquée</span><span><i style='background:#f87171'></i>Douleur 5 et plus</span><span><i style='background:var(--kr-noted)'></i>Ressenti noté</span></div>" +
       detail(calSel) + "</div>";
     el.classList.add("open");
   }

@@ -554,3 +554,18 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 .t27 .lq-stat span { -webkit-line-clamp: 1 !important; }
 .t27 .tp-scale { bottom: 12px !important; width: 84px; } .lq-hero.big.t27 .tp-scale { bottom: 18px !important; }
 .t27 .tp-tag { left: 112px; } .lq-hero.big.t27 .tp-tag { left: 150px; }
+.lq-stage .lq-face { width: 84px; height: 84px; margin: 40px 0 0 6px; border-radius: 50%; background: #E4ECFF; object-fit: cover; }
+
+/* ════════ Harmonisation des derniers écrans ════════ */
+:root:root:root .community-header { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 14px; }
+:root:root:root .community-header .lx-title { font-size: 2.3rem !important; margin: 0 0 6px !important; }
+:root:root:root .community-header .lx-lede { color: var(--text2) !important; }
+:root:root:root .community-stats { display: flex !important; gap: 10px !important; margin-top: 14px !important; }
+:root:root:root .community-stats .cs { flex: 1; background: #fff !important; border: 1px solid var(--border) !important; border-radius: 20px !important; padding: 12px !important; text-align: left !important; }
+:root:root:root .community-stats .cs:first-child { background: var(--lu-ink) !important; border-color: var(--lu-ink) !important; color: #fff; }
+:root:root:root .community-stats .cs-val { font: 800 1.7rem/1 var(--lu-head) !important; letter-spacing: -.03em; color: inherit !important; }
+:root:root:root .community-stats .cs-lbl { font-size: .72rem !important; color: inherit !important; opacity: .75; text-transform: none !important; letter-spacing: 0 !important; }
+:root:root:root :is(.modal) { border-radius: 26px !important; background: #fff !important; border: 1px solid var(--border) !important; }
+:root:root:root .modal h2 { font-family: var(--lu-head) !important; font-weight: 800 !important; letter-spacing: -.03em; font-size: 1.6rem !important; }
+:root:root:root .modal-input { background: var(--surface2) !important; border-radius: 14px !important; border-color: var(--border) !important; }
+:root:root:root #kf-cele h1, :root:root:root #kf-cele h2, :root:root:root .cele-title { font-family: var(--lu-head) !important; font-weight: 800 !important; letter-spacing: -.03em; }

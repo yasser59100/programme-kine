@@ -117,9 +117,9 @@
     var labels = pts.map(function (s, i) { return "<text x='" + (xs[i] - 6) + "' y='148' fill='#5E6A7C' font-size='11'>" + esc(String(s.seance || "").split(" ")[0]) + "</text>"; }).join("");
     return "<svg viewBox='0 0 " + W + " 152' width='100%' role='img' aria-label='Douleur et effort sur les dernières séances'>" +
       [20, 75, 130].map(function (v) { return "<line x1='0' y1='" + v + "' x2='" + W + "' y2='" + v + "' stroke='rgba(255,255,255,.06)'/>"; }).join("") +
-      line(eff, "#4FACFE", true, 2.5) + line(pain, "#FF5C73", false, 3) +
+      line(eff, "#7B88FF", true, 2.5) + line(pain, "#FF5C73", false, 3) +
       (mi >= 0 && mx >= 5 ? "<circle cx='" + xs[mi] + "' cy='" + y(mx) + "' r='5' fill='#FF5C73'/>" : "") + labels + "</svg>" +
-      "<div class='lx-legend'><span><i style='background:#FF5C73'></i>Douleur, sur 10</span><span><i style='background:#4FACFE'></i>Effort, sur 5</span></div>";
+      "<div class='lx-legend'><span><i style='background:#FF5C73'></i>Douleur, sur 10</span><span><i style='background:#7B88FF'></i>Effort, sur 5</span></div>";
   }
   function renderSuivi() {
     var box = $("suivi-v2"); if (!box) return;

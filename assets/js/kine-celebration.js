@@ -31,7 +31,7 @@
     if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var c = document.createElement("canvas"); c.className = "cele-confetti"; host.appendChild(c);
     var W = c.width = host.clientWidth * (window.devicePixelRatio || 1), H = c.height = host.clientHeight * (window.devicePixelRatio || 1);
-    var g = c.getContext("2d"), cols = ["#00F2FE", "#4FACFE", "#3CF2B0", "#FFC56B", "#FF5C73", "#FFFFFF"], P = [];
+    var g = c.getContext("2d"), cols = ["#4B5BFF", "#7B88FF", "#3CF2B0", "#FFC56B", "#FF5C73", "#FFFFFF"], P = [];
     for (var i = 0; i < 110; i++) P.push({ x: Math.random() * W, y: -Math.random() * H * 0.6, vx: (Math.random() - 0.5) * 2.2, vy: 2 + Math.random() * 3.5,
       r: 4 + Math.random() * 6, a: Math.random() * 6.3, va: (Math.random() - 0.5) * 0.25, c: cols[i % cols.length] });
     var t0 = performance.now();

@@ -77,6 +77,7 @@ var KineLumiere = (function () {
       (G ? row("KineLumiere.then('KineGuide.menu()')", "Guidage sonore", "Voix, bips ou métronome", G.label().toLowerCase()) : "") +
       (N && N.available() ? row("KineLumiere.then('KineNotifs.open()')", "Notifications du jour", "", N.label()) : "") +
       row("KineLayout.bigText();KineLumiere.settings()", "Taille du texte", "", bigOn() ? "grande" : "normale") +
+      row("KineLumiere.ecoCycle();KineLumiere.settings()", "Animations de Yass", "Économie : moins d'animations en même temps, pour la batterie", ecoPref() === "1" ? "économie" : ecoPref() === "0" ? "complètes" : (eco() ? "auto (économie)" : "auto")) +
       (window.KineCamera && KineCamera.modeSheet ? row("KineLumiere.then('KineCamera.modeSheet()')", "Caméra pendant la séance", "Jamais, me demander, ou toujours") : "") +
       (window.KineCompose ? row("KineLumiere.then('KineCompose.kine()')", "Espace kiné", "Réservé à votre kinésithérapeute") : "") +
       "</div>";
@@ -165,6 +166,35 @@ var KineLumiere = (function () {
   }
   function filter(f) { filt = f; renderLib(); var c = document.querySelector("#lu-lib .lu-chips"); if (c) { var on = c.querySelector(".on"); if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest", inline: "center" }); } }
 
+  /* ════════ Mode économie : moins d'avatars 3D à la fois sur les téléphones lents ════════
+     kf-eco = "1" (forcé), "0" (animations complètes) ; sinon automatique : mémoire faible, ou image saccadée mesurée. */
+  function ecoPref() { try { return localStorage.getItem("kf-eco"); } catch (e) { return null; } }
+  function eco() {
+    var p = ecoPref(); if (p === "1") return true; if (p === "0") return false;
+    try { if (localStorage.getItem("kf-eco-auto") === "1") return true; } catch (e) {}
+    if (navigator.deviceMemory && navigator.deviceMemory <= 3) return true;
+    if (navigator.connection && navigator.connection.saveData) return true;
+    return false;
+  }
+  // Mesure de fluidité pendant une animation : moins de 30 images/s en moyenne → mode économie
+  var probed = false;
+  function probe() {
+    if (probed || ecoPref()) return; probed = true;
+    var n = 0, t0 = 0, last = 0, slow = 0;
+    (function f(t) {
+      if (!t0) { t0 = last = t; return requestAnimationFrame(f); }
+      n++; if (t - last > 50) slow++; last = t;
+      if (t - t0 < 4000) return requestAnimationFrame(f);
+      if (document.hidden) { probed = false; return; }
+      var fps = n * 1000 / (t - t0);
+      if (fps < 30 || slow > n * 0.25) { try { localStorage.setItem("kf-eco-auto", "1"); } catch (e) {} liveCheck(); }
+    })(0);
+  }
+  function setEco(v) {
+    try { if (v == null) localStorage.removeItem("kf-eco"); else localStorage.setItem("kf-eco", v ? "1" : "0"); if (v === false || v == null) localStorage.removeItem("kf-eco-auto"); } catch (e) {}
+    liveStop(); liveCheck();
+  }
+
   /* ════════ Les cases au centre de l'écran s'animent : Yass fait l'exercice ════════
      Une rangée entière s'anime (2 cases dans la Bibliothèque, 3 dans Ma séance).
      Chaque case a son propre avatar : le premier est celui de l'appli, les autres sont des copies chargées à la demande. */
@@ -203,6 +233,7 @@ var KineLumiere = (function () {
     }
     if (!best) { liveStop(); return; }
     var top = Math.round(best.getBoundingClientRect().top), row = [].filter.call(cards, function (c) { return Math.abs(c.getBoundingClientRect().top - top) < 8; });
+    if (eco()) row = [best];
     if (slots.length === row.length && slots.every(function (s, k) { return s.card === row[k]; })) return;
     liveStop(); var g = ++gen;
     row.forEach(function (card, k) { start(card, k, g); });
@@ -222,7 +253,7 @@ var KineLumiere = (function () {
         ok = A.supports(name) && A.show(box, name);
       }
       if (!ok) { s.dead = true; box.innerHTML = s.html; return; }
-      s.started = true; box.classList.add("lu-live");
+      s.started = true; box.classList.add("lu-live"); probe();
       if (A.pause) A.pause(false);
       if (!rid) loop(A, name, alive);
     });
@@ -280,6 +311,6 @@ var KineLumiere = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);
 
-  return { avatar: inst, go: go, menuHtml: menuHtml, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
+  return { eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, go: go, menuHtml: menuHtml, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
 })();
 window.KineLumiere = KineLumiere;

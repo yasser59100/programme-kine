@@ -5,13 +5,15 @@
 (function () {
   "use strict";
   function $(id) { return document.getElementById(id); }
-  var YASS = "__mascotte", SLOT = 4;
+  var YASS = "__mascotte", SLOT = 1;   // emplacements d'avatar partagés : 1 (vrai/faux, fiche), 2 (carte de l'accueil), 3 (amis)
+  var INST = { 5: 2, 6: 1 };
+  function ecoOn() { return !!(window.KineLumiere && KineLumiere.eco && KineLumiere.eco()); }
 
   /* ════════ Yass en 3D dans une petite scène ════════ */
   var cur = null;   // { A, box, id, img }
   function yass(box, cb) {
     var L = window.KineLumiere, M = window.KineMascotte;
-    if (!box || !L || !L.avatar || !window.KineAvatar) return cb(null);
+    if (!box || !L || !L.avatar || !window.KineAvatar || ecoOn()) return cb(null);
     if (M && M.portrait) M.portrait();              // enregistre Yass dans l'avatar principal
     var def = KineAvatar._def(YASS); if (!def) return cb(null);
     L.avatar(SLOT, function (A) {
@@ -64,7 +66,10 @@
     var card = deck.querySelector(".lq-card"), stage = deck.querySelector(".lq-stage");
     // Yass réfléchit, seulement quand la carte est à l'écran
     watchVisible(stage, function (on) {
-      if (on) yass(stage, function (c) { if (c) { stage.classList.add("on"); play(c, THINK, true); } });
+      if (on) yass(stage, function (c) {
+        if (c) { stage.classList.add("on"); play(c, THINK, true); }
+        else if (!stage.firstChild) { var f = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null; if (f) stage.innerHTML = "<img src='" + f + "' alt='' class='lq-face'>"; }
+      });
       else if (cur && cur.box === stage) stopYass();
     });
     var x0 = null, dx = 0, id = null;
@@ -203,7 +208,7 @@
     var def = KineScenes.def(idx); if (!def) return;
     stopScene(slot);
     var me = { band: band, dead: false, timers: [] }; running[slot] = me;
-    L.avatar(slot, function (A) {
+    L.avatar(INST[slot] || slot, function (A) {
       if (!A || me.dead || !band.isConnected) return;
       var name = "__tip" + idx;
       A.register(name, def);
@@ -221,7 +226,8 @@
         // un autre Yass dans la même scène (avatar supplémentaire, emplacements 7 et 8 réservés à la fiche)
         spawn: function (sel, def2, cb) {
           var box = band.querySelector(sel), n = (me.extras = me.extras || []).length; if (!box) return;
-          L.avatar((slot === 6 ? 7 : 9) + n, function (B) {
+          if (slot !== 6 || ecoOn()) return;   // les amis seulement dans la fiche, et pas en mode économie
+          L.avatar(2 + n, function (B) {
             if (!B || !alive() || !box.isConnected) return;
             B.register(name + "_x" + n, def2); if (!B.show(box, name + "_x" + n)) return;
             if (B.pause) B.pause(false); me.extras.push({ B: B, box: box });
@@ -243,7 +249,7 @@
     var def = KineAvatar._def(sc.def); if (!def) return;
     stopScene(slot);
     var me = { band: band, dead: false, timers: [] }; running[slot] = me;
-    L.avatar(slot, function (A) {
+    L.avatar(INST[slot] || slot, function (A) {
       if (!A || me.dead || !band.isConnected) return;
       var name = "__scn_" + k;
       A.register(name, { camera: sc.cam, props: def.props, chair: def.chair, poses: def.poses, start: sc.seq[0][0], thumb: sc.seq[0][0] });
@@ -312,7 +318,7 @@
     c.__lq = 1;
     var t = KineSavoir.tips[KineSavoir.today()]; if (!t) return;
     c.classList.add("lq-ks"); c.insertAdjacentHTML("afterbegin", hero(t, false, null, KineSavoir.today()));
-    liveWhenVisible(c.querySelector(".lq-hero"), 5);
+    if (!ecoOn()) liveWhenVisible(c.querySelector(".lq-hero"), 5);
   }
   function hookSavoirSheet() {
     if (!window.KineSavoir || KineSavoir.open.__lq) return;
