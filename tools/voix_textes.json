@@ -4966,5 +4966,29 @@
 {
 "t": "Vert !",
 "g": "seance"
+},
+{
+"t": "Pas le rouge !",
+"g": "seance"
+},
+{
+"t": "Pas le bleu !",
+"g": "seance"
+},
+{
+"t": "Pas le jaune !",
+"g": "seance"
+},
+{
+"t": "Pas le vert !",
+"g": "seance"
+},
+{
+"t": "Pause.",
+"g": "seance"
+},
+{
+"t": "On reprend.",
+"g": "seance"
 }
 ]
