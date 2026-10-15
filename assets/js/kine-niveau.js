@@ -103,9 +103,22 @@ var KineLevel = (function () {
     return L;
   }
 
+  // Réglage direct par le patient (bouton − / + de l'écran d'exercice) : immédiat, sans attendre deux avis
+  function bump(ex, dir) {
+    if (!ex || !ex.name) return "";
+    var o = all(), r = rec(o, ex.name), st = now(ex), today = iso(Date.now());
+    if (dir > 0) {
+      if (st.atCap) { r.tempo = true; save(o); return "Plus difficile : pause de 2 secondes à chaque répétition."; }
+      r.d = Math.min(5, r.d + 1); r.up = today; save(o); return "Plus difficile : " + unit(st, now(ex).value) + ".";
+    }
+    if (r.tempo) { r.tempo = false; save(o); return "Plus facile : sans la pause de 2 secondes."; }
+    if (r.d > MIN_D) { r.d--; save(o); return "Plus facile : " + unit(st, now(ex).value) + "."; }
+    return "";
+  }
+  function canEase(ex) { var r = get(ex.name); return !!(r && (r.tempo || r.d > MIN_D)) || !r || r.d > MIN_D; }
   function reset(name) { var o = all(); if (name) delete o[name]; else o = {}; save(o); }
 
-  return { adjReps: adjReps, adjSec: adjSec, tempo: tempo, now: now, vote: vote, pain: pain, get: get, all: all, summaryLines: summaryLines, reset: reset };
+  return { bump: bump, canEase: canEase, adjReps: adjReps, adjSec: adjSec, tempo: tempo, now: now, vote: vote, pain: pain, get: get, all: all, summaryLines: summaryLines, reset: reset };
 })();
 window.KineLevel = KineLevel;
 
