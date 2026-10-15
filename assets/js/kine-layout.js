@@ -97,8 +97,7 @@
         (window.KineCamera ? "<button class='lu-blk lu-vid' id='lu-video' onclick='KineCamera.open()'><span class='lu-ic'>" + ICAM + "</span><b>Tester en vidéo</b><small>Yass regarde ton mouvement et te corrige</small></button>" : "") +
         (xd ? "<button class='lu-blk lu-exp' id='ki-express' onclick=\"KineIdees.express('" + target + "')\"><span class='lu-ic'>" + IZAP + "</span><b>" + (xd.minutes || 10) + " minutes</b><small>Séance express, pas le temps</small></button>" : "") +
       "</div>" +
-      (window.KineCheckin ? KineCheckin.homeReminder() : "") +
-      "<h2 class='lx-section'>Faire une autre séance</h2><div class='lx-list'>" + others + "</div>";
+      (window.KineCheckin ? KineCheckin.homeReminder() : "");
     var page = $("page-home"); if (page) page.classList.add("lx");
   }
 

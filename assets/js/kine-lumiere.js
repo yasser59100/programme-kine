@@ -76,23 +76,20 @@ var KineLumiere = (function () {
     var page = $("page-guide"), c = page && page.querySelector(".content"); if (!c || $("lu-exh")) return c;
     var h = document.createElement("div"); h.id = "lu-exh"; h.className = "lu-exh";
     h.innerHTML = "<h1 class='lu-h1'>Exercices</h1><div class='lu-tabs' role='tablist'>" +
-      [["prog", "Programme"], ["lib", "Bibliothèque"], ["mes", "Mes séances"]].map(function (t) {
+      [["prog", "Programme"], ["lib", "Bibliothèque"]].map(function (t) {
         return "<button role='tab' data-t='" + t[0] + "' onclick=\"KineLumiere.tab('" + t[0] + "')\">" + t[1] + "</button>"; }).join("") + "</div>";
     c.insertBefore(h, c.firstChild);
     var lib = document.createElement("div"); lib.id = "lu-lib"; lib.className = "lu-panel"; c.appendChild(lib);
-    // « Ma séance » vient se ranger dans l'onglet Mes séances
-    var mes = $("mes-root");
-    if (mes) { mes.classList.remove("content"); mes.classList.add("lu-panel"); c.appendChild(mes); }
     return c;
   }
   function tab(t) {
     if (t) { tabNow = t; jset(TAB_KEY, t); }
+    if (tabNow !== "lib") tabNow = "prog";
     var c = exHeader(); if (!c) return;
     var page = $("page-guide");
     page.classList.remove("lu-t-prog", "lu-t-lib", "lu-t-mes"); page.classList.add("lu-t-" + tabNow);
     [].forEach.call(c.querySelectorAll(".lu-tabs button"), function (b) { var on = b.getAttribute("data-t") === tabNow; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
     if (tabNow === "lib") renderLib();
-    if (tabNow === "mes" && window.KineCompose) { KineCompose.tab(); }
   }
 
   var thumbs = {};
@@ -159,7 +156,6 @@ var KineLumiere = (function () {
     if (typeof window.showPage !== "function" || window.showPage.__lu) return;
     var base = window.showPage;
     window.showPage = function (id) {
-      if (id === "mes") { base.call(this, "guide"); tab("mes"); return; }
       base.apply(this, arguments);
       if (id === "guide") tab();
     };
@@ -178,17 +174,6 @@ var KineLumiere = (function () {
     // le fond de la barre d'état suit le nouveau fond clair
     var m = document.querySelector("meta[name='theme-color']"); if (m) m.setAttribute("content", "#F6F8FB");
     var tries = 0, t = setInterval(function () { if (face() || ++tries > 20) clearInterval(t); }, 1200);
-    // « Ma séance » se redessine : on retire la grille d'exercices, déjà dans Bibliothèque
-    var mr = $("mes-root"); if (mr && "MutationObserver" in window) new MutationObserver(function () { if ($("mx-lib")) trimMes(); }).observe(mr, { childList: true });
-    trimMes();
-  }
-  function trimMes() {
-    var lib = $("mx-lib"); if (!lib) return;
-    var h = lib.parentNode && [].filter.call(lib.parentNode.querySelectorAll(".lx-section"), function (x) { return /Explorer/.test(x.textContent); })[0];
-    if (h) h.textContent = "Mon matériel";
-    var g = $("mx-gear"); if (g) { var b = g.querySelector("b"); if (b) b.remove(); }
-    lib.remove();
-    [].forEach.call(document.querySelectorAll("#mes-root .mx-all"), function (x) { x.textContent = "Voir la bibliothèque ›"; x.setAttribute("onclick", "KineLumiere.tab('lib');window.scrollTo(0,0)"); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);
 
