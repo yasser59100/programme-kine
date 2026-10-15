@@ -403,7 +403,8 @@
 
   /* ════════ À la demande : sa tête dépasse dans un coin, on la touche, il arrive ════════ */
   function menu() {
-    if (busy() || !appear()) return;
+    // nouvelle présentation : Yass en bas de l'écran, la bulle des choix au-dessus
+    if (busy() || !appear(window.KineLumiere ? "ask" : "msg")) return;
     mode = "faq"; clearTimeout(timer);
     var noted = window.KineCheckin && KineCheckin.get(iso());
     if (window.KineLumiere && KineLumiere.menuHtml) bubble("Je peux t'aider ?", KineLumiere.menuHtml(!noted), "<button class='km-later' onclick='KineMascotte.hide()'>Fermer</button>");

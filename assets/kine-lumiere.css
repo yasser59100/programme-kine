@@ -264,3 +264,9 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 #kf-masc #km-list .lu-hub-vid { margin: 4px 0 10px; }
 #kf-masc #km-list .lu-rows { margin-bottom: 4px; }
 #kf-masc #km-list .lu-row { padding: 12px 14px; }
+/* Bulle de Yass, version claire */
+:root:root:root .km-bubble { background: #fff !important; border: 1px solid var(--border) !important; box-shadow: 0 18px 40px -20px rgba(15, 29, 46, .45) !important; border-radius: 26px !important; }
+:root:root:root .km-text { font-family: var(--lu-head); font-weight: 800; font-size: 1.45rem; letter-spacing: -.03em; color: var(--text); }
+:root:root:root .kf-masc.ask::before { background: rgba(15, 29, 46, .55) !important; }
+:root:root:root .kf-masc.ask .km-stage { background: radial-gradient(55% 80% at 50% 100%, rgba(75, 91, 255, .22), transparent 75%) !important; }
+:root:root:root .kf-masc.ask .km-scroll { max-height: calc(100dvh - var(--kb, 0px) - var(--st) - 110px - env(safe-area-inset-top, 0px)) !important; }
