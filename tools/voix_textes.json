@@ -4990,5 +4990,69 @@
 {
 "t": "On reprend.",
 "g": "seance"
+},
+{
+"t": "Orange !",
+"g": "seance"
+},
+{
+"t": "Violet !",
+"g": "seance"
+},
+{
+"t": "Rose !",
+"g": "seance"
+},
+{
+"t": "Blanc !",
+"g": "seance"
+},
+{
+"t": "Noir !",
+"g": "seance"
+},
+{
+"t": "Gris !",
+"g": "seance"
+},
+{
+"t": "Marron !",
+"g": "seance"
+},
+{
+"t": "Turquoise !",
+"g": "seance"
+},
+{
+"t": "Pas l'orange !",
+"g": "seance"
+},
+{
+"t": "Pas le violet !",
+"g": "seance"
+},
+{
+"t": "Pas le rose !",
+"g": "seance"
+},
+{
+"t": "Pas le blanc !",
+"g": "seance"
+},
+{
+"t": "Pas le noir !",
+"g": "seance"
+},
+{
+"t": "Pas le gris !",
+"g": "seance"
+},
+{
+"t": "Pas le marron !",
+"g": "seance"
+},
+{
+"t": "Pas le turquoise !",
+"g": "seance"
 }
 ]
