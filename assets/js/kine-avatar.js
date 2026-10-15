@@ -1499,9 +1499,18 @@
       book: mesh(new T.BoxGeometry(0.17, 0.035, 0.23), new T.MeshStandardMaterial({ color: lin("#3D8EF0"), roughness: 0.7 }), scene)
     };
     for (var tk in tools) tools[tk].visible = false;
+    // Plots de couleur posés au sol (exercices réactifs) : couleur et place données par l'exercice
+    var cones = [];
+    for (var ci = 0; ci < 4; ci++) {
+      var cg = new T.Group(); scene.add(cg); cg.visible = false;
+      var cm = new T.MeshStandardMaterial({ color: lin("#FF4D5E"), roughness: 0.55 });
+      mesh(new T.ConeGeometry(0.07, 0.26, 24), cm, cg).position.y = 0.14;
+      mesh(new T.BoxGeometry(0.2, 0.014, 0.2), cm, cg).position.y = 0.007;
+      cg.userData.mat = cm; cones.push(cg);
+    }
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
-    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, curveNow: 0,
+    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, cones: cones, curveNow: 0,
              head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops, tools: tools };
   }
 
@@ -1737,6 +1746,11 @@
   function showLoad(d, side) {
     if (!R) return;
     placeProps(d);
+    if (R.cones) R.cones.forEach(function (g, i) {
+      var c = d && d.cones && d.cones[i];
+      g.visible = !!c; if (!c) return;
+      g.position.set(c.at[0], 0, c.at[1]); g.userData.mat.color.copy(new R.T.Color(c.hex).convertSRGBToLinear());
+    });
     R.props.wallSide.position.x = side === "R" ? 0.62 : -0.62;
     if (R.props.cushion) R.props.cushion.position.x = side === "R" ? 0.1 : -0.1;
     bandDef = d; bandSide = side === "R" ? "R" : "L";

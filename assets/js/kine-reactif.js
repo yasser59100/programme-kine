@@ -37,37 +37,43 @@
       place: "Debout, pieds joints. Posez les plots au sol devant vous, en arc de cercle, à un grand pas : un en diagonale à gauche, un droit devant, un en diagonale à droite, et le quatrième sur le côté si vous en avez quatre.",
       action: "À chaque couleur, faites une fente : avancez le pied vers le plot de cette couleur, touchez-le du pied en pliant les deux genoux, puis poussez pour revenir pieds joints.",
       cue: "Le genou avant reste dans l'axe du pied. Revenez toujours bien au centre avant la couleur suivante.",
-      spots: [[80, 62], [150, 35], [220, 62], [250, 120]], feet: "both" },
+      spots: [[80, 62], [150, 35], [220, 62], [250, 120]], feet: "both",
+      av: [[0.62, 0.74], [0, 0.98], [-0.62, 0.74], [-1.0, 0.06]] },
     { id: "chasses", name: "Pas chassés réactifs", level: 2, sides: false,
       kit: "vos plots et environ 3 mètres d'espace sur les côtés",
       place: "Debout au centre, légèrement fléchi. Posez un plot loin à gauche et un loin à droite (environ 3 pas chassés), puis les autres devant et derrière vous si vous en avez plus.",
       action: "À chaque couleur, rejoignez le plot en pas chassés, sans croiser les pieds, touchez-le du pied, puis revenez au centre.",
       cue: "Restez fléchi, le buste face à l'avant, et poussez sur la jambe extérieure.",
-      spots: [[30, 105], [270, 105], [150, 28], [150, 180]], feet: "both" },
+      spots: [[30, 105], [270, 105], [150, 28], [150, 180]], feet: "both",
+      av: [[1.25, 0.05], [-1.25, 0.05], [0, 1.15], [0, -1.0]] },
     { id: "squat", name: "Squat réactif", level: 2, sides: false,
       kit: "vos plots",
       place: "Debout, pieds largeur d'épaules. Posez les plots au sol devant vous, en arc de cercle, à une longueur de bras : un à gauche, un au centre, un à droite.",
       action: "À chaque couleur, descendez en squat et touchez le plot de cette couleur avec la main, puis remontez bien droit.",
       cue: "Les fesses reculent, le dos reste plat, les talons restent au sol.",
-      spots: [[80, 80], [150, 50], [220, 80], [150, 22]], feet: "both" },
+      spots: [[80, 80], [150, 50], [220, 80], [150, 22]], feet: "both",
+      av: [[0.4, 0.5], [0, 0.6], [-0.4, 0.5], [0, 0.78]] },
     { id: "unipodal", name: "Équilibre réactif sur une jambe", level: 2, sides: true, sideWord: "jambe",
       kit: "vos plots, et un appui stable à portée de main (mur, dossier de chaise)",
       place: "Debout sur une jambe au centre. Posez les plots au sol autour de vous, à environ 50 cm : un devant, un sur le côté, un en arrière en diagonale.",
       action: "À chaque couleur, touchez le plot du bout du pied libre, sans poser le pied, puis revenez au centre.",
       cue: "Le genou d'appui est légèrement fléchi et reste dans l'axe du pied.",
-      spots: [[150, 40], [235, 105], [80, 160], [70, 60]], feet: "one" },
+      spots: [[150, 40], [235, 105], [80, 160], [70, 60]], feet: "one",
+      av: [[-0.06, 0.62], [-0.6, 0.08], [0.32, -0.42], [0.42, 0.5]] },
     { id: "pas", name: "Pas réactifs", level: 1, sides: false,
       kit: "vos plots et un peu d'espace",
       place: "Debout au centre. Posez les plots au sol autour de vous, à un grand pas : un devant, un à gauche, un à droite, un derrière si vous en avez quatre.",
       action: "À chaque couleur, faites un pas vers le plot, touchez-le du pied, puis revenez au centre.",
       cue: "Restez léger sur les pieds et revenez toujours au centre.",
-      spots: [[150, 30], [55, 105], [245, 105], [150, 175]], feet: "both" },
+      spots: [[150, 30], [55, 105], [245, 105], [150, 175]], feet: "both",
+      av: [[0, 0.9], [0.9, 0.05], [-0.9, 0.05], [0, -0.8]] },
     { id: "assis", name: "Réaction assis", level: 1, sides: false,
       kit: "une chaise stable sans roulettes et vos plots (ou objets de couleur)",
       place: "Assis au bord d'une chaise, pieds à plat. Posez les plots au sol autour de vos pieds, à portée : un à gauche, un devant, un à droite, un en diagonale si vous en avez quatre.",
       action: "À chaque couleur, allez toucher le plot de cette couleur avec le pied, puis reposez le pied au centre.",
       cue: "Restez bien assis, le dos droit. Pour plus de difficulté, alternez les pieds.",
-      spots: [[85, 70], [150, 40], [215, 70], [230, 130]], feet: "seat" }
+      spots: [[85, 70], [150, 40], [215, 70], [230, 130]], feet: "seat",
+      av: [[0.42, 0.36], [0, 0.56], [-0.42, 0.36], [-0.46, -0.02]] }
   ];
   var LVL = { 1: ["vert", "Facile"], 2: ["orange", "Intermédiaire"], 3: ["rouge", "Difficile"] };
 
@@ -104,6 +110,84 @@
       "<text x='292' y='14' text-anchor='end' font-size='10' fill='currentColor' opacity='.6'>vu de dessus</text></svg>";
   }
 
+  /* ── Démonstration par l'avatar : Yass va toucher les plots de vos couleurs ── */
+  function avDef(ex, cols) {
+    var L = KineAvatar.lib, M = L.merge, n = cols.length;
+    var ARMS_BAL = { LA: { ang: [25, 30, 0, 25] }, RA: { ang: [25, 30, 0, 25] } };
+    var base = ex.id === "assis" ? M({ pelvis: { p: [0, 0.53, -0.36], r: [0, 0, 0] }, spine: [6, 0, 0], head: 0,
+                 L: { foot: { at: [0.14, 0, 0.14], yaw: 6 } }, R: { foot: { at: [-0.14, 0, 0.14], yaw: -6 } }, LA: { ang: [6, 14, 0, 50] }, RA: { ang: [6, 14, 0, 50] } }, {})
+             : ex.id === "unipodal" ? M(L.STAND(0.11, 6), { pelvis: { p: [0.07, 0.9, 0], r: [6, 0, 0] }, L: { foot: { at: [0.1, 0, 0.12], yaw: 6 } }, R: { foot: { at: [-0.1, 0.16, 0.06], yaw: -6 } } }, ARMS_BAL)
+             : ex.id === "chasses" ? M(L.STAND(0.17, 8), { pelvis: { p: [0, 0.86, 0], r: [14, 0, 0] }, spine: [8, 0, 0] }, ARMS_BAL)
+             : ex.id === "squat" ? L.STAND(0.17, 10)
+             : L.STAND(0.11, 6);
+    var poses = { mid: base };
+    ex.av.slice(0, n).forEach(function (c, i) {
+      var x = c[0], z = c[1], d = Math.sqrt(x * x + z * z), ux = x / d, uz = z / d, th = Math.atan2(x, z) * 180 / Math.PI;
+      var lead = x > 0.05 ? "L" : "R", other = lead === "L" ? "R" : "L", sg = lead === "L" ? 1 : -1, P;
+      var keep = function (side) { return { foot: { at: [side === "L" ? 0.1 : -0.1, 0, 0.12], yaw: side === "L" ? 6 : -6, lift: 0 } }; };
+      if (ex.id === "fentes" || ex.id === "pas") {
+        var deep = ex.id === "fentes", reach = d - 0.17;
+        if (Math.abs(th) > 70) {        // fente latérale
+          P = { pelvis: { p: [ux * reach * 0.45, deep ? 0.7 : 0.86, -0.06], r: [deep ? 28 : 10, 0, 0] }, spine: [6, 0, 0] };
+          P[lead] = { foot: { at: [ux * reach, 0, 0.1], yaw: sg * 25 } }; P[other] = keep(other);
+        } else if (z < 0) {             // pas en arrière
+          P = { pelvis: { p: [0, 0.9, -0.28], r: [4, 0, 0] } };
+          P.R = { foot: { at: [-0.1, 0, z + 0.17], yaw: -4, lift: 35 } }; P.L = keep("L");
+        } else {                        // fente avant ou en diagonale
+          P = { pelvis: { p: [ux * reach * 0.48, deep ? 0.58 : 0.84, uz * reach * 0.48 - (deep ? 0.04 : 0)], r: [0, th * 0.5, 0] }, spine: [deep ? 4 : 2, 0, 0] };
+          P[lead] = { foot: { at: [ux * reach, 0, uz * reach], yaw: th } }; P[other] = { foot: { at: [lead === "L" ? -0.1 : 0.1, 0, 0.12], yaw: th * 0.5, lift: deep ? 45 : 20 } };
+        }
+        poses["c" + i] = M(base, P, { LA: { ang: [14, 16, 0, 30] }, RA: { ang: [14, 16, 0, 30] } });
+      } else if (ex.id === "chasses") {
+        var tx = x - ux * 0.28, tz = z - uz * 0.28;
+        P = { pelvis: { p: [tx, 0.84, tz], r: [14, 0, 0] } };
+        if (Math.abs(ux) > 0.5) { P[lead] = { foot: { at: [tx + sg * 0.24, 0, tz + 0.12], yaw: sg * 10 } }; P[other] = { foot: { at: [tx - sg * 0.12, 0, tz + 0.12], yaw: -sg * 8 } }; }
+        else { P.L = { foot: { at: [tx + 0.17, 0, tz + 0.12 + uz * 0.12], yaw: 8 } }; P.R = { foot: { at: [tx - 0.17, 0, tz + 0.12 - uz * 0.05], yaw: -8 } }; }
+        poses["c" + i] = M(base, P);
+      } else if (ex.id === "squat") {
+        var hand = lead === "L" ? "LA" : "RA";
+        P = { pelvis: { p: [ux * 0.06, 0.62 - (d > 0.7 ? 0.04 : 0), -0.14], r: [d > 0.7 ? 62 : 52, th * 0.35, 0] }, spine: [10, 0, 0], head: -10 };
+        P[hand] = { hand: { at: [x - ux * 0.03, 0.25, z - uz * 0.03], pole: [sg * 0.6, 0.2, -1] } };
+        poses["c" + i] = M(base, P);
+      } else if (ex.id === "unipodal") {
+        var back = z < 0;
+        P = { pelvis: { p: [0.07, back ? 0.8 : 0.83, back ? 0.04 : -0.04], r: [back ? 34 : 14, 0, 0] }, spine: [back ? 10 : 4, 0, 0] };
+        P.R = { foot: { at: [x, 0.02, z], yaw: th * 0.3, lift: back ? 50 : 15 } };
+        poses["c" + i] = M(base, P);
+      } else {                          // assis
+        P = { spine: [2, 0, 0] }; P[lead] = { foot: { at: [x - ux * 0.08, 0.02, z - uz * 0.08], yaw: sg * 15, lift: 10 } };
+        poses["c" + i] = M(base, P);
+      }
+    });
+    // Vu de dos, légèrement en hauteur : la gauche de l'écran est la gauche de Yass, comme sur le schéma vu de dessus
+    return { camera: ex.id === "assis" ? { yaw: Math.PI - 0.95, pitch: 0.5, dist: 4.0, ty: 0.55, tz: 0.1 }
+                   : ex.id === "chasses" ? { yaw: Math.PI - 0.25, pitch: 0.5, dist: 5.6, ty: 0.75 }
+                   : { yaw: Math.PI - 0.4, pitch: 0.48, dist: 4.6, ty: 0.8, tz: 0.2 },
+             props: ex.id === "assis" ? ["chair"] : undefined, noIso: true, start: "mid",
+             cones: ex.av.slice(0, n).map(function (c, i) { return { at: c, hex: cols[i].hex }; }), poses: poses };
+  }
+  var demoId = 0;
+  function demo(stage, ex, cols) {
+    if (!stage || !window.KineAvatar || !KineAvatar.register || !KineAvatar.lib) { if (stage) stage.remove(); return; }
+    KineAvatar.register("__kr_demo", avDef(ex, cols));
+    if (!KineAvatar.show(stage.querySelector(".kr-stage"), "__kr_demo")) { stage.remove(); return; }
+    var id = ++demoId, tag = stage.querySelector(".kr-tag"), last = -1;
+    var alive = function () { return id === demoId && stage.isConnected; };
+    function wait(ms, f) { setTimeout(function () { if (alive()) f(); else if (id === demoId && stage.querySelector("canvas")) KineAvatar.hide(); }, ms); }
+    (function cycle() {
+      var i; do { i = Math.floor(Math.random() * cols.length); } while (i === last && cols.length > 1); last = i;
+      var c = cols[i];
+      tag.textContent = c.name; tag.style.background = c.hex; tag.style.color = c.ink; tag.classList.add("on");
+      wait(350, function () {
+        KineAvatar.step({ pose: "c" + i, dur: 0.85 });
+        wait(1350, function () {
+          tag.classList.remove("on"); KineAvatar.step({ pose: "mid", dur: 0.8 });
+          wait(1300, cycle);
+        });
+      });
+    })();
+  }
+
   /* ── Écran de réglage ── */
   function open(exoId) {
     var s = settings(); if (exoId) s.exo = exoId;
@@ -116,7 +200,7 @@
       "<div class='kr-exos'>" + EXOS.map(function (e) {
         return "<button type='button' class='kr-exo" + (e.id === ex.id ? " on" : "") + "' onclick='KineReactif._set(\"exo\",\"" + e.id + "\")'><i class='kb-dot c" + e.level + "'></i><b>" + esc(e.name) + "</b><span>" + LVL[e.level][1] + (e.sides ? ", des deux côtés" : "") + "</span></button>";
       }).join("") + "</div>" +
-      "<div class='kr-place'>" + diagram(ex, mine(s)) +
+      "<div class='kr-place'>" + (window.KineAvatar && KineAvatar.lib ? "<div class='kr-demo'><div class='kr-stage'></div><span class='kr-tag'></span></div>" : "") + diagram(ex, mine(s)) +
         "<p><strong>Mise en place.</strong> " + esc(ex.place) + "</p><p><strong>À chaque couleur.</strong> " + esc(ex.action) + "</p>" +
         "<p class='kr-cue'>" + esc(ex.cue) + "</p></div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Mes couleurs</div>" +
@@ -134,6 +218,7 @@
       "<div class='kf-kit'><strong>Il vous faut :</strong> " + esc(ex.kit) + ". Espace dégagé, sol non glissant. Arrêtez si une douleur atteint 5 sur 10, ou en cas de vertige.</div>" +
       "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineReactif.start()'>C'est parti</button></div>";
     el.classList.add("open");
+    var dm = el.querySelector(".kr-demo"); if (dm) demo(dm, ex, mine(s));
   }
   function setOpt(k, v) { var s = settings(); s[k] = v; save(s); var el = $("kr-sheet"), top = el ? el.querySelector(".kf-sheet-body").scrollTop : 0; open(); if (el) el.querySelector(".kf-sheet-body").scrollTop = top; }
   function toggleCol(id) {
@@ -142,7 +227,7 @@
     else { if (s.cols.length >= 4) s.cols.shift(); s.cols.push(id); }
     save(s); var el = $("kr-sheet"), top = el ? el.querySelector(".kf-sheet-body").scrollTop : 0; open(); if (el) el.querySelector(".kf-sheet-body").scrollTop = top;
   }
-  function close() { var el = $("kr-sheet"); if (el) el.classList.remove("open"); }
+  function close() { var el = $("kr-sheet"); if (el) el.classList.remove("open"); demoId++; if (el && el.querySelector(".kr-stage canvas") && window.KineAvatar) KineAvatar.hide(); }
 
   /* ── La série ── */
   var run = null, wake = null;
@@ -279,7 +364,7 @@
   }
 
   window.KineReactif = { open: open, close: close, start: start, stop: function () { if (run && run.i > 0 && run.done < run.total) finish(false); else quit(); }, pause: pause,
-    again: function () { quit(); open(); }, _set: setOpt, _col: toggleCol, exos: EXOS, colors: COLS };
+    again: function () { quit(); open(); }, _set: setOpt, _col: toggleCol, _avDef: avDef, exos: EXOS, colors: COLS };
   function init() { watch(); new MutationObserver(watch).observe(document.body, { childList: true }); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
