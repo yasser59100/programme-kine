@@ -12,11 +12,11 @@
         var was = (m.oldValue || "").split(/\s+/).indexOf("open") >= 0, now = el.classList.contains("open");
         if (!was && now) {
           el.classList.add("kf-entering");
-          clearTimeout(el.__kfE); el.__kfE = setTimeout(function () { el.classList.remove("kf-entering"); }, 650);
+          clearTimeout(el.__kfE); el.__kfE = setTimeout(function () { el.classList.remove("kf-entering"); }, 420);
         }
-        if (was && !now && !el.classList.contains("kf-closing")) {
+        if (was && !now && !el.classList.contains("kf-closing") && !el.__kfSwiped) {
           el.classList.add("kf-closing");
-          setTimeout(function () { el.classList.remove("kf-closing"); }, 260);
+          setTimeout(function () { el.classList.remove("kf-closing"); }, 280);
         } else if (now && el.classList.contains("kf-closing")) el.classList.remove("kf-closing");
       });
     }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"], attributeOldValue: true });
@@ -28,7 +28,7 @@
     window.showPage = function (id) {
       var r = base.apply(this, arguments);
       var pg = document.getElementById("page-" + id);
-      if (pg && !calm) { pg.classList.remove("kf-enter"); void pg.offsetWidth; pg.classList.add("kf-enter"); clearTimeout(pg.__kfE); pg.__kfE = setTimeout(function () { pg.classList.remove("kf-enter"); }, 800); }
+      if (pg && !calm) { pg.classList.remove("kf-enter"); void pg.offsetWidth; pg.classList.add("kf-enter"); clearTimeout(pg.__kfE); pg.__kfE = setTimeout(function () { pg.classList.remove("kf-enter"); }, 260); }
       return r;
     };
     window.showPage.__kfs = true;

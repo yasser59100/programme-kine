@@ -48,18 +48,41 @@
     }
     return false;
   }
+  // La fenêtre suit le doigt ; relâchée assez loin, elle part vers la droite, sinon elle revient
   document.addEventListener("touchstart", function (e) {
     if (e.touches.length !== 1) { t0 = null; return; }
     var p = e.touches[0];
-    t0 = { x: p.clientX, y: p.clientY, t: Date.now(), skip: inHScroll(e.target) };
+    t0 = { x: p.clientX, y: p.clientY, t: Date.now(), skip: inHScroll(e.target) || running(), el: null, drag: false };
   }, { passive: true });
+  document.addEventListener("touchmove", function (e) {
+    var s = t0; if (!s || s.skip) return;
+    var p = e.touches[0], dx = p.clientX - s.x, dy = p.clientY - s.y;
+    if (!s.drag) {
+      if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { s.skip = true; return; }   // geste vertical : on laisse défiler
+      if (dx > 14 && dx > Math.abs(dy) * 1.4) { s.el = topSheet(); s.drag = !!s.el; if (!s.drag) { s.skip = true; return; } s.el.style.transition = "none"; }
+      else return;
+    }
+    var x = Math.max(0, dx);
+    s.el.style.transform = "translateX(" + x + "px)";
+    s.el.style.boxShadow = "-12px 0 40px rgba(0,0,0," + (0.35 * (1 - Math.min(1, x / innerWidth))).toFixed(2) + ")";
+  }, { passive: true });
+  function settle(el, close) {
+    el.style.transition = "transform .24s cubic-bezier(.32,.72,0,1)";
+    el.style.transform = close ? "translateX(100%)" : "translateX(0)";
+    setTimeout(function () {
+      if (close) { el.__kfSwiped = true; closeSheet(el); }
+      el.style.transition = ""; el.style.transform = ""; el.style.boxShadow = "";
+      setTimeout(function () { el.__kfSwiped = false; }, 50);
+    }, 240);
+  }
   document.addEventListener("touchend", function (e) {
     var s = t0; t0 = null;
     setTimeout(function () { unlock(); syncLock(); }, 400);
-    if (!s || s.skip) return;
-    var p = e.changedTouches[0], dx = p.clientX - s.x, dy = Math.abs(p.clientY - s.y);
-    if (dx > 90 && dy < 50 && Date.now() - s.t < 700 && !running()) closeSheet(topSheet());
+    if (!s || !s.drag) return;
+    var p = e.changedTouches[0], dx = p.clientX - s.x, v = dx / Math.max(1, Date.now() - s.t);
+    settle(s.el, dx > innerWidth * 0.33 || (dx > 60 && v > 0.5));
   }, { passive: true });
+  document.addEventListener("touchcancel", function () { var s = t0; t0 = null; if (s && s.drag) settle(s.el, false); }, { passive: true });
 
   new MutationObserver(function () { syncLock(); }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ["class"] });
 
