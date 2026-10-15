@@ -379,3 +379,9 @@ html[data-theme="light"] .kx-term { text-decoration-color: #1f6fd1; }
 html[data-theme="light"] .kr-cue { color: #0a8a5f; }
 .kr-top span:first-child { overflow: hidden; text-overflow: ellipsis; }
 .kr-trap { display: inline-block; padding: 14px 22px; border: 6px solid; border-radius: 26px; font-size: .62em; line-height: 1.1; }
+.kr-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.kr-pick button { min-height: 42px; padding: 0 14px; border-radius: 21px; border: 2px solid rgba(255, 255, 255, .15); font: 700 .9rem var(--font); cursor: pointer; opacity: .5; }
+.kr-pick button.on { opacity: 1; border-color: #fff; box-shadow: 0 0 0 2px rgba(0, 242, 254, .7); }
+html[data-theme="light"] .kr-pick button { border-color: rgba(0, 0, 0, .15); }
+html[data-theme="light"] .kr-pick button.on { border-color: #14181f; }
+#kr-run.ring { box-shadow: inset 0 0 0 12px #fff; }

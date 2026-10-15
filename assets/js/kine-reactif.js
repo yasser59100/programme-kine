@@ -9,12 +9,24 @@
   function jget(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
   function jset(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
+  // Toutes les couleurs proposées : le patient coche celles de ses plots (2 à 4)
   var COLS = [
     { id: "rouge", name: "Rouge", hex: "#FF4D5E", ink: "#fff" },
     { id: "bleu", name: "Bleu", hex: "#3D8EF0", ink: "#fff" },
     { id: "jaune", name: "Jaune", hex: "#FFD23F", ink: "#14181f" },
-    { id: "vert", name: "Vert", hex: "#2ECC71", ink: "#0c1a12" }
+    { id: "vert", name: "Vert", hex: "#2ECC71", ink: "#0c1a12" },
+    { id: "orange", name: "Orange", hex: "#FF8A2B", ink: "#1a0f05" },
+    { id: "violet", name: "Violet", hex: "#8E5CF0", ink: "#fff" },
+    { id: "rose", name: "Rose", hex: "#FF7EB6", ink: "#2a0716" },
+    { id: "blanc", name: "Blanc", hex: "#F4F6FA", ink: "#14181f" },
+    { id: "noir", name: "Noir", hex: "#000000", ink: "#fff", ring: true },
+    { id: "gris", name: "Gris", hex: "#8B95A5", ink: "#fff" },
+    { id: "marron", name: "Marron", hex: "#8B5A2B", ink: "#fff" },
+    { id: "turquoise", name: "Turquoise", hex: "#1FC8C8", ink: "#06201f" }
   ];
+  function colById(id) { for (var i = 0; i < COLS.length; i++) if (COLS[i].id === id) return COLS[i]; return COLS[0]; }
+  function mine(s) { return (s.cols || []).map(colById); }
+  function pasLe(c) { return /^[aeiouy]/i.test(c.name) ? "Pas l'" + c.name.toLowerCase() : "Pas le " + c.name.toLowerCase(); }
   var RYTHMES = [["calme", "Calme", 3000], ["soutenu", "Soutenu", 2000], ["rapide", "Rapide", 1500]];
   var COUNTS = [10, 15, 20];
 
@@ -60,7 +72,8 @@
   var LVL = { 1: ["vert", "Facile"], 2: ["orange", "Intermédiaire"], 3: ["rouge", "Difficile"] };
 
   function settings() {
-    var s = Object.assign({ exo: "fentes", ncol: 3, count: 15, rythme: "soutenu", pieges: false }, jget("kf-reactif-set", {}));
+    var s = Object.assign({ exo: "fentes", count: 15, rythme: "soutenu", pieges: false }, jget("kf-reactif-set", {}));
+    if (!Array.isArray(s.cols) || s.cols.length < 2) s.cols = ["rouge", "bleu", "jaune", "vert"].slice(0, Math.min(4, Math.max(2, s.ncol || 3)));
     if (!EXOS.some(function (e) { return e.id === s.exo; })) s.exo = "fentes";
     return s;
   }
@@ -71,9 +84,9 @@
   function beep(f, d, v) { if (typeof playBeep === "function") playBeep(f, d, v, "triangle"); }
 
   /* ── Schéma de placement ── */
-  function diagram(ex, ncol) {
-    var cones = ex.spots.slice(0, ncol).map(function (p, i) {
-      var c = COLS[i];
+  function diagram(ex, cols) {
+    var cones = ex.spots.slice(0, cols.length).map(function (p, i) {
+      var c = cols[i];
       return "<g><path d='M" + (p[0] - 11) + " " + (p[1] + 9) + " L" + p[0] + " " + (p[1] - 12) + " L" + (p[0] + 11) + " " + (p[1] + 9) + " Z' fill='" + c.hex + "' stroke='rgba(0,0,0,.35)' stroke-width='1.2'/>" +
         "<rect x='" + (p[0] - 14) + "' y='" + (p[1] + 8) + "' width='28' height='4' rx='2' fill='" + c.hex + "' opacity='.7'/></g>";
     }).join("");
@@ -103,11 +116,15 @@
       "<div class='kr-exos'>" + EXOS.map(function (e) {
         return "<button type='button' class='kr-exo" + (e.id === ex.id ? " on" : "") + "' onclick='KineReactif._set(\"exo\",\"" + e.id + "\")'><i class='kb-dot c" + e.level + "'></i><b>" + esc(e.name) + "</b><span>" + LVL[e.level][1] + (e.sides ? ", des deux côtés" : "") + "</span></button>";
       }).join("") + "</div>" +
-      "<div class='kr-place'>" + diagram(ex, s.ncol) +
+      "<div class='kr-place'>" + diagram(ex, mine(s)) +
         "<p><strong>Mise en place.</strong> " + esc(ex.place) + "</p><p><strong>À chaque couleur.</strong> " + esc(ex.action) + "</p>" +
         "<p class='kr-cue'>" + esc(ex.cue) + "</p></div>" +
-      "<div class='kf-phase' style='color:var(--text2)'>Nombre de plots</div><div class='kf-chips'>" + [2, 3, 4].map(function (n) { return chip("ncol", n, s.ncol, n + " couleurs"); }).join("") + "</div>" +
-      "<div class='kr-swatch'>" + COLS.slice(0, s.ncol).map(function (c) { return "<span style='background:" + c.hex + ";color:" + c.ink + "'>" + c.name + "</span>"; }).join("") + "</div>" +
+      "<div class='kf-phase' style='color:var(--text2)'>Mes couleurs</div>" +
+      "<p class='lx-muted kr-small'>Touchez les couleurs de vos plots, de 2 à 4. Choisies : " + s.cols.length + ".</p>" +
+      "<div class='kr-swatch kr-pick'>" + COLS.map(function (c) {
+        var on = s.cols.indexOf(c.id) >= 0;
+        return "<button type='button' class='" + (on ? "on" : "") + "' aria-pressed='" + on + "' style='background:" + c.hex + ";color:" + c.ink + "' onclick='KineReactif._col(\"" + c.id + "\")'>" + (on ? "✓ " : "") + c.name + "</button>";
+      }).join("") + "</div>" +
       "<p class='lx-muted kr-small'>Pas de plots ? Des gobelets, des t-shirts ou des feuilles de couleur posés au sol font très bien l'affaire.</p>" +
       "<div class='kf-phase' style='color:var(--text2)'>Couleurs par série" + (ex.sides ? " (pour chaque " + ex.sideWord + ")" : "") + "</div><div class='kf-chips'>" + COUNTS.map(function (n) { return chip("count", n, s.count, String(n)); }).join("") + "</div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Rythme</div><div class='kf-chips'>" + RYTHMES.map(function (r) { return chip("rythme", r[0], s.rythme, r[1] + " <small>· " + (r[2] / 1000).toString().replace(".", ",") + " s</small>"); }).join("") + "</div>" +
@@ -119,6 +136,12 @@
     el.classList.add("open");
   }
   function setOpt(k, v) { var s = settings(); s[k] = v; save(s); var el = $("kr-sheet"), top = el ? el.querySelector(".kf-sheet-body").scrollTop : 0; open(); if (el) el.querySelector(".kf-sheet-body").scrollTop = top; }
+  function toggleCol(id) {
+    var s = settings(), i = s.cols.indexOf(id);
+    if (i >= 0) { if (s.cols.length <= 2) return; s.cols.splice(i, 1); }
+    else { if (s.cols.length >= 4) s.cols.shift(); s.cols.push(id); }
+    save(s); var el = $("kr-sheet"), top = el ? el.querySelector(".kf-sheet-body").scrollTop : 0; open(); if (el) el.querySelector(".kf-sheet-body").scrollTop = top;
+  }
   function close() { var el = $("kr-sheet"); if (el) el.classList.remove("open"); }
 
   /* ── La série ── */
@@ -139,6 +162,7 @@
   }
   function paint(bg, ink, big, small, prog) {
     var el = screen();
+    el.classList.remove("ring");
     el.style.background = bg; el.style.color = ink;
     el.innerHTML = "<div class='kr-top'><span>" + esc(run.ex.name) + (run.sideTxt ? " · " + esc(run.sideTxt) : "") + "</span><span>" + (prog || "") + "</span></div>" +
       "<div class='kr-bar'><i style='width:" + (run.total ? Math.round((run.calls || 0) / run.total * 100) : 0) + "%'></i></div>" +
@@ -155,12 +179,12 @@
     if (typeof kfvPreloadAll === "function") { try { kfvPreloadAll(); } catch (e) {} }
     try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e) {}
     var sides = ex.sides ? [ex.sideWord === "jambe" ? "jambe droite" : "côté droit", ex.sideWord === "jambe" ? "jambe gauche" : "côté gauche"] : [null];
-    run = { ex: ex, s: s, every: r[2], rName: r[1], sides: sides, si: 0, seq: [], i: 0, done: 0, total: s.count * sides.length, paused: false, t: null };
+    run = { ex: ex, s: s, cols: mine(s), every: r[2], rName: r[1], sides: sides, si: 0, seq: [], i: 0, done: 0, total: s.count * sides.length, paused: false, t: null };
     document.body.style.overflow = "hidden";
     side();
   }
   function side() {
-    run.seq = sequence(run.s.count, run.s.ncol).map(function (c, i) {
+    run.seq = sequence(run.s.count, run.cols.length).map(function (c, i) {
       return { c: c, trap: !!run.s.pieges && i >= 2 && Math.random() < 0.2 };
     });
     for (var k = 1; k < run.seq.length; k++) if (run.seq[k].trap && run.seq[k - 1].trap) run.seq[k].trap = false;   // jamais deux pièges de suite
@@ -176,16 +200,17 @@
   }
   function cue() {
     if (run.i >= run.seq.length) return endSide();
-    var it = run.seq[run.i], c = COLS[it.c];
+    var it = run.seq[run.i], c = run.cols[it.c];
     run.i++; run.calls = (run.calls || 0) + 1;
     if (it.trap) {
-      paint("#0E141F", "#fff", "<span class='kr-trap' style='border-color:" + c.hex + ";color:" + c.hex + "'>Pas le " + c.name.toLowerCase() + "</span>", "Ne bougez pas", run.i + " / " + run.seq.length);
-      say("Pas le " + c.name.toLowerCase() + " !"); beep(330, 0.12, 0.18);
+      paint("#0E141F", "#fff", "<span class='kr-trap' style='border-color:" + c.hex + ";color:" + c.hex + "'>" + pasLe(c) + "</span>", "Ne bougez pas", run.i + " / " + run.seq.length);
+      say(pasLe(c) + " !"); beep(330, 0.12, 0.18);
       later(cue, Math.max(1200, run.every * 0.8));
       return;
     }
     run.done++;
     paint(c.hex, c.ink, c.name, "", run.i + " / " + run.seq.length);
+    screen().classList.toggle("ring", !!c.ring);
     say(c.name + " !"); beep(880, 0.06, 0.18);
     if (navigator.vibrate) { try { navigator.vibrate(60); } catch (e) {} }
     later(cue, run.every);
@@ -254,7 +279,7 @@
   }
 
   window.KineReactif = { open: open, close: close, start: start, stop: function () { if (run && run.i > 0 && run.done < run.total) finish(false); else quit(); }, pause: pause,
-    again: function () { quit(); open(); }, _set: setOpt, exos: EXOS, colors: COLS };
+    again: function () { quit(); open(); }, _set: setOpt, _col: toggleCol, exos: EXOS, colors: COLS };
   function init() { watch(); new MutationObserver(watch).observe(document.body, { childList: true }); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
