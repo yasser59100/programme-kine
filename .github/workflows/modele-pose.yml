@@ -1,0 +1,18 @@
+name: modele-pose
+on:
+  push:
+    branches: [modele-pose]
+    paths: [".github/workflows/modele-pose.yml"]
+permissions:
+  contents: write
+jobs:
+  dl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p assets/pose
+          curl -fsSL -o assets/pose/pose_landmarker_lite.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task
+          ls -la assets/pose
+          git config user.name "Robot KinéForce"; git config user.email "yasser59100@users.noreply.github.com"
+          git add assets/pose && git commit -m "Modèle de détection de posture (MediaPipe, lite)" && git push
