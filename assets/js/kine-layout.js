@@ -253,25 +253,42 @@
   function renderProg() {
     var box = $("prog-v2"); if (!box || typeof SEQ_DAYS === "undefined") return;
     var p = window.KineProgress ? KineProgress.plan() : { week: 1, reason: "" }, st = window.KineProgress ? KineProgress.state() : {};
-    var W = [["2 tours, on apprend la technique."], ["3 tours si l'effort reste facile, sinon 2 répétitions de plus."], ["3 tours, renforcement."], ["3 tours et variantes avancées."]];
+    var day = st.start ? Math.min(28, st.dayInCycle || 1) : 0;
+    var W = [["On apprend", "2 tours, on apprend la technique."], ["On ajoute", "3 tours si l'effort reste facile, sinon 2 répétitions de plus."], ["On renforce", "3 tours, renforcement."], ["On passe au cran au-dessus", "3 tours et variantes avancées."]];
     var weeks = W.map(function (t, i) {
-      var n = i + 1, cls = n < p.week ? "done" : n === p.week ? "cur" : "";
-      return "<div class='lx-wk " + cls + "'><h3>Semaine " + n + (n === p.week ? ", en cours" : "") + "</h3><p>" + t[0] + "</p></div>";
+      var n = i + 1, cls = n < p.week ? "ok" : n === p.week ? "now" : "";
+      return "<div class='lu-wk " + cls + "'><span class='lu-wn'>" + (n < p.week ? "✓" : "S" + n) + "</span><b>" + t[0] + "</b><small>" + t[1] + "</small></div>";
     }).join("");
+    var cur = W[p.week - 1] || W[0], miss = false;
     var rows = Object.keys(SEQ_DAYS).map(function (id) {
       var s = window.KineProgram && KineProgram.status ? KineProgram.status(id) : ["", ""], d = SEQ_DAYS[id];
-      var nEx = d.exercises.filter(function (e) { return e.phase === "work"; }).length;
-      return "<button class='lx-srow' onclick=\"KineProgram.open('" + id + "')\"><span class='lx-j'>" + codeOf(id) + "</span><span class='lx-n'>" + esc(cap(nameOf(id))) +
-        "<small>" + (d.circuit ? "circuit" : nEx + " exercices") + ", " + minutes(id) + " min</small></span><span class='lx-s " + (s[1] === "done" ? "ok" : s[1] === "today" ? "now" : s[1] === "late" ? "late" : "") + "'>" + esc(s[0].replace(/^Faite .*/, "Faite")) + "</span></button>";
+      var work = d.exercises.filter(function (e) { return e.phase === "work"; }), nEx = work.length;
+      var wn = work[0] && work[0].name, th = wn && PTH[wn];
+      if (!th && wn) { try { th = window.KineAvatar && KineAvatar.supports(wn) ? KineAvatar.snapshot(wn, 160) : null; } catch (e) {} if (th) PTH[wn] = th; else miss = true; }
+      var tag = s[1] === "done" ? "Faite" : s[1] === "today" ? "Aujourd'hui" : s[1] === "late" ? "À rattraper" : s[0];
+      return "<button class='lu-ses " + (s[1] || "") + "' onclick=\"KineProgram.open('" + id + "')\">" +
+        "<span class='lu-ses-im'>" + (th ? "<img src='" + th + "' alt=''>" : "") + "<i>" + codeOf(id) + "</i></span>" +
+        "<span class='lu-ses-t'><b>" + esc(cap(nameOf(id))) + "</b><small>" + (d.circuit ? "Circuit" : nEx + " exercices") + " · " + minutes(id) + " min</small>" +
+        (tag ? "<em>" + esc(tag) + "</em>" : "") + "</span><span class='lu-chev' aria-hidden='true'>›</span></button>";
     }).join("");
-    box.innerHTML = "<h1 class='lx-title'>Semaine " + p.week + " sur 4</h1>" + (st.start ? "<p class='lx-muted'>Jour " + Math.min(28, st.dayInCycle) + " du programme</p>" : "<p class='lx-muted'>Le programme démarre à votre première séance.</p>") +
-      "<div class='lx-weeks'>" + weeks + "</div>" +
-      "<h2 class='lx-section'>Les 5 séances</h2><div class='lx-list'>" + rows + "</div>" +
-      (window.KineCompose ? "<button class='lx-link left' onclick=\"showPage('mes');KineCompose.tab()\">Composer ma propre séance ›</button>" : "") +
-      "<button class='lx-link left' onclick='KineProgram.understand()'>Comprendre mon programme</button>" +
+    box.innerHTML =
+      "<div class='lu-pslab'><p class='lu-k'>" + (st.start ? "Jour " + day + " sur 28" : "Le programme démarre à votre première séance") + "</p>" +
+        "<h2 class='lu-t'>Semaine " + p.week + " sur 4</h2><p class='lu-m'>" + esc(cur[1]) + "</p>" +
+        "<div class='lu-ptrack'>" + [1, 2, 3, 4].map(function (n) {
+          var f = n < p.week ? 100 : n > p.week ? 0 : st.start ? Math.max(8, Math.round(((day - 1) % 7 + 1) / 7 * 100)) : 0;
+          return "<span><i style='width:" + f + "%'></i></span>"; }).join("") + "</div>" +
+        (p.reason ? "<p class='lu-why'>" + esc(p.reason) + "</p>" : "") + "</div>" +
+      "<h2 class='lx-section'>Mes 4 semaines</h2><div class='lu-wks'>" + weeks + "</div>" +
+      "<h2 class='lx-section'>Les 5 séances</h2><div class='lu-sess'>" + rows + "</div>" +
+      "<div class='lu-pduo'>" +
+        (window.KineCompose ? "<button onclick=\"showPage('mes');KineCompose.tab()\"><span class='lu-ic'>＋</span><b>Composer ma séance</b><small>Mes propres exercices</small></button>" : "") +
+        "<button onclick='KineProgram.understand()'><span class='lu-ic'>?</span><b>Comprendre mon programme</b><small>Les règles, en clair</small></button></div>" +
       (window.KineCompose ? "<button class='kc-kine' onclick='KineCompose.kine()'>Espace kiné</button>" : "");
     var page = $("page-guide"); if (page) page.classList.add("lx");
+    // l'avatar 3D se charge après l'écran : on redessine pour afficher les vignettes
+    if (miss && progTry++ < 6) setTimeout(renderProg, 1500);
   }
+  var PTH = {}, progTry = 0;
 
   // Séances composées par le patient (« Ma séance »)
   function mineHtml() {

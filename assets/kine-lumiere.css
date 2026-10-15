@@ -221,3 +221,37 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 :root:root:root #rep-guide #kcam-sess, :root:root:root #rep-guide .kcam-pill { background: #fff !important; color: var(--text) !important; border: 1px solid var(--border) !important; border-radius: 18px !important; font-weight: 700 !important; }
 :root:root:root .mx-all { background: #fff !important; color: var(--lu-ind2) !important; border: 1px solid var(--border) !important; border-radius: 28px !important; }
 :root:root:root .mx-hero { background: linear-gradient(160deg, #EEF2FF, #fff) !important; border-color: #D9E0FF !important; }
+
+/* ════════ Exercices › Programme ════════ */
+.lu-pslab { border-radius: 28px; padding: 20px; color: #fff; background: linear-gradient(160deg, #5867FF, #3341E0); box-shadow: 0 24px 40px -22px rgba(51, 65, 224, .65); }
+.lu-pslab .lu-k { margin: 0; font-size: .82rem; font-weight: 600; opacity: .85; }
+.lu-pslab .lu-t { font: 800 2rem/1 var(--lu-head); letter-spacing: -.035em; margin: 6px 0 8px; color: #fff; }
+.lu-pslab .lu-m { margin: 0; font-size: .9rem; opacity: .9; line-height: 1.4; }
+.lu-ptrack { display: flex; gap: 6px; margin-top: 16px; }
+.lu-ptrack span { flex: 1; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .25); overflow: hidden; }
+.lu-ptrack i { display: block; height: 100%; border-radius: 4px; background: #7CF0D6; }
+.lu-why { margin: 12px 0 0; font-size: .8rem; background: rgba(255, 255, 255, .14); border-radius: 14px; padding: 10px 12px; line-height: 1.35; }
+.lu-wks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lu-wk { border-radius: 22px; padding: 14px; background: #fff; border: 1px solid var(--border); }
+.lu-wn { display: inline-grid; place-items: center; min-width: 34px; height: 28px; padding: 0 8px; border-radius: 10px; background: var(--surface3); font: 800 .85rem var(--lu-head); color: var(--text2); }
+.lu-wk b { display: block; margin-top: 10px; font: 800 1rem/1.1 var(--lu-head); letter-spacing: -.02em; }
+.lu-wk small { display: block; margin-top: 4px; font-size: .76rem; color: var(--text3); line-height: 1.3; }
+.lu-wk.ok { background: #E3F8F2; border-color: #BDEBDD; } .lu-wk.ok .lu-wn { background: var(--lu-menthe); color: #fff; } .lu-wk.ok b { color: #0b4e40; }
+.lu-wk.now { background: var(--lu-ink); border-color: var(--lu-ink); color: #fff; } .lu-wk.now .lu-wn { background: #7CF0D6; color: var(--lu-ink); } .lu-wk.now small { color: #A9B8CC; }
+.lu-sess { display: flex; flex-direction: column; gap: 10px; }
+.lu-ses { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 14px 10px 10px; border-radius: 22px; background: #fff; border: 1px solid var(--border); text-align: left; font-family: var(--font); color: var(--text); }
+.lu-ses-im { position: relative; flex: none; width: 66px; height: 66px; border-radius: 16px; background: linear-gradient(180deg, #EEF3FB, #F8FAFD); overflow: hidden; }
+.lu-ses-im img { width: 100%; height: 100%; object-fit: contain; }
+.lu-ses-im i { position: absolute; left: 5px; top: 5px; font: 800 .7rem var(--lu-head); font-style: normal; background: var(--lu-ink); color: #fff; border-radius: 7px; padding: 2px 6px; }
+.lu-ses-t { flex: 1; min-width: 0; }
+.lu-ses-t b { display: block; font: 800 1.02rem/1.15 var(--lu-head); letter-spacing: -.015em; }
+.lu-ses-t small { display: block; font-size: .78rem; color: var(--text3); margin-top: 2px; }
+.lu-ses-t em { display: inline-block; margin-top: 6px; font-style: normal; font-size: .72rem; font-weight: 700; padding: 3px 9px; border-radius: 9px; background: var(--surface3); color: var(--text2); }
+.lu-ses.done .lu-ses-t em { background: #E3F8F2; color: #0E9B7E; }
+.lu-ses.today { border-color: var(--lu-ind); box-shadow: 0 0 0 1px var(--lu-ind); } .lu-ses.today .lu-ses-t em { background: var(--lu-ind); color: #fff; }
+.lu-ses.late .lu-ses-t em { background: #FFE7DA; color: #A2481F; }
+.lu-pduo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.lu-pduo button { border: 1px solid var(--border); background: #fff; border-radius: 22px; padding: 14px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; font-family: var(--font); color: var(--text); min-height: 118px; }
+.lu-pduo .lu-ic { background: var(--lu-ciel); color: var(--lu-ind2); font: 800 1.1rem var(--lu-head); margin-bottom: 10px; }
+.lu-pduo b { font: 800 .98rem/1.1 var(--lu-head); letter-spacing: -.015em; margin-top: auto; }
+.lu-pduo small { font-size: .76rem; color: var(--text3); margin-top: 4px; }
