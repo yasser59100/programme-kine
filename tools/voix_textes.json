@@ -4930,5 +4930,41 @@
 {
 "t": "Être bien entouré est bon pour la santé.",
 "g": "mascotte"
+},
+{
+"t": "21",
+"g": "seance"
+},
+{
+"t": "Bleu !",
+"g": "seance"
+},
+{
+"t": "Changez de jambe.",
+"g": "seance"
+},
+{
+"t": "Jaune !",
+"g": "seance"
+},
+{
+"t": "Mettez-vous en place.",
+"g": "seance"
+},
+{
+"t": "Partez !",
+"g": "seance"
+},
+{
+"t": "Rouge !",
+"g": "seance"
+},
+{
+"t": "Série terminée, bravo !",
+"g": "seance"
+},
+{
+"t": "Vert !",
+"g": "seance"
 }
 ]
