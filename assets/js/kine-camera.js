@@ -460,7 +460,7 @@
       if (v.currentTime === S.lastT) return; S.lastT = v.currentTime;
       asp = v.videoWidth / v.videoHeight;
       var res; try { res = S.det.detectForVideo(v, performance.now()); } catch (e) { return; }
-      var box = (function () { var s = Math.max(W / v.videoWidth, H / v.videoHeight), w = v.videoWidth * s, h = v.videoHeight * s; return { x: (W - w) / 2, y: (H - h) / 2, w: w, h: h }; })();
+      var box = (function () { var s = Math.min(W / v.videoWidth, H / v.videoHeight), w = v.videoWidth * s, h = v.videoHeight * s; return { x: (W - w) / 2, y: (H - h) / 2, w: w, h: h }; })();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       var lm = res && res.landmarks && res.landmarks[0];
       if (lm && S.facing !== "user") lm = lm.map(function (q) { return { x: 1 - q.x, y: q.y, z: q.z, visibility: q.visibility }; });
@@ -596,7 +596,7 @@
       var W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
       if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      var s = Math.max(W / R.vw, H / R.vh), box = { w: R.vw * s, h: R.vh * s }; box.x = (W - box.w) / 2; box.y = (H - box.h) / 2;
+      var s = Math.min(W / R.vw, H / R.vh), box = { w: R.vw * s, h: R.vh * s }; box.x = (W - box.w) / 2; box.y = (H - box.h) / 2;
       var f = frameAt(nowT()), bad = {};
       if (f && f.bad) f.bad.forEach(function (k) { bad[k] = 1; });
       draw(ctx, f && f.lm ? f.lm.map(function (q) { return { x: q[0], y: q[1], visibility: q[2] }; }) : null, W, H, box, bad);

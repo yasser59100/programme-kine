@@ -510,7 +510,7 @@ html.kf-theme-anim, html.kf-theme-anim * { transition: background-color .35s eas
 #kcam-run .kcam-note { font-size: .85rem; line-height: 1.4; margin: 0; }
 #kcam-run .kcam-err { color: #FF4D5E; font-weight: 600; margin: 0; min-height: 0; }
 #kcam-run .kcam-stage { position: fixed; inset: 0; background: #000; overflow: hidden; }
-#kcam-run video, #kcam-run canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#kcam-run video, #kcam-run canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }   /* tout le corps reste visible, rien n'est rogné */
 #kcam-run video { transform: scaleX(-1); }
 #kcam-run .kcam-top { position: absolute; top: calc(env(safe-area-inset-top) + 10px); left: 12px; right: 12px; display: flex; gap: 8px; align-items: center; }
 #kcam-run .kcam-x, #kcam-run .kcam-flip { width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(0,0,0,.55); color: #fff; font-size: 1.15rem; backdrop-filter: blur(6px); }
