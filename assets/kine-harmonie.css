@@ -496,3 +496,41 @@ html.kf-theme-anim, html.kf-theme-anim * { transition: background-color .35s eas
 :root:root .kr-tag { position: absolute; top: 10px; left: 10px; padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: .95rem; letter-spacing: .02em;
   box-shadow: 0 4px 14px rgba(0,0,0,.25); opacity: 0; transform: scale(.85); transition: opacity .2s ease, transform .25s cubic-bezier(.2,.9,.3,1.3); pointer-events: none; }
 :root:root .kr-tag.on { opacity: 1; transform: scale(1); }
+
+/* Mon squat à la caméra (essai) */
+#kcam-run { position: fixed; inset: 0; z-index: 5000; background: var(--bg); color: var(--text); display: none; overflow: auto; }
+#kcam-run.open { display: block; }
+#kcam-run .kcam-intro { max-width: 560px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 24px); display: flex; flex-direction: column; gap: 10px; }
+#kcam-run .kcam-intro .kf-back { align-self: flex-start; }
+#kcam-run .kcam-badge, #kcam-run .kcam-tag { display: inline-block; font-style: normal; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 3px 8px; border-radius: 999px; background: rgba(255, 138, 43, .18); color: #FF8A2B; vertical-align: middle; }
+#kcam-run .kcam-badge { align-self: flex-start; }
+#kcam-run .kcam-steps { display: flex; flex-direction: column; gap: 8px; margin: 6px 0; }
+#kcam-run .kcam-steps > div { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); line-height: 1.4; font-size: .95rem; }
+#kcam-run .kcam-steps b { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--blue); color: #fff; font-size: .85rem; }
+#kcam-run .kcam-note { font-size: .85rem; line-height: 1.4; margin: 0; }
+#kcam-run .kcam-err { color: #FF4D5E; font-weight: 600; margin: 0; min-height: 0; }
+#kcam-run .kcam-stage { position: fixed; inset: 0; background: #000; overflow: hidden; }
+#kcam-run video, #kcam-run canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+#kcam-run video { transform: scaleX(-1); }
+#kcam-run .kcam-top { position: absolute; top: calc(env(safe-area-inset-top) + 10px); left: 12px; right: 12px; display: flex; gap: 8px; align-items: center; }
+#kcam-run .kcam-x, #kcam-run .kcam-flip { width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(0,0,0,.55); color: #fff; font-size: 1.15rem; backdrop-filter: blur(6px); }
+#kcam-run .kcam-flip { margin-left: auto; }
+#kcam-run .kcam-count { display: flex; flex-direction: column; align-items: center; min-width: 74px; padding: 4px 10px; border-radius: 14px; background: rgba(0,0,0,.55); color: #fff; backdrop-filter: blur(6px); }
+#kcam-run .kcam-count b { font-size: 1.6rem; line-height: 1.1; }
+#kcam-run .kcam-count small { font-size: .7rem; opacity: .8; }
+#kcam-run .kcam-count.kcam-ok b { color: #2ECC71; }
+#kcam-run .kcam-view { position: absolute; top: calc(env(safe-area-inset-top) + 66px); left: 50%; transform: translateX(-50%); font-size: .75rem; color: #fff; background: rgba(0,0,0,.4); padding: 3px 10px; border-radius: 999px; }
+#kcam-run .kcam-view:empty { display: none; }
+#kcam-run .kcam-msg { position: absolute; left: 14px; right: 14px; bottom: calc(env(safe-area-inset-bottom) + 84px); padding: 14px 16px; border-radius: 18px; background: rgba(10,14,22,.78); color: #fff; font-weight: 700; font-size: 1.05rem; line-height: 1.35; text-align: center; backdrop-filter: blur(8px); transition: background .2s ease; }
+#kcam-run .kcam-msg.ok { background: rgba(28, 160, 90, .9); }
+#kcam-run .kcam-msg.bad { background: rgba(220, 50, 70, .92); }
+#kcam-run .kcam-msg.warn { background: rgba(230, 130, 30, .92); }
+#kcam-run .kcam-end { position: absolute; left: 14px; right: 14px; bottom: calc(env(safe-area-inset-bottom) + 16px); width: auto; }
+#kcam-run .kcam-big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+#kcam-run .kcam-big > div { display: flex; flex-direction: column; align-items: center; padding: 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); }
+#kcam-run .kcam-big b { font-size: 2.4rem; }
+#kcam-run .kcam-big .ok b { color: #2ECC71; }
+#kcam-run .kcam-tip { padding: 12px 14px; border-radius: 14px; background: rgba(255, 77, 94, .1); border: 1px solid rgba(255, 77, 94, .35); line-height: 1.45; margin: 0; }
+#kcam-run .kcam-tip.ok { background: rgba(46, 204, 113, .1); border-color: rgba(46, 204, 113, .4); }
+.kcam-libcard { background: linear-gradient(135deg, rgba(34, 211, 238, .12), rgba(79, 172, 254, .12)) !important; }
+.kcam-libcard .kcam-ico { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgba(79, 172, 254, .18); color: var(--blue); }

@@ -1,8 +1,9 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v61';
+const VERSION = 'kineforce-v62';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
+const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
   './',
   'index.html',
@@ -31,6 +32,7 @@ const APP_FILES = [
   'assets/js/kine-souple.js',
   'assets/js/kine-variantes.js',
   'assets/js/kine-reactif.js',
+  'assets/js/kine-camera.js',
   'assets/js/kine-createur.js',
   'assets/js/kine-eveil.js',
   'assets/kine-premium.css',
@@ -52,7 +54,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== VERSION && k !== VOIX; }).map(function (k) { return caches.delete(k); }));
+      return Promise.all(keys.filter(function (k) { return k !== VERSION && k !== VOIX && k !== POSE; }).map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
 });
@@ -81,6 +83,16 @@ self.addEventListener('fetch', function (e) {
   // Voix enregistrée : chaque fichier a un nom unique et ne change jamais → cache d'abord, gardé entre les versions
   if (url.origin === self.location.origin && /\/assets\/voix\/[^/]+\.mp3$/.test(url.pathname)) {
     e.respondWith(caches.open(VOIX).then(function (cache) {
+      return cache.match(req).then(function (hit) {
+        return hit || fetch(req).then(function (res) { if (res && res.ok) cache.put(req, res.clone()); return res; });
+      });
+    }));
+    return;
+  }
+
+  // Outil d'analyse caméra (gros fichiers qui ne changent pas) → cache d'abord, gardé entre les versions
+  if (url.origin === self.location.origin && url.pathname.indexOf('/assets/pose/') >= 0) {
+    e.respondWith(caches.open(POSE).then(function (cache) {
       return cache.match(req).then(function (hit) {
         return hit || fetch(req).then(function (res) { if (res && res.ok) cache.put(req, res.clone()); return res; });
       });

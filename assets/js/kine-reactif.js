@@ -394,7 +394,7 @@
     var c = document.createElement("button");
     c.type = "button"; c.className = "kr-libcard";
     c.innerHTML = "<span class='kr-dots' aria-hidden='true'>" + COLS.slice(0, 3).map(function (x) { return "<i style='background:" + x.hex + "'></i>"; }).join("") + "</span>" +
-      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fentes, pas chassés, squat, équilibre, assis : allez toucher le plot de la couleur annoncée</small></span><span aria-hidden='true'>›</span>";
+      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fentes, sauts, pas chassés, squat, équilibre, assis : allez vers le plot de la couleur annoncée</small></span><span aria-hidden='true'>›</span>";
     c.onclick = function () { open(); };
     chips.parentNode.insertBefore(c, chips.nextSibling);
   }
