@@ -276,3 +276,62 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 .mx-im canvas { width: 100% !important; height: 100% !important; display: block; }
 .mx-im.lu-live { background: radial-gradient(70% 70% at 50% 60%, #E4ECFF, #F4F7FC); }
 .mx-grp:has(.lu-live) { border-color: #C9D2FF !important; box-shadow: 0 10px 22px -16px rgba(51, 65, 224, .55); }
+
+/* ════════ Vrai ou faux à balayer ════════ */
+:root:root:root .ki-vf.lq-vf { position: relative; overflow: hidden; background: linear-gradient(165deg, #EEF0FF, #fff 60%) !important; border: 1px solid #DCE1FF !important; border-radius: 26px !important; }
+:root:root:root .lq-vf .ks-tag { color: var(--lu-ind2) !important; }
+.lq-deck { position: relative; display: flex; align-items: flex-end; gap: 0; min-height: 150px; }
+.lq-stage { flex: none; width: 96px; height: 150px; margin: 0 -10px 0 -10px; position: relative; z-index: 0; }
+.lq-stage canvas { width: 100% !important; height: 100% !important; display: block; pointer-events: none; }
+.lq-card { position: relative; z-index: 1; flex: 1; min-height: 140px; padding: 36px 16px 12px; border-radius: 22px; background: #fff; border: 1px solid var(--border); box-shadow: 0 16px 28px -20px rgba(15, 29, 46, .55); touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; display: flex; flex-direction: column; justify-content: space-between; transition: box-shadow .2s, border-color .2s; }
+.lq-card.drag { cursor: grabbing; }
+.lq-card .ki-q { font-family: var(--lu-head); font-weight: 800; font-size: 1.12rem; letter-spacing: -.015em; line-height: 1.25; }
+.lq-card.lq-to-v { border-color: var(--lu-menthe); box-shadow: 0 0 0 2px rgba(25, 195, 160, .35), 0 16px 28px -20px rgba(15, 29, 46, .55); }
+.lq-card.lq-to-f { border-color: #E5484D; box-shadow: 0 0 0 2px rgba(229, 72, 77, .3), 0 16px 28px -20px rgba(15, 29, 46, .55); }
+.lq-lab { position: absolute; top: 10px; padding: 3px 10px; border-radius: 10px; font: 800 .85rem var(--lu-head); letter-spacing: .06em; text-transform: uppercase; opacity: 0; border: 2px solid; }
+.lq-v { left: 12px; color: #0E9B7E; border-color: #0E9B7E; transform: rotate(-10deg); }
+.lq-f { right: 12px; color: #D93A40; border-color: #D93A40; transform: rotate(10deg); }
+.lq-hint { display: flex; justify-content: space-between; margin-top: 10px; font-size: .74rem; font-weight: 600; color: var(--text3); }
+.lq-hint span:first-child { color: #D93A40; } .lq-hint span:last-child { color: #0E9B7E; }
+:root:root:root .lq-vf .ki-vf-b button { border-radius: 26px; min-height: 50px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #fff; border: 1px solid var(--border); font-family: var(--font); }
+:root:root:root .lq-vf .ki-vf-b .lq-yes { background: #E3F8F2; border-color: #BDEBDD; color: #0b6f5a; }
+:root:root:root .lq-vf .ki-vf-b .lq-no { background: #FDECEC; border-color: #F6CACC; color: #A8282E; }
+.lq-vf .ki-vf-b span { font-size: 1.05rem; }
+.lq-flip { animation: lqFlip .55s cubic-bezier(.2, .8, .2, 1) both; transform-origin: 50% 50%; }
+@keyframes lqFlip { from { transform: perspective(600px) rotateY(80deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.lq-react { width: 84px; height: 110px; margin: -10px -6px 0 -10px; }
+.lq-conf { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.lq-conf i { position: absolute; top: 40%; width: 8px; height: 12px; border-radius: 2px; animation: lqConf 1.4s cubic-bezier(.2, .7, .4, 1) both; }
+@keyframes lqConf { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 30% { transform: translate(calc(var(--dx) * .5), -90px) rotate(calc(var(--r) * .4)); } 100% { transform: translate(var(--dx), 160px) rotate(var(--r)); opacity: 0; } }
+
+/* ════════ Schémas animés « Le saviez-vous ? » ════════ */
+:root:root:root .ks-card.lq-ks { display: grid !important; grid-template-columns: 1fr 84px; column-gap: 12px; align-items: center; text-align: left; }
+.ks-card.lq-ks > :not(.lq-sc) { grid-column: 1; }
+.ks-card.lq-ks .lq-sc { grid-column: 2; grid-row: 1 / span 3; width: 84px; height: 84px; }
+.lq-sc svg { width: 100%; height: 100%; display: block; }
+.lq-big { width: 150px; height: 150px; margin: 6px auto 4px; }
+.lq-bg { fill: #EEF2FF; } .lq-night { fill: #1B2A40; }
+.lq-num { font: 800 17px "Bricolage", system-ui; fill: #0F1D2E; }
+.lq-foot { opacity: 0; animation: lqStep 2.6s infinite; }
+@keyframes lqStep { 0%, 8% { opacity: 0; } 14%, 70% { opacity: 1; } 85%, 100% { opacity: 0; } }
+.lq-dash { stroke-dasharray: 96; animation: lqDash 2.6s infinite; }
+@keyframes lqDash { from { stroke-dashoffset: 96; } 70%, to { stroke-dashoffset: 0; } }
+.lq-vert { transform-box: fill-box; transform-origin: 50% 50%; animation: lqVert 2.4s ease-in-out infinite; }
+@keyframes lqVert { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px) rotate(4deg); } }
+.lq-disc { fill: #19C3A0; animation: lqPulse 2.4s ease-in-out infinite; }
+.lq-arc { animation: lqDash2 2.4s linear infinite; } @keyframes lqDash2 { to { stroke-dashoffset: -20; } }
+.lq-shin { transform-origin: 60px 62px; animation: lqKnee 2.4s ease-in-out infinite; }
+@keyframes lqKnee { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-55deg); } }
+.lq-glow { animation: lqPulse 2.4s ease-in-out infinite; transform-origin: 60px 61px; }
+@keyframes lqPulse { 0%, 100% { opacity: .5; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.25); } }
+.lq-belly { transform-origin: 60px 60px; animation: lqFlex 1.8s ease-in-out infinite; }
+@keyframes lqFlex { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(.82, 1.35); } }
+.lq-up { animation: lqUp 1.8s ease-in-out infinite; } @keyframes lqUp { 0%, 100% { transform: translateY(4px); opacity: .4; } 50% { transform: translateY(-4px); opacity: 1; } }
+.lq-node { transform-box: fill-box; transform-origin: center; animation: lqPulse 1.5s ease-in-out infinite; }
+.lq-moon { animation: lqBob 4s ease-in-out infinite; } @keyframes lqBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+.lq-z { fill: #fff; font-weight: 800; font-family: "Bricolage", system-ui; opacity: 0; animation: lqZ 2.1s ease-out infinite; }
+@keyframes lqZ { 0% { opacity: 0; transform: translate(0, 6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(-8px, -18px); } }
+.lq-tilt { transform-origin: 60px 86px; animation: lqTilt 3s ease-in-out infinite; } @keyframes lqTilt { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.lq-breath { transform-origin: 60px 60px; animation: lqBreath 3.2s ease-in-out infinite; } @keyframes lqBreath { 0%, 100% { transform: scale(.9); } 50% { transform: scale(1.06); } }
+.lq-nosmoke { animation: lqBob 3s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .lq-sc * { animation: none !important; opacity: 1; } }
