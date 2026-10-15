@@ -5054,5 +5054,345 @@
 {
 "t": "Pas le turquoise !",
 "g": "seance"
+},
+{
+"t": "Bras tendus, les côtes restent basses.",
+"g": "seance"
+},
+{
+"t": "Crunch inversé.",
+"g": "seance"
+},
+{
+"t": "Descente lente.",
+"g": "seance"
+},
+{
+"t": "Fente arrière et montée de genou.",
+"g": "seance"
+},
+{
+"t": "Genou vers le haut.",
+"g": "seance"
+},
+{
+"t": "Good morning au bâton.",
+"g": "seance"
+},
+{
+"t": "Grand et droit, comme si on vous tirait par le haut de la tête.",
+"g": "seance"
+},
+{
+"t": "Le ballon part devant, les fesses partent en arrière.",
+"g": "seance"
+},
+{
+"t": "Le bassin ne bouge pas, comme un verre d'eau posé sur le dos.",
+"g": "seance"
+},
+{
+"t": "Le bassin reste face à l'avant, seul le buste tourne.",
+"g": "seance"
+},
+{
+"t": "Le bassin s'enroule.",
+"g": "seance"
+},
+{
+"t": "Le bâton reste collé à la nuque, le dos reste droit.",
+"g": "seance"
+},
+{
+"t": "Le dos reste collé au sol.",
+"g": "seance"
+},
+{
+"t": "Le genou avant reste dans l'axe du pied.",
+"g": "seance"
+},
+{
+"t": "Le genou reste bien tendu pendant toute la montée.",
+"g": "seance"
+},
+{
+"t": "Le talon monte vers la fesse.",
+"g": "seance"
+},
+{
+"t": "Les deux genoux restent côte à côte.",
+"g": "seance"
+},
+{
+"t": "Les genoux vers la poitrine.",
+"g": "seance"
+},
+{
+"t": "Les jambes lancent le mouvement, les bras finissent.",
+"g": "seance"
+},
+{
+"t": "Les talons restent au sol, les genoux suivent les pieds.",
+"g": "seance"
+},
+{
+"t": "Les épaules restent basses, les omoplates se rapprochent.",
+"g": "seance"
+},
+{
+"t": "Main au sol.",
+"g": "seance"
+},
+{
+"t": "Main sur l'épaule, le bassin ne bouge pas.",
+"g": "seance"
+},
+{
+"t": "Marche du fermier sur place.",
+"g": "seance"
+},
+{
+"t": "Ne bloquez pas la respiration en serrant.",
+"g": "seance"
+},
+{
+"t": "Ne cambrez pas en haut : les fessiers font le travail.",
+"g": "seance"
+},
+{
+"t": "Ne cambrez pas le bas du dos pour monter plus haut.",
+"g": "seance"
+},
+{
+"t": "Ne cambrez pas le dos en poussant vers le haut.",
+"g": "seance"
+},
+{
+"t": "Ne cambrez pas le dos pour monter le talon plus haut.",
+"g": "seance"
+},
+{
+"t": "Ne forcez pas en fin de mouvement : la rotation reste confortable.",
+"g": "seance"
+},
+{
+"t": "Ne haussez pas les épaules.",
+"g": "seance"
+},
+{
+"t": "Ne lancez pas les jambes : le mouvement est petit et contrôlé.",
+"g": "seance"
+},
+{
+"t": "Ne penchez pas d'un côté.",
+"g": "seance"
+},
+{
+"t": "Ne pliez pas le dos : ce sont les hanches qui plient.",
+"g": "seance"
+},
+{
+"t": "Ne poussez pas la tête en avant.",
+"g": "seance"
+},
+{
+"t": "Ne remontez pas les fesses.",
+"g": "seance"
+},
+{
+"t": "Ne vous balancez pas en arrière pour monter.",
+"g": "seance"
+},
+{
+"t": "On bascule en avant.",
+"g": "seance"
+},
+{
+"t": "On descend, bras devant.",
+"g": "seance"
+},
+{
+"t": "On descend, on tend les bras.",
+"g": "seance"
+},
+{
+"t": "On enroule le bas du dos, sans élan.",
+"g": "seance"
+},
+{
+"t": "On marche, buste droit.",
+"g": "seance"
+},
+{
+"t": "On monte devant soi.",
+"g": "seance"
+},
+{
+"t": "On monte devant.",
+"g": "seance"
+},
+{
+"t": "On monte en serrant le ballon.",
+"g": "seance"
+},
+{
+"t": "On monte la jambe tendue.",
+"g": "seance"
+},
+{
+"t": "On monte le bâton.",
+"g": "seance"
+},
+{
+"t": "On monte, bras tendus.",
+"g": "seance"
+},
+{
+"t": "On monte, genou tendu.",
+"g": "seance"
+},
+{
+"t": "On pousse vers le haut.",
+"g": "seance"
+},
+{
+"t": "On recule et on descend.",
+"g": "seance"
+},
+{
+"t": "On redescend en squat.",
+"g": "seance"
+},
+{
+"t": "On remonte d'un seul élan jusqu'au genou haut.",
+"g": "seance"
+},
+{
+"t": "On remonte et on pousse.",
+"g": "seance"
+},
+{
+"t": "On remonte, genou haut.",
+"g": "seance"
+},
+{
+"t": "On remonte.",
+"g": "seance"
+},
+{
+"t": "On repose le pied.",
+"g": "seance"
+},
+{
+"t": "On se redresse.",
+"g": "seance"
+},
+{
+"t": "On serre avec l'intérieur des cuisses, le dos reste droit.",
+"g": "seance"
+},
+{
+"t": "On serre le ballon pendant toute la montée.",
+"g": "seance"
+},
+{
+"t": "On serre le ballon.",
+"g": "seance"
+},
+{
+"t": "On serre les fessiers, on remonte.",
+"g": "seance"
+},
+{
+"t": "On serre les omoplates.",
+"g": "seance"
+},
+{
+"t": "On tient, les omoplates se serrent.",
+"g": "seance"
+},
+{
+"t": "On tire comme pour déchirer la serviette.",
+"g": "seance"
+},
+{
+"t": "On tire sur la serviette.",
+"g": "seance"
+},
+{
+"t": "On tire vers le bas.",
+"g": "seance"
+},
+{
+"t": "On tire, coudes vers les côtes.",
+"g": "seance"
+},
+{
+"t": "On tire.",
+"g": "seance"
+},
+{
+"t": "On touche l'épaule opposée.",
+"g": "seance"
+},
+{
+"t": "On tourne le buste.",
+"g": "seance"
+},
+{
+"t": "On tourne, le bassin reste face.",
+"g": "seance"
+},
+{
+"t": "Pont avec ballon entre les genoux.",
+"g": "seance"
+},
+{
+"t": "Relevé de jambe tendue couché.",
+"g": "seance"
+},
+{
+"t": "Retour au centre.",
+"g": "seance"
+},
+{
+"t": "Rotation du buste bâton sur les épaules.",
+"g": "seance"
+},
+{
+"t": "Serrage de ballon entre les genoux.",
+"g": "seance"
+},
+{
+"t": "Squat ballon bras tendus.",
+"g": "seance"
+},
+{
+"t": "Squat et développé avec bouteilles.",
+"g": "seance"
+},
+{
+"t": "Talons-fesses debout.",
+"g": "seance"
+},
+{
+"t": "Tirage serviette au-dessus de la tête.",
+"g": "seance"
+},
+{
+"t": "Toucher d'épaule en planche.",
+"g": "seance"
+},
+{
+"t": "Écartement de serviette bras tendus.",
+"g": "seance"
+},
+{
+"t": "Élévation du bâton bras tendus.",
+"g": "seance"
+},
+{
+"t": "Élévation frontale avec bouteilles.",
+"g": "seance"
 }
 ]
