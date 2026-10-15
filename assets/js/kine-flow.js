@@ -136,6 +136,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     "Plank — gainage avant-bras": "Corps aligné, ni cambré ni fessiers relevés, respiration libre.",
     "Dead bug": "Le bas du dos reste collé au sol.",
     "Side plank sur genoux": "Levez les hanches jusqu'à aligner épaule, hanche et genou.",
+    "Gainage frontal sur genoux": "Une ligne droite des épaules aux genoux, le ventre rentré.",
+    "Planche latérale complète": "Une ligne droite de la tête aux pieds, hanches bien hautes.",
     "Crunch abdominal contrôlé": "Épaules décollées à 30°, expirez en montant, sans tirer sur la nuque.",
     "Bird-dog": "Bassin strictement horizontal ; s'il tourne, réduisez l'amplitude.",
     "Squat sumo": "Genoux dans l'axe des orteils, remontée en serrant fessiers et adducteurs.",

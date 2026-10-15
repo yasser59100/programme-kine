@@ -253,7 +253,7 @@
        L: { foot: { at: [0.13, 0, -0.4], yaw: 0, lift: 75, pole: [0.1, 0, 1] } }, R: { foot: { at: [-0.13, 0, -0.4], yaw: 0, lift: 75, pole: [-0.1, 0, 1] } } }) }
    },
    "Planche latérale complète": {
-     sides: "blocks", snapSideChange: true, timed: { seconds: 20 }, noIso: true, camera: { yaw: 0.05, pitch: 0.25, dist: 3.6, ty: 0.32 }, start: "rest", thumb: "hold",
+     sides: "blocks", snapSideChange: true, timed: { byWeek: [20, 20, 30, 30] }, noIso: true, camera: { yaw: 0.05, pitch: 0.25, dist: 3.6, ty: 0.32 }, start: "rest", thumb: "hold",
      poses: {
        rest: { pelvis: { p: [0, 0.2, 0], r: [0, 0, -84] }, spine: [0, 0, 0], head: 0, L: { ang: [0, 0, 0, 0, 0] }, R: { ang: [0, 0, 0, 0, 0] },
                LA: { hand: { at: [0.514, 0.047, 0.26], pole: [0.2, -1, -0.3] } }, RA: { ang: [0, 8, 0, 30] } },
@@ -657,7 +657,7 @@
      steps: [step("up", 1.5, "Le talon monte vers la fesse", "Le talon monte vers la fesse", "up"), step("down", 2.5, "Descente lente", "On redescend", "down")]
    },
    "Toucher d'épaule en planche": {
-     timed: { seconds: 20 }, sides: "alternate", noIso: true, camera: { yaw: 1.0, pitch: 0.3, dist: 3.9, ty: 0.35, tz: 0 }, start: "hold", thumb: "tap",
+     timed: { seconds: 30 }, sides: "alternate", noIso: true, camera: { yaw: 1.0, pitch: 0.3, dist: 3.9, ty: 0.35, tz: 0 }, start: "hold", thumb: "tap",
      poses: { hold: L3_PLANK,
               tap: merge(L3_PLANK, { LA: { hand: { at: [-0.12, 0.62, 0.3], pole: [0.6, 0.3, -0.7] } } }) },
      steps: [step("tap", 1, "On touche l'épaule opposée", "Main sur l'épaule, le bassin ne bouge pas", "up"), step("hold", 1, "Main au sol", null, "down")]
@@ -959,12 +959,23 @@
     /* ── J3 — Gainage rachidien ── */
     "Plank — gainage avant-bras": {
       // Appui avant-bras et orteils, corps aligné, pas de cambrure ni de fessiers relevés
-      timed: { byWeek: [20, 25, 30, 40] }, camera: { yaw: 1.3, pitch: 0.22, dist: 3.9, ty: 0.25, tz: -0.1 }, start: "rest", thumb: "hold",
+      timed: { byWeek: [30, 30, 35, 40] }, camera: { yaw: 1.3, pitch: 0.22, dist: 3.9, ty: 0.25, tz: -0.1 }, start: "rest", thumb: "hold",
       poses: {
         rest: merge({ pelvis: { p: [0, 0.12, 0.055], r: [65.4, 0, 0] }, spine: [0, 0, 0], head: 0,
                       L: { ang: [-24.6, 4, 0, 0, -60] }, R: { ang: [-24.6, 4, 0, 0, -60] } }, FOREARMS),
         hold: merge({ pelvis: { p: [0, 0.25, 0.015], r: [81.3, 0, 0] }, spine: [0, 0, 0], head: 0,
                       L: { ang: [0, 4, 0, 0, -10] }, R: { ang: [0, 4, 0, 0, -10] } }, FOREARMS)
+      }
+    },
+
+    "Gainage frontal sur genoux": {
+      // Version facile de la planche : appui avant-bras et genoux, corps aligné des épaules aux genoux
+      timed: { byWeek: [20, 20, 25, 30] }, camera: { yaw: 1.3, pitch: 0.22, dist: 3.7, ty: 0.25, tz: -0.1 }, start: "rest", thumb: "hold",
+      poses: {
+        rest: merge({ pelvis: { p: [0, 0.13, 0.03], r: [62, 0, 0] }, spine: [0, 0, 0], head: 0,
+                      L: { ang: [-20, 4, 0, 40, -50] }, R: { ang: [-20, 4, 0, 40, -50] } }, FOREARMS),
+        hold: merge({ pelvis: { p: [0, 0.215, 0.04], r: [69, 0, 0] }, spine: [0, 0, 0], head: 0,
+                      L: { ang: [0, 4, 0, 21, -45] }, R: { ang: [0, 4, 0, 21, -45] } }, FOREARMS)
       }
     },
 

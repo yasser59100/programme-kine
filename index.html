@@ -1478,17 +1478,17 @@ input,select,textarea{font-family:var(--font);}
   <div class="ex" id="ex-day2-7"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
     <div class="ex-head"><div class="ex-num-badge">Ex 7</div><div class="ex-name">Gainage antérieur en appui avant-bras (Plank)</div><button class="ex-check-btn" onclick="toggleEx('day2',7)">✓</button></div>
     <div class="ex-desc">Appui sur avant-bras et orteils. Corps aligné — pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre et continue — ne jamais bloquer l'apnée.</div>
-    <div class="ex-tags"><span class="tag amber">S1:20s, S2:25s, S3:30s, S4:40s</span></div>
+    <div class="ex-tags"><span class="tag amber">S1–S2 : 30s, S3 : 35s, S4 : 40s</span></div>
     <div class="ex-variant"><strong>Variante S4 :</strong> Plank avec soulèvement alterné d'un bras</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(20,'Plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 20s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos 30s</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Version allégée : appui sur genoux. L'arrêt = perte d'alignement rachidien, pas la fatigue.</div>
+    <div class="ex-tip"><strong>Conseil :</strong> Trop dur ? Pendant la séance, le bouton « − Plus facile » passe à la version sur les genoux. L'arrêt = perte d'alignement rachidien, pas la fatigue.</div>
     <div class="ex-stop">Arrêt si : douleur lombaire ou cervicale.</div>
   </div></div></div>
   <div class="ex" id="ex-day2-8"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 8</div><div class="ex-name">Gainage latéral modifié (Side plank sur genoux)</div><button class="ex-check-btn" onclick="toggleEx('day2',8)">✓</button></div>
-    <div class="ex-desc">Décubitus latéral, appui sur avant-bras et genou inférieur. Corps aligné épaule–hanche–genou. Lever les hanches jusqu'à alignement. Pas de rotation du bassin. Changer de côté.</div>
+    <div class="ex-head"><div class="ex-num-badge">Ex 8</div><div class="ex-name">Gainage latéral (planche latérale complète)</div><button class="ex-check-btn" onclick="toggleEx('day2',8)">✓</button></div>
+    <div class="ex-desc">Sur le côté, appui sur l'avant-bras (coude sous l'épaule) et sur les pieds, jambes tendues. Corps aligné épaule–hanche–cheville. Lever les hanches jusqu'à alignement. Pas de rotation du bassin. Changer de côté.</div>
     <div class="ex-tags"><span class="tag amber">S1–S2 : 20s/côté, S3–S4 : 30s/côté</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Appui sur orteils (jambes tendues)</div>
+    <div class="ex-variant"><strong>Plus facile :</strong> sur les genoux (bouton « − Plus facile » pendant la séance)</div>
     <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(20,'Side plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 20s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos</button></div>
   </div></div></div>
   <div class="ex" id="ex-day2-9"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
@@ -2715,11 +2715,12 @@ var SEQ_DAYS = {
         desc: "Allongé sur le dos, bas du dos plaqué au sol, bras le long du corps, jambes levées. Alterner toutes les 5 secondes entre les ciseaux (battements jambes tendues de haut en bas) et le vélo (pédalage), dans l'axe du corps. 30 s en semaine 1, 45 s en semaine 2, 1 min à partir de la semaine 3.",
         tip: "Plus les jambes sont basses, plus c'est difficile : remonter les jambes si le dos se décolle.",
         stop: "Arrêt si le bas du dos se décolle ou si douleur lombaire." },
-      { name: "Plank — gainage avant-bras", phase: "work", series: 3, repsLabel: "20 à 40 secondes", restAfter: 60,
+      { name: "Plank — gainage avant-bras", phase: "work", series: 3, repsLabel: "30 à 45 secondes", restAfter: 60,
         desc: "Appui sur avant-bras et orteils. Corps parfaitement aligné, pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre.",
         stop: "Arrêt à la perte d'alignement ou si douleur lombaire." },
-      { name: "Side plank sur genoux", phase: "work", series: 3, repsLabel: "20 à 30 secondes par côté", restAfter: 60,
-        desc: "Décubitus latéral, appui avant-bras et genou inférieur. Corps aligné épaule hanche genou. Lever les hanches jusqu'à alignement. Changer de côté." },
+      { name: "Planche latérale complète", phase: "work", series: 3, repsLabel: "20 à 30 secondes par côté", restAfter: 60,
+        desc: "Sur le côté, appui sur l'avant-bras (coude sous l'épaule) et sur les pieds, jambes tendues. Montez les hanches jusqu'à aligner épaule, hanche et cheville, et tenez. Changez de côté.",
+        stop: "Arrêt si douleur à l'épaule d'appui ou douleur lombaire." },
       { name: "Étirements rachidiens et cohérence cardiaque", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
         desc: "Cobra allongé 30 secondes, torsion lombaire 40 secondes de chaque côté, position de l'enfant 1 minute. Cohérence cardiaque: inspirer 5 secondes, expirer 5 secondes pendant 3 minutes." }
     ]
@@ -3538,7 +3539,7 @@ var REP_IMAGES = {
   "Rotation externe épaule":    { up: null, down: null },
   "Plank — gainage avant-bras": { up: null, down: null },
   "Dead bug":                   { up: null, down: null },
-  "Side plank sur genoux":      { up: null, down: null },
+  "Planche latérale complète":  { up: null, down: null },
   "Crunch abdominal contrôlé":  { up: null, down: null },
   "Bird-dog":                   { up: null, down: null },
   "Squat sumo":                 { up: "https://raw.githubusercontent.com/yasser59100/programme-kine/62eec0c439108ce5a25d59bd894174c9c3cc668d/assets/exercices/Sqaut-haut.jpg", down: "https://raw.githubusercontent.com/yasser59100/programme-kine/62eec0c439108ce5a25d59bd894174c9c3cc668d/assets/exercices/Squat-bas.jpg" },

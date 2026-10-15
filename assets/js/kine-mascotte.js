@@ -102,6 +102,7 @@
     "Ciseaux et vélo": "Bas du dos plaqué au sol : plus les jambes sont hautes, plus c'est facile.",
     "Plank — gainage avant-bras": "Fesses ni trop hautes ni trop basses, et respire normalement.",
     "Side plank sur genoux": "Hanche bien levée, épaule au-dessus du coude.",
+    "Gainage frontal sur genoux": "Les fesses ne montent pas : épaules, hanches et genoux bien alignés.",
     "Squat sumo": "Genoux ouverts dans l'axe des pieds, dos droit.",
     "Donkey kick": "Ne cambre pas : le mouvement part de la hanche, pas du dos.",
     "Pont de hanche": "Pousse dans les talons et serre les fessiers en haut, sans cambrer.",

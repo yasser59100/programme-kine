@@ -6,7 +6,7 @@
 (function () {
   "use strict";
   // Familles d'exercices, du plus facile au plus difficile
-  var CHAINS = [["Assis-debout de chaise", "Squat ballon dans le dos contre le mur", "Squat bilatéral", "Goblet squat", "Squat et développé avec bouteilles"], ["Fente arrière", "Fentes avant unilatérales", "Fente avec charge", "Squat bulgare"], ["Chaise contre le mur", "Position du skieur"], ["Pont de hanche", "Pont avec ballon entre les genoux", "Pont en marche", "Pont fessier unilatéral", "Hip thrust épaules sur canapé", "Hip thrust lesté"], ["Talons-fesses debout", "Pont ischio-jambiers talons sur chaise", "Leg curl serviette au sol", "Nordic curl assisté"], ["Élévation des talons", "Élévation des talons bras au plafond", "Élévation des talons unipodale", "Excentrique mollet sur marche"], ["Pompes contre le mur", "Pompes inclinées", "Pompes sur genoux", "Pompes complètes"], ["Rotation externe couché sur le côté", "Rotation externe d'épaule", "Rotation externe à l'élastique"], ["T au sol", "Superman en Y et en W", "Le nageur", "Superman serviette"], ["Crunch abdominal contrôlé", "Crunch inversé", "Portefeuille (V-up)"], ["Dead bug", "Ciseaux et vélo"], ["Superman quadrupédique en gainage", "Bear plank"], ["Plank — gainage avant-bras", "Toucher d'épaule en planche", "Mountain climber lent"], ["Side plank sur genoux", "Planche latérale complète"], ["Clamshell", "Abduction couché sur le côté", "Abduction hanche debout", "Marche latérale élastique"], ["Squat sumo", "Squat sumo ballon au sol"], ["Équilibre unipodal", "Le chef d'orchestre", "Unipodal yeux fermés", "Unipodal sur coussin", "Toucher en étoile unipodal"], ["Tandem talon-pointe", "Marche talon-pointe livre sur la tête"], ["Good morning debout", "Good morning au bâton", "Soulevé de terre roumain unipodal", "Soulevé de terre roumain avec charge"], ["Tirage serviette au-dessus de la tête", "Rowing un bras appui chaise", "Rowing deux bras penché", "Tirage inversé sous une table"], ["Curl biceps", "Curl marteau tempo lent"], ["Extension lombaire couché sur le ventre", "Superman bras-jambe opposés"], ["Extension de genou assis", "Relevé de jambe tendue couché"], ["Squat + élévation bras", "Fente avant et rotation ballon"]];
+  var CHAINS = [["Assis-debout de chaise", "Squat ballon dans le dos contre le mur", "Squat bilatéral", "Goblet squat", "Squat et développé avec bouteilles"], ["Fente arrière", "Fentes avant unilatérales", "Fente avec charge", "Squat bulgare"], ["Chaise contre le mur", "Position du skieur"], ["Pont de hanche", "Pont avec ballon entre les genoux", "Pont en marche", "Pont fessier unilatéral", "Hip thrust épaules sur canapé", "Hip thrust lesté"], ["Talons-fesses debout", "Pont ischio-jambiers talons sur chaise", "Leg curl serviette au sol", "Nordic curl assisté"], ["Élévation des talons", "Élévation des talons bras au plafond", "Élévation des talons unipodale", "Excentrique mollet sur marche"], ["Pompes contre le mur", "Pompes inclinées", "Pompes sur genoux", "Pompes complètes"], ["Rotation externe couché sur le côté", "Rotation externe d'épaule", "Rotation externe à l'élastique"], ["T au sol", "Superman en Y et en W", "Le nageur", "Superman serviette"], ["Crunch abdominal contrôlé", "Crunch inversé", "Portefeuille (V-up)"], ["Dead bug", "Ciseaux et vélo"], ["Superman quadrupédique en gainage", "Bear plank"], ["Gainage frontal sur genoux", "Plank — gainage avant-bras", "Toucher d'épaule en planche", "Mountain climber lent"], ["Side plank sur genoux", "Planche latérale complète"], ["Clamshell", "Abduction couché sur le côté", "Abduction hanche debout", "Marche latérale élastique"], ["Squat sumo", "Squat sumo ballon au sol"], ["Équilibre unipodal", "Le chef d'orchestre", "Unipodal yeux fermés", "Unipodal sur coussin", "Toucher en étoile unipodal"], ["Tandem talon-pointe", "Marche talon-pointe livre sur la tête"], ["Good morning debout", "Good morning au bâton", "Soulevé de terre roumain unipodal", "Soulevé de terre roumain avec charge"], ["Tirage serviette au-dessus de la tête", "Rowing un bras appui chaise", "Rowing deux bras penché", "Tirage inversé sous une table"], ["Curl biceps", "Curl marteau tempo lent"], ["Extension lombaire couché sur le ventre", "Superman bras-jambe opposés"], ["Extension de genou assis", "Relevé de jambe tendue couché"], ["Squat + élévation bras", "Fente avant et rotation ballon"]];
   var KEY = "kf-variant", LOG = "kf-variant-log";
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -45,8 +45,12 @@
   function origOf(ex) { return ex.__origData ? ex.__origData.name : ex.name; }
 
   function log(line) { var l = jget(LOG, []); l.unshift({ t: line, d: today() }); jset(LOG, l.slice(0, 30)); }
+  // Ajustement en cours (répétitions, temps, tempo) de l'exercice affiché
+  function adj(ex) { var r = window.KineLevel && KineLevel.get ? KineLevel.get(ex.name) : null; return { up: !!(r && (r.d > 0 || r.tempo)), down: !!(r && r.d < 0), r: r }; }
   function setLevel(ex, dir) {
-    var nb = neighbor(ex.name, dir), map = jget(KEY, {}), orig = origOf(ex), msg = "";
+    var nb = neighbor(ex.name, dir), map = jget(KEY, {}), orig = origOf(ex), msg = "", a = adj(ex);
+    // On défait d'abord le dernier réglage de l'exercice (− après des + retire du temps avant de changer d'exercice)
+    if ((dir < 0 && a.up) || (dir > 0 && a.down)) nb = null;
     if (nb) {
       if (nb.name === orig) delete map[orig]; else map[orig] = nb.name;
       jset(KEY, map); log(ex.name + " → " + nb.name);
@@ -67,11 +71,13 @@
     return ex && ex.phase === "work" ? ex : null;
   }
   function hint(ex, dir) {
+    var a = adj(ex);
+    if (dir < 0 && a.up) return a.r.tempo ? "sans la pause de 2 secondes" : "moins de répétitions ou de temps";
+    if (dir > 0 && a.down) return "plus de répétitions ou de temps";
     var nb = neighbor(ex.name, dir);
     if (nb) return nb.name;
     if (dir > 0) return "plus de répétitions ou de temps";
-    var r = window.KineLevel && KineLevel.get ? KineLevel.get(ex.name) : null;
-    return r && (r.tempo || r.d > -2) ? "moins de répétitions ou de temps" : "";
+    return !a.r || a.r.d > -2 ? "moins de répétitions ou de temps" : "";
   }
   function control() {
     var old = $("kv-level"); if (old) old.remove();
