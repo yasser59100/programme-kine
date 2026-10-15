@@ -39,6 +39,13 @@
       cue: "Le genou avant reste dans l'axe du pied. Revenez toujours bien au centre avant la couleur suivante.",
       spots: [[80, 62], [150, 35], [220, 62], [250, 120]], feet: "both",
       av: [[0.62, 0.74], [0, 0.98], [-0.62, 0.74], [-1.0, 0.06]] },
+    { id: "bulgare", name: "Sauts bulgares réactifs", level: 3, sides: true, sideWord: "jambe",
+      kit: "une chaise stable calée contre un mur, et vos plots",
+      place: "Dos à la chaise, posez le dessus du pied arrière sur l'assise, le pied avant un grand pas devant. Posez les plots au sol autour du pied avant, à environ 30 cm : un à gauche, un devant, un à droite, et un en diagonale si vous en avez quatre.",
+      action: "À chaque couleur, faites un petit saut sur la jambe avant pour atterrir à côté du plot de cette couleur, genou fléchi, puis un petit saut pour revenir au centre. Le pied arrière reste sur la chaise.",
+      cue: "Atterrissez en douceur, genou souple et dans l'axe du pied. Commencez par de tout petits sauts.",
+      spots: [[90, 98], [150, 52], [210, 98], [105, 58]], chair: true, feet: "split",
+      av: [[0.26, 0.42], [-0.1, 0.8], [-0.46, 0.42], [0.16, 0.74]] },
     { id: "chasses", name: "Pas chassés réactifs", level: 2, sides: false,
       kit: "vos plots et environ 3 mètres d'espace sur les côtés",
       place: "Debout au centre, légèrement fléchi. Posez un plot loin à gauche et un loin à droite (environ 3 pas chassés), puis les autres devant et derrière vous si vous en avez plus.",
@@ -118,6 +125,8 @@
                  L: { foot: { at: [0.14, 0, 0.14], yaw: 6 } }, R: { foot: { at: [-0.14, 0, 0.14], yaw: -6 } }, LA: { ang: [6, 14, 0, 50] }, RA: { ang: [6, 14, 0, 50] } }, {})
              : ex.id === "unipodal" ? M(L.STAND(0.11, 6), { pelvis: { p: [0.07, 0.9, 0], r: [6, 0, 0] }, L: { foot: { at: [0.1, 0, 0.12], yaw: 6 } }, R: { foot: { at: [-0.1, 0.16, 0.06], yaw: -6 } } }, ARMS_BAL)
              : ex.id === "chasses" ? M(L.STAND(0.17, 8), { pelvis: { p: [0, 0.86, 0], r: [14, 0, 0] }, spine: [8, 0, 0] }, ARMS_BAL)
+             : ex.id === "bulgare" ? M(L.STAND(0.1, 0), { pelvis: { p: [0, 0.8, 0.16], r: [10, 0, 0] }, spine: [6, 0, 0],
+                 L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }, { LA: { ang: [30, 18, 0, 40] }, RA: { ang: [30, 18, 0, 40] } })
              : ex.id === "squat" ? L.STAND(0.17, 10)
              : L.STAND(0.11, 6);
     var poses = { mid: base };
@@ -138,6 +147,12 @@
           P[lead] = { foot: { at: [ux * reach, 0, uz * reach], yaw: th } }; P[other] = { foot: { at: [lead === "L" ? -0.1 : 0.1, 0, 0.12], yaw: th * 0.5, lift: deep ? 45 : 20 } };
         }
         poses["c" + i] = M(base, P, { LA: { ang: [14, 16, 0, 30] }, RA: { ang: [14, 16, 0, 30] } });
+      } else if (ex.id === "bulgare") {   // petit saut sur la jambe avant vers le plot, le pied arrière reste sur la chaise
+        var fx = -0.1 + (x + 0.1) * 0.72, fz = 0.36 + (z - 0.36) * 0.72, dx = fx + 0.1, dz = fz - 0.36;
+        var rear = { L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } } };
+        poses["j" + i] = M(base, rear, { pelvis: { p: [dx * 0.35, 0.9, 0.16 + dz * 0.35], r: [6, 0, 0] }, R: { foot: { at: [-0.1 + dx * 0.5, 0.12, 0.36 + dz * 0.5], yaw: 0 } },
+                                         LA: { ang: [55, 20, 0, 30] }, RA: { ang: [55, 20, 0, 30] } });
+        poses["c" + i] = M(base, rear, { pelvis: { p: [dx * 0.55, 0.7, 0.16 + dz * 0.55], r: [14, 0, 0] }, spine: [8, 0, 0], R: { foot: { at: [fx, 0, fz], yaw: x * 20 } } });
       } else if (ex.id === "chasses") {
         var tx = x - ux * 0.28, tz = z - uz * 0.28;
         P = { pelvis: { p: [tx, 0.84, tz], r: [14, 0, 0] } };
@@ -160,15 +175,17 @@
       }
     });
     // Vu de dos, légèrement en hauteur : la gauche de l'écran est la gauche de Yass, comme sur le schéma vu de dessus
-    return { camera: ex.id === "assis" ? { yaw: Math.PI - 0.95, pitch: 0.5, dist: 4.0, ty: 0.55, tz: 0.1 }
+    return { camera: ex.id === "bulgare" ? { yaw: 1.95, pitch: 0.75, dist: 4.0, ty: 0.55, tz: 0.15 }
+                   : ex.id === "assis" ? { yaw: Math.PI - 0.95, pitch: 0.5, dist: 4.0, ty: 0.55, tz: 0.1 }
                    : ex.id === "chasses" ? { yaw: Math.PI - 0.25, pitch: 0.5, dist: 5.6, ty: 0.75 }
                    : { yaw: Math.PI - 0.4, pitch: 0.48, dist: 4.6, ty: 0.8, tz: 0.2 },
-             props: ex.id === "assis" ? ["chair"] : undefined, noIso: true, start: "mid",
+             props: ex.id === "assis" || ex.id === "bulgare" ? ["chair"] : undefined, chair: ex.id === "bulgare" ? { z: -0.14 } : undefined, noIso: true, start: "mid",
              cones: ex.av.slice(0, n).map(function (c, i) { return { at: c, hex: cols[i].hex }; }), poses: poses };
   }
   var demoId = 0;
   function demo(stage, ex, cols) {
     if (!stage || !window.KineAvatar || !KineAvatar.register || !KineAvatar.lib) { if (stage) stage.remove(); return; }
+    var avHop = ex.id === "bulgare";
     KineAvatar.register("__kr_demo", avDef(ex, cols));
     if (!KineAvatar.show(stage.querySelector(".kr-stage"), "__kr_demo")) { stage.remove(); return; }
     var id = ++demoId, tag = stage.querySelector(".kr-tag"), last = -1;
@@ -179,6 +196,14 @@
       var c = cols[i];
       tag.textContent = c.name; tag.style.background = c.hex; tag.style.color = c.ink; tag.classList.add("on");
       wait(350, function () {
+        var hop = !!(KineAvatar.startOf && avHop);
+        if (hop) {   // saut : envol, atterrissage près du plot, envol, retour au centre
+          KineAvatar.step({ pose: "j" + i, dur: 0.28 });
+          wait(280, function () { KineAvatar.step({ pose: "c" + i, dur: 0.24 });
+            wait(1000, function () { tag.classList.remove("on"); KineAvatar.step({ pose: "j" + i, dur: 0.26 });
+              wait(260, function () { KineAvatar.step({ pose: "mid", dur: 0.26 }); wait(1300, cycle); }); }); });
+          return;
+        }
         KineAvatar.step({ pose: "c" + i, dur: 0.85 });
         wait(1350, function () {
           tag.classList.remove("on"); KineAvatar.step({ pose: "mid", dur: 0.8 });
