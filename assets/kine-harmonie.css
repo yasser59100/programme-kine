@@ -534,3 +534,16 @@ html.kf-theme-anim, html.kf-theme-anim * { transition: background-color .35s eas
 #kcam-run .kcam-tip.ok { background: rgba(46, 204, 113, .1); border-color: rgba(46, 204, 113, .4); }
 .kcam-libcard { background: linear-gradient(135deg, rgba(34, 211, 238, .12), rgba(79, 172, 254, .12)) !important; }
 .kcam-libcard .kcam-ico { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgba(79, 172, 254, .18); color: var(--blue); }
+#kcam-run .kcam-snd { margin-left: auto; }
+#kcam-run .kcam-snd + .kcam-flip { margin-left: 0; }
+#kcam-run .kcam-rtitle { color: #fff; font-weight: 800; font-size: 1.05rem; margin-left: 6px; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+#kcam-run .kcam-speed { margin-left: auto; font-size: .9rem; font-weight: 800; }
+#kcam-run .kcam-chips { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom) + 86px); display: flex; gap: 6px; overflow-x: auto; padding: 0 14px; scrollbar-width: none; }
+#kcam-run .kcam-chips::-webkit-scrollbar { display: none; }
+#kcam-run .kcam-chip { flex: none; border: 0; border-radius: 999px; padding: 8px 12px; font: inherit; font-size: .85rem; font-weight: 700; color: #fff; background: rgba(28, 160, 90, .88); }
+#kcam-run .kcam-chip.bad { background: rgba(220, 50, 70, .9); }
+#kcam-run .kcam-rbar { position: absolute; left: 14px; right: 14px; bottom: calc(env(safe-area-inset-bottom) + 18px); display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 18px; background: rgba(10,14,22,.78); backdrop-filter: blur(8px); }
+#kcam-run .kcam-play { width: 46px; height: 46px; border-radius: 50%; border: 0; background: var(--blue); color: #fff; font-size: 1.05rem; flex: none; }
+#kcam-run .kcam-prog { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.2); overflow: hidden; }
+#kcam-run .kcam-prog i { display: block; height: 100%; width: 0; background: #22D3EE; }
+#kcam-run .kcam-replay-btn { margin-top: 4px; }

@@ -13,7 +13,14 @@
 
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function say(t) { if (typeof speak === "function") { try { speak(t, { prio: 1, now: true, ttl: 3000 }); } catch (e) {} } }
+  // Yass parle même si la voix des séances est coupée (bouton haut-parleur propre à la caméra)
+  function muted() { return !!jget("kf-cam-mute", 0); }
+  function say(t, prio) {
+    if (typeof speak !== "function" || muted() || !t) return;
+    var a = window.seqSoundOn, b = window.seqVoiceOn;
+    try { window.seqSoundOn = true; window.seqVoiceOn = true; speak(t, { prio: prio || 1, now: true, ttl: 3500 }); } catch (e) {}
+    window.seqSoundOn = a; window.seqVoiceOn = b;
+  }
   function jget(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
   function jset(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
@@ -75,6 +82,16 @@
     heel: "Les talons se décollent. Gardez-les bien au sol.",
     shallow: "Bien. Si c'est sans douleur, vous pouvez descendre un peu plus."
   };
+  // Ce que Yass dit à voix haute : court, pour être compris de loin
+  var V = {
+    calib: "Restez debout, immobile, quelques secondes.", far: "Reculez un peu, je dois voir tout votre corps.",
+    go: "C'est bon, je vous vois. Faites vos squats, à votre rythme.",
+    valgus: "Genoux vers l'extérieur !", shift: "Le poids bien au milieu !", lean: "Poitrine haute !", heel: "Talons au sol !",
+    good: ["Bien !", "Très bien !", "Parfait !", "Propre !"], shallow: "Un peu plus bas, si ça ne fait pas mal.",
+    att: { valgus: "Attention aux genoux.", shift: "Attention à l'équilibre.", lean: "Attention au buste.", heel: "Attention aux talons." },
+    end: "Série terminée, bravo ! Regardez votre replay."
+  };
+  var SHORT = { valgus: "Genoux vers l'extérieur !", shift: "Le poids bien au milieu !", lean: "Poitrine haute !", heel: "Talons au sol !" };
   var FIX = { valgus: "genoux qui rentrent", shift: "décalage sur un côté", lean: "buste trop penché", heel: "talons qui se décollent" };
 
   function analyse(lm, now) {
@@ -99,12 +116,12 @@
       if (straight) { A.still++; if (!A.stillT) A.stillT = now; A.standY = A.standY ? A.standY * 0.8 + hip.y * 0.2 : hip.y; A.legLen = A.legLen ? A.legLen * 0.8 + leg * 0.2 : leg;
                       A.heelY = A.heelY ? A.heelY * 0.8 + Math.max(L.lHe.y, L.rHe.y) * 0.2 : Math.max(L.lHe.y, L.rHe.y); }
       else { A.still = 0; A.stillT = 0; }
-      if (A.still >= 5 && now - A.stillT > 1300) { A.phase = "run"; return { msg: MSG.go, voice: MSG.go }; }
+      if (A.still >= 5 && now - A.stillT > 1300) { A.phase = "run"; return { msg: MSG.go, voice: V.go }; }
+      if (!A.calibSaid) { A.calibSaid = 1; return { msg: MSG.calib, voice: V.calib }; }
       return { msg: MSG.calib };
     }
 
     var drop = (hip.y - A.standY) / Math.max(0.05, A.legLen);
-    A.dropNow = drop; A.dropMax = Math.max(A.dropMax || 0, drop); A.kneeNow = kneeBoth;
     if (!A.down && drop < 0.05 && kneeBoth > 160) { A.standY = A.standY * 0.95 + hip.y * 0.05; A.legLen = A.legLen * 0.95 + leg * 0.05; }
     // Contrôles pendant la descente
     if (drop > 0.14) {
@@ -121,8 +138,10 @@
         if ((A.heelY - Ls[4].y) / A.legLen > 0.06) { live[near + "He"] = 1; A.flags.heel = (A.flags.heel || 0) + 1; }
       }
     }
-    if (!A.down && drop > 0.16) { A.down = true; A.maxDrop = drop; A.minKnee = kneeAng; A.flags = {}; A.nf = 0; }
+    if (!A.down && drop > 0.16) { A.down = true; A.maxDrop = drop; A.minKnee = kneeAng; A.flags = {}; A.nf = 0; A.cued = {}; }
     if (A.down) A.nf++;
+    // Consigne en direct, dès qu'un défaut se répète pendant la descente (une fois par répétition)
+    if (A.down) for (var fk in A.flags) if (A.flags[fk] >= 2 && !A.cued[fk]) { A.cued[fk] = 1; return { msg: SHORT[fk], voice: V[fk], live: true, cls: "bad" }; }
     if (A.down) { A.maxDrop = Math.max(A.maxDrop, drop); A.minKnee = Math.min(A.minKnee, A.view === "profil" ? kneeAng : kneeBoth); }
     if (A.down && drop < 0.07) {
       A.down = false; A.reps++;
@@ -132,17 +151,18 @@
       if (!faults.length) A.good++;
       A.log.push({ faults: faults, deep: deep });
       var m = faults.length ? MSG[faults[0]] : deep ? MSG.good[A.reps % MSG.good.length] : MSG.shallow;
-      return { msg: m, voice: m, rep: true, ok: !faults.length };
+      var vo = A.reps + ". " + (faults.length ? V.att[faults[0]] : deep ? V.good[A.reps % V.good.length] : V.shallow);
+      return { msg: m, voice: vo, rep: true, ok: !faults.length, faults: faults };
     }
     return null;
   }
 
   /* ── Dessin de la silhouette ── */
-  function draw(ctx, lm, W, H, box) {
+  function draw(ctx, lm, W, H, box, badSet) {
     ctx.clearRect(0, 0, W, H);
     if (!lm) return;
     var pt = function (i) { return [box.x + (1 - lm[i].x) * box.w, box.y + lm[i].y * box.h]; };   // image en miroir
-    var bad = A ? A.live : {};
+    var bad = badSet || (A ? A.live : {});
     var badBone = function (a, b) { return (bad.trunk && ((a === 11 && b === 23) || (a === 12 && b === 24))); };
     ctx.lineCap = "round";
     BONES.forEach(function (b) {
@@ -171,6 +191,7 @@
   }
   function open() {
     var el = shell(), seen = jget("kf-cam-seen", 0);
+    if (typeof kfvPreloadAll === "function") { try { kfvPreloadAll("camera"); } catch (e) {} }
     el.innerHTML = "<div class='kcam-intro'><button class='kf-back' onclick='KineCamera.close()' aria-label='Retour'>←</button>" +
       "<div class='kcam-badge'>Essai</div><div class='kf-h1'>Mon squat à la caméra</div>" +
       "<div class='kf-sub'>Yass repère vos articulations avec la caméra, dessine votre silhouette et vous dit si le mouvement est correct. Il compte aussi vos répétitions.</div>" +
@@ -210,6 +231,7 @@
     el.innerHTML = "<div class='kcam-stage' id='kcam-stage'><video id='kcam-video' playsinline muted autoplay></video><canvas id='kcam-canvas'></canvas>" +
       "<div class='kcam-top'><button class='kcam-x' onclick='KineCamera.finish()' aria-label='Terminer'>✕</button>" +
         "<div class='kcam-count'><b id='kcam-reps'>0</b><small>répétitions</small></div><div class='kcam-count kcam-ok'><b id='kcam-good'>0</b><small>correctes</small></div>" +
+        "<button class='kcam-flip kcam-snd' id='kcam-snd' onclick='KineCamera.mute()' aria-label='Couper ou remettre la voix'>" + (muted() ? "🔇" : "🔊") + "</button>" +
         "<button class='kcam-flip' onclick='KineCamera.flip()' aria-label='Changer de caméra'>⟲</button></div>" +
       "<div class='kcam-view' id='kcam-view'></div>" +
       "<div class='kcam-msg' id='kcam-msg' role='status'>Chargement de l'analyse…</div>" +
@@ -239,17 +261,23 @@
       var now = performance.now();
       if (!lm || !visible(lm)) {
         S.lost++; draw(ctx, lm ? smooth(lm) : null, W, H, box);
-        if (S.lost > 12 && now > msgUntil) show(MSG.far, "warn", 1200);
+        if (S.lost > 12 && now > msgUntil) { show(MSG.far, "warn", 1200); if (now - (S.farSaid || 0) > 7000) { S.farSaid = now; say(V.far); } }
+        if (S.rec) S.rec.frames.push({ t: now - S.rec.t0, lm: null });
         return;
       }
       S.lost = 0;
       var sm = smooth(lm), out = analyse(sm, now);
       draw(ctx, sm, W, H, box);
+      if (A.phase === "run" && !S.rec) recStart(v);
+      if (S.rec) {
+        S.rec.frames.push({ t: now - S.rec.t0, lm: sm.map(function (q) { return [+q.x.toFixed(4), +q.y.toFixed(4), +(q.visibility || 0).toFixed(2)]; }), bad: Object.keys(A.live) });
+        if (out && out.rep) S.rec.reps.push({ t: now - S.rec.t0, ok: out.ok, faults: out.faults || [] });
+      }
       $("kcam-view").textContent = A.phase === "run" ? (A.view === "profil" ? "Vue de profil" : "Vue de face") : "";
       if (out) {
         if (out.rep) { $("kcam-reps").textContent = A.reps; $("kcam-good").textContent = A.good; if (navigator.vibrate) try { navigator.vibrate(out.ok ? 25 : [40, 60, 40]); } catch (e) {} }
-        show(out.msg, out.rep ? (out.ok ? "ok" : "bad") : "", out.rep ? 2600 : 2000);
-        if (out.voice && now - A.lastMsg > 2200) { A.lastMsg = now; say(out.voice); }
+        show(out.msg, out.cls || (out.rep ? (out.ok ? "ok" : "bad") : ""), out.rep ? 2600 : 2000);
+        if (out.voice) { A.lastMsg = now; say(out.voice, out.live ? 2 : 1); }
       } else if (now > msgUntil) {
         var m = $("kcam-msg"); if (m && A.phase === "calib") { m.textContent = MSG.calib; m.className = "kcam-msg"; }
         else if (m && A.phase === "run" && !m.classList.contains("idle")) { m.textContent = A.reps ? "Continuez à votre rythme." : MSG.go; m.className = "kcam-msg idle"; }
@@ -258,14 +286,29 @@
     S.raf = requestAnimationFrame(loop);
   }
 
+  /* ── Enregistrement pour le replay : reste dans le téléphone, effacé à la fermeture ── */
+  var REPLAY = null;
+  function recStart(v) {
+    var rec = S.rec = { t0: performance.now(), frames: [], reps: [], mr: null, chunks: [], type: "", vw: v.videoWidth, vh: v.videoHeight, facing: S.facing };
+    try {
+      if (!window.MediaRecorder) return;
+      var types = ["video/mp4", "video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"], t = "";
+      for (var i = 0; i < types.length; i++) if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(types[i])) { t = types[i]; break; }
+      var mr = new MediaRecorder(S.stream, t ? { mimeType: t, videoBitsPerSecond: 900000 } : undefined);
+      rec.type = mr.mimeType || t || "video/webm";
+      mr.ondataavailable = function (e) { if (e.data && e.data.size) rec.chunks.push(e.data); };
+      mr.start(1000); rec.mr = mr; rec.t0 = performance.now();
+    } catch (e) { rec.mr = null; }
+  }
   function stop() {
     if (!S) return;
     cancelAnimationFrame(S.raf);
+    if (S.rec && S.rec.mr && S.rec.mr.state !== "inactive") { try { S.rec.mr.stop(); } catch (e) {} }
     try { S.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
     try { var w = S.wake(); if (w) w.release(); } catch (e) {}
     S = null;
   }
-  function close() { stop(); var el = $("kcam-run"); if (el) { el.classList.remove("open"); el.innerHTML = ""; } document.body.classList.remove("kf-lock"); }
+  function close() { stop(); if (REPLAY && REPLAY.url) URL.revokeObjectURL(REPLAY.url); REPLAY = null; var el = $("kcam-run"); if (el) { el.classList.remove("open"); el.innerHTML = ""; } document.body.classList.remove("kf-lock"); }
   function flip() {
     if (!S) return;
     var f = S.facing === "user" ? "environment" : "user"; jset("kf-cam-facing", f);
@@ -274,8 +317,18 @@
       .catch(function () { open(); });
   }
   function finish() {
-    var a = A; stop();
+    var a = A, rec = S && S.rec;
+    if (rec && rec.mr) {
+      rec.blobP = new Promise(function (res) {
+        var done = function () { res(rec.chunks.length ? new Blob(rec.chunks, { type: rec.type }) : null); };
+        if (rec.mr.state === "inactive") done(); else { rec.mr.onstop = done; setTimeout(done, 2500); }
+      });
+    }
+    stop();
     if (!a || !a.reps) { close(); return; }
+    if (REPLAY && REPLAY.url) URL.revokeObjectURL(REPLAY.url);
+    REPLAY = rec && rec.frames.length > 10 ? rec : null;
+    say(V.end);
     var el = shell(), counts = {};
     a.log.forEach(function (r) { r.faults.forEach(function (f) { counts[f] = (counts[f] || 0) + 1; }); });
     var main = Object.keys(counts).sort(function (x, y) { return counts[y] - counts[x]; })[0];
@@ -285,7 +338,62 @@
       (main ? "<p class='kcam-tip'><strong>À travailler :</strong> " + esc(FIX[main]) + " (" + counts[main] + " fois sur " + a.reps + "). " + esc(MSG[main]) + "</p>"
             : "<p class='kcam-tip ok'><strong>Bravo :</strong> aucun défaut repéré sur cette série.</p>") +
       "<p class='lx-muted kcam-note'>Analyse " + (a.view === "profil" ? "de profil" : "de face") + ". Essayez aussi " + (a.view === "profil" ? "de face pour vérifier les genoux." : "de profil pour vérifier le buste et les talons.") + "</p>" +
-      "<button class='seq-btn-main' onclick='KineCamera.open()'>Recommencer</button><button class='seq-btn-secondary' onclick='KineCamera.close()'>Fermer</button></div>";
+      (REPLAY ? "<button class='seq-btn-main kcam-replay-btn' onclick='KineCamera.replay()'>▶ Revoir ma série</button>" +
+                "<p class='lx-muted kcam-note'>Le replay reste dans votre téléphone et s'efface quand vous fermez.</p>" : "") +
+      "<button class='" + (REPLAY ? "seq-btn-secondary" : "seq-btn-main") + "' onclick='KineCamera.open()'>Recommencer</button><button class='seq-btn-secondary' onclick='KineCamera.close()'>Fermer</button></div>";
+    el.__sum = el.innerHTML;
+  }
+
+  /* ── Replay de la série : la vidéo (si le téléphone sait l'enregistrer) avec la silhouette et les défauts ── */
+  function replay() {
+    var R = REPLAY; if (!R) return;
+    var el = shell(), sum = el.__sum;
+    var chips = R.reps.map(function (r, i) {
+      return "<button type='button' class='kcam-chip " + (r.ok ? "ok" : "bad") + "' data-t='" + Math.max(0, r.t - 2600) + "'>" + (i + 1) + (r.ok ? " ✓" : " · " + esc(FIX[r.faults[0]] || "")) + "</button>";
+    }).join("");
+    el.innerHTML = "<div class='kcam-stage'><video id='kcam-rv' playsinline muted></video><canvas id='kcam-rc'></canvas>" +
+      "<div class='kcam-top'><button class='kcam-x' id='kcam-rback' aria-label='Retour au bilan'>←</button><div class='kcam-rtitle'>Replay</div>" +
+        "<button class='kcam-flip kcam-speed' id='kcam-speed'>1×</button></div>" +
+      "<div class='kcam-chips'>" + chips + "</div>" +
+      "<div class='kcam-rbar'><button class='kcam-play' id='kcam-play' aria-label='Lecture ou pause'>❚❚</button><div class='kcam-prog'><i id='kcam-pfill'></i></div></div></div>";
+    var v = $("kcam-rv"), cv = $("kcam-rc"), ctx = cv.getContext("2d"), speed = 1, raf = 0, useVid = false;
+    var total = R.frames.length ? R.frames[R.frames.length - 1].t : 0, clock = { t: 0, last: performance.now(), playing: true };
+    if (R.facing !== "user") v.style.transform = "none";
+    function nowT() { return useVid ? v.currentTime * 1000 : clock.t; }
+    function frameAt(t) { var a = 0, b = R.frames.length - 1; while (a < b) { var m = (a + b + 1) >> 1; if (R.frames[m].t <= t) a = m; else b = m - 1; } return R.frames[a]; }
+    function tick() {
+      raf = requestAnimationFrame(tick);
+      if (!cv.isConnected) { cancelAnimationFrame(raf); return; }
+      var now = performance.now();
+      if (!useVid && clock.playing) { clock.t += (now - clock.last) * speed; if (clock.t > total) clock.t = 0; }
+      clock.last = now;
+      var W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+      if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var s = Math.max(W / R.vw, H / R.vh), box = { w: R.vw * s, h: R.vh * s }; box.x = (W - box.w) / 2; box.y = (H - box.h) / 2;
+      var f = frameAt(nowT()), bad = {};
+      if (f && f.bad) f.bad.forEach(function (k) { bad[k] = 1; });
+      draw(ctx, f && f.lm ? f.lm.map(function (q) { return { x: q[0], y: q[1], visibility: q[2] }; }) : null, W, H, box, bad);
+      var pf = $("kcam-pfill"); if (pf && total) pf.style.width = Math.min(100, nowT() / total * 100) + "%";
+    }
+    function setPlay(on) { clock.playing = on; if (useVid) { if (on) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } else v.pause(); } $("kcam-play").textContent = on ? "❚❚" : "▶"; }
+    function seek(t) { if (useVid) { try { v.currentTime = t / 1000; } catch (e) {} } else clock.t = t; setPlay(true); }
+    $("kcam-play").onclick = function () { setPlay(!(useVid ? !v.paused : clock.playing)); };
+    $("kcam-speed").onclick = function () { speed = speed === 1 ? 0.5 : 1; v.playbackRate = speed; this.textContent = speed === 1 ? "1×" : "0,5×"; };
+    $("kcam-rback").onclick = function () { cancelAnimationFrame(raf); try { v.pause(); } catch (e) {} el.innerHTML = sum; el.__sum = sum; };
+    el.querySelectorAll(".kcam-chip").forEach(function (b) { b.onclick = function () { seek(+b.getAttribute("data-t")); }; });
+    v.onended = function () { setPlay(false); };
+    (R.blobP || Promise.resolve(null)).then(function (blob) {
+      if (blob && cv.isConnected) {
+        if (!R.url) R.url = URL.createObjectURL(blob);
+        v.src = R.url; useVid = true;
+        v.onloadedmetadata = function () {   // vidéos webm sans durée connue : on la fait calculer pour pouvoir avancer dans le replay
+          if (v.duration === Infinity) { v.currentTime = 1e7; v.ontimeupdate = function () { v.ontimeupdate = null; v.currentTime = 0; setPlay(true); }; }
+          else setPlay(true);
+        };
+      } else { v.remove(); }
+      raf = requestAnimationFrame(tick);
+    });
   }
 
   /* ── Carte dans la bibliothèque ── */
@@ -302,7 +410,8 @@
   }
   function watch() { var box = $("kb-sheet"); if (!box || box.__kcam) return; box.__kcam = 1; new MutationObserver(libCard).observe(box, { childList: true }); libCard(); }
 
-  window.KineCamera = { open: open, close: close, finish: finish, flip: flip, _analyse: function (lm) { if (!A) resetAnalysis(); return analyse(lm, performance.now()); }, _state: function () { return A; } };
+  function mute() { var m = !muted(); jset("kf-cam-mute", m ? 1 : 0); var b = $("kcam-snd"); if (b) b.textContent = m ? "🔇" : "🔊"; if (!m) say("Bien !"); }
+  window.KineCamera = { open: open, close: close, finish: finish, flip: flip, replay: replay, mute: mute, _analyse: function (lm) { if (!A) resetAnalysis(); return analyse(lm, performance.now()); }, _state: function () { return A; } };
   function init() { watch(); new MutationObserver(watch).observe(document.body, { childList: true }); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
