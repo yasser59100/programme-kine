@@ -385,3 +385,9 @@ html[data-theme="light"] .kr-cue { color: #0a8a5f; }
 html[data-theme="light"] .kr-pick button { border-color: rgba(0, 0, 0, .15); }
 html[data-theme="light"] .kr-pick button.on { border-color: #14181f; }
 #kr-run.ring { box-shadow: inset 0 0 0 12px #fff; }
+
+/* ════════ Défilement des fenêtres : jamais bloqué ════════ */
+.kf-sheet { overscroll-behavior: contain; }
+:root:root .kf-sheet-body { min-height: 0 !important; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
+:root:root #kf-routine .kf-sheet-body { overflow-y: auto !important; }
+html.kf-lock, html.kf-lock body { overflow: hidden; overscroll-behavior: none; }
