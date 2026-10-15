@@ -165,58 +165,86 @@ var KineLumiere = (function () {
   }
   function filter(f) { filt = f; renderLib(); var c = document.querySelector("#lu-lib .lu-chips"); if (c) { var on = c.querySelector(".on"); if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest", inline: "center" }); } }
 
-  /* ════════ La case au centre de l'écran s'anime : Yass fait l'exercice ════════ */
-  var live = null, liveId = 0, chkRaf = 0;
-  function liveStop() {
-    if (!live) return;
-    var L = live; live = null; liveId++;
-    if (L.box.querySelector("canvas") && window.KineAvatar) KineAvatar.hide();
-    if (L.box.isConnected) { L.box.innerHTML = L.html; L.box.classList.remove("lu-live"); }
+  /* ════════ Les cases au centre de l'écran s'animent : Yass fait l'exercice ════════
+     Une rangée entière s'anime (2 cases dans la Bibliothèque, 3 dans Ma séance).
+     Chaque case a son propre avatar : le premier est celui de l'appli, les autres sont des copies chargées à la demande. */
+  var POOL = [], poolSrc = null, slots = [], chkRaf = 0, gen = 0;
+  function inst(i, cb) {
+    if (i === 0) return cb(window.KineAvatar || null);
+    if (POOL[i]) return cb(POOL[i]);
+    if (!poolSrc) poolSrc = fetch("assets/js/kine-avatar.js").then(function (r) { return r.text(); }).catch(function () { return null; });
+    poolSrc.then(function (src) {
+      if (!src) return cb(null);
+      if (!POOL[i]) { try { (new Function(src.replace("window.KineAvatar = {", "window.__kaCopy = {")))(); POOL[i] = window.__kaCopy; window.__kaCopy = null; } catch (e) { return cb(null); } }
+      cb(POOL[i] || null);
+    });
   }
+  function lib() { var p = $("page-guide"); return p && p.classList.contains("active") && p.classList.contains("lu-t-lib") ? "#lu-lib .lu-card" : null; }
+  function mes() { var p = $("page-mes"); return p && p.classList.contains("active") ? "#mx-lib .mx-grp[data-n]" : null; }
   function blocked() {
-    var page = $("page-guide");
-    if (!page || !page.classList.contains("active") || !page.classList.contains("lu-t-lib") || document.hidden) return true;
+    if (document.hidden) return true;
     return !!document.querySelector(".kf-sheet.open, #rep-guide.open, #seq-overlay.open, #kf-masc.open, #kcam-run.open, #lu-sheet.open, #kf-routine.open");
   }
+  function stopSlot(s) {
+    s.dead = true;
+    if (s.A && s.box.querySelector("canvas")) s.A.hide();
+    if (s.box.isConnected) { s.box.innerHTML = s.html; s.box.classList.remove("lu-live"); }
+  }
+  function liveStop() { slots.forEach(stopSlot); slots = []; }
   function liveCheck() {
     chkRaf = 0;
-    if (!window.KineAvatar || !window.KineBiblio || blocked()) { liveStop(); return; }
-    if (live && !live.box.querySelector("canvas")) liveStop();   // l'avatar est parti ailleurs (Yass, une séance)
-    var cards = document.querySelectorAll("#lu-lib .lu-card"), vh = window.innerHeight, cy = vh * 0.46, best = null, bd = 1e9;
+    var sel = lib() || mes();
+    if (!sel || !window.KineAvatar || !window.KineBiblio || blocked()) { liveStop(); return; }
+    slots = slots.filter(function (s) { if (!s.dead && s.started && !s.box.querySelector("canvas")) { stopSlot(s); return false; } return !s.dead; });
+    var cards = document.querySelectorAll(sel), vh = window.innerHeight, cy = vh * 0.46, best = null, bd = 1e9;
     for (var i = 0; i < cards.length; i++) {
       var r = cards[i].getBoundingClientRect(); if (r.bottom < 90 || r.top > vh - 110) continue;
-      var d = Math.abs(r.top + r.height / 2 - cy) + (r.left > window.innerWidth / 2 ? 1 : 0); if (d < bd) { bd = d; best = cards[i]; }
+      var d = Math.abs(r.top + r.height / 2 - cy); if (d < bd) { bd = d; best = cards[i]; }
     }
     if (!best) { liveStop(); return; }
-    if (live && live.card === best) return;
-    liveStop(); start(best);
+    var top = Math.round(best.getBoundingClientRect().top), row = [].filter.call(cards, function (c) { return Math.abs(c.getBoundingClientRect().top - top) < 8; });
+    if (slots.length === row.length && slots.every(function (s, k) { return s.card === row[k]; })) return;
+    liveStop(); var g = ++gen;
+    row.forEach(function (card, k) { start(card, k, g); });
   }
-  function start(card) {
-    var box = card.querySelector(".lu-im"), name = card.getAttribute("data-n"), rid = card.getAttribute("data-r"); if (!box || !name) return;
-    var L = { card: card, box: box, html: box.innerHTML }, id = ++liveId;
-    var alive = function () { return id === liveId && box.isConnected && !!box.querySelector("canvas"); };
-    live = L; box.classList.add("lu-live");
-    var ok = rid && window.KineReactif && KineReactif.mini ? KineReactif.mini(box, rid, alive) : (KineAvatar.supports(name) && KineAvatar.show(box, name));
-    if (!ok) { live = null; box.innerHTML = L.html; box.classList.remove("lu-live"); return; }
-    if (KineAvatar.pause) KineAvatar.pause(false);
-    if (rid) return;
+  function start(card, k, g) {
+    var box = card.querySelector(".lu-im, .mx-im"), name = card.getAttribute("data-n"), rid = card.getAttribute("data-r") || (window.KineBiblio && (KineBiblio.find(name) || {}).reactif) || null; if (!box || !name) return;
+    var s = { card: card, box: box, html: box.innerHTML, A: null };
+    slots.push(s);
+    inst(k, function (A) {
+      if (!A || s.dead || g !== gen) return;
+      s.A = A;
+      var alive = function () { return !s.dead && box.isConnected && !!box.querySelector("canvas"); };
+      var ok;
+      if (rid) ok = window.KineReactif && KineReactif.mini && KineReactif.mini(box, rid, alive, A);
+      else {
+        if (!A.supports(name) && KineAvatar._def(name)) A.register(name, KineAvatar._def(name));
+        ok = A.supports(name) && A.show(box, name);
+      }
+      if (!ok) { s.dead = true; box.innerHTML = s.html; return; }
+      s.started = true; box.classList.add("lu-live");
+      if (A.pause) A.pause(false);
+      if (!rid) loop(A, name, alive);
+    });
+  }
+  function loop(A, name, alive) {
     var e = KineBiblio.find(name) || {}, wk = window.KineProgress ? (KineProgress.state().week || 1) : 1;
-    var inf = KineAvatar.info(name, e.repsLabel || "10 répétitions", wk), rep = 1, alt = (inf && inf.perSide ? inf.perSide : 1) + 1;
-    var startPose = KineAvatar.startOf(name);
+    var inf = A.info(name, e.repsLabel || "10 répétitions", wk), rep = 1, alt = (inf && inf.perSide ? inf.perSide : 1) + 1;
+    var startPose = A.startOf(name);
     function cycle() {
       if (!alive()) return;
-      var st = (KineAvatar.plan(name, rep, inf, wk).steps || []).filter(function (x) { return x.pose; });
+      var st = (A.plan(name, rep, inf, wk).steps || []).filter(function (x) { return x.pose; });
       rep = rep === 1 && inf && inf.sides ? alt : 1;
       var k = 0;
       (function nx() {
         if (!alive()) return;
         if (k >= st.length) {
-          if (st.length < 2 && startPose) { KineAvatar.step({ pose: startPose, dur: 0.8, side: st[0] ? st[0].side : "L" }); setTimeout(cycle, 1100); }
+          if (st.length < 2 && startPose) { A.step({ pose: startPose, dur: 0.8, side: st[0] ? st[0].side : "L" }); setTimeout(cycle, 1100); }
           else setTimeout(cycle, 250);
           return;
         }
         var s0 = st[k++], d = Math.min(Math.max(s0.dur || 1, 0.3), 2.5);
-        KineAvatar.step({ pose: s0.pose, dur: Math.min(d, 1.6), side: s0.side });
+        A.step({ pose: s0.pose, dur: Math.min(d, 1.6), side: s0.side });
         setTimeout(nx, d * 1000 + 60);
       })();
     }
@@ -224,7 +252,7 @@ var KineLumiere = (function () {
   }
   function queueCheck() { if (!chkRaf) chkRaf = requestAnimationFrame(liveCheck); }
   window.addEventListener("scroll", queueCheck, { passive: true });
-  setInterval(function () { if (live || !blocked()) liveCheck(); }, 1500);
+  setInterval(function () { if (slots.length || !blocked()) liveCheck(); }, 1500);
 
   /* ════════ Navigation ════════ */
   function hookNav() {
@@ -252,6 +280,6 @@ var KineLumiere = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);
 
-  return { go: go, menuHtml: menuHtml, _live: function () { return live && live.card.getAttribute("data-n"); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
+  return { go: go, menuHtml: menuHtml, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
 })();
 window.KineLumiere = KineLumiere;

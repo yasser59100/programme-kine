@@ -316,8 +316,8 @@ var KineCompose = (function () {
     }).join("") : "<button type='button' class='mx-empty-card' onclick='KineCompose.open()'><span class='mx-plus' aria-hidden='true'>+</span><span><strong>Crée ta première séance</strong>Choisis 5 à 8 exercices, ça prend une minute.</span></button>";
     var groups = KineBiblio.groups.map(function (g) {
       var it = all.filter(function (e) { return e.group === g[0] && (!e.gear || gear[e.gear]); }); if (!it.length) return "";
-      var t = thumb(it[0].name);
-      return "<button class='mx-grp' onclick='KineBiblio.open(\"" + g[0] + "\")'>" + (t ? "<img src='" + t + "' alt=''>" : "<span class='pg-fig'></span>") +
+      var t = it[0].thumb || thumb(it[0].name);
+      return "<button class='mx-grp' data-n='" + esc(it[0].name) + "' onclick='KineBiblio.open(\"" + g[0] + "\")'><span class='mx-im'>" + (t ? "<img src='" + t + "' alt=''>" : "<span class='pg-fig'></span>") + "</span>" +
         "<b>" + esc(g[1]) + "</b><small>" + it.length + " exercice" + (it.length > 1 ? "s" : "") + "</small></button>";
     }).join("");
     root.innerHTML =

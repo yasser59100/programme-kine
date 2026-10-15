@@ -1754,14 +1754,18 @@
     var c = (d && d.chair) || { z: 0, turn: false };
     R.props.chair.rotation.y = c.turn ? Math.PI : 0; R.props.chair.position.z = c.z || 0;
   }
-  function showLoad(d, side) {
-    if (!R) return;
-    placeProps(d);
-    if (R.cones) R.cones.forEach(function (g, i) {
+  // Plots de couleur : seulement pour les exercices qui en ont
+  function syncCones(d) {
+    if (R && R.cones) R.cones.forEach(function (g, i) {
       var c = d && d.cones && d.cones[i];
       g.visible = !!c; if (!c) return;
       g.position.set(c.at[0], 0, c.at[1]); g.userData.mat.color.copy(new R.T.Color(c.hex).convertSRGBToLinear());
     });
+  }
+  function showLoad(d, side) {
+    if (!R) return;
+    placeProps(d);
+    syncCones(d);
     R.props.wallSide.position.x = side === "R" ? 0.62 : -0.62;
     if (R.props.cushion) R.props.cushion.position.x = side === "R" ? 0.1 : -0.1;
     bandDef = d; bandSide = side === "R" ? "R" : "L";
@@ -2064,6 +2068,7 @@
       if (!R) { R = build(); if (!R) return null; }
       var px = size || 160;
       for (var k in R.props) R.props[k].visible = (d.props || []).indexOf(k) >= 0;
+      syncCones(d);
       var th = d.thumb || d.start; if (d.easyUntil && curWeek() <= d.easyUntil && d.poses[th + "K"]) th = th + "K";
       var bd0 = bandDef, bs0 = bandSide; bandDef = d; bandSide = "L";
       applyPose(d.poses[th]);
@@ -2072,6 +2077,7 @@
       R.renderer.render(R.scene, R.camera);
       var url = R.canvas.toDataURL("image/png");
       if (def) { for (var k2 in R.props) R.props[k2].visible = (def.props || []).indexOf(k2) >= 0; }
+      syncCones(def);
       bandDef = bd0; bandSide = bs0;
       if (host) resize();
       return url;

@@ -229,24 +229,25 @@
   }
 
   // Petite démo dans une vignette (bibliothèque) : l'avatar touche les plots tant que la case est au centre de l'écran
-  function mini(box, id, alive) {
-    if (!box || !window.KineAvatar || !KineAvatar.lib) return false;
+  function mini(box, id, alive, A) {
+    A = A || window.KineAvatar;
+    if (!box || !A || !window.KineAvatar || !KineAvatar.lib) return false;
     var ex = exoOf(id), cols = COLS.slice(0, 3), avHop = ex.id === "bulgare" || ex.id === "chasses1";
-    KineAvatar.register("__kr_mini", avDef(ex, cols));
-    if (!KineAvatar.show(box, "__kr_mini")) return false;
+    A.register("__kr_mini", avDef(ex, cols));
+    if (!A.show(box, "__kr_mini")) return false;
     var last = -1;
     function wait(ms, f) { setTimeout(function () { if (alive()) f(); }, ms); }
     (function cycle() {
       var i; do { i = Math.floor(Math.random() * cols.length); } while (i === last && cols.length > 1); last = i;
       if (avHop) {
-        KineAvatar.step({ pose: "j" + i, dur: 0.28 });
-        wait(280, function () { KineAvatar.step({ pose: "c" + i, dur: 0.24 });
-          wait(900, function () { KineAvatar.step({ pose: "j" + i, dur: 0.26 });
-            wait(260, function () { KineAvatar.step({ pose: "mid", dur: 0.26 }); wait(900, cycle); }); }); });
+        A.step({ pose: "j" + i, dur: 0.28 });
+        wait(280, function () { A.step({ pose: "c" + i, dur: 0.24 });
+          wait(900, function () { A.step({ pose: "j" + i, dur: 0.26 });
+            wait(260, function () { A.step({ pose: "mid", dur: 0.26 }); wait(900, cycle); }); }); });
         return;
       }
-      KineAvatar.step({ pose: "c" + i, dur: 0.8 });
-      wait(1200, function () { KineAvatar.step({ pose: "mid", dur: 0.7 }); wait(1000, cycle); });
+      A.step({ pose: "c" + i, dur: 0.8 });
+      wait(1200, function () { A.step({ pose: "mid", dur: 0.7 }); wait(1000, cycle); });
     })();
     return true;
   }
