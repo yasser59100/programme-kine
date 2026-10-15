@@ -1369,7 +1369,13 @@
 
     /* Squelette : bassin, puis colonne, puis tête / épaules, puis coudes ; bassin, puis hanches, puis genoux, puis chevilles */
     var pelvis = group(scene); pelvis.rotation.order = "YXZ";
-    var pm = mesh(new T.CylinderGeometry(0.155, 0.15, 0.16, 28), M.pants, pelvis); pm.scale.z = 0.72; pm.position.y = 0.03;
+    var pm = mesh(new T.CylinderGeometry(0.155, 0.152, 0.16, 28), M.pants, pelvis); pm.scale.z = 0.72; pm.position.y = 0.03;
+    // Bassin plus réaliste : volume arrondi des hanches, fessiers, et liaison avec le haut des cuisses
+    var hips = ball(1, M.pants, pelvis); hips.scale.set(0.162, 0.1, 0.118); hips.position.set(0, -0.025, 0.0);
+    [-1, 1].forEach(function (sd) {
+      var gl = ball(1, M.pants, pelvis); gl.scale.set(0.084, 0.095, 0.076); gl.position.set(sd * 0.066, -0.045, -0.062);
+      var gs = ball(1, M.pants, pelvis); gs.scale.set(0.06, 0.085, 0.085); gs.position.set(sd * 0.128, -0.02, -0.005);   // galbe du côté de la hanche
+    });
     var spine = group(pelvis); spine.rotation.order = "YXZ";
     var shirt = mesh(new T.CylinderGeometry(0.2, 0.152, 0.46, 40, 16, false, Math.PI / 2), new T.MeshStandardMaterial({ map: shirtTex, roughness: 0.85, side: T.DoubleSide }), spine);
     shirt.userData.base = shirt.geometry.attributes.position.array.slice();
@@ -1430,7 +1436,7 @@
     waist.rotation.x = Math.PI / 2; waist.scale.set(1, 0.72, 1); waist.position.y = 0.1;
     function makeLeg(side) {
       var hip = group(pelvis, side * LEN.hipX, 0, 0); hip.rotation.order = "XZY";
-      ball(0.08, M.pants, hip); limb(0.082, 0.058, LEN.thigh, pantsSide[side], hip, 0.3, 0.08);
+      ball(0.086, M.pants, hip); limb(0.086, 0.058, LEN.thigh, pantsSide[side], hip, 0.3, 0.08);
       var knee = group(hip, 0, -LEN.thigh, 0);
       ball(0.062, M.pants, knee); limb(0.06, 0.046, LEN.shank, pantsSide[side], knee, 0.25, 0.14);
       var ankle = group(knee, 0, -LEN.shank, 0);
@@ -1685,7 +1691,12 @@
   function lerp(a, b, k) {
     if (typeof a === "number" && typeof b === "number") return a + (b - a) * k;
     if (Array.isArray(a) && Array.isArray(b)) return a.map(function (v, i) { return lerp(v, b[i], k); });
-    if (a && b && typeof a === "object") { var o = {}; for (var key in b) o[key] = key in a ? lerp(a[key], b[key], k) : b[key]; return o; }
+    if (a && b && typeof a === "object") {
+      var o = {}, key;
+      for (key in b) o[key] = key in a ? lerp(a[key], b[key], k) : (typeof b[key] === "number" ? b[key] * k : b[key]);
+      for (key in a) if (!(key in b) && typeof a[key] === "number") o[key] = a[key] * (1 - k);
+      return o;
+    }
     return k < 0.5 ? a : b;
   }
   function blend(a, b, k) {
@@ -1721,6 +1732,32 @@
     var arm = d && d.load && !both ? (side === "R" ? (d.load === "R" ? "L" : "R") : d.load) : null;
     R.arms.L.load.visible = both || arm === "L"; R.arms.R.load.visible = both || arm === "R";
   }
+  // Un bras ou une jambe décrit par des angles d'un côté et par une cible de l'autre ne peut pas être
+  // interpolé directement : on interpole alors les rotations des articulations (plus de saut d'une pose à l'autre).
+  var LIMB_BONES = { L: ["hip", "knee", "ankle"], R: ["hip", "knee", "ankle"], LA: ["sh", "el"], RA: ["sh", "el"] };
+  function boneOf(limb, b) { return limb.length === 2 ? R.arms[limb.charAt(0)][b] : R.legs[limb][b]; }
+  function grab(limbs) { var o = {}; limbs.forEach(function (l) { o[l] = LIMB_BONES[l].map(function (b) { return boneOf(l, b).quaternion.clone(); }); }); return o; }
+  function mismatch(a, b) {
+    var out = [];
+    ["L", "R"].forEach(function (s) { var fa = !!(a[s] && a[s].foot), fb = !!(b[s] && b[s].foot); if (fa !== fb) out.push(s); });
+    ["LA", "RA"].forEach(function (s) { var ha = !!(a[s] && a[s].hand), hb = !!(b[s] && b[s].hand); if (ha !== hb) out.push(s); });
+    return out;
+  }
+  function limbTween(from, to) {
+    if (!R) return null;
+    var list = mismatch(from, to); if (!list.length) return null;
+    var f = grab(list);                      // ce qui est affiché maintenant
+    applyPose(to); var t = grab(list);       // la pose d'arrivée
+    applyPose(from);
+    return { list: list, from: f, to: t };
+  }
+  function blendLimbs(L, k) {
+    L.list.forEach(function (l) {
+      LIMB_BONES[l].forEach(function (b, i) { boneOf(l, b).quaternion.copy(L.from[l][i]).slerp(L.to[l][i], k); });
+    });
+    R.pelvis.updateMatrixWorld(true);
+    updateBands();
+  }
   var easeInOut = function (x) { return x * x * x * (10 + x * (6 * x - 15)); }; // minimum jerk
 
   function frame(now) {
@@ -1729,10 +1766,12 @@
     lastNow = now;
     if (tween) {
       var k = Math.max(0, Math.min(1, (now - tween.start) / tween.dur)); // borné : pas d'extrapolation au-delà des poses
-      current = blend(tween.from, tween.to, easeInOut(k));
-      if (k >= 1) { current = tween.to; tween = null; }
+      tween.kNow = easeInOut(k);
+      current = blend(tween.from, tween.to, tween.kNow);
+      if (k >= 1) { current = tween.to; tween.kNow = 1; if (tween.limbs) { applyPose(current); } tween = null; }
     }
     applyPose(current);
+    if (tween && tween.limbs) blendLimbs(tween.limbs, tween.kNow);
     var v = R.view;
     v.yaw += (v.yawGoal - v.yaw) * 0.12;
     placeCamera(def, v.yaw);
@@ -1842,7 +1881,14 @@
       if (!d || !d.poses || !window.THREE) { loadThree().catch(function () {}); return false; }
       if (!R) { R = build(); if (!R) return false; }
       if (host === container && def === d && raf) return true;
-      def = d; current = d.poses[startPose(d)]; tween = null; curSide = "L"; showLoad(d, "L");
+      var start = d.poses[startPose(d)], keep = def === d && current;
+      var near = current && def && def !== d && Math.abs((withY(current).pelvis.p[1]) - (withY(start).pelvis.p[1])) < 0.3 && !d.props && !(def && def.props);
+      if (!keep) {
+        if (near) { var from0 = current; def = d; tween = { from: from0, to: start, start: performance.now(), dur: 550, kNow: 0, limbs: limbTween(from0, start) }; }
+        else { def = d; current = start; tween = null; }
+        curSide = "L";
+      }
+      showLoad(d, curSide);
       for (var k in R.props) R.props[k].visible = (d.props || []).indexOf(k) >= 0;
       R.view.yaw = R.view.yawGoal = d.camera && d.camera.yaw != null ? d.camera.yaw : 0.6;
       container.innerHTML = ""; container.appendChild(R.canvas); host = container;
@@ -1858,7 +1904,8 @@
       var to = def.poses[s.pose], side = s.side === "R" ? "R" : "L";
       var dur = def.snapSideChange && side !== curSide ? 0.05 : s.dur;
       curSide = side; showLoad(def, side);
-      tween = { from: current, to: side === "R" ? mirror(to) : to, start: performance.now(), dur: Math.max(0.05, dur) * 1000 };
+      var target = side === "R" ? mirror(to) : to;
+      tween = { from: current, to: target, start: performance.now(), dur: Math.max(0.05, dur) * 1000, kNow: 0, limbs: dur > 0.06 ? limbTween(current, target) : null };
     },
 
     pause: function (on) { paused = !!on; },
