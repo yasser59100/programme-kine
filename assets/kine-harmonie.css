@@ -345,3 +345,36 @@ html[data-theme="light"] .kn-msg { color: #a86400; }
 .kx-row span { font-size: .92rem; line-height: 1.45; color: var(--text2); }
 html[data-theme="light"] .kx-tag { color: #1f6fd1; }
 html[data-theme="light"] .kx-term { text-decoration-color: #1f6fd1; }
+
+/* ════════ Exercices réactifs « couleurs » ════════ */
+.kr-libcard { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 8px; padding: 12px 14px; border-radius: 16px; border: 1px solid rgba(79, 172, 254, .45); background: linear-gradient(135deg, rgba(255, 77, 94, .1), rgba(61, 142, 240, .1) 50%, rgba(255, 210, 63, .1)); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.kr-dots { display: flex; gap: 4px; flex: none; }
+.kr-dots i { width: 12px; height: 26px; border-radius: 6px; }
+.kr-lt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.kr-lt b { font-size: 1rem; }
+.kr-lt small { font-size: .82rem; color: var(--text2); line-height: 1.3; }
+.kr-libcard > span:last-child { font-size: 1.3rem; color: var(--blue); }
+.kr-exos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.kr-exo { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 11px 12px; border-radius: 14px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.kr-exo b { font-size: .92rem; line-height: 1.25; }
+.kr-exo span { font-size: .78rem; color: var(--text2); }
+.kr-exo .kb-dot { margin: 0; }
+.kr-exo.on { border-color: var(--blue); background: var(--blue-dim); box-shadow: 0 0 0 1px var(--blue) inset; }
+.kr-place { margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); }
+.kr-svg { display: block; width: 100%; max-width: 340px; margin: 0 auto 6px; color: var(--text); }
+.kr-place p { margin: 6px 0 0; font-size: .92rem; line-height: 1.45; }
+.kr-cue { color: #3CF2B0; font-weight: 600; }
+.kr-swatch { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.kr-swatch span { padding: 5px 12px; border-radius: 12px; font-weight: 700; font-size: .85rem; }
+.kr-small { font-size: .84rem; margin: 8px 0 0; }
+#kr-run { position: fixed; inset: 0; z-index: 10060; display: none; flex-direction: column; padding: calc(14px + env(safe-area-inset-top, 0px)) 18px calc(18px + env(safe-area-inset-bottom, 0px)); transition: background-color .12s; }
+#kr-run.open { display: flex; }
+.kr-top { display: flex; justify-content: space-between; gap: 10px; white-space: nowrap; font-weight: 700; font-size: .95rem; opacity: .9; }
+.kr-bar { height: 6px; margin-top: 10px; border-radius: 3px; background: rgba(0, 0, 0, .18); overflow: hidden; }
+.kr-bar i { display: block; height: 100%; background: currentColor; opacity: .8; transition: width .2s; }
+.kr-big { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: clamp(3.6rem, 22vw, 8rem); font-weight: 900; letter-spacing: -.02em; line-height: 1; }
+.kr-small2 { min-height: 3em; text-align: center; font-size: 1.05rem; line-height: 1.45; font-weight: 600; opacity: .92; margin-bottom: 14px; }
+.kr-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kr-btns button { min-height: 54px; border-radius: 16px; border: 2px solid currentColor; background: rgba(0, 0, 0, .14); color: inherit; font: 800 1.05rem var(--font); cursor: pointer; }
+html[data-theme="light"] .kr-cue { color: #0a8a5f; }
+.kr-top span:first-child { overflow: hidden; text-overflow: ellipsis; }
