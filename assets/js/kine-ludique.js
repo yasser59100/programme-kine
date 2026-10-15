@@ -187,16 +187,43 @@
       LA: { hand: { at: [0.27, 0.48, 0.1], pole: [1, 0.4, 0] } }, RA: { hand: { at: [-0.27, 0.48, 0.1], pole: [-1, 0.4, 0] } } });
     KineAvatar.register("__bed", { camera: { yaw: 1.35 }, start: "lie", thumb: "lie", poses: { lie: lie, stand: m.poses.idle, cheer1: m.poses.cheer1, cheer2: m.poses.cheer2, thumb: m.poses.thumb } });
   }
-  function hero(t, big, k) {
-    var kd = k || kind(t);
-    return "<div class='lq-hero s-" + kd + (big ? " big" : "") + "' data-k='" + kd + "' aria-hidden='true'>" +
-      "<span class='lq-ring'></span>" + (DECO[kd] || "") +
+  function hero(t, big, k, idx) {
+    var kd = k || kind(t), S = window.KineScenes, own = S && idx != null && S.has(idx);
+    var bg = own ? (S.bg(idx) || kd) : kd;
+    return "<div class='lq-hero s-" + bg + (own ? " tip t" + idx : "") + (big ? " big" : "") + "' data-k='" + kd + "'" + (own ? " data-i='" + idx + "'" : "") + " aria-hidden='true'>" +
+      "<span class='lq-ring'></span>" + (own ? S.deco(idx) : (DECO[kd] || "")) +
       "<div class='lq-stat'><b>" + esc(t.stat) + "</b><span>" + esc(t.statLabel) + "</span></div>" +
       "<div class='lq-st'><img src='assets/illus/" + IMG[kd] + ".webp' alt='' class='lq-ill'></div></div>";
   }
   /* Une scène vivante par emplacement d'avatar (5 : carte de l'accueil, 6 : fiche) */
   var running = {};
+  // Scène sur mesure (kine-scenes.js) : Yass + accessoires, pilotés pas à pas
+  function runTip(band, slot, idx) {
+    var st = band.querySelector(".lq-st"), L = window.KineLumiere; if (!st || !L || !L.avatar || !window.KineAvatar) return;
+    var def = KineScenes.def(idx); if (!def) return;
+    stopScene(slot);
+    var me = { band: band, dead: false, timers: [] }; running[slot] = me;
+    L.avatar(slot, function (A) {
+      if (!A || me.dead || !band.isConnected) return;
+      var name = "__tip" + idx;
+      A.register(name, def);
+      var img = st.innerHTML;
+      if (!A.show(st, name)) return;
+      if (A.pause) A.pause(false);
+      me.A = A; me.st = st; me.img = img;
+      band.classList.add("live"); if (A.xray) A.xray(false);
+      var alive = function () { return !me.dead && band.isConnected && !!st.querySelector("canvas"); };
+      var c = { A: A, band: band, alive: alive,
+        T: function (f, ms) { me.timers.push(setTimeout(function () { if (alive()) f(); }, ms)); },
+        step: function (pose, dur) { if (def.poses[pose]) A.step({ pose: pose, dur: dur }); },
+        q: function (sel) { return band.querySelector(sel); },
+        xray: function (on) { if (A.xray) A.xray(on); } };
+      try { KineScenes.run(idx, c); } catch (e) {}
+    });
+  }
   function runScene(band, slot) {
+    var ti = band.getAttribute("data-i");
+    if (ti != null && window.KineScenes) return runTip(band, slot, +ti);
     var k = band.getAttribute("data-k"), sc = SCN[k], st = band.querySelector(".lq-st"); if (!sc || !st) return;
     var L = window.KineLumiere, M = window.KineMascotte;
     if (!L || !L.avatar || !window.KineAvatar) return;
@@ -256,7 +283,7 @@
     r.dead = true; r.timers.forEach(clearTimeout); running[slot] = null;
     if (r.A) { if (r.A.xray) r.A.xray(false); if (r.st && r.st.querySelector("canvas")) r.A.hide(); }
     if (r.st && r.st.isConnected) r.st.innerHTML = r.img;
-    r.band.classList.remove("live", "xr", "scan", "up", "down");
+    r.band.classList.remove("live", "xr", "scan", "up", "down", "moving", "awake", "done", "tick", "ring", "zap");
   }
   function liveWhenVisible(band, slot) {
     if (!("IntersectionObserver" in window)) return runScene(band, slot);
@@ -273,7 +300,7 @@
     var c = $("ks-card"); if (!c || c.__lq || !window.KineSavoir) return;
     c.__lq = 1;
     var t = KineSavoir.tips[KineSavoir.today()]; if (!t) return;
-    c.classList.add("lq-ks"); c.insertAdjacentHTML("afterbegin", hero(t, false));
+    c.classList.add("lq-ks"); c.insertAdjacentHTML("afterbegin", hero(t, false, null, KineSavoir.today()));
     liveWhenVisible(c.querySelector(".lq-hero"), 5);
   }
   function hookSavoirSheet() {
@@ -286,7 +313,7 @@
       var k = n ? (parseInt(n.textContent, 10) || 1) - 1 : 0, t = KineSavoir.tips[k];
       if (body && t && !sh.querySelector(".lq-hero")) {
         var back = body.querySelector(".kf-back");
-        (back || body.firstChild).insertAdjacentHTML(back ? "afterend" : "beforebegin", hero(t, true));
+        (back || body.firstChild).insertAdjacentHTML(back ? "afterend" : "beforebegin", hero(t, true, null, k));
         sh.classList.add("lq-sheet");
         var band = sh.querySelector(".lq-hero"); setTimeout(function () { runScene(band, 6); }, 250);
       }
