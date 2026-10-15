@@ -20,12 +20,18 @@
 
   // Schémas vus de dessus : P = patient, C = chaise, plots = positions (x, y) dans un cadre 300 × 190
   var EXOS = [
-    { id: "bulgare", name: "Fente bulgare réactive", level: 3, sides: true, sideWord: "jambe",
-      kit: "une chaise calée contre un mur et vos plots",
-      place: "Pied arrière posé sur la chaise, pied avant un grand pas devant. Posez les plots au sol devant vous, en arc de cercle : un à gauche, un au centre, un à droite, à environ un pas de votre pied avant.",
-      action: "À chaque couleur, descendez en fente et touchez le plot de cette couleur avec la main, puis remontez.",
-      cue: "Le genou avant reste dans l'axe du pied, le buste peut se pencher un peu.",
-      spots: [[85, 70], [150, 45], [215, 70], [150, 20]], chair: true, feet: "split" },
+    { id: "fentes", name: "Fentes réactives", level: 3, sides: false,
+      kit: "vos plots et un sol dégagé",
+      place: "Debout, pieds joints. Posez les plots au sol devant vous, en arc de cercle, à un grand pas : un en diagonale à gauche, un droit devant, un en diagonale à droite, et le quatrième sur le côté si vous en avez quatre.",
+      action: "À chaque couleur, faites une fente : avancez le pied vers le plot de cette couleur, touchez-le du pied en pliant les deux genoux, puis poussez pour revenir pieds joints.",
+      cue: "Le genou avant reste dans l'axe du pied. Revenez toujours bien au centre avant la couleur suivante.",
+      spots: [[80, 62], [150, 35], [220, 62], [250, 120]], feet: "both" },
+    { id: "chasses", name: "Pas chassés réactifs", level: 2, sides: false,
+      kit: "vos plots et environ 3 mètres d'espace sur les côtés",
+      place: "Debout au centre, légèrement fléchi. Posez un plot loin à gauche et un loin à droite (environ 3 pas chassés), puis les autres devant et derrière vous si vous en avez plus.",
+      action: "À chaque couleur, rejoignez le plot en pas chassés, sans croiser les pieds, touchez-le du pied, puis revenez au centre.",
+      cue: "Restez fléchi, le buste face à l'avant, et poussez sur la jambe extérieure.",
+      spots: [[30, 105], [270, 105], [150, 28], [150, 180]], feet: "both" },
     { id: "squat", name: "Squat réactif", level: 2, sides: false,
       kit: "vos plots",
       place: "Debout, pieds largeur d'épaules. Posez les plots au sol devant vous, en arc de cercle, à une longueur de bras : un à gauche, un au centre, un à droite.",
@@ -43,11 +49,21 @@
       place: "Debout au centre. Posez les plots au sol autour de vous, à un grand pas : un devant, un à gauche, un à droite, un derrière si vous en avez quatre.",
       action: "À chaque couleur, faites un pas vers le plot, touchez-le du pied, puis revenez au centre.",
       cue: "Restez léger sur les pieds et revenez toujours au centre.",
-      spots: [[150, 30], [55, 105], [245, 105], [150, 175]], feet: "both" }
+      spots: [[150, 30], [55, 105], [245, 105], [150, 175]], feet: "both" },
+    { id: "assis", name: "Réaction assis", level: 1, sides: false,
+      kit: "une chaise stable sans roulettes et vos plots (ou objets de couleur)",
+      place: "Assis au bord d'une chaise, pieds à plat. Posez les plots au sol autour de vos pieds, à portée : un à gauche, un devant, un à droite, un en diagonale si vous en avez quatre.",
+      action: "À chaque couleur, allez toucher le plot de cette couleur avec le pied, puis reposez le pied au centre.",
+      cue: "Restez bien assis, le dos droit. Pour plus de difficulté, alternez les pieds.",
+      spots: [[85, 70], [150, 40], [215, 70], [230, 130]], feet: "seat" }
   ];
   var LVL = { 1: ["vert", "Facile"], 2: ["orange", "Intermédiaire"], 3: ["rouge", "Difficile"] };
 
-  function settings() { return Object.assign({ exo: "bulgare", ncol: 3, count: 15, rythme: "soutenu" }, jget("kf-reactif-set", {})); }
+  function settings() {
+    var s = Object.assign({ exo: "fentes", ncol: 3, count: 15, rythme: "soutenu", pieges: false }, jget("kf-reactif-set", {}));
+    if (!EXOS.some(function (e) { return e.id === s.exo; })) s.exo = "fentes";
+    return s;
+  }
   function save(s) { jset("kf-reactif-set", s); }
   function exoOf(id) { for (var i = 0; i < EXOS.length; i++) if (EXOS[i].id === id) return EXOS[i]; return EXOS[0]; }
 
@@ -61,12 +77,14 @@
       return "<g><path d='M" + (p[0] - 11) + " " + (p[1] + 9) + " L" + p[0] + " " + (p[1] - 12) + " L" + (p[0] + 11) + " " + (p[1] + 9) + " Z' fill='" + c.hex + "' stroke='rgba(0,0,0,.35)' stroke-width='1.2'/>" +
         "<rect x='" + (p[0] - 14) + "' y='" + (p[1] + 8) + "' width='28' height='4' rx='2' fill='" + c.hex + "' opacity='.7'/></g>";
     }).join("");
-    var cx = 150, cy = ex.chair ? 128 : (ex.feet === "one" ? 100 : 110);
+    var cx = 150, cy = ex.chair ? 128 : (ex.feet === "one" ? 100 : ex.feet === "seat" ? 95 : 110);
     var foot = function (x, y, op) { return "<ellipse cx='" + x + "' cy='" + y + "' rx='7' ry='13' fill='currentColor' opacity='" + (op || 0.9) + "'/>"; };
     var body = "";
     if (ex.feet === "split") body = foot(cx, cy - 6) + "<rect x='118' y='160' width='64' height='24' rx='5' fill='none' stroke='currentColor' stroke-width='2' opacity='.55'/>" +
       "<text x='150' y='176' text-anchor='middle' font-size='10' fill='currentColor' opacity='.7'>chaise</text>" + foot(cx, 166, 0.45);
     else if (ex.feet === "one") body = foot(cx, cy);
+    else if (ex.feet === "seat") body = foot(cx - 14, cy) + foot(cx + 14, cy) + "<rect x='120' y='118' width='60' height='44' rx='6' fill='none' stroke='currentColor' stroke-width='2' opacity='.55'/>" +
+      "<text x='150' y='145' text-anchor='middle' font-size='10' fill='currentColor' opacity='.7'>chaise</text>";
     else body = foot(cx - 14, cy) + foot(cx + 14, cy);
     var ring = ex.id === "pas" ? "<circle cx='150' cy='105' r='22' fill='none' stroke='currentColor' stroke-dasharray='4 4' opacity='.4'/>" : "";
     return "<svg class='kr-svg' viewBox='0 0 300 190' role='img' aria-label='Placement des plots vu de dessus'>" + ring + cones + body +
@@ -93,6 +111,8 @@
       "<p class='lx-muted kr-small'>Pas de plots ? Des gobelets, des t-shirts ou des feuilles de couleur posés au sol font très bien l'affaire.</p>" +
       "<div class='kf-phase' style='color:var(--text2)'>Couleurs par série" + (ex.sides ? " (pour chaque " + ex.sideWord + ")" : "") + "</div><div class='kf-chips'>" + COUNTS.map(function (n) { return chip("count", n, s.count, String(n)); }).join("") + "</div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Rythme</div><div class='kf-chips'>" + RYTHMES.map(function (r) { return chip("rythme", r[0], s.rythme, r[1] + " <small>· " + (r[2] / 1000).toString().replace(".", ",") + " s</small>"); }).join("") + "</div>" +
+      "<div class='kf-phase' style='color:var(--text2)'>Pièges</div><div class='kf-chips'>" + chip("pieges", false, !!s.pieges, "Non") + chip("pieges", true, !!s.pieges, "Oui") + "</div>" +
+      "<p class='lx-muted kr-small'>Avec les pièges, l'écran affiche parfois « Pas le bleu » : il ne faut pas bouger. Ça entraîne l'attention et le contrôle.</p>" +
       (last ? "<p class='lx-muted kr-small'>Dernière fois : " + last.n + " couleurs, rythme " + esc(last.r) + ", le " + esc(last.d) + ".</p>" : "") +
       "<div class='kf-kit'><strong>Il vous faut :</strong> " + esc(ex.kit) + ". Espace dégagé, sol non glissant. Arrêtez si une douleur atteint 5 sur 10, ou en cas de vertige.</div>" +
       "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineReactif.start()'>C'est parti</button></div>";
@@ -121,7 +141,7 @@
     var el = screen();
     el.style.background = bg; el.style.color = ink;
     el.innerHTML = "<div class='kr-top'><span>" + esc(run.ex.name) + (run.sideTxt ? " · " + esc(run.sideTxt) : "") + "</span><span>" + (prog || "") + "</span></div>" +
-      "<div class='kr-bar'><i style='width:" + (run.total ? Math.round(run.done / run.total * 100) : 0) + "%'></i></div>" +
+      "<div class='kr-bar'><i style='width:" + (run.total ? Math.round((run.calls || 0) / run.total * 100) : 0) + "%'></i></div>" +
       "<div class='kr-big' aria-live='assertive'>" + big + "</div><div class='kr-small2'>" + (small || "") + "</div>" +
       "<div class='kr-btns'><button type='button' onclick='KineReactif.pause()'>" + (run.paused ? "Reprendre" : "Pause") + "</button><button type='button' onclick='KineReactif.stop()'>Arrêter</button></div>";
     el.classList.add("open");
@@ -140,7 +160,11 @@
     side();
   }
   function side() {
-    run.seq = sequence(run.s.count, run.s.ncol); run.i = 0;
+    run.seq = sequence(run.s.count, run.s.ncol).map(function (c, i) {
+      return { c: c, trap: !!run.s.pieges && i >= 2 && Math.random() < 0.2 };
+    });
+    for (var k = 1; k < run.seq.length; k++) if (run.seq[k].trap && run.seq[k - 1].trap) run.seq[k].trap = false;   // jamais deux pièges de suite
+    run.i = 0;
     run.sideTxt = run.sides[run.si] ? (run.ex.id === "bulgare" ? cap(run.sides[run.si]) + " devant" : "Sur la " + run.sides[run.si]) : "";
     paint("#0E141F", "#fff", "Prêt ?", run.sideTxt ? esc(run.sideTxt) + ". " + esc(run.ex.place.split(".")[0]) + "." : "Mettez-vous en place.", "");
     say(run.si === 0 ? "Mettez-vous en place." : "Changez de jambe.");
@@ -152,8 +176,15 @@
   }
   function cue() {
     if (run.i >= run.seq.length) return endSide();
-    var c = COLS[run.seq[run.i]];
-    run.i++; run.done++;
+    var it = run.seq[run.i], c = COLS[it.c];
+    run.i++; run.calls = (run.calls || 0) + 1;
+    if (it.trap) {
+      paint("#0E141F", "#fff", "<span class='kr-trap' style='border-color:" + c.hex + ";color:" + c.hex + "'>Pas le " + c.name.toLowerCase() + "</span>", "Ne bougez pas", run.i + " / " + run.seq.length);
+      say("Pas le " + c.name.toLowerCase() + " !"); beep(330, 0.12, 0.18);
+      later(cue, Math.max(1200, run.every * 0.8));
+      return;
+    }
+    run.done++;
     paint(c.hex, c.ink, c.name, "", run.i + " / " + run.seq.length);
     say(c.name + " !"); beep(880, 0.06, 0.18);
     if (navigator.vibrate) { try { navigator.vibrate(60); } catch (e) {} }
@@ -213,7 +244,7 @@
     var c = document.createElement("button");
     c.type = "button"; c.className = "kr-libcard";
     c.innerHTML = "<span class='kr-dots' aria-hidden='true'>" + COLS.slice(0, 3).map(function (x) { return "<i style='background:" + x.hex + "'></i>"; }).join("") + "</span>" +
-      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fente bulgare, squat, équilibre, pas : touchez le plot de la couleur annoncée</small></span><span aria-hidden='true'>›</span>";
+      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fentes, pas chassés, squat, équilibre, assis : allez toucher le plot de la couleur annoncée</small></span><span aria-hidden='true'>›</span>";
     c.onclick = function () { open(); };
     chips.parentNode.insertBefore(c, chips.nextSibling);
   }
