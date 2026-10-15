@@ -48,7 +48,7 @@ var KineScenes = (function () {
   function count(c, sel, a, b, ms, fmt) {
     var el = c.q(sel); if (!el) return; var t0 = performance.now();
     (function f(now) {
-      if (!c.alive()) return; var k = Math.min(1, ((now || performance.now()) - t0) / ms), e = 1 - Math.pow(1 - k, 2);
+      if (!c.alive()) return; var k = Math.max(0, Math.min(1, ((now || performance.now()) - t0) / ms)), e = 1 - Math.pow(1 - k, 2);
       el.textContent = (fmt || nf)(a + (b - a) * e); if (k < 1) requestAnimationFrame(f);
     })();
   }
@@ -159,7 +159,7 @@ var KineScenes = (function () {
       }); } },
 
     /* 12. L'exercice aide à soigner la déprime : un nuage de pluie, il bouge, le soleil revient */
-    11: { bg: "rain", cam: { yaw: 0.35, dist: 4.7, ty: 1.2, pitch: 0.06 }, poses: function () { return all(yassPoses(), from("Jumping jack sans saut", "j_"), { sad: M(P(YASS, "idle"), { head: 24, spine: [14, 0, 0] }) }); },
+    11: { bg: "rain", cam: { yaw: 0.35, dist: 4.7, ty: 1.2, pitch: 0.06 }, poses: function () { return all(yassPoses(), from("Jumping jack sans saut", "j_"), { sad: M(P(YASS, "idle"), { head: 28, spine: [18, 0, 0] }) }); },
       deco: "<div class='tp-cloud'><i></i><i></i><i></i><i></i></div><div class='tp-sun'></div>",
       run: function (c) { loop(c, function () {
         return [function () { cls(c, "sunny", false); }, ["sad", 0.8], ["~", 2200]].concat(rep([["j_oL", 0.45], ["j_up", 0.35], ["j_oR", 0.45], ["j_up", 0.35]], 2))
@@ -232,7 +232,112 @@ var KineScenes = (function () {
           .concat([function () { cls(c, "light", true); }]).concat(rep([["wA", 0.4], ["wB", 0.4]], 3))
           .concat([function () { cls(c, "moving", false); }, ["y_thumb", 0.5], ["~", 1500], ["stand", 0.5]]);
       }); } }
+,
+
+    /* 21. Ménisque usé : la kiné fait aussi bien que l'opération */
+    20: { bg: "knee", cam: { yaw: 0.65, dist: 4.4, ty: 0.9, pitch: 0.06 }, poses: function () { return all(from("Squat bilatéral", ""), yassPoses()); },
+      deco: "<div class='tp-vs'><div class='tp-op'><span>🩺</span><b>Opération</b><small data-y>…</small></div><i>=</i><div class='tp-op'><span>🏋️</span><b>Kiné</b><small data-z>…</small></div></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "eq", false); c.q("[data-y]").textContent = "…"; c.q("[data-z]").textContent = "…"; }].concat(rep([["down", 0.9], ["up", 0.7]], 3))
+          .concat([function () { cls(c, "eq", true); c.q("[data-y]").textContent = "après 2 ans"; c.q("[data-z]").textContent = "après 2 ans"; }, ["y_thumb", 0.5], ["~", 2400], ["up", 0.5]]);
+      }); } },
+
+    /* 22. Exercice et explications préviennent le mal de dos : le livre s'ouvre, le bouclier protège son dos */
+    21: { bg: "back", cam: { yaw: 1.3, pitch: 0.24, dist: 4.9, ty: 0.62, tz: 0.15 }, poses: function () { return from("Bird-dog", ""); },
+      deco: "<div class='tp-book'>📖</div><div class='tp-shield'>🛡️</div><div class='tp-tag' data-t></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "book", false); cls(c, "shield", false); tag(c, ""); }, ["down", 0.6], ["~", 300], function () { cls(c, "book", true); tag(c, "Comprendre…"); }, ["~", 1400], function () { tag(c, "…et bouger"); }]
+          .concat(rep([["up", 1.2], ["~", 300], ["down", 1]], 2)).concat([function () { cls(c, "shield", true); tag(c, "Dos protégé ✓"); }, ["~", 2400]]);
+      }); } },
+
+    /* 23. Un mal de dos récent s'améliore vite : penché au début, il se redresse en 6 semaines */
+    22: { bg: "back", cam: { yaw: 1.05, dist: 4.4, ty: 0.92, pitch: 0.06 }, poses: function () {
+        var idle = P(YASS, "idle"), o = { y_idle: idle, y_thumb: P(YASS, "thumb") };
+        [0, 1, 2, 3].forEach(function (k) { o["b" + k] = M(idle, { spine: [34 - k * 11, 0, 6 - k * 2], head: 16 - k * 5, pelvis: { p: [0, "auto", 0], r: [12 - k * 4, 0, 0] } }); });
+        return o; },
+      deco: "<div class='tp-pain'><small data-w>Semaine 1</small><b data-c>52</b><span>/100</span><div class='tp-dots'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>",
+      run: function (c) { loop(c, function () {
+        var l = [function () { setPain(c, 5); c.q("[data-c]").textContent = "52"; c.q("[data-w]").textContent = "Semaine 1"; }, ["b0", 0.8], ["~", 1200]];
+        [[2, 44, "b1"], [3, 36, "b2"], [4, 30, "b2"], [5, 26, "b3"], [6, 23, "y_idle"]].forEach(function (w) {
+          l.push(function () { c.q("[data-w]").textContent = "Semaine " + w[0]; count(c, "[data-c]", +c.q("[data-c]").textContent, w[1], 700); setPain(c, Math.round(w[1] / 10)); c.q("[data-c]").textContent; });
+          l.push([w[2], 0.8]); l.push(["~", 400]);
+        });
+        return l.concat([["y_thumb", 0.5], ["~", 1800]]);
+      }); } },
+
+    /* 24. Nordic curl : à genoux, il se penche en avant, les ischios s'allument */
+    23: { bg: "muscle", cam: { yaw: 1.45, dist: 4.4, ty: 0.65, pitch: 0.08 }, poses: function () { return nordic(); },
+      deco: "<div class='tp-hams'></div><div class='tp-count'><b data-c>−51 %</b><small>de blessures</small></div>",
+      run: function (c) { loop(c, function () {
+        return [["kneel", 0.6], ["~", 500], function () { cls(c, "glow", true); }, ["lean1", 1.4], ["lean2", 1.2], ["~", 300], ["catch", 0.5], function () { cls(c, "glow", false); }, ["~", 500], ["kneel", 0.9], ["~", 900]];
+      }); } },
+
+    /* 25. Échauffement FIFA 11+ : ballon, échauffement, bouclier contre les blessures */
+    24: { bg: "walk", cam: { yaw: 0.6, dist: 4.4, ty: 0.9, pitch: 0.08 }, poses: function () { return all(from("Montées de genoux", "m_"), from("Jumping jack sans saut", "j_"), yassPoses()); },
+      deco: "<div class='tp-ball'>⚽</div><div class='tp-shield'>🛡️<small>−39 % de blessures</small></div><div class='tp-tag' data-t></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "shield", false); tag(c, "Échauffement 11+"); }].concat(rep([["m_kL", 0.4], ["m_up", 0.3], ["m_kR", 0.4], ["m_up", 0.3]], 2))
+          .concat(rep([["j_oL", 0.45], ["j_up", 0.35], ["j_oR", 0.45], ["j_up", 0.35]], 2)).concat([function () { cls(c, "shield", true); tag(c, ""); }, ["y_thumb", 0.5], ["~", 2200], ["m_up", 0.4]]);
+      }); } },
+
+    /* 26. Le renforcement rend les os plus solides : squats aux rayons X, les os s'épaississent */
+    25: { bg: "xray", cam: { yaw: 0.85, dist: 4.2, ty: 0.85, pitch: 0.1 }, poses: function () { return from("Squat bilatéral", ""); },
+      deco: "<div class='tp-gauge'><small>Densité osseuse</small><span><i></i></span><b data-c>8 mois</b></div>",
+      run: function (c) { c.xray(true); cls(c, "xr", true); loop(c, function () {
+        var l = [function () { c.band.style.setProperty("--bone", "0"); bar(c, ".tp-gauge i", 15, 0); }];
+        for (var m = 1; m <= 4; m++) (function (m) { l = l.concat([["down", 0.9], ["up", 0.7], function () { c.band.style.setProperty("--bone", String(m)); bar(c, ".tp-gauge i", 15 + m * 20, 700); c.q("[data-c]").textContent = "Mois " + (m * 2); }]); })(m);
+        return l.concat([["~", 1800]]);
+      }); } },
+
+    /* 27. Marcher davantage, moins de démence : il marche, son cerveau s'allume, 9 800 pas */
+    26: { bg: "brain", cam: CAM_WALK, poses: function () { return all(walk(), yassPoses()); },
+      deco: "<div class='lq-road'></div><div class='lq-brain tp-brainw'><svg viewBox='0 0 64 52'><path d='M32 6c-6-5-17-2-18 7-7 2-7 14 0 16 0 8 10 13 18 7 8 6 18 1 18-7 7-2 7-14 0-16-1-9-12-12-18-7z' fill='#fff' fill-opacity='.18' stroke='#fff' stroke-width='2.5'/><path d='M32 8v34M22 18l10 6 10-6M23 30l9-6 9 6' stroke='#fff' stroke-width='1.6' fill='none' opacity='.6'/></svg><i></i><i></i><i></i></div><div class='tp-count'><b data-c>0</b><small>pas</small></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "lit", false); cls(c, "moving", true); count(c, "[data-c]", 0, 9800, 5200); setTimeout(function () { cls(c, "lit", true); }, 3600); }].concat(rep([["wA", 0.45], ["wB", 0.45]], 6))
+          .concat([function () { cls(c, "moving", false); }, ["y_thumb", 0.5], ["~", 1800], ["stand", 0.5]]);
+      }); } },
+
+    /* 28. Une heure d'activité compense les journées assises : assis au bureau, puis la balance se rééquilibre */
+    27: { bg: "walk", cam: { yaw: 1.2, dist: 4.4, ty: 0.85, pitch: 0.06 }, props: ["chair"], poses: function () { return all(from("Assis-debout de chaise", "c_"), walk(), yassPoses()); },
+      deco: "<div class='tp-scale'><svg viewBox='0 0 100 60'><line x1='50' y1='56' x2='50' y2='14' stroke='#fff' stroke-width='4'/><g class='tp-beam'><line x1='10' y1='14' x2='90' y2='14' stroke='#fff' stroke-width='4' stroke-linecap='round'/><rect x='2' y='18' width='22' height='12' rx='3' fill='#FFB547'/><rect x='76' y='18' width='22' height='12' rx='3' fill='#3CF2B0'/></g></svg><small><span>Assis</span><span>Actif</span></small></div><div class='tp-tag' data-t></div>",
+      run: function (c) { loop(c, function () {
+        return [function () { cls(c, "tilt", false); tag(c, "8 h assis"); }, ["c_sit", 0.7], ["~", 2400], function () { tag(c, "+ 1 h d'activité"); }, ["c_up", 0.8]]
+          .concat(rep([["wA", 0.45], ["wB", 0.45]], 3)).concat([function () { cls(c, "tilt", true); tag(c, "Équilibré ✓"); }, ["y_thumb", 0.5], ["~", 2000], ["c_up", 0.3], ["c_sit", 0.8]]);
+      }); } },
+
+    /* 29. Être bien entouré : trois Yass se retrouvent et fêtent ça */
+    28: { bg: "moral", cam: { yaw: 0.2, dist: 4.4, ty: 0.92, pitch: 0.05 }, poses: function () { return yassPoses(); },
+      deco: "<div class='tp-friend f1'></div><div class='tp-friend f2'></div><div class='lq-hearts'><i>♥</i><i>♥</i><i>♥</i><i>♥</i><i>♥</i></div>",
+      run: function (c) {
+        var fr = [], d2 = { camera: { yaw: 0.2, dist: 4.4, ty: 0.92, pitch: 0.05 }, poses: yassPoses(), start: "y_idle", thumb: "y_idle" };
+        c.spawn(".tp-friend.f1", M(d2, { camera: { yaw: 0.9, dist: 4.4, ty: 0.92, pitch: 0.05 } }), function (f) { fr.push(f); });
+        c.spawn(".tp-friend.f2", M(d2, { camera: { yaw: -0.6, dist: 4.4, ty: 0.92, pitch: 0.05 } }), function (f) { fr.push(f); });
+        var all3 = function (p, d) { return function () { fr.forEach(function (f, i) { setTimeout(function () { f.step(p, d); }, i * 120); }); }; };
+        loop(c, function () {
+          return [all3("y_wave1", 0.45), ["y_wave1", 0.45], all3("y_wave2", 0.3), ["y_wave2", 0.3], all3("y_wave1", 0.3), ["y_wave1", 0.3], ["~", 500],
+            all3("y_cheer1", 0.45), ["y_cheer1", 0.45], all3("y_cheer2", 0.3), ["y_cheer2", 0.3], all3("y_cheer1", 0.3), ["y_cheer1", 0.3], all3("y_cheer2", 0.3), ["y_cheer2", 0.3],
+            all3("y_idle", 0.7), ["y_idle", 0.7], ["~", 1600]];
+        });
+      } },
+
+    /* 30. L'exercice entretient la tête : jumping jacks, le cerveau s'allume de plus en plus */
+    29: { bg: "brain", cam: { yaw: 0.25, dist: 4.6, ty: 1.05, pitch: 0.06 }, poses: function () { return all(from("Jumping jack sans saut", "j_"), yassPoses()); },
+      deco: "<div class='lq-brain tp-brainw'><svg viewBox='0 0 64 52'><path d='M32 6c-6-5-17-2-18 7-7 2-7 14 0 16 0 8 10 13 18 7 8 6 18 1 18-7 7-2 7-14 0-16-1-9-12-12-18-7z' fill='#fff' fill-opacity='.18' stroke='#fff' stroke-width='2.5'/><path d='M32 8v34M22 18l10 6 10-6M23 30l9-6 9 6' stroke='#fff' stroke-width='1.6' fill='none' opacity='.6'/></svg><i></i><i></i><i></i></div><div class='tp-gauge'><small>Capacités du cerveau</small><span><i></i></span></div>",
+      run: function (c) { loop(c, function () {
+        var l = [function () { cls(c, "lit", false); bar(c, ".tp-gauge i", 20, 0); }];
+        for (var r = 0; r < 4; r++) (function (r) { l = l.concat([["j_oL", 0.45], ["j_up", 0.35], ["j_oR", 0.45], ["j_up", 0.35], function () { bar(c, ".tp-gauge i", 20 + (r + 1) * 20, 600); if (r === 1) cls(c, "lit", true); }]); })(r);
+        return l.concat([["y_cheer1", 0.45], ["y_cheer2", 0.3], ["~", 1500]]);
+      }); } }
   };
+  function nordic() {
+    var base = { pelvis: { p: [0, 0.6, 0.02], r: [0, 0, 0] }, spine: [0, 0, 0], head: 0,
+      L: { foot: { at: [0.11, 0.02, -0.42], yaw: 0, pole: [0.1, -0.3, 1] } }, R: { foot: { at: [-0.11, 0.02, -0.42], yaw: 0, pole: [-0.1, -0.3, 1] } },
+      LA: { ang: [10, 12, 0, 70] }, RA: { ang: [10, 12, 0, 70] } };
+    return { kneel: base,
+      lean1: M(base, { pelvis: { p: [0, 0.55, 0.16], r: [28, 0, 0] } }),
+      lean2: M(base, { pelvis: { p: [0, 0.45, 0.3], r: [52, 0, 0] }, LA: { ang: [70, 12, 0, 40] }, RA: { ang: [70, 12, 0, 40] } }),
+      catch: M(base, { pelvis: { p: [0, 0.36, 0.38], r: [70, 0, 0] }, LA: { ang: [95, 10, 0, 20] }, RA: { ang: [95, 10, 0, 20] } }) };
+  }
   function tag(c, t) { var el = c.q("[data-t]"); if (el) { el.textContent = t; el.classList.toggle("on", !!t); } }
   function floorSit() {
     var idle = P(YASS, "idle");

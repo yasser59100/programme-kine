@@ -190,7 +190,7 @@
   function hero(t, big, k, idx) {
     var kd = k || kind(t), S = window.KineScenes, own = S && idx != null && S.has(idx);
     var bg = own ? (S.bg(idx) || kd) : kd;
-    return "<div class='lq-hero s-" + bg + (own ? " tip t" + idx : "") + (big ? " big" : "") + "' data-k='" + kd + "'" + (own ? " data-i='" + idx + "'" : "") + " aria-hidden='true'>" +
+    return "<div class='lq-hero s-" + bg + (own ? " tip t" + idx : "") + (big ? " big" : "") + (String(t.stat).length > 7 ? " long" : "") + "' data-k='" + kd + "'" + (own ? " data-i='" + idx + "'" : "") + " aria-hidden='true'>" +
       "<span class='lq-ring'></span>" + (own ? S.deco(idx) : (DECO[kd] || "")) +
       "<div class='lq-stat'><b>" + esc(t.stat) + "</b><span>" + esc(t.statLabel) + "</span></div>" +
       "<div class='lq-st'><img src='assets/illus/" + IMG[kd] + ".webp' alt='' class='lq-ill'></div></div>";
@@ -217,7 +217,17 @@
         T: function (f, ms) { me.timers.push(setTimeout(function () { if (alive()) f(); }, ms)); },
         step: function (pose, dur) { if (def.poses[pose]) A.step({ pose: pose, dur: dur }); },
         q: function (sel) { return band.querySelector(sel); },
-        xray: function (on) { if (A.xray) A.xray(on); } };
+        xray: function (on) { if (A.xray) A.xray(on); },
+        // un autre Yass dans la même scène (avatar supplémentaire, emplacements 7 et 8 réservés à la fiche)
+        spawn: function (sel, def2, cb) {
+          var box = band.querySelector(sel), n = (me.extras = me.extras || []).length; if (!box) return;
+          L.avatar((slot === 6 ? 7 : 9) + n, function (B) {
+            if (!B || !alive() || !box.isConnected) return;
+            B.register(name + "_x" + n, def2); if (!B.show(box, name + "_x" + n)) return;
+            if (B.pause) B.pause(false); me.extras.push({ B: B, box: box });
+            cb({ step: function (pose, dur) { if (def2.poses[pose]) B.step({ pose: pose, dur: dur }); } });
+          });
+        } };
       try { KineScenes.run(idx, c); } catch (e) {}
     });
   }
@@ -282,8 +292,9 @@
     var r = running[slot]; if (!r) return;
     r.dead = true; r.timers.forEach(clearTimeout); running[slot] = null;
     if (r.A) { if (r.A.xray) r.A.xray(false); if (r.st && r.st.querySelector("canvas")) r.A.hide(); }
+    (r.extras || []).forEach(function (x) { if (x.box.querySelector("canvas")) x.B.hide(); x.box.innerHTML = ""; });
     if (r.st && r.st.isConnected) r.st.innerHTML = r.img;
-    r.band.classList.remove("live", "xr", "scan", "up", "down", "moving", "awake", "done", "tick", "ring", "zap");
+    r.band.classList.remove("live", "xr", "scan", "up", "down", "moving", "awake", "done", "tick", "ring", "zap", "smoke", "healed", "sunny", "wobble", "cake", "squeeze", "inmri", "result", "drop", "light", "glow", "lean", "eq", "shield", "book", "fill", "tilt", "lit");
   }
   function liveWhenVisible(band, slot) {
     if (!("IntersectionObserver" in window)) return runScene(band, slot);
