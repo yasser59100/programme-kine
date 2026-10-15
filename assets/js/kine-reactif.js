@@ -53,6 +53,13 @@
       cue: "Restez fléchi, le buste face à l'avant, et poussez sur la jambe extérieure.",
       spots: [[30, 105], [270, 105], [150, 28], [150, 180]], feet: "both",
       av: [[1.25, 0.05], [-1.25, 0.05], [0, 1.15], [0, -1.0]] },
+    { id: "chasses1", name: "Sauts latéraux sur une jambe réactifs", level: 3, sides: true, sideWord: "jambe",
+      kit: "vos plots et environ 2 mètres d'espace autour de vous, sol non glissant",
+      place: "Debout sur une jambe au centre, genou légèrement fléchi. Posez un plot à gauche et un à droite, à environ 70 cm, puis un devant et un derrière si vous en avez quatre.",
+      action: "À chaque couleur, faites un petit saut sur la même jambe pour atterrir à côté du plot de cette couleur, tenez une seconde bien stable, puis revenez au centre en sautant.",
+      cue: "Atterrissez en douceur sur l'avant du pied, genou souple et dans l'axe. Commencez par de petits sauts, et posez l'autre pied si vous perdez l'équilibre.",
+      spots: [[50, 100], [250, 100], [150, 32], [150, 172]], feet: "one",
+      av: [[0.82, 0.08], [-0.66, 0.08], [0.08, 0.78], [0.08, -0.6]] },
     { id: "squat", name: "Squat réactif", level: 2, sides: false,
       kit: "vos plots",
       place: "Debout, pieds largeur d'épaules. Posez les plots au sol devant vous, en arc de cercle, à une longueur de bras : un à gauche, un au centre, un à droite.",
@@ -123,7 +130,7 @@
     var ARMS_BAL = { LA: { ang: [25, 30, 0, 25] }, RA: { ang: [25, 30, 0, 25] } };
     var base = ex.id === "assis" ? M({ pelvis: { p: [0, 0.53, -0.36], r: [0, 0, 0] }, spine: [6, 0, 0], head: 0,
                  L: { foot: { at: [0.14, 0, 0.14], yaw: 6 } }, R: { foot: { at: [-0.14, 0, 0.14], yaw: -6 } }, LA: { ang: [6, 14, 0, 50] }, RA: { ang: [6, 14, 0, 50] } }, {})
-             : ex.id === "unipodal" ? M(L.STAND(0.11, 6), { pelvis: { p: [0.07, 0.9, 0], r: [6, 0, 0] }, L: { foot: { at: [0.1, 0, 0.12], yaw: 6 } }, R: { foot: { at: [-0.1, 0.16, 0.06], yaw: -6 } } }, ARMS_BAL)
+             : ex.id === "unipodal" || ex.id === "chasses1" ? M(L.STAND(0.11, 6), { pelvis: { p: [0.07, 0.9, 0], r: [6, 0, 0] }, L: { foot: { at: [0.1, 0, 0.12], yaw: 6 } }, R: { foot: { at: [-0.1, 0.16, 0.06], yaw: -6 } } }, ARMS_BAL)
              : ex.id === "chasses" ? M(L.STAND(0.17, 8), { pelvis: { p: [0, 0.86, 0], r: [14, 0, 0] }, spine: [8, 0, 0] }, ARMS_BAL)
              : ex.id === "bulgare" ? M(L.STAND(0.1, 0), { pelvis: { p: [0, 0.8, 0.16], r: [10, 0, 0] }, spine: [6, 0, 0],
                  L: { foot: { at: [0.1, 0.48, -0.5], yaw: 0, lift: 75 } }, R: { foot: { at: [-0.1, 0, 0.36], yaw: 0 } } }, { LA: { ang: [30, 18, 0, 40] }, RA: { ang: [30, 18, 0, 40] } })
@@ -153,6 +160,12 @@
         poses["j" + i] = M(base, rear, { pelvis: { p: [dx * 0.35, 0.9, 0.16 + dz * 0.35], r: [6, 0, 0] }, R: { foot: { at: [-0.1 + dx * 0.5, 0.12, 0.36 + dz * 0.5], yaw: 0 } },
                                          LA: { ang: [55, 20, 0, 30] }, RA: { ang: [55, 20, 0, 30] } });
         poses["c" + i] = M(base, rear, { pelvis: { p: [dx * 0.55, 0.7, 0.16 + dz * 0.55], r: [14, 0, 0] }, spine: [8, 0, 0], R: { foot: { at: [fx, 0, fz], yaw: x * 20 } } });
+      } else if (ex.id === "chasses1") {   // saut sur la jambe gauche vers le plot, l'autre pied reste en l'air
+        var ax = x - ux * 0.16, az = z - uz * 0.16 + 0.04, hx = (ax - 0.1) * 0.5 + 0.1, hz = (az - 0.12) * 0.5 + 0.12;
+        var tuck = function (px, pz, y) { return { foot: { at: [px - 0.2, y, pz - 0.06], yaw: -6 } }; };
+        poses["j" + i] = M(base, { pelvis: { p: [hx - 0.03, 1.0, hz - 0.12], r: [8, 0, ux * -6] }, L: { foot: { at: [hx, 0.14, hz], yaw: 6, lift: -15 } }, R: tuck(hx, hz, 0.24),
+                                   LA: { ang: [30, 45, 0, 30] }, RA: { ang: [30, 45, 0, 30] } });
+        poses["c" + i] = M(base, { pelvis: { p: [ax - 0.03, 0.84, az - 0.14], r: [16, 0, 0] }, spine: [6, 0, 0], L: { foot: { at: [ax, 0, az], yaw: 6 } }, R: tuck(ax, az, 0.16) });
       } else if (ex.id === "chasses") {
         var tx = x - ux * 0.28, tz = z - uz * 0.28;
         P = { pelvis: { p: [tx, 0.84, tz], r: [14, 0, 0] } };
@@ -177,6 +190,7 @@
     // Vu de dos, légèrement en hauteur : la gauche de l'écran est la gauche de Yass, comme sur le schéma vu de dessus
     return { camera: ex.id === "bulgare" ? { yaw: 2.35, pitch: 0.95, dist: 4.4, ty: 0.45, tz: 0.25 }
                    : ex.id === "assis" ? { yaw: Math.PI - 0.95, pitch: 0.5, dist: 4.0, ty: 0.55, tz: 0.1 }
+                   : ex.id === "chasses1" ? { yaw: Math.PI - 0.3, pitch: 0.5, dist: 4.7, ty: 0.78, tz: 0.05 }
                    : ex.id === "chasses" ? { yaw: Math.PI - 0.25, pitch: 0.5, dist: 5.6, ty: 0.75 }
                    : { yaw: Math.PI - 0.4, pitch: 0.48, dist: 4.6, ty: 0.8, tz: 0.2 },
              props: ex.id === "assis" || ex.id === "bulgare" ? ["chair"] : undefined, chair: ex.id === "bulgare" ? { z: -0.14 } : undefined, noIso: true, start: "mid",
@@ -185,7 +199,7 @@
   var demoId = 0;
   function demo(stage, ex, cols) {
     if (!stage || !window.KineAvatar || !KineAvatar.register || !KineAvatar.lib) { if (stage) stage.remove(); return; }
-    var avHop = ex.id === "bulgare";
+    var avHop = ex.id === "bulgare" || ex.id === "chasses1";
     KineAvatar.register("__kr_demo", avDef(ex, cols));
     if (!KineAvatar.show(stage.querySelector(".kr-stage"), "__kr_demo")) { stage.remove(); return; }
     var id = ++demoId, tag = stage.querySelector(".kr-tag"), last = -1;
