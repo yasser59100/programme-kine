@@ -575,6 +575,107 @@
      steps: [step("up", 1.5, "On monte", "On pousse dans les talons", "up"), step("up", 1.5, "On serre", "On serre les fessiers", "hold"), step("down", 2.5, "Descente lente", "On redescend", "down")]
    },
 
+   // ── Bibliothèque, lot 6 : matériel de la maison (bâton, ballon, serviette, bouteilles) et poids du corps ──
+   "Élévation du bâton bras tendus": {
+     tool: "stick", noIso: true, camera: { yaw: 0.9, dist: 4.1, ty: 1.1 }, start: "down", thumb: "up",
+     poses: { down: merge(STAND(0.11, 6), { LA: { hand: { at: [0.24, 0.86, 0.2], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.24, 0.86, 0.2], pole: [-1, 0, 0] } } }),
+              up: merge(STAND(0.11, 6), { LA: { hand: { at: [0.24, 2.0, 0.06], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.24, 2.0, 0.06], pole: [-1, 0, 0] } } }) },
+     steps: [step("up", 2, "On monte le bâton", "On monte, bras tendus", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 2, "On redescend", "On redescend", "down")]
+   },
+   "Rotation du buste bâton sur les épaules": {
+     tool: "stick", sides: "alternate", noIso: true, camera: { yaw: 0.25, pitch: 0.25, dist: 4.0, ty: 1.15 }, start: "mid", thumb: "turn",
+     poses: { mid: merge(STAND(0.15, 8), { LA: { hand: { at: [0.46, 1.47, -0.06], pole: [0.4, -1, 0] } }, RA: { hand: { at: [-0.46, 1.47, -0.06], pole: [-0.4, -1, 0] } } }),
+              turn: merge(STAND(0.15, 8), { spine: [2, 0, 35], LA: { hand: { at: [0.342, 1.47, -0.313], pole: [0.4, -1, 0] } }, RA: { hand: { at: [-0.411, 1.47, 0.215], pole: [-0.4, -1, 0] } } }) },
+     steps: [step("turn", 2, "On tourne le buste", "On tourne, le bassin reste face", "up"), step("mid", 2, "Retour au centre", "Retour au centre", "down")]
+   },
+   "Good morning au bâton": {
+     tool: "stick", camera: { yaw: 1.35, dist: 4.1, ty: 0.95 }, start: "up", thumb: "down",
+     poses: { up: merge(STAND(0.12, 6), { LA: { hand: { at: [0.46, 1.47, -0.06], pole: [0.4, -1, 0] } }, RA: { hand: { at: [-0.46, 1.47, -0.06], pole: [-0.4, -1, 0] } } }),
+              down: merge(STAND(0.12, 6), { pelvis: { p: [0, "auto", -0.14], r: [55, 0, 0] }, spine: [0, 0, 0], head: -15,
+                LA: { hand: { at: [0.46, 1.08, 0.36], pole: [0.4, -0.2, -1] } }, RA: { hand: { at: [-0.46, 1.08, 0.36], pole: [-0.4, -0.2, -1] } } }) },
+     steps: [step("down", 2.5, "On bascule en avant", "Dos droit, on bascule", "down"), step("up", 1.5, "On se redresse", "On serre les fessiers, on remonte", "up")]
+   },
+   "Serrage de ballon entre les genoux": {
+     tool: "ballKnees", camera: { yaw: 0.45, dist: 3.6, ty: 0.7 }, props: ["chair"], start: "rest", thumb: "sq",
+     poses: { rest: merge(SEAT, { L: { foot: { at: [0.13, 0, 0.16], yaw: 4 } }, R: { foot: { at: [-0.13, 0, 0.16], yaw: -4 } }, LA: { ang: [4, 12, 0, 40] }, RA: { ang: [4, 12, 0, 40] } }),
+              sq: merge(SEAT, { L: { foot: { at: [0.11, 0, 0.16], yaw: 2 } }, R: { foot: { at: [-0.11, 0, 0.16], yaw: -2 } }, LA: { ang: [4, 12, 0, 40] }, RA: { ang: [4, 12, 0, 40] } }) },
+     steps: [step("sq", 1, "On serre", "On serre le ballon", "up"), step("sq", 4, "On tient", "On tient", "hold"), step("rest", 2, "On relâche", "On relâche", "down")]
+   },
+   "Pont avec ballon entre les genoux": {
+     tool: "ballKnees", camera: { yaw: 1.2, pitch: 0.38, dist: 3.4, ty: 0.25, tz: 0 }, start: "down", thumb: "up",
+     poses: { down: merge(BRIDGE_DOWN, { L: { foot: { at: [0.11, 0, 0.74], yaw: 0, pole: [0.05, 1, 0] } }, R: { foot: { at: [-0.11, 0, 0.74], yaw: 0, pole: [-0.05, 1, 0] } } }),
+              up: merge(BRIDGE_UP, { L: { foot: { at: [0.11, 0, 0.74], yaw: 0, pole: [0.05, 1, 0] } }, R: { foot: { at: [-0.11, 0, 0.74], yaw: 0, pole: [-0.05, 1, 0] } } }) },
+     steps: [step("up", 1.5, "On monte", "On monte en serrant le ballon", "up"), step("up", 2, "On tient", "On tient", "hold"), step("down", 3, "Descente lente", "On descend lentement", "down")]
+   },
+   "Squat ballon bras tendus": {
+     tool: "ball", camera: { yaw: 0.75, dist: 4.1 }, start: "up", thumb: "down",
+     poses: { up: merge(STAND(0.15, 12), { LA: { hand: { at: [0.12, 1.2, 0.3], pole: [1, -0.6, 0] } }, RA: { hand: { at: [-0.12, 1.2, 0.3], pole: [-1, -0.6, 0] } } }),
+              down: merge(STAND(0.15, 12), L5_SQ_DOWN, { LA: { hand: { at: [0.12, 1.08, 0.58], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.12, 1.08, 0.58], pole: [-1, 0, 0] } } }) },
+     steps: [step("down", 2, "On descend, bras devant", "On descend, on tend les bras", "down"), step("up", 1, "On remonte", "On pousse dans les talons", "up")]
+   },
+   "Tirage serviette au-dessus de la tête": {
+     tool: "towel", camera: { yaw: 0.35, dist: 4.0, ty: 1.2 }, start: "up", thumb: "down",
+     poses: { up: merge(STAND(0.12, 6), { LA: { hand: { at: [0.42, 1.98, 0.05], pole: [1, 0, 0] } }, RA: { hand: { at: [-0.42, 1.98, 0.05], pole: [-1, 0, 0] } } }),
+              down: merge(STAND(0.12, 6), { LA: { hand: { at: [0.46, 1.52, -0.02], pole: [1, -1, -0.3] } }, RA: { hand: { at: [-0.46, 1.52, -0.02], pole: [-1, -1, -0.3] } } }) },
+     steps: [step("down", 1.5, "On tire vers le bas", "On tire, coudes vers les côtes", "down"), step("down", 1, "On serre", "On serre les omoplates", "hold"), step("up", 2, "On remonte", "On remonte", "up")]
+   },
+   "Écartement de serviette bras tendus": {
+     tool: "towel", camera: { yaw: 0.55, dist: 3.9, ty: 1.15 }, start: "rest", thumb: "pull",
+     poses: { rest: merge(STAND(0.12, 6), { LA: { hand: { at: [0.22, 1.38, 0.55], pole: [1, -0.5, 0] } }, RA: { hand: { at: [-0.22, 1.38, 0.55], pole: [-1, -0.5, 0] } } }),
+              pull: merge(STAND(0.12, 6), { LA: { hand: { at: [0.27, 1.38, 0.55], pole: [1, -0.5, 0] } }, RA: { hand: { at: [-0.27, 1.38, 0.55], pole: [-1, -0.5, 0] } } }) },
+     steps: [step("pull", 1, "On tire", "On tire sur la serviette", "up"), step("pull", 5, "On tient", "On tient, les omoplates se serrent", "hold"), step("rest", 2, "On relâche", "On relâche", "down")]
+   },
+   "Élévation frontale avec bouteilles": {
+     load: "both", camera: { yaw: 1.0, dist: 4.0 }, start: "down", thumb: "up",
+     poses: { down: STAND(0.11, 6), up: merge(STAND(0.11, 6), { LA: { ang: [88, 8, 0, 6] }, RA: { ang: [88, 8, 0, 6] } }) },
+     steps: [step("up", 1.5, "On monte devant", "On monte devant soi", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 2.5, "Descente lente", "On redescend", "down")]
+   },
+   "Squat et développé avec bouteilles": {
+     load: "both", camera: { yaw: 0.7, dist: 4.2, ty: 1.0 }, start: "down", thumb: "up",
+     poses: { down: merge(STAND(0.15, 12), L5_SQ_DOWN, { LA: { ang: [30, 30, 0, 135] }, RA: { ang: [30, 30, 0, 135] } }),
+              up: merge(STAND(0.15, 12), { LA: { ang: [172, 14, 0, 6] }, RA: { ang: [172, 14, 0, 6] } }) },
+     steps: [step("up", 1.5, "On pousse vers le haut", "On remonte et on pousse", "up"), step("down", 2, "On redescend en squat", "On redescend", "down")]
+   },
+   "Marche du fermier sur place": {
+     load: "both", timed: { seconds: 40 }, noIso: true, camera: { yaw: 1.1, dist: 4.1 }, start: "up", thumb: "kL",
+     poses: { up: merge(STAND(0.11, 4), { LA: { ang: [2, 9, 0, 4] }, RA: { ang: [2, 9, 0, 4] } }),
+       kL: merge(STAND(0.11, 4), { L: { ang: [40, 3, 0, 50, 0] }, LA: { ang: [2, 9, 0, 4] }, RA: { ang: [2, 9, 0, 4] } }),
+       kR: merge(STAND(0.11, 4), { R: { ang: [40, 3, 0, 50, 0] }, LA: { ang: [2, 9, 0, 4] }, RA: { ang: [2, 9, 0, 4] } }) },
+     steps: [step("kL", 0.6, "On marche, buste droit", null, "up"), step("up", 0.4, "On marche, buste droit", null, "down"), step("kR", 0.6, "On marche, buste droit", null, "up"), step("up", 0.4, "On marche, buste droit", null, "down")]
+   },
+   "Relevé de jambe tendue couché": {
+     sides: "blocks", sideWord: "jambe", camera: { yaw: 1.25, pitch: 0.35, dist: 3.5, ty: 0.25, tz: 0.1 }, start: "down", thumb: "up",
+     poses: { down: merge(BRIDGE_DOWN, { L: { ang: [0, 4, 0, 0, -10] } }),
+              up: merge(BRIDGE_DOWN, { L: { ang: [42, 4, 0, 0, -10] } }) },
+     steps: [step("up", 1.5, "On monte la jambe tendue", "On monte, genou tendu", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 2.5, "Descente lente", "On redescend", "down")]
+   },
+   "Talons-fesses debout": {
+     sides: "blocks", sideWord: "jambe", camera: { yaw: 1.4, dist: 4.0, ty: 0.85 }, props: ["wall"], start: "down", thumb: "up",
+     poses: { down: merge(STAND(0.1, 0), WALL_HANDS, { pelvis: { p: [0, "auto", 0.06], r: [6, 0, 0] } }),
+              up: merge(STAND(0.1, 0), WALL_HANDS, { pelvis: { p: [0, "auto", 0.06], r: [6, 0, 0] }, L: { ang: [-4, 3, 0, 105, -10] } }) },
+     steps: [step("up", 1.5, "Le talon monte vers la fesse", "Le talon monte vers la fesse", "up"), step("down", 2.5, "Descente lente", "On redescend", "down")]
+   },
+   "Toucher d'épaule en planche": {
+     timed: { seconds: 20 }, sides: "alternate", noIso: true, camera: { yaw: 1.0, pitch: 0.3, dist: 3.9, ty: 0.35, tz: 0 }, start: "hold", thumb: "tap",
+     poses: { hold: L3_PLANK,
+              tap: merge(L3_PLANK, { LA: { hand: { at: [-0.12, 0.62, 0.3], pole: [0.6, 0.3, -0.7] } } }) },
+     steps: [step("tap", 1, "On touche l'épaule opposée", "Main sur l'épaule, le bassin ne bouge pas", "up"), step("hold", 1, "Main au sol", null, "down")]
+   },
+   "Crunch inversé": {
+     camera: { yaw: 1.2, pitch: 0.35, dist: 3.5, ty: 0.3, tz: 0 }, start: "down", thumb: "up",
+     poses: { down: { pelvis: { p: [0, 0.12, 0], r: [-90, 0, 0] }, spine: [0, 0, 0], head: 0, L: { ang: [90, 3, 0, 90, 0] }, R: { ang: [90, 3, 0, 90, 0] }, LA: { hand: { at: [0.3, 0.05, 0.25], pole: [1, 0.4, 0] } }, RA: { hand: { at: [-0.3, 0.05, 0.25], pole: [-1, 0.4, 0] } } },
+              up: { pelvis: { p: [0, 0.17, -0.04], r: [-118, 0, 0] }, spine: [-10, 0, 0], head: 0, L: { ang: [100, 3, 0, 105, 0] }, R: { ang: [100, 3, 0, 105, 0] }, LA: { hand: { at: [0.3, 0.05, 0.25], pole: [1, 0.4, 0] } }, RA: { hand: { at: [-0.3, 0.05, 0.25], pole: [-1, 0.4, 0] } } } },
+     steps: [step("up", 1.5, "Les genoux vers la poitrine", "Le bassin s'enroule", "up"), step("down", 2.5, "Descente lente", "On redescend lentement", "down")]
+   },
+   "Fente arrière et montée de genou": {
+     sides: "blocks", sideWord: "jambe", labelSwap: true, camera: { yaw: 1.15, dist: 4.4, tz: -0.2 }, start: "up", thumb: "knee",
+     poses: { up: STAND(0.1, 0),
+       down: merge(STAND(0.1, 0), { pelvis: { p: [0, 0.55, -0.4], r: [0, 0, 0] }, spine: [4, 0, 0], L: { foot: { at: [0.1, 0, -0.82], yaw: 0, lift: 40 } }, R: { foot: { at: [-0.1, 0, 0.12], yaw: 0 } },
+         LA: { ang: [40, 7, 0, 80] }, RA: { ang: [-20, 7, 0, 80] } }),
+       knee: merge(STAND(0.1, 0), { L: { ang: [88, 3, 0, 90, 0] }, LA: { ang: [-20, 7, 0, 80] }, RA: { ang: [40, 7, 0, 80] } }) },
+     steps: [step("down", 2, "On recule et on descend", "On recule, on descend", "down"), step("knee", 1, "Genou vers le haut", "On remonte, genou haut", "up"), step("up", 1, "On repose le pied", null, "down")]
+   },
+
     "Squat bilatéral": {
       camera: { yaw: 0.65 }, start: "up", thumb: "down",
       poses: {
@@ -1296,10 +1397,17 @@
       var bm = mesh(new T.CylinderGeometry(0.014, 0.014, 1, 12), bandMat, scene); bm.visible = false; bands.push(bm);
       var kn = mesh(new T.SphereGeometry(0.03, 12, 10), M.prop, scene); kn.visible = false; bandKnots.push(kn);
     }
+    // Accessoires tenus : bâton (manche à balai), serviette, ballon
+    var tools = {
+      stick: mesh(new T.CylinderGeometry(0.014, 0.014, 1, 12), M.wood, scene),
+      towel: mesh(new T.BoxGeometry(0.11, 1, 0.012), new T.MeshStandardMaterial({ color: lin("#E9EEF5"), roughness: 0.95 }), scene),
+      ball: mesh(new T.SphereGeometry(0.11, 24, 18), new T.MeshStandardMaterial({ color: lin("#FF6B4A"), roughness: 0.5 }), scene)
+    };
+    for (var tk in tools) tools[tk].visible = false;
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
     return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, curveNow: 0,
-             head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops };
+             head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops, tools: tools };
   }
 
   /* ── Cinématique ── */
@@ -1420,8 +1528,28 @@
     if (v.lengthSq() < 1e-6) v.set(1, 0, 0);
     return e.c.clone().add(v.normalize().multiplyScalar(e.r));
   }
+  function updateTools() {
+    if (!R || !R.tools) return;
+    var tool = bandDef && bandDef.tool, T = R.T, Y = new T.Vector3(0, 1, 0);
+    for (var k in R.tools) R.tools[k].visible = false;
+    if (!tool) return;
+    var w = function (g) { var v = new T.Vector3(); g.getWorldPosition(v); return v; };
+    if (tool === "ballKnees") {
+      var b = R.tools.ball, kL = w(R.legs.L.knee), kR = w(R.legs.R.knee);
+      b.visible = true; b.position.copy(kL.add(kR).multiplyScalar(0.5)); b.scale.set(0.8, 0.8, 0.8);
+      return;
+    }
+    var A = bandEnd("LH", "L"), B = bandEnd("RH", "L"); A = A.c || A.p; B = B.c || B.p;
+    var mid = A.clone().add(B).multiplyScalar(0.5), dir = B.clone().sub(A), len = Math.max(0.01, dir.length());
+    var m = R.tools[tool === "ball" ? "ball" : tool]; if (!m) return;
+    m.visible = true; m.position.copy(mid);
+    if (tool === "ball") { m.scale.set(1, 1, 1); return; }
+    m.scale.set(1, tool === "stick" ? Math.max(1.15, len + 0.45) : len + 0.1, 1);
+    m.quaternion.setFromUnitVectors(Y, dir.normalize());
+  }
   function updateBands() {
     if (!R || !R.bands) return;
+    updateTools();
     var list = (bandDef && bandDef.bands) || [], Z = new R.T.Vector3(0, 0, 1), Y = new R.T.Vector3(0, 1, 0);
     R.pelvis.updateMatrixWorld(true);
     R.bands.forEach(function (m, i) {
