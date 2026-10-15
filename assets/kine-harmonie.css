@@ -391,3 +391,58 @@ html[data-theme="light"] .kr-pick button.on { border-color: #14181f; }
 :root:root .kf-sheet-body { min-height: 0 !important; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
 :root:root #kf-routine .kf-sheet-body { overflow-y: auto !important; }
 html.kf-lock, html.kf-lock body { overflow: hidden; overscroll-behavior: none; }
+
+/* ════════ Souplesse : micro-animations (désactivées si l'utilisateur préfère moins de mouvement) ════════ */
+:root { --kf-ease: cubic-bezier(.22, 1, .36, 1); --kf-spring: cubic-bezier(.34, 1.56, .64, 1); }
+* { -webkit-tap-highlight-color: transparent; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Appui : tout ce qui se touche s'enfonce légèrement */
+  :is(button, [role="button"], .kf-ex, .pg-ex, .lx-item, .lx-srow, .ks-card, .ki-express, .kr-libcard, .kr-exo, .v2-row, a.btn) {
+    transition: transform .18s var(--kf-ease), background-color .2s ease, border-color .2s ease, box-shadow .2s ease, opacity .2s ease, color .2s ease;
+  }
+  :is(button, [role="button"], .kf-ex, .pg-ex, .lx-item, .lx-srow, .ks-card, .ki-express, .kr-libcard, .kr-exo, .v2-row):active:not(:disabled) { transform: scale(.97); }
+  :is(.lx-cta, .seq-btn-main, .cele-go):active:not(:disabled) { transform: scale(.98); filter: brightness(1.08); }
+  .kx-term:active { transform: none; }
+
+  /* Changement de page : fondu, puis les blocs arrivent l'un après l'autre */
+  :root:root .page.active { animation: kfFade .28s ease both !important; }
+  .page.kf-enter > *, .page.kf-enter #today-card > *, .page.kf-enter #suivi-v2 > * { animation: kfRise .45s var(--kf-ease) backwards; }
+  .kf-enter #today-card > :nth-child(2), .kf-enter #suivi-v2 > :nth-child(2) { animation-delay: .03s; }
+  .kf-enter #today-card > :nth-child(3), .kf-enter #suivi-v2 > :nth-child(3) { animation-delay: .06s; }
+  .kf-enter #today-card > :nth-child(4), .kf-enter #suivi-v2 > :nth-child(4) { animation-delay: .09s; }
+  .kf-enter #today-card > :nth-child(5), .kf-enter #suivi-v2 > :nth-child(5) { animation-delay: .12s; }
+  .kf-enter #today-card > :nth-child(6), .kf-enter #suivi-v2 > :nth-child(6) { animation-delay: .15s; }
+  .kf-enter #today-card > :nth-child(7), .kf-enter #suivi-v2 > :nth-child(7) { animation-delay: .18s; }
+  .kf-enter #today-card > :nth-child(n+8), .kf-enter #suivi-v2 > :nth-child(n+8) { animation-delay: .21s; }
+
+  /* Fenêtres : elles glissent depuis la droite, leur contenu arrive en douceur ; elles repartent vers la droite */
+  .kf-sheet.kf-entering { animation: kfSheetIn .36s var(--kf-ease) both; }
+  .kf-sheet.kf-entering .kf-sheet-body > * { animation: kfRise .4s var(--kf-ease) backwards; }
+  .kf-sheet.kf-entering .kf-sheet-body > :nth-child(2) { animation-delay: .04s; }
+  .kf-sheet.kf-entering .kf-sheet-body > :nth-child(3) { animation-delay: .07s; }
+  .kf-sheet.kf-entering .kf-sheet-body > :nth-child(4) { animation-delay: .1s; }
+  .kf-sheet.kf-entering .kf-sheet-body > :nth-child(5) { animation-delay: .13s; }
+  .kf-sheet.kf-entering .kf-sheet-body > :nth-child(n+6) { animation-delay: .16s; }
+  .kf-sheet.kf-entering .kf-sheet-foot { animation: kfRise .4s var(--kf-ease) .12s backwards; }
+  :root:root .kf-sheet.kf-closing { display: flex !important; animation: kfSheetOut .24s cubic-bezier(.4, 0, 1, 1) both; pointer-events: none; }
+  #kx-pop.open .kx-card, #kg-sheet.open .kg-card { animation: kfUp .32s var(--kf-ease) both; }
+  #kx-pop.open, #kg-sheet.open { animation: kfFade .2s ease both; }
+
+  /* Barre du bas : l'icône active rebondit, le trait s'étire */
+  .bnav-btn.active .bnav-icon { animation: kfPop .42s var(--kf-spring); }
+  .bnav-btn.active::before { animation: kfLine .35s var(--kf-ease) both; transform-origin: center; }
+
+  /* Choix (puces, échelles) : la sélection s'allume en douceur */
+  :is(.kf-chips button, .kf-scale button, .ki-n, .kr-pick button).sel, .ki-n.on, .kr-pick button.on { animation: kfPop .3s var(--kf-spring); }
+
+  /* Cartes du jour : la réponse du vrai ou faux arrive en douceur */
+  .ki-vf-r, .ki-goal .ki-grow { animation: kfRise .45s var(--kf-ease) backwards; }
+  .ki-bar i { transition: width .8s var(--kf-ease); }
+}
+@keyframes kfFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kfRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes kfUp { from { opacity: 0; transform: translateY(28px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes kfSheetIn { from { opacity: .4; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+@keyframes kfSheetOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateX(48px); } }
+@keyframes kfPop { 0% { transform: scale(.88); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes kfLine { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
