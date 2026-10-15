@@ -390,3 +390,8 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 .lq-bed::before { content: ""; position: absolute; left: 6px; top: -14px; width: 26%; height: 16px; border-radius: 8px; background: #fff; }
 .lq-bed::after { content: ""; position: absolute; right: -6px; top: -30px; width: 8px; height: calc(100% + 34px); border-radius: 4px; background: #8C97C9; }
 .s-bed.awake .lq-zz { opacity: 0; }
+/* debout : le lit s'efface, il bouge */
+.lq-hero .lq-bed { bottom: calc(var(--h) * .08); height: calc(var(--h) * .3); transition: transform .7s cubic-bezier(.5, 0, .3, 1), opacity .7s; }
+.lq-hero .lq-bed::before { left: auto; right: 14px; }
+.lq-hero .lq-bed::after { right: -6px; }
+.s-bed.awake .lq-bed { transform: translateY(130%); opacity: 0; }

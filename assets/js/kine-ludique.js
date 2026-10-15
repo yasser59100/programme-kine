@@ -181,7 +181,10 @@
   function bedDef() {
     if (KineAvatar._def("__bed")) return;
     var p = KineAvatar._def("Pont de hanche"), m = KineAvatar._def(YASS); if (!p || !m) return;
-    var lie = KineAvatar.lib.merge(p.poses.down, { pelvis: { p: [0, 0.42, 0], r: [-90, 0, 0] } });
+    // allongé à plat sur le matelas (hauteur ~0,4 m), jambes tendues, bras le long du corps
+    var lie = KineAvatar.lib.merge(p.poses.down, { pelvis: { p: [0, 0.5, 0], r: [-90, 0, 0] }, spine: [0, 0, 0], head: 0,
+      L: { foot: { at: [0.12, 0.47, 0.86], yaw: 0, pole: [0.1, 1, 0] } }, R: { foot: { at: [-0.12, 0.47, 0.86], yaw: 0, pole: [-0.1, 1, 0] } },
+      LA: { hand: { at: [0.27, 0.48, 0.1], pole: [1, 0.4, 0] } }, RA: { hand: { at: [-0.27, 0.48, 0.1], pole: [-1, 0.4, 0] } } });
     KineAvatar.register("__bed", { camera: { yaw: 1.35 }, start: "lie", thumb: "lie", poses: { lie: lie, stand: m.poses.idle, cheer1: m.poses.cheer1, cheer2: m.poses.cheer2, thumb: m.poses.thumb } });
   }
   function hero(t, big, k) {
