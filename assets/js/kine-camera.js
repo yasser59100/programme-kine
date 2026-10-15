@@ -421,6 +421,7 @@
       "</div>" +
       "<p class='lx-muted kcam-note'>L'image reste sur votre téléphone : rien n'est envoyé. " + (seen ? "" : "Au premier lancement, l'appli télécharge l'outil d'analyse (environ 15 Mo, une seule fois, le Wi-Fi est conseillé).") + "</p>" +
       "<p class='lx-muted kcam-note'>C'est une aide, pas un bilan : en cas de douleur, arrêtez et parlez-en à votre kiné.</p>" +
+      (OPT.session ? modeHtml() : "") +
       "<p class='kcam-err' id='kcam-err' role='alert'></p>" +
       "<button class='seq-btn-main' id='kcam-go'>Activer la caméra</button></div>";
     $("kcam-go").onclick = start;
@@ -663,14 +664,15 @@
     var ex = SEQ_DAYS[seqCurrentDay] && SEQ_DAYS[seqCurrentDay].exercises[seqExIdx];
     var pid = ex && EX_MAP[ex.name]; if (!pid) return;
     var m = mode(); if (m === "off") return;
-    var anchor = $("kv-level") || $("rg2-cue"); if (!anchor) return;
+    var stage = document.querySelector("#rep-guide .v2-stage"); if (!stage) return;
     var opts = { session: true, target: targetOf(ex), ex: ex.name };
-    var b = document.createElement("div"); b.id = "kcam-sess"; b.className = "kcam-sessrow";
-    b.innerHTML = "<button type='button' class='kcam-sess'><span aria-hidden='true'>📷</span> Faire cette série devant la caméra <em class='kcam-tag'>essai</em></button>" +
-      "<button type='button' class='kcam-sessset' aria-label='Réglage de la caméra pendant les séances'>⚙</button>";
-    b.firstChild.onclick = function () { open(pid, opts); };
-    b.lastChild.onclick = modeSheet;
-    anchor.parentNode.insertBefore(b, anchor.nextSibling);
+    // Une pastille discrète en haut de la scène, comme « Angles »
+    var b = document.createElement("button"); b.type = "button"; b.id = "kcam-sess"; b.className = "kcam-pill";
+    b.setAttribute("aria-label", "Faire cette série devant la caméra");
+    b.innerHTML = "<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><circle cx='12' cy='13' r='3.5'/></svg>Caméra";
+    b.onclick = function () { open(pid, opts); };
+    stage.appendChild(b);
+    if (window.KineExplique) setTimeout(function () { KineExplique.once("camera", $("kv-level") || $("rg2-cue")); }, 300);
     // Mode automatique : la caméra s'ouvre seule (une fois par série, quand l'écran de l'exercice est prêt)
     if (m === "auto" && !(S || ($("kcam-run") && $("kcam-run").classList.contains("open")))) {
       var key = seqCurrentDay + ":" + seqExIdx + ":" + (window.rgState ? rgState.currentSerie : "");

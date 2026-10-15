@@ -6,7 +6,7 @@
 (function () {
   "use strict";
   // Familles d'exercices, du plus facile au plus difficile
-  var CHAINS = [["Assis-debout de chaise", "Squat ballon dans le dos contre le mur", "Squat bilatéral", "Goblet squat", "Squat et développé avec bouteilles"], ["Fente arrière", "Fentes avant unilatérales", "Fente avec charge", "Squat bulgare"], ["Chaise contre le mur", "Position du skieur"], ["Pont de hanche", "Pont avec ballon entre les genoux", "Pont en marche", "Pont fessier unilatéral", "Hip thrust épaules sur canapé", "Hip thrust lesté"], ["Talons-fesses debout", "Pont ischio-jambiers talons sur chaise", "Leg curl serviette au sol", "Nordic curl assisté"], ["Élévation des talons", "Élévation des talons bras au plafond", "Élévation des talons unipodale", "Excentrique mollet sur marche"], ["Pompes contre le mur", "Pompes inclinées", "Pompes sur genoux", "Pompes complètes"], ["Rotation externe couché sur le côté", "Rotation externe d'épaule", "Rotation externe à l'élastique"], ["T au sol", "Superman en Y et en W", "Le nageur", "Superman serviette"], ["Crunch abdominal contrôlé", "Crunch inversé", "Portefeuille (V-up)"], ["Dead bug", "Ciseaux et vélo"], ["Superman quadrupédique en gainage", "Bear plank"], ["Gainage frontal sur genoux", "Plank — gainage avant-bras", "Toucher d'épaule en planche", "Mountain climber lent"], ["Side plank sur genoux", "Planche latérale complète"], ["Clamshell", "Abduction couché sur le côté", "Abduction hanche debout", "Marche latérale élastique"], ["Squat sumo", "Squat sumo ballon au sol"], ["Équilibre unipodal", "Le chef d'orchestre", "Unipodal yeux fermés", "Unipodal sur coussin", "Toucher en étoile unipodal"], ["Tandem talon-pointe", "Marche talon-pointe livre sur la tête"], ["Good morning debout", "Good morning au bâton", "Soulevé de terre roumain unipodal", "Soulevé de terre roumain avec charge"], ["Tirage serviette au-dessus de la tête", "Rowing un bras appui chaise", "Rowing deux bras penché", "Tirage inversé sous une table"], ["Curl biceps", "Curl marteau tempo lent"], ["Extension lombaire couché sur le ventre", "Superman bras-jambe opposés"], ["Extension de genou assis", "Relevé de jambe tendue couché"], ["Squat + élévation bras", "Fente avant et rotation ballon"]];
+  var CHAINS = [["Squat ballon dans le dos contre le mur", "Squat bilatéral", "Goblet squat", "Squat et développé avec bouteilles"], ["Fente arrière", "Fentes avant unilatérales", "Fente avec charge", "Squat bulgare"], ["Chaise contre le mur", "Position du skieur"], ["Pont de hanche", "Pont avec ballon entre les genoux", "Pont en marche", "Pont fessier unilatéral", "Hip thrust épaules sur canapé", "Hip thrust lesté"], ["Talons-fesses debout", "Pont ischio-jambiers talons sur chaise", "Leg curl serviette au sol", "Nordic curl assisté"], ["Élévation des talons", "Élévation des talons bras au plafond", "Élévation des talons unipodale", "Excentrique mollet sur marche"], ["Pompes contre le mur", "Pompes inclinées", "Pompes sur genoux", "Pompes complètes"], ["Rotation externe couché sur le côté", "Rotation externe d'épaule", "Rotation externe à l'élastique"], ["T au sol", "Superman en Y et en W", "Le nageur", "Superman serviette"], ["Crunch abdominal contrôlé", "Crunch inversé", "Portefeuille (V-up)"], ["Dead bug", "Ciseaux et vélo"], ["Superman quadrupédique en gainage", "Bear plank"], ["Gainage frontal sur genoux", "Plank — gainage avant-bras", "Toucher d'épaule en planche", "Mountain climber lent"], ["Side plank sur genoux", "Planche latérale complète"], ["Clamshell", "Abduction couché sur le côté", "Abduction hanche debout", "Marche latérale élastique"], ["Squat sumo", "Squat sumo ballon au sol"], ["Équilibre unipodal", "Le chef d'orchestre", "Unipodal yeux fermés", "Unipodal sur coussin", "Toucher en étoile unipodal"], ["Tandem talon-pointe", "Marche talon-pointe livre sur la tête"], ["Good morning debout", "Good morning au bâton", "Soulevé de terre roumain unipodal", "Soulevé de terre roumain avec charge"], ["Tirage serviette au-dessus de la tête", "Rowing un bras appui chaise", "Rowing deux bras penché", "Tirage inversé sous une table"], ["Curl biceps", "Curl marteau tempo lent"], ["Extension lombaire couché sur le ventre", "Superman bras-jambe opposés"], ["Extension de genou assis", "Relevé de jambe tendue couché"], ["Squat + élévation bras", "Fente avant et rotation ballon"]];
   var KEY = "kf-variant", LOG = "kf-variant-log";
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -22,6 +22,14 @@
     for (var k = ch.i + dir; k >= 0 && k < ch.c.length; k += dir) { var e = lib(ch.c[k]); if (e && hasGear(e)) return e; }
     return null;
   }
+  // Variante plus difficile qui n'attend qu'un matériel que le patient n'a pas encore coché
+  var GEAR = { charge: "une charge : haltère, bouteille d'eau pleine ou sac à dos lesté", elastique: "un élastique de rééducation" };
+  function gearBlocked(name) {
+    var ch = chainOf(name); if (!ch) return null;
+    for (var k = ch.i + 1; k < ch.c.length; k++) { var e = lib(ch.c[k]); if (e && !hasGear(e)) return e; }
+    return null;
+  }
+  function addGear(g) { var o = jget("kf-gear", {}); o[g] = true; jset("kf-gear", o); }
 
   /* ── Appliquer les choix aux séances (le nom d'origine reste mémorisé dans __orig) ── */
   function swapInto(ex, e) {
@@ -91,7 +99,13 @@
       "<div class='kv-mid'><b>Niveau</b>" + (dots ? "<span class='kv-dots' aria-hidden='true'>" + dots + "</span>" : "<span class='kv-n'>à votre mesure</span>") + "</div>" +
       "<button type='button' class='kv-btn up' data-d='1' aria-label='Plus difficile : " + esc(up) + "'>+<small>Plus difficile</small></button></div>" +
       "<p class='kv-hint' id='kv-hint'>" + (up ? "Trop facile ? + passe à : <strong>" + esc(up) + "</strong>" : "") + "</p>";
+    var gb = !neighbor(ex.name, 1) && !adj(ex).down ? gearBlocked(ex.name) : null;
+    if (gb) el.querySelector(".kv-hint").innerHTML = "";
+    if (gb) el.innerHTML += "<div class='kv-gear'>Niveau suivant : <strong>" + esc(gb.name) + "</strong>. Il faut " + esc(GEAR[gb.gear] || gb.gear) + ".<button type='button' class='kv-gearbtn'>J'en ai, je passe au niveau suivant</button></div>";
     cue.parentNode.insertBefore(el, cue.nextSibling);
+    var gbtn = el.querySelector(".kv-gearbtn");
+    if (gbtn) gbtn.onclick = function () { addGear(gb.gear); var up2 = el.querySelector(".kv-btn.up"); if (up2) up2.click(); };
+    if (window.KineExplique) KineExplique.once("niveau", el);
     el.querySelectorAll(".kv-btn").forEach(function (b) {
       b.onclick = function () {
         var dir = +b.getAttribute("data-d"), msg = setLevel(ex, dir);

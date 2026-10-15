@@ -5882,5 +5882,25 @@
  {
   "t": "Objectif atteint, bravo ! Changez de jambe.",
   "g": "camera"
+ },
+ {
+  "t": "Trop facile ou trop dur ? Touche plus ou moins. Je passe à une variante voisine ou je change le nombre de répétitions, et je garde ton choix pour les prochaines séances.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Tu vois le bouton caméra ? Touche-le pour faire la série devant moi : je regarde ton mouvement, je te corrige à voix haute et je compte pour toi.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Tu as fini ta rééducation ? Réponds à six questions. Si tout est bon, j'ouvre les exercices difficiles.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Nouveau : les exercices réactifs avec les couleurs peuvent entrer dans ta séance. Tu les trouves dans le groupe Réactivité.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Avant chaque série, choisis tes couleurs, le nombre, le rythme et les pièges, puis touche C'est parti.",
+  "g": "mascotte"
  }
 ]

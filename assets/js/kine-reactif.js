@@ -261,6 +261,7 @@
       "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineReactif.start()'>C'est parti</button></div>";
     el.classList.add("open");
     var dm = el.querySelector(".kr-demo"); if (dm) demo(dm, ex, mine(s));
+    var st = el.querySelector(".kr-sesstag"); if (st && window.KineExplique) KineExplique.once("reactifSeance", st);
   }
   function setOpt(k, v) { var s = settings(); s[k] = v; save(s); var el = $("kr-sheet"), top = el ? el.querySelector(".kf-sheet-body").scrollTop : 0; open(); if (el) el.querySelector(".kf-sheet-body").scrollTop = top; }
   function toggleCol(id) {

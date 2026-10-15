@@ -571,3 +571,16 @@ html.kf-theme-anim, html.kf-theme-anim * { transition: background-color .35s eas
 
 .kcam-mode { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
 .kcam-mode small { color: var(--text2); font-size: .85rem; line-height: 1.35; }
+
+/* Caméra dans la séance : une pastille discrète en haut à gauche de la scène, en miroir du bouton « Angles » */
+.kcam-pill { position: absolute; top: 12px; left: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.14); background: rgba(10,14,22,.55); color: var(--text); font: inherit; font-size: .85rem; font-weight: 700; backdrop-filter: blur(6px); }
+:root:root[data-theme="light"] .kcam-pill { background: #fff; color: #334155; border-color: var(--border2); }
+#rep-guide:not([data-state="ready"]) .kcam-pill { display: none; }
+.kv-gear { margin: 6px 0 0; padding: 10px 12px; border-radius: 12px; background: rgba(79,172,254,.1); border: 1px solid rgba(79,172,254,.35); font-size: .88rem; line-height: 1.4; text-align: left; }
+.kv-gearbtn { display: block; width: 100%; margin-top: 8px; padding: 9px 12px; border-radius: 10px; border: 0; background: var(--blue); color: #fff; font: inherit; font-weight: 700; font-size: .88rem; }
+/* Bulle d'explication de Yass */
+.kx-tip { margin: 8px 0; padding: 10px 12px 10px; border-radius: 16px; background: var(--surface); border: 1px solid rgba(79,172,254,.45); box-shadow: 0 8px 24px rgba(0,0,0,.18); text-align: left; animation: kxIn .35s ease both; }
+.kx-tip .km-coach { margin: 0; background: none; box-shadow: none; padding: 0; }
+.kx-ok { display: block; margin: 8px 0 0 auto; padding: 7px 16px; border-radius: 999px; border: 0; background: var(--blue); color: #fff; font: inherit; font-weight: 700; font-size: .85rem; }
+@keyframes kxIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

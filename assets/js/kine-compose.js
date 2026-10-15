@@ -199,6 +199,12 @@ var KineCompose = (function () {
       "<div class='kf-sheet-foot kc-foot'><input id='kc-name' class='kc-name' maxlength='30' placeholder='Nom de la séance' value='" + esc(title) + "' oninput='KineCompose.name(this.value)'>" +
         "<button class='seq-btn-main' " + (ok ? "" : "disabled ") + "onclick='KineCompose.save(true)'>Enregistrer et lancer</button>" +
         "<button class='seq-btn-secondary' " + (ok ? "" : "disabled ") + "onclick='KineCompose.save(false)'>Enregistrer</button></div>";
+    // Yass explique les nouveautés la première fois
+    if (window.KineExplique) {
+      var ec = el.querySelector(".kc-early-card"); if (ec) KineExplique.once("rouge", ec);
+      var rx = [].filter.call(el.querySelectorAll(".kf-phase"), function (h) { return /Réactivité/.test(h.textContent); })[0];
+      if (rx) KineExplique.once("reactif", rx);
+    }
   }
   // La mascotte explique la règle, en bas de l'écran de composition
   var msgT = null;

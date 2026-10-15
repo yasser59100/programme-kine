@@ -483,6 +483,14 @@
 
   /* ════════ Moteur de recherche local (sans IA, rien ne sort du téléphone) ════════ */
   var HELP = [
+    { title: "Rendre un exercice plus facile ou plus difficile", kw: "niveau facile difficile plus moins variante trop dur trop facile progresser",
+      text: "Sur l'écran d'un exercice, avant de démarrer, touche « − Plus facile » ou « Plus difficile + ». Je passe à une variante voisine ou je change le nombre de répétitions, et je garde ton choix pour les prochaines séances. Si le niveau suivant demande une charge ou un élastique, je te le dis : une bouteille d'eau pleine fait très bien l'affaire." },
+    { title: "Faire une série devant la caméra", kw: "caméra filmer mouvement silhouette corriger replay vidéo",
+      text: "Pendant la séance, touche la pastille « Caméra » en haut de l'écran de l'exercice. Pose le téléphone à 2 ou 3 mètres : je dessine ta silhouette, je te corrige à voix haute, je compte et tu peux revoir ta série. Tu choisis dans les réglages de la caméra si je la propose, si je l'ouvre seul, ou jamais. Rien n'est envoyé." },
+    { title: "Débloquer les exercices difficiles (rouges)", kw: "rouge difficile bloqué verrou débloquer accès anticipé rééducation terminée",
+      text: "Les exercices rouges s'ouvrent quand un exercice orange du même groupe devient facile, après 2 semaines, ou tout de suite si tu as fini ta rééducation : dans « Ma séance », touche « Rééducation terminée ? » et réponds aux 6 questions." },
+    { title: "Mettre des exercices réactifs dans ma séance", kw: "réactif couleurs plots ma séance ajouter",
+      text: "Dans « Ma séance », les exercices réactifs sont dans le groupe « Réactivité ». Pendant la séance, avant chaque série, tu règles tes couleurs, le nombre, le rythme et les pièges." },
     { title: "Envoyer mes résultats à mon kiné", kw: "envoyer partager kiné bilan résumé message mail sms whatsapp transmettre",
       text: "Dans l'onglet Suivi, touche « Envoyer à mon kiné ». Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.", action: "envoyer", actionLabel: "Ouvrir l'envoi" },
     { title: "Noter mon ressenti du jour", kw: "ressenti humeur forme moral sommeil énergie noter journée",
