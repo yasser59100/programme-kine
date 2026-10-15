@@ -49,7 +49,8 @@
     });
   }
   function wrapShowPage() {
-    if (typeof window.showPage !== "function" || window.showPage.__kfs) return;
+    if (typeof window.showPage !== "function" || window.showPage.__kfs || window.__kfSoupleWrapped) return;
+    window.__kfSoupleWrapped = true;
     var base = window.showPage;
     window.showPage = function (id) {
       var r = base.apply(this, arguments);
@@ -64,6 +65,12 @@
   window.addEventListener("load", function () { setTimeout(function () { var pg = document.querySelector(".page.active"); if (pg) cascade(pg, { delay: 80 }); }, 120); });
   window.KineSouple = { cascade: cascade };
 
+  // Changement de thème clair / sombre : fondu des couleurs
+  var themeObs = new MutationObserver(function () {
+    if (calm) return; var h = document.documentElement;
+    h.classList.add("kf-theme-anim"); clearTimeout(h.__kfT); h.__kfT = setTimeout(function () { h.classList.remove("kf-theme-anim"); }, 450);
+  });
+  themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   // Vibration légère (Android) sur les gestes qui comptent
   var STRONG = ".lx-cta, .seq-btn-main, .bnav-btn, .ki-vf-b button, .kr-pick button, .kf-chips button, .kf-scale button, .ki-n, .ki-more, .cele-go";
   document.addEventListener("click", function (e) {
