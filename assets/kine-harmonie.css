@@ -408,7 +408,6 @@ html.kf-lock, html.kf-lock body { overflow: hidden; overscroll-behavior: none; }
 
   /* Changement de page : un fondu court, d'un seul bloc */
   :root:root .page.active { animation: none !important; }
-  .page.kf-enter { animation: kfPage .22s ease-out both; }
 
   /* Fenêtres : elles arrivent pleines depuis la droite, comme sur iPhone, et repartent du même côté */
   .kf-sheet.kf-entering { animation: kfSheetIn .38s var(--kf-ease) both; box-shadow: -12px 0 40px rgba(0, 0, 0, .35); will-change: transform; }
