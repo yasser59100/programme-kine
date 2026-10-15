@@ -125,28 +125,148 @@
     io.observe(node); vis.push(io);
   }
 
-  /* ════════ 2. Illustrations : Yass met en scène le conseil, avec le chiffre clé en grand ════════ */
-  var GROUP = { "Activité": "walk", "Marche": "walk", "Sédentarité": "walk", "Mal de dos": "back", "Imagerie": "back", "Os": "back",
-    "Genou": "knee", "Ménisque": "knee", "Arthrose": "knee", "Articulations": "knee", "Renforcement": "muscle", "Force": "muscle", "Sport": "muscle",
-    "Cerveau": "brain", "Mémoire": "brain", "Moral": "moral", "Lien social": "moral", "Sommeil": "sleep", "Équilibre": "balance", "Mobilité": "balance", "Tabac": "lungs" };
+  /* ════════ 2. Petites scènes : Yass joue le conseil ════════
+     décès → il sort de sa tombe ; marche → il traverse la carte ; arthrose, genou, os → rayons X, on voit ses os ;
+     dos → bird-dog et colonne aux rayons X ; sommeil → il dort ; cerveau → un cerveau qui s'allume ; moral → des cœurs ;
+     tabac → il respire, la fumée s'en va ; équilibre → sur une jambe ; force → il soulève, « +1 » à chaque répétition. */
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function hero(t, big) {
-    var g = GROUP[t.theme] || "walk";
-    return "<div class='lq-hero g-" + g + (big ? " big" : "") + "' aria-hidden='true'>" +
-      "<span class='lq-ring'></span>" +
+  var RULES = [
+    ["tomb", /décès|mortalit|mourir/i], ["walk", /\bpas\b|march|walkback|sédentar|assis/i], ["sleep", /sommeil|dorm|nuit/i],
+    ["back", /\bdos\b|lombalg|lombaire/i], ["xray", /arthros|cartilag|ménisque|genou|\bos\b|osseu|imagerie|irm|radio|articul|fracture/i],
+    ["brain", /cerveau|mémoire|démence|cognit|alzheimer/i], ["moral", /déprim|moral|dépress|anxi|social|ami|isol|stress/i],
+    ["lungs", /tabac|fum|cigaret|poumon/i], ["balance", /équilibre|chute|tomber|mobilit/i], ["muscle", /./]
+  ];
+  // d'abord le titre et le thème (le sujet), le chiffre clé seulement si rien ne correspond
+  function kind(t) {
+    var a = [t.theme, t.title].join(" "), b = String(t.statLabel || "");
+    for (var i = 0; i < RULES.length - 1; i++) if (RULES[i][1].test(a)) return RULES[i][0];
+    for (var j = 0; j < RULES.length - 1; j++) if (RULES[j][1].test(b)) return RULES[j][0];
+    return "muscle";
+  }
+  var IMG = { tomb: "moral", walk: "walk", sleep: "sleep", back: "back", xray: "knee", brain: "brain", moral: "moral", lungs: "lungs", balance: "balance", muscle: "muscle" };
+  var MASC = { yaw: 0.3, dist: 3.9, ty: 0.98, pitch: 0.06 };
+  var SCN = {
+    tomb:    { def: YASS, cam: MASC, seq: [["cheer1", 0.45], ["cheer2", 0.3], ["cheer1", 0.3], ["cheer2", 0.3], ["thumb", 0.6], ["thumb", 1.6], ["idle", 0.8]] },
+    walk:    { def: "__walk", cam: { yaw: -1.57, dist: 4.2, ty: 0.9, pitch: 0.05 }, seq: [["wA", 0.48], ["wB", 0.48]], loop: true },
+    sleep:   { def: "Pont de hanche", cam: { yaw: 1.35, pitch: 0.38, dist: 4.2, ty: 0.42 }, seq: [["down", 2.2], ["down", 2.2]], loop: true },
+    back:    { def: "Bird-dog", cam: { yaw: 1.3, pitch: 0.24, dist: 4.9, ty: 0.62, tz: 0.15 }, seq: [["up", 1.6], ["up", 1.4], ["down", 1.4]], loop: true, xray: true },
+    xray:    { def: "Squat bilatéral", cam: { yaw: 0.85, dist: 4.2, ty: 0.85, pitch: 0.1 }, seq: [["down", 1.5], ["up", 1.1]], loop: true, xray: true },
+    brain:   { def: "Jumping jack sans saut", cam: { yaw: 0.25, dist: 4.4, ty: 0.9, pitch: 0.06 }, seq: [["oL", 0.6], ["up", 0.5], ["oR", 0.6], ["up", 0.5]], loop: true },
+    moral:   { def: YASS, cam: MASC, seq: [["cheer1", 0.5], ["cheer2", 0.35], ["cheer1", 0.35], ["cheer2", 0.35], ["open", 0.7], ["open", 1.2], ["idle", 0.8], ["idle", 0.8]], loop: true },
+    lungs:   { def: YASS, cam: MASC, seq: [["ouvre", 1.8], ["ouvre", 0.6], ["idle", 1.8], ["idle", 0.5]], loop: true },
+    balance: { def: "Montées de genoux", cam: { yaw: 0.9, dist: 4.2, ty: 0.9, pitch: 0.06 }, seq: [["kL", 0.8], ["kL", 2.4], ["up", 0.6], ["kR", 0.8], ["kR", 2.4], ["up", 0.6]], loop: true },
+    muscle:  { def: "Curl biceps", cam: { yaw: 0.8, dist: 4.2, ty: 0.9, pitch: 0.06 }, seq: [["up", 1.1], ["down", 1.3]], loop: true, plus: "up" }
+  };
+  var DECO = {
+    tomb: "<div class='lq-tomb'><b>R.I.P.</b></div><div class='lq-ground'></div><div class='lq-dirt'>" + "<i></i>".repeat(9) + "</div>",
+    walk: "<div class='lq-road'></div>",
+    sleep: "<div class='lq-moon'></div><div class='lq-zz'><i>Z</i><i>z</i><i>z</i></div>",
+    back: "<div class='lq-scan'></div>", xray: "<div class='lq-scan'></div>",
+    brain: "<div class='lq-brain'><svg viewBox='0 0 64 52'><path d='M32 6c-6-5-17-2-18 7-7 2-7 14 0 16 0 8 10 13 18 7 8 6 18 1 18-7 7-2 7-14 0-16-1-9-12-12-18-7z' fill='#fff' fill-opacity='.18' stroke='#fff' stroke-width='2.5'/><path d='M32 8v34M22 18l10 6 10-6M23 30l9-6 9 6' stroke='#fff' stroke-width='1.6' fill='none' opacity='.6'/></svg><i></i><i></i><i></i></div>",
+    moral: "<div class='lq-hearts'><i>♥</i><i>♥</i><i>♥</i><i>♥</i><i>♥</i></div>",
+    lungs: "<div class='lq-smoke'><i></i><i></i><i></i></div><div class='lq-nosmo'>🚭</div>",
+    balance: "", muscle: "<div class='lq-plus'></div>"
+  };
+  // Une marche simple : jambe et bras opposés vers l'avant, en alternance
+  function walkDef() {
+    if (KineAvatar._def("__walk") || !KineAvatar.lib) return;
+    var L = KineAvatar.lib, base = L.STAND(0.1, 4);
+    // une jambe reste posée au sol (le bassin se cale dessus), l'autre passe devant
+    var a = function (sw) { var o = {}; o[sw] = { ang: [30, 2, 0, 38, 0] }; o[sw + "A"] = { ang: [-25, 8, 0, 25] }; o[sw === "L" ? "RA" : "LA"] = { ang: [28, 8, 0, 25] }; o.spine = [5, 0, 0]; return L.merge(base, o); };
+    KineAvatar.register("__walk", { camera: { yaw: -1.57 }, start: "wA", thumb: "wA", poses: { wA: a("L"), wB: a("R") } });
+  }
+  function hero(t, big, k) {
+    var kd = k || kind(t);
+    return "<div class='lq-hero s-" + kd + (big ? " big" : "") + "' data-k='" + kd + "' aria-hidden='true'>" +
+      "<span class='lq-ring'></span>" + (DECO[kd] || "") +
       "<div class='lq-stat'><b>" + esc(t.stat) + "</b><span>" + esc(t.statLabel) + "</span></div>" +
-      "<img src='assets/illus/" + g + ".webp' alt='' class='lq-ill lq-" + g + "'></div>";
+      "<div class='lq-st'><img src='assets/illus/" + IMG[kd] + ".webp' alt='' class='lq-ill'></div></div>";
+  }
+  /* Une scène vivante par emplacement d'avatar (5 : carte de l'accueil, 6 : fiche) */
+  var running = {};
+  function runScene(band, slot) {
+    var k = band.getAttribute("data-k"), sc = SCN[k], st = band.querySelector(".lq-st"); if (!sc || !st) return;
+    var L = window.KineLumiere, M = window.KineMascotte;
+    if (!L || !L.avatar || !window.KineAvatar) return;
+    if (sc.def === YASS && M && M.portrait) M.portrait();
+    if (sc.def === "__walk") walkDef();
+    var def = KineAvatar._def(sc.def); if (!def) return;
+    stopScene(slot);
+    var me = { band: band, dead: false, timers: [] }; running[slot] = me;
+    L.avatar(slot, function (A) {
+      if (!A || me.dead || !band.isConnected) return;
+      var name = "__scn_" + k;
+      A.register(name, { camera: sc.cam, props: def.props, chair: def.chair, poses: def.poses, start: sc.seq[0][0], thumb: sc.seq[0][0] });
+      var img = st.innerHTML;
+      if (!A.show(st, name)) return;
+      if (A.pause) A.pause(false);
+      me.A = A; me.st = st; me.img = img;
+      band.classList.add("live");
+      if (A.xray) A.xray(false);
+      var alive = function () { return !me.dead && band.isConnected && !!st.querySelector("canvas"); };
+      var T = function (f, ms) { me.timers.push(setTimeout(function () { if (alive()) f(); }, ms)); };
+      var i = 0;
+      (function next() {
+        if (!alive()) return;
+        if (i >= sc.seq.length) { if (!sc.loop && k !== "tomb") return; i = 0; }
+        var s = sc.seq[i++]; A.step({ pose: s[0], dur: s[1] });
+        if (sc.plus && s[0] === sc.plus) plusOne(band);
+        T(next, s[1] * 1000 + 30);
+      })();
+      if (sc.xray) xrayLoop(me, A, alive, T);
+      if (k === "tomb") tombLoop(me, A, alive, T);
+    });
+  }
+  function xrayLoop(me, A, alive, T) {
+    (function cyc() {
+      me.band.classList.remove("scan"); void me.band.offsetWidth; me.band.classList.add("scan");
+      T(function () { A.xray(true); me.band.classList.add("xr"); }, 900);
+      T(function () { A.xray(false); me.band.classList.remove("xr"); }, 4200);
+      T(cyc, 6200);
+    })();
+  }
+  function tombLoop(me, A, alive, T) {
+    (function cyc() {
+      me.band.classList.remove("up"); me.band.classList.add("down");
+      T(function () { me.band.classList.remove("down"); me.band.classList.add("up"); }, 700);
+      T(cyc, 8200);
+    })();
+  }
+  function plusOne(band) {
+    var p = band.querySelector(".lq-plus"); if (!p) return;
+    var n = (+p.getAttribute("data-n") || 0) + 1; p.setAttribute("data-n", n);
+    var i = document.createElement("i"); i.textContent = "+" + n; p.appendChild(i); setTimeout(function () { i.remove(); }, 1300);
+  }
+  function stopScene(slot) {
+    var r = running[slot]; if (!r) return;
+    r.dead = true; r.timers.forEach(clearTimeout); running[slot] = null;
+    if (r.A) { if (r.A.xray) r.A.xray(false); if (r.st && r.st.querySelector("canvas")) r.A.hide(); }
+    if (r.st && r.st.isConnected) r.st.innerHTML = r.img;
+    r.band.classList.remove("live", "xr", "scan", "up", "down");
+  }
+  function liveWhenVisible(band, slot) {
+    if (!("IntersectionObserver" in window)) return runScene(band, slot);
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (x) {
+        if (!band.isConnected) { io.disconnect(); stopScene(slot); return; }
+        if (x.isIntersecting && !document.hidden) { if (!running[slot] || running[slot].band !== band) runScene(band, slot); }
+        else if (running[slot] && running[slot].band === band) stopScene(slot);
+      });
+    }, { threshold: 0.35 });
+    io.observe(band);
   }
   function decorateSavoir() {
     var c = $("ks-card"); if (!c || c.__lq || !window.KineSavoir) return;
     c.__lq = 1;
     var t = KineSavoir.tips[KineSavoir.today()]; if (!t) return;
     c.classList.add("lq-ks"); c.insertAdjacentHTML("afterbegin", hero(t, false));
+    liveWhenVisible(c.querySelector(".lq-hero"), 5);
   }
   function hookSavoirSheet() {
     if (!window.KineSavoir || KineSavoir.open.__lq) return;
-    var base = KineSavoir.open;
+    var base = KineSavoir.open, baseClose = KineSavoir.close;
     KineSavoir.open = function (i) {
+      stopScene(6);
       base.apply(this, arguments);
       var sh = $("ks-sheet"), body = sh && sh.querySelector(".ks-body"), n = sh && sh.querySelector(".ks-count");
       var k = n ? (parseInt(n.textContent, 10) || 1) - 1 : 0, t = KineSavoir.tips[k];
@@ -154,8 +274,10 @@
         var back = body.querySelector(".kf-back");
         (back || body.firstChild).insertAdjacentHTML(back ? "afterend" : "beforebegin", hero(t, true));
         sh.classList.add("lq-sheet");
+        var band = sh.querySelector(".lq-hero"); setTimeout(function () { runScene(band, 6); }, 250);
       }
     };
+    KineSavoir.close = function () { stopScene(6); return baseClose.apply(this, arguments); };
     KineSavoir.open.__lq = true;
   }
 
@@ -166,5 +288,5 @@
     document.addEventListener("visibilitychange", function () { if (document.hidden) stopYass(); });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 60); }); else setTimeout(init, 60);
-  window.KineLudique = { hero: hero, _stop: stopYass };
+  window.KineLudique = { hero: hero, kind: kind, _stop: stopYass, _scene: function (i) { return running[i] && running[i].band.getAttribute('data-k'); } };
 })();

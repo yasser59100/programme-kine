@@ -1349,6 +1349,9 @@
               eyes: mat(AVATAR.eyes, 0.3), white: mat("#F4F1EC", 0.4), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95),
               load: new T.MeshStandardMaterial({ color: lin("#7cc4ff"), roughness: 0.2, transparent: true, opacity: 0.75 }),
               cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75), trim: mat(AVATAR.print, 0.8) };
+    var XB = new T.MeshBasicMaterial({ color: 0xF2FBFF }), XBONES = [];
+    var XSKIN = new T.MeshBasicMaterial({ color: 0x6FD3FF, transparent: true, opacity: 0.16, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending });
+    function xbone(geo, parent, x, y, z) { var o = new T.Mesh(geo, XB); o.position.set(x || 0, y || 0, z || 0); o.visible = false; parent.add(o); XBONES.push(o); return o; }
     function mesh(geo, m, parent) { var o = new T.Mesh(geo, m); o.castShadow = true; o.receiveShadow = true; parent.add(o); return o; }
     function ball(r, m, parent) { return mesh(new T.SphereGeometry(r, 24, 16), m, parent); }
     function bone(r, len, m, parent) { var o = mesh(new T.CylinderGeometry(r, r, len, 20), m, parent); o.position.y = -len / 2; return o; }
@@ -1360,6 +1363,10 @@
         r *= 1 + (bulge || 0) * Math.exp(-Math.pow((t - (bulgeAt || 0.35)) / 0.22, 2));
         pts.push(new T.Vector2(r, -t * len));
       }
+      // os du membre (radio) : caché, visible seulement en mode « rayons X »
+      var rb = Math.min(r0, r1) * 0.36, bn = new T.Mesh(new T.CylinderGeometry(rb, rb * 0.9, len * 0.9, 12), XB);
+      bn.position.y = -len / 2; bn.visible = false; parent.add(bn); XBONES.push(bn);
+      [0.06, 0.94].forEach(function (f) { var e = new T.Mesh(new T.SphereGeometry(rb * 1.7, 14, 10), XB); e.position.y = -len * f; e.visible = false; parent.add(e); XBONES.push(e); });
       return mesh(new T.LatheGeometry(pts, 24), m, parent);
     }
     function group(parent, x, y, z) { var g = new T.Group(); g.position.set(x || 0, y || 0, z || 0); parent.add(g); return g; }
@@ -1462,6 +1469,14 @@
     }
     var legs = { L: makeLeg(1), R: makeLeg(-1) };
     var arms = { L: makeArm(1), R: makeArm(-1) };
+    // Squelette du tronc et du crâne (mode « rayons X »)
+    for (var vi = 0; vi < 10; vi++) xbone(new T.BoxGeometry(0.036, 0.034, 0.03), spine, 0, 0.03 + vi * 0.057, -0.05);
+    [0.47, 0.41, 0.35, 0.29, 0.23].forEach(function (ry, ri) { var rib = xbone(new T.TorusGeometry(0.13 - ri * 0.004, 0.009, 6, 32, Math.PI * 1.6), spine, 0, ry, 0); rib.rotation.set(Math.PI / 2, 0, Math.PI * 0.7); rib.scale.set(1, 0.68, 1); });
+    var clav = xbone(new T.CylinderGeometry(0.012, 0.012, 0.32, 8), spine, 0, 0.53, 0.01); clav.rotation.z = Math.PI / 2;
+    var pb = xbone(new T.TorusGeometry(0.105, 0.024, 8, 28), pelvis, 0, -0.02, 0); pb.rotation.x = Math.PI / 2 - 0.3; pb.scale.set(1, 0.62, 1);
+    xbone(new T.SphereGeometry(0.098, 20, 14), head, 0, 0.014, -0.004).scale.set(0.9, 1.05, 1);
+    xbone(new T.BoxGeometry(0.08, 0.03, 0.06), head, 0, -0.07, 0.04);
+    var XBODY = []; pelvis.traverse(function (o) { if (o.isMesh && XBONES.indexOf(o) < 0) XBODY.push(o); });
 
     var props = {
       step: mesh(new T.BoxGeometry(0.7, 0.18, 0.34), M.prop, scene),
@@ -1521,7 +1536,7 @@
     }
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
-    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, cones: cones, curveNow: 0,
+    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, cones: cones, curveNow: 0, xb: XBONES, xbody: XBODY, xskin: XSKIN,
              head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops, tools: tools };
   }
 
@@ -1951,6 +1966,13 @@
     },
 
     pause: function (on) { paused = !!on; },
+    // Mode « rayons X » : le corps devient translucide et les os apparaissent
+    xray: function (on) {
+      if (!R || !R.xb) return;
+      on = !!on; if (!!R.xrOn === on) return; R.xrOn = on;
+      R.xbody.forEach(function (o) { if (on) { o.userData.mat0 = o.material; o.material = R.xskin; o.castShadow = false; } else if (o.userData.mat0) { o.material = o.userData.mat0; o.castShadow = true; } });
+      R.xb.forEach(function (o) { o.visible = on; });
+    },
     angleJoints: function () { return angleJoints.slice(); },
     angles: function (on) {
       if (on === undefined) return anglesOn;
