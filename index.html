@@ -16,14 +16,14 @@ html.kf-boot body{visibility:hidden}
   background:radial-gradient(120% 70% at 50% 38%,#FFFFFF 0,#F6F8FB 55%,#E9EEFF 100%);font-family:"Bricolage","Figtree",system-ui,-apple-system,sans-serif;overflow:hidden;transition:opacity .45s ease,transform .45s ease}
 #kf-splash.out{opacity:0;transform:scale(1.04);pointer-events:none}
 #kf-splash .sp-mark{position:relative;width:104px;height:104px;margin-bottom:22px}
-#kf-splash .sp-ring{position:absolute;inset:0;border-radius:30px;border:3px solid #19C3A0;opacity:0;animation:spRing 1.3s .55s ease-out infinite}
-#kf-splash .sp-ring.b{animation-delay:.85s;border-color:#4B5BFF}
-#kf-splash .sp-tile{position:absolute;inset:0;border-radius:30px;background:linear-gradient(150deg,#5B6BFF,#3341E0);box-shadow:0 22px 40px -18px rgba(51,65,224,.7);transform:scale(0);animation:spPop .6s cubic-bezier(.3,1.6,.5,1) forwards}
+#kf-splash .sp-ring{position:absolute;inset:0;border-radius:30px;border:3px solid #19C3A0;opacity:0;animation:spRing 1s 1s ease-out 2}
+#kf-splash .sp-ring.b{animation-delay:1.14s;border-color:#4B5BFF}
+#kf-splash .sp-tile{position:absolute;inset:0;border-radius:30px;background:linear-gradient(150deg,#5B6BFF,#3341E0);box-shadow:0 22px 40px -18px rgba(51,65,224,.7);transform:scale(0);animation:spPop .6s cubic-bezier(.3,1.6,.5,1) forwards,spBeat .42s 1s ease-out}
 #kf-splash .sp-tile svg{position:absolute;inset:0;width:100%;height:100%}
 #kf-splash .sp-k{fill:none;stroke:#fff;stroke-width:9;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:120;stroke-dashoffset:120;animation:spDraw .5s .3s ease-out forwards}
 #kf-splash .sp-k.b{animation-delay:.48s}
 #kf-splash .sp-ecg{width:200px;height:30px;margin-top:10px}
-#kf-splash .sp-pulse{fill:none;stroke:#19C3A0;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:280;stroke-dashoffset:280;animation:spDraw .7s .8s ease-in-out forwards}
+#kf-splash .sp-pulse{fill:none;stroke:#19C3A0;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:280;stroke-dashoffset:280;animation:spDraw .7s .8s linear forwards}
 #kf-splash .sp-name{font-weight:800;font-size:34px;letter-spacing:-.04em;color:#0F1D2E;display:flex}
 #kf-splash .sp-name span{display:inline-block;opacity:0;transform:translateY(14px);animation:spUp .45s cubic-bezier(.2,1.3,.4,1) forwards}
 #kf-splash .sp-name .f{color:#3341E0}
@@ -32,6 +32,7 @@ html.kf-boot body{visibility:hidden}
 #kf-splash .sp-bar{position:absolute;left:50%;bottom:calc(46px + env(safe-area-inset-bottom,0px));width:120px;height:4px;margin-left:-60px;border-radius:4px;background:#E3E8EF;overflow:hidden}
 #kf-splash .sp-bar i{position:absolute;inset:0;width:40%;border-radius:4px;background:#4B5BFF;animation:spLoad 1s ease-in-out infinite}
 @keyframes spPop{to{transform:scale(1)}}
+@keyframes spBeat{0%{transform:scale(1)}18%{transform:scale(1.12)}34%{transform:scale(.98)}52%{transform:scale(1.16)}100%{transform:scale(1)}}
 @keyframes spDraw{to{stroke-dashoffset:0}}
 @keyframes spRing{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.55)}}
 @keyframes spUp{to{opacity:1;transform:none}}
@@ -1121,11 +1122,23 @@ input,select,textarea{font-family:var(--font);}
    Au retour dans l'appli, si une nouvelle version est en ligne, il revient le temps de recharger. */
 (function(){
   var sp=document.getElementById('kf-splash'),d=document.documentElement,done=false;
-  function hide(){if(done)return;done=true;var w=Math.max(0,1500-(Date.now()-(window.__kfT0||0)));
+  // Durée fixe (2,4 s depuis l'apparition de l'écran) : identique quel que soit le téléphone ; si l'appli n'est pas encore prête, on attend qu'elle le soit
+  var DUR=2400,T0=performance.now();
+  // Battement : deux pulsations, au moment où la ligne verte passe ses deux pics
+  function beat(){
+    if(document.hidden)return;
+    try{if(navigator.vibrate){navigator.vibrate([35,100,55]);return;}}catch(e){}
+    // iPhone : pas de vibration libre ; un interrupteur système donne un petit retour haptique quand le téléphone l'accepte
+    try{var lb=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.setAttribute('switch','');lb.appendChild(cb);
+      lb.style.cssText='position:fixed;left:-99px;top:0;opacity:0;pointer-events:none';document.body.appendChild(lb);
+      lb.click();setTimeout(function(){lb.click();},140);setTimeout(function(){lb.remove();},600);}catch(e){}
+  }
+  setTimeout(beat,1000);
+  function hide(){if(done)return;done=true;var w=Math.max(0,DUR-(performance.now()-T0));
     setTimeout(function(){sp.classList.add('out');setTimeout(function(){sp.style.display='none';},500);},w);}
   new MutationObserver(function(){if(!d.classList.contains('kf-boot'))hide();}).observe(d,{attributes:true,attributeFilter:['class']});
-  setTimeout(hide,4500);
-  window.KineSplash={show:function(){done=true;sp.style.display='';sp.classList.remove('out');}};
+  setTimeout(hide,6000);
+  window.KineSplash={show:function(){done=true;sp.style.display='';sp.classList.remove('out');var c=sp.cloneNode(true);sp.parentNode.replaceChild(c,sp);sp=c;setTimeout(beat,1000);}};
   function ver(cb){try{fetch('sw.js?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){var m=t.match(/VERSION = '([^']+)'/);cb(m&&m[1]);}).catch(function(){});}catch(e){}}
   var mine=null,hiddenAt=0;
   window.addEventListener('load',function(){ver(function(v){mine=v;});});
