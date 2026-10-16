@@ -2,7 +2,7 @@
    La caméra du téléphone repère les grandes articulations (épaules, hanches, genoux, chevilles…),
    dessine la silhouette par-dessus l'image, compte les répétitions (ou chronomètre une tenue) et vérifie le mouvement.
    Yass guide à voix haute ; la série peut être revue en replay. Tout se passe sur le téléphone : rien n'est envoyé.
-   Exercices : squat, fente avant, pont de hanche, équilibre sur une jambe, planche.
+   Exercices : squat, fente avant, pont de hanche, assis-debout de chaise, pompes sur genoux, équilibre sur une jambe, planche, chaise contre le mur.
    Détection : MediaPipe Pose Landmarker (Google, licence Apache 2.0), fichiers hébergés avec l'appli (assets/pose). */
 (function () {
   "use strict";
@@ -74,9 +74,12 @@
     lean2: "Buste droit !", knee: "Genou dans l'axe du pied !", pelvis: "Bassin bien horizontal !", sway: "Restez bien droit !",
     low: "Montez les hanches plus haut !", arch: "Ne cambrez pas, serrez les fessiers !",
     high: "Fesses trop hautes !", sag: "Le bassin s'affaisse, rentrez le ventre !",
+    hands: "Sans les mains, croisez les bras !", partial: "Redressez-vous complètement en haut.", plop: "Asseyez-vous en douceur.",
+    chest: "Descendez la poitrine plus bas.", wallUp: "Descendez un peu, cuisses à l'horizontale.", wallLow: "Remontez un peu, genoux à angle droit.",
     att: { valgus: "Attention aux genoux.", shift: "Attention à l'équilibre.", lean: "Attention au buste.", heel: "Attention aux talons.",
            lean2: "Attention au buste.", knee: "Attention au genou.", pelvis: "Attention au bassin.", low: "Attention à la hauteur.", arch: "Attention au dos.",
-           fast: "Descendez plus lentement.", abrupt: "Remontez en contrôlant.", fastUp: "Montez en contrôlant.", hold: "Tenez une seconde en haut." }
+           fast: "Descendez plus lentement.", abrupt: "Remontez en contrôlant.", fastUp: "Montez en contrôlant.", hold: "Tenez une seconde en haut.",
+           hands: "Sans les mains.", partial: "Redressez-vous complètement.", plop: "Asseyez-vous en douceur.", sag: "Attention au bassin.", high: "Attention au bassin." }
   };
   var MSG = {
     stand: "Tenez-vous debout, immobile.", far: "Reculez un peu : il faut voir tout le corps, de la tête aux pieds.",
@@ -92,14 +95,21 @@
     high: "Les fesses sont trop hautes. Descendez-les jusqu'à faire une ligne droite.",
     sag: "Le bassin s'affaisse. Rentrez le ventre et serrez les fessiers.",
     fast: "La descente est trop rapide. Descendez en 2 secondes environ.", abrupt: "La remontée est brusque. Remontez en contrôlant.",
-    fastUp: "La montée est trop rapide. Montez en contrôlant.", hold: "Marquez une petite pause en haut avant de redescendre."
+    fastUp: "La montée est trop rapide. Montez en contrôlant.", hold: "Marquez une petite pause en haut avant de redescendre.",
+    hands: "Vous poussez sur les mains. Croisez les bras sur la poitrine et levez-vous avec les jambes.",
+    partial: "Vous ne vous redressez pas complètement. Tendez les hanches et les genoux en haut.",
+    plop: "Vous vous laissez tomber sur la chaise. Asseyez-vous en douceur, en 2 secondes.",
+    chest: "La poitrine ne descend pas assez. Pliez les coudes un peu plus, si c'est sans douleur.",
+    wallUp: "Vous êtes trop haut. Descendez jusqu'à avoir les cuisses à l'horizontale.",
+    wallLow: "Vous êtes trop bas. Remontez un peu, genoux à angle droit."
   };
   var FIX = { valgus: "genoux qui rentrent", shift: "décalage sur un côté", lean: "buste trop penché", heel: "talons qui se décollent",
               lean2: "buste penché", knee: "genou qui rentre", pelvis: "bassin qui penche", sway: "buste qui penche", low: "hanches pas assez hautes",
               arch: "dos cambré", high: "fesses trop hautes", sag: "bassin qui s'affaisse", fast: "descente trop rapide", abrupt: "remontée brusque",
-              fastUp: "montée trop rapide", hold: "pas de pause en haut" };
+              fastUp: "montée trop rapide", hold: "pas de pause en haut", hands: "appui sur les mains", partial: "pas complètement redressé",
+              plop: "assis trop vite", chest: "poitrine pas assez basse", wallUp: "pas assez descendu", wallLow: "trop descendu" };
   // Défauts qui colorent la silhouette en rouge
-  var MARK = { valgus: ["lKn", "rKn"], lean: ["trunk"], lean2: ["trunk"], sway: ["trunk"], pelvis: ["hips"], low: ["hips"], arch: ["hips"], high: ["hips"], sag: ["hips"] };
+  var MARK = { hands: ["hands"], valgus: ["lKn", "rKn"], lean: ["trunk"], lean2: ["trunk"], sway: ["trunk"], pelvis: ["hips"], low: ["hips"], arch: ["hips"], high: ["hips"], sag: ["hips"] };
 
   /* ── Les exercices suivis ── */
   var PROF = {
@@ -120,16 +130,30 @@
     planche: { title: "Planche", mode: "hold", views: "profil", calib: "none", calibSay: "Mettez-vous en planche, de profil.",
       go: "C'est parti, tenez la position.", target: 30,
       steps: ["En planche <strong>de profil</strong> par rapport au téléphone, posé au sol à 2 mètres.", "Le chrono ne tourne que si le corps est bien aligné."],
+      tip: {} },
+    assis: { title: "Assis-debout de chaise", mode: "reps", views: "profil", calib: "sit", calibSay: "Asseyez-vous sur la chaise, de profil, et restez immobile.",
+      go: "C'est bon, je vous vois. Levez-vous, puis rasseyez-vous, à votre rythme.",
+      steps: ["Chaise <strong>de profil</strong> par rapport au téléphone, bras croisés sur la poitrine.", "Yass compte les relevers, vérifie que vous ne poussez pas sur les mains, que vous vous redressez en entier et que vous vous rasseyez en douceur."],
+      tip: {} },
+    pompes: { title: "Pompes sur genoux", mode: "reps", views: "profil", calib: "none", calibSay: "Mettez-vous en position, sur les genoux, de profil.",
+      go: "C'est parti, faites vos pompes à votre rythme.",
+      steps: ["Sur les genoux, mains sous les épaules, <strong>de profil</strong> par rapport au téléphone, posé au sol à 2 mètres.", "Yass compte les pompes, vérifie que la poitrine descend assez et que le corps reste bien droit."],
+      tip: {} },
+    chaise: { title: "Chaise contre le mur", mode: "hold", views: "profil", calib: "none", calibSay: "Dos au mur, descendez en position, de profil.",
+      go: "C'est parti, tenez la position.", target: 30,
+      steps: ["Dos au mur, <strong>de profil</strong> par rapport au téléphone.", "Le chrono ne tourne que si les genoux sont à peu près à angle droit, cuisses à l'horizontale."],
       tip: {} }
   };
-  var ORDER = ["squat", "fente", "pont", "unipodal", "planche"];
+  var ORDER = ["squat", "fente", "assis", "pont", "pompes", "unipodal", "planche", "chaise"];
   // Exercices de la séance et de la bibliothèque qui peuvent être vérifiés à la caméra
   var EX_MAP = {
     "Squat bilatéral": "squat", "Squat sumo": "squat", "Goblet squat": "squat", "Squat ballon dans le dos contre le mur": null,
     "Fentes avant unilatérales": "fente", "Fente arrière": "fente", "Fente avec charge": "fente",
     "Pont de hanche": "pont", "Pont fessier unilatéral": "pont", "Pont avec ballon entre les genoux": "pont",
     "Équilibre unipodal": "unipodal", "Unipodal yeux fermés": "unipodal",
-    "Plank — gainage avant-bras": "planche", "Gainage frontal sur genoux": "planche"
+    "Plank — gainage avant-bras": "planche", "Gainage frontal sur genoux": "planche",
+    "Assis-debout de chaise": "assis", "Pompes sur genoux": "pompes", "Chaise contre le mur": "chaise",
+    "Pont ischio-jambiers talons sur chaise": "pont"
   };
 
   /* ── État de l'analyse ── */
@@ -153,11 +177,12 @@
   // Tout ce dont les analyses ont besoin, calculé une fois par image
   function context(lm) {
     var L = {};
-    ["nose", "lSh", "rSh", "lHip", "rHip", "lKn", "rKn", "lAn", "rAn", "lHe", "rHe", "lToe", "rToe"].forEach(function (k) { L[k] = P(lm, I[k]); });
+    ["nose", "lSh", "rSh", "lEl", "rEl", "lWr", "rWr", "lHip", "rHip", "lKn", "rKn", "lAn", "rAn", "lHe", "rHe", "lToe", "rToe"].forEach(function (k) { L[k] = P(lm, I[k]); });
     var c = { L: L, hip: mid(L.lHip, L.rHip), sh: mid(L.lSh, L.rSh), an: mid(L.lAn, L.rAn) };
     c.hipW = Math.max(0.02, Math.abs(L.lHip.x - L.rHip.x));
     c.near = (lm[I.lKn].visibility || 0) >= (lm[I.rKn].visibility || 0) ? "l" : "r";
-    var n = c.near; c.N = { sh: L[n + "Sh"], hip: L[n + "Hip"], kn: L[n + "Kn"], an: L[n + "An"], he: L[n + "He"], toe: L[n + "Toe"] };
+    var n = c.near; c.N = { sh: L[n + "Sh"], el: L[n + "El"], wr: L[n + "Wr"], hip: L[n + "Hip"], kn: L[n + "Kn"], an: L[n + "An"], he: L[n + "He"], toe: L[n + "Toe"] };
+    c.elbow = angle(c.N.sh, c.N.el, c.N.wr);
     c.kL = angle(L.lHip, L.lKn, L.lAn); c.kR = angle(L.rHip, L.rKn, L.rAn);
     c.kNear = n === "l" ? c.kL : c.kR;
     var shW = Math.abs(L.lSh.x - L.rSh.x), torso = dist(c.sh, c.hip);
@@ -194,11 +219,21 @@
         if (slope(L.lHip, L.rHip) > 9) flag("pelvis");
       } else if (tilt(c.sh, c.hip) > 22) flag("lean2");
     },
-    pont: function (c) { if (above(c.N.hip, c.N.sh, c.N.kn) > 0.12) flag("arch"); }
+    pont: function (c) { if (above(c.N.hip, c.N.sh, c.N.kn) > 0.12) flag("arch"); },
+    // Assis-debout : les mains ne doivent pas pousser sur les cuisses ou les genoux pendant le relever
+    assis: function (c) {
+      if ((A.base.y - c.hip.y) / Math.max(0.05, A.base.leg) > 0.3) return;   // seulement pendant le décollage de la chaise
+      var L = c.L, near = function (w) { return Math.min(dist(w, c.N.kn), dist(w, mid(c.N.hip, c.N.kn))) < 0.18 * c.leg; };
+      if ((L.lWr.v > 0.5 && near(L.lWr)) || (L.rWr.v > 0.5 && near(L.rWr))) flag("hands");
+    },
+    // Pompes : le corps reste droit des épaules aux genoux
+    pompes: function (c) { var dev = above(c.N.hip, c.N.sh, c.N.kn); if (dev < -0.1) flag("sag"); else if (dev > 0.14) flag("high"); }
   };
   // Profondeur du mouvement (0 au repos)
   function depth(c) {
     // Pont : hauteur des hanches (en longueurs de cuisse) ou rapprochement de la ligne épaule-genou, le plus net des deux
+    if (PR === PROF.assis) return (A.base.y - c.hip.y) / Math.max(0.05, A.base.leg);     // le bassin monte en se levant
+    if (PR === PROF.pompes) return (180 - c.elbow) / 90;                                    // 0 bras tendus, 1 coudes à 90°
     if (PR === PROF.pont) return Math.max((A.base.y - c.hip.y) / Math.max(0.05, A.base.thigh), (above(c.N.hip, c.N.sh, c.N.kn) - A.base.dev) * 2);
     return (c.hip.y - A.base.y) / Math.max(0.05, A.base.leg);
   }
@@ -217,6 +252,7 @@
   function calibrate(c, now) {
     var ok = false;
     if (PR.calib === "stand") ok = c.knee > 158 && (PR !== PROF.unipodal || Math.abs(c.L.lAn.y - c.L.rAn.y) < 0.05 * c.leg);
+    else if (PR.calib === "sit") ok = c.kNear < 125 && c.kNear > 60 && slope(c.N.hip, c.N.kn) < 35;   // assis, cuisses à peu près horizontales
     else if (PR.calib === "lie") ok = slope(c.N.sh, c.N.hip) < 30 && c.kNear < 140;   // allongé, genoux pliés
     else ok = true;
     if (ok) {
@@ -225,22 +261,23 @@
       b.y = b.y * 0.8 + c.hip.y * 0.2; b.leg = b.leg * 0.8 + c.leg * 0.2; b.heelY = b.heelY * 0.8 + c.N.he.y * 0.2; b.thigh = b.thigh * 0.8 + dist(c.N.hip, c.N.kn) * 0.2; b.dev = b.dev * 0.8 + above(c.N.hip, c.N.sh, c.N.kn) * 0.2;
     } else { A.still = 0; A.stillT = 0; }
     if (PR.calib === "none" || (A.still >= 3 && now - A.stillT > 1000)) { A.phase = "run"; A.hold.lastT = now; return PR.calib === "none" ? null : { msg: PR.go, voice: PR.go }; }
-    if (!A.calibSaid) { A.calibSaid = 1; return { msg: PR.calib === "lie" ? "Allongez-vous sur le dos, genoux pliés, de profil." : MSG.stand, voice: PR.calibSay || V.stand }; }
+    if (!A.calibSaid) { A.calibSaid = 1; return { msg: PR.calib === "lie" ? "Allongez-vous sur le dos, genoux pliés, de profil." : PR.calib === "sit" ? "Asseyez-vous sur la chaise, de profil, bras croisés." : MSG.stand, voice: PR.calibSay || V.stand }; }
     return null;
   }
 
   /* Répétitions : squat, fente, pont */
   function repStep(c, now) {
-    var d = depth(c), START = PR === PROF.pont ? 0.14 : 0.16, END = PR === PROF.pont ? 0.07 : 0.07;
-    if (!A.down && d < END * 0.7 && c.knee > 160 && PR !== PROF.pont) { A.base.y = A.base.y * 0.95 + c.hip.y * 0.05; A.base.leg = A.base.leg * 0.95 + c.leg * 0.05; }
+    var d = depth(c), START = PR === PROF.pont ? 0.14 : PR === PROF.pompes ? 0.42 : PR === PROF.assis ? 0.18 : 0.16, END = PR === PROF.pompes ? 0.22 : 0.07;
+    if (!A.down && A.base && d < END * 0.7 && c.knee > 160 && PR !== PROF.pont && PR !== PROF.assis && PR !== PROF.pompes) { A.base.y = A.base.y * 0.95 + c.hip.y * 0.05; A.base.leg = A.base.leg * 0.95 + c.leg * 0.05; }
     if (d > START * 0.85 && CHECK[PRID]) CHECK[PRID](c);
-    if (!A.down && d > START) { A.down = true; A.maxD = d; A.tStart = now; A.tPeak = now; A.minKnee = c.knee; A.flags = {}; A.cued = {}; A.nf = 0; A.peakT = 0; A.lastNow = now; }
+    if (!A.down && d > START) { A.down = true; A.maxD = d; A.tStart = now; A.tPeak = now; A.minKnee = c.knee; A.maxKnee = c.knee; A.minElbow = c.elbow; A.flags = {}; A.cued = {}; A.nf = 0; A.peakT = 0; A.lastNow = now; }
     if (A.down) {
       A.nf++;
       if (d > A.maxD) { A.maxD = d; A.tPeak = now; if (PR === PROF.pont) A.topDev = above(c.N.hip, c.N.sh, c.N.kn); }
       if (d >= A.maxD - (PR === PROF.pont ? 0.08 : 0.03)) A.peakT += now - A.lastNow;   // temps passé tout en bas (ou tout en haut pour le pont)
       A.lastNow = now;
       A.minKnee = Math.min(A.minKnee, PR === PROF.fente && A.view === "profil" ? frontKnee(c) : c.knee);
+      A.maxKnee = Math.max(A.maxKnee || 0, c.knee); A.minElbow = Math.min(A.minElbow == null ? 180 : A.minElbow, c.elbow);
       for (var fk in A.flags) if (A.flags[fk] >= 2 && !A.cued[fk]) { A.cued[fk] = 1; return { msg: V[fk], voice: V[fk], live: true, cls: "bad" }; }
     }
     if (A.down && d < END) {
@@ -248,7 +285,13 @@
       var need = Math.max(2, Math.round(A.nf * 0.25)), fl = A.flags;   // défaut retenu s'il est vu sur au moins un quart de la répétition
       var faults = Object.keys(fl).filter(function (k) { return fl[k] >= need; });
       var down = A.tPeak - A.tStart, up = now - A.tPeak, deep = true;
-      if (PR === PROF.pont) {
+      if (PR === PROF.assis) {
+        if ((A.maxKnee || 0) < 152) faults.push("partial");
+        if (A.nf >= 5 && up < 400) faults.push("plop");          // retour sur la chaise trop rapide
+      } else if (PR === PROF.pompes) {
+        deep = A.minElbow < 105;
+        if (!deep) faults.push("chest");
+      } else if (PR === PROF.pont) {
         if ((A.topDev || 0) < -0.06) faults.push("low");
         if (A.nf >= 5 && down < 350) faults.push("fastUp");   // le rythme n'est jugé qu'avec assez d'images
         if (A.nf >= 5 && A.peakT < 450) faults.push("hold");
@@ -287,6 +330,12 @@
         if (inward(L[side + "Hip"], L[side + "Kn"], L[side + "An"], c.hip, c.hipW) > 0.3) { flag("knee"); A.live[side + "Kn"] = 1; }
         if (tilt(c.sh, c.hip) > 12) flag("sway");
       }
+    } else if (PR === PROF.chaise) {
+      // Chaise contre le mur : cuisses vers l'horizontale, genoux pliés ; le chrono tourne entre 70° et 115°
+      inPose = c.kNear < (H.inPose ? 140 : 130) && slope(c.N.hip, c.N.kn) < 45;
+      if (inPose) {
+        if (c.kNear > 115) { flag("wallUp"); aligned = false; } else if (c.kNear < 70) { flag("wallLow"); aligned = false; }
+      }
     } else {
       var kneeDown = c.kNear < 145, end = kneeDown ? c.N.kn : c.N.an;
       inPose = slope(c.N.sh, end) < 35 && dist(c.N.sh, end) > 0.25;
@@ -297,7 +346,7 @@
     }
     var out = null;
     if (inPose) {
-      if (!H.inPose) { H.inPose = true; H.started = true; H.outT = 0; if (!H.saidGo) { H.saidGo = 1; out = { msg: PR === PROF.planche ? "C'est parti, tenez la position." : "Chrono lancé !", voice: PR === PROF.planche ? PR.go : null }; } }
+      if (!H.inPose) { H.inPose = true; H.started = true; H.outT = 0; if (!H.saidGo) { H.saidGo = 1; out = { msg: PR === PROF.unipodal ? "Chrono lancé !" : "C'est parti, tenez la position.", voice: PR === PROF.unipodal ? null : PR.go }; } }
       if (aligned) {
         H.t += dt; H.goodT += dt;
         if (side !== "x") H.side[side] += dt;
@@ -344,7 +393,7 @@
       ctx.strokeStyle = badBone(b[0], b[1]) ? "rgba(255,77,94,.95)" : "rgba(255,255,255,.85)"; ctx.lineWidth = Math.max(4, W / 90);
       ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
     });
-    var key = { 25: "lKn", 26: "rKn", 29: "lHe", 30: "rHe", 23: "hips", 24: "hips" };
+    var key = { 15: "hands", 16: "hands", 25: "lKn", 26: "rKn", 29: "lHe", 30: "rHe", 23: "hips", 24: "hips" };
     JOINTS.forEach(function (i) {
       if ((lm[i].visibility || 0) < 0.4) return;
       var p = pt(i), r = i === 0 ? Math.max(7, W / 45) : Math.max(6, W / 55), red = key[i] && bad[key[i]];
@@ -415,7 +464,7 @@
       "<div class='kf-sub'>Yass repère vos articulations, dessine votre silhouette et vous guide à voix haute. " + (PR.mode === "hold" ? "Il chronomètre la tenue." : "Il compte vos répétitions.") +
         (tgt ? " Objectif : <strong>" + esc(tgt) + "</strong>." : "") + "</div>" +
       "<div class='kcam-steps'>" +
-        "<div><b>1</b><span>Posez le téléphone contre un objet stable" + (PR.calib === "stand" ? ", debout, à hauteur de la taille." : ", au sol ou bas.") + "</span></div>" +
+        "<div><b>1</b><span>Posez le téléphone contre un objet stable" + (PR.calib === "stand" || PR.calib === "sit" || PRID === "chaise" ? ", à hauteur de la taille." : ", au sol ou bas.") + "</span></div>" +
         "<div><b>2</b><span>Reculez à 2 ou 3 mètres : on doit voir <strong>tout le corps</strong>.</span></div>" +
         PR.steps.map(function (t, i) { return "<div><b>" + (i + 3) + "</b><span>" + t + "</span></div>"; }).join("") +
       "</div>" +
@@ -477,7 +526,7 @@
     function idle() {
       var m = $("kcam-msg"); if (!m) return;
       var t = A.phase === "calib" ? (PR.calib === "lie" ? "Allongez-vous sur le dos, genoux pliés, de profil." : PR.calib === "stand" ? MSG.stand : PR.calibSay)
-            : hold ? (A.hold.inPose ? "Tenez, respirez normalement." : PR === PROF.unipodal ? "Levez un pied pour lancer le chrono." : "Mettez-vous en planche pour lancer le chrono.")
+            : hold ? (A.hold.inPose ? "Tenez, respirez normalement." : PR === PROF.unipodal ? "Levez un pied pour lancer le chrono." : PR === PROF.chaise ? "Descendez en position, dos au mur, pour lancer le chrono." : "Mettez-vous en planche pour lancer le chrono.")
             : (A.reps ? "Continuez à votre rythme." : PR.go);
       if (m.textContent !== t) { m.textContent = t; m.className = "kcam-msg idle"; }
     }
