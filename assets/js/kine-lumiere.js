@@ -121,7 +121,7 @@ var KineLumiere = (function () {
       groups.map(function (g) { return all.some(function (e) { return e.group === g[0]; }) ? "<button class='lu-chip" + (filt === g[0] ? " on" : "") + "' onclick=\"KineLumiere.filter('" + g[0] + "')\">" + esc(SHORT[g[0]] || g[1]) + "</button>" : ""; }).join("");
     var card = function (e) {
       var c = KineBiblio.color(e.name), cam = camOf(e.name), src = e.thumb || thumbs[e.name];
-      return "<div class='lu-card' data-n='" + esc(e.name) + "'" + (e.reactif ? " data-r='" + esc(e.reactif) + "'" : "") + "><button class='lu-card-b' onclick='KineBiblio.demo(" + q(e.name) + ")'>" +
+      return "<div class='lu-card' data-ing='" + esc(e.group) + "' data-n='" + esc(e.name) + "'" + (e.reactif ? " data-r='" + esc(e.reactif) + "'" : "") + "><button class='lu-card-b' onclick='KineBiblio.demo(" + q(e.name) + ")'>" +
         "<span class='lu-im'>" + (src ? "<img src='" + src + "' alt=''>" : "<img data-n='" + esc(e.name) + "' alt=''>") + "</span>" +
         "<span class='lu-d'><b><i class='lu-lvl c" + c + "'></i>" + esc(e.name) + "</b><small>" + esc(e.repsLabel || "") + "</small></span></button>" +
         (cam ? "<button class='lu-camb' aria-label='Tester " + esc(e.name) + " en vidéo' onclick=\"KineCamera.open('" + cam + "')\">" + ICAM + "</button>" : "") + "</div>";
@@ -130,16 +130,25 @@ var KineLumiere = (function () {
     if (filt) body = "<div class='lu-cards'>" + list.sort(function (a, b) { return KineBiblio.color(a.name) - KineBiblio.color(b.name); }).map(card).join("") + "</div>";
     else body = groups.map(function (g) {
       var it = list.filter(function (e) { return e.group === g[0]; }).sort(function (a, b) { return KineBiblio.color(a.name) - KineBiblio.color(b.name); });
-      return it.length ? "<h2 class='lu-gh'>" + esc(g[1]) + "<small>" + it.length + "</small></h2><div class='lu-cards'>" + it.map(card).join("") + "</div>" : "";
+      return it.length ? "<h2 class='lu-gh' data-grp='" + g[0] + "'>" + esc(g[1]) + "<small>" + it.length + "</small></h2><div class='lu-cards'>" + it.map(card).join("") + "</div>" : "";
     }).join("");
     box.innerHTML =
       (window.KineCamera ? "<button class='lu-hero2' onclick='KineCamera.open()'><span class='lu-ring' aria-hidden='true'></span><img src='assets/lumiere/video-fente.webp' alt=''>" +
         "<span class='lu-tx'><b>Teste ton mouvement en vidéo</b><small>Yass te corrige à voix haute et compte pour toi</small></span><span class='lu-try'>" + ICAM + "Essayer</span></button>" : "") +
+      KineBiblio.searchUI("KineLumiere.find", fq, "", "Rechercher : squat, épaule, réactif…", true) +
       "<div class='lu-chips'>" + chips + "</div>" +
       "<p class='lu-legend'><span><i class='lu-lvl c1'></i>Facile</span><span><i class='lu-lvl c2'></i>Intermédiaire</span><span><i class='lu-lvl c3'></i>Difficile</span>" + (nCam ? "<span class='lu-leg-cam'>" + ICAM + "testable en vidéo</span>" : "") + "</p>" +
       body;
+    findApply();
     lazyThumbs(box);
     setTimeout(liveCheck, 450);
+  }
+  var fq = "";
+  function findApply() {
+    var box = $("lu-lib"); if (!box) return;
+    KineBiblio.applyFind(box, ".lu-card", fq, "");
+    // le titre « Réactivité » n'a pas de [data-ing] pour les cartes réactives classées ailleurs : rien à faire de plus
+    setTimeout(liveCheck, 200);
   }
   // Les vignettes 3D se dessinent au fil du défilement, quelques-unes à la fois
   var io = null, queue = [], busy = false;
@@ -383,6 +392,6 @@ var KineLumiere = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);
 
-  return { explainMenu: explainMenu, replay: replay, eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, go: go, menuHtml: menuHtml, loop: loop, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
+  return { find: { q: function (v) { fq = v; findApply(); }, f: function () {} }, explainMenu: explainMenu, replay: replay, eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, go: go, menuHtml: menuHtml, loop: loop, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
 })();
 window.KineLumiere = KineLumiere;

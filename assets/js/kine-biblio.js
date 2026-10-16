@@ -660,6 +660,43 @@ var KineBiblio = (function () {
       "<div class='kb-chips'>" + chips + "</div>" + rows + "</div>";
     el.classList.add("open");
   }
+
+  /* ── Recherche et filtres, partagés par la bibliothèque, la création de séance et « Ma séance » ── */
+  function norm(t) { return String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[’']/g, " "); }
+  function gname(id) { for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i][0] === id) return GROUPS[i][1]; return ""; }
+  function isReact(e) { return !!(e && (e.reactif || e.group === "reactif")); }
+  // Texte dans lequel on cherche : nom, groupe musculaire, type, et quelques mots courants
+  function hay(e) { var c = color(e.name); return norm([e.name, gname(e.group), isReact(e) ? "reactif reactivite couleurs reflexe" : "classique", COLORS[c] ? COLORS[c][1] : "", e.kit && e.kit.join ? e.kit.join(" ") : ""].join(" ")); }
+  var FILTERS = [["", "Tous"], ["reactif", "Réactifs"], ["classique", "Classiques"], ["c1", "Faciles"], ["c2", "Intermédiaires"], ["c3", "Difficiles"]];
+  var SVG_S = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' aria-hidden='true'><circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/></svg>";
+  // Barre de recherche + puces de filtre. ns : nom de l'objet global qui reçoit q(texte) et f(filtre)
+  function searchUI(ns, q, f, ph, noChips) {
+    var qa = esc(q || "").replace(/'/g, "&#39;");
+    return "<div class='kf-find'><label class='kf-search'>" + SVG_S + "<input type='search' enterkeyhint='search' autocomplete='off' placeholder='" + esc(ph || "Rechercher un exercice") + "' value='" + qa + "' oninput='" + ns + ".q(this.value)'>" +
+      "<button type='button' class='kf-clear' aria-label='Effacer' onclick='" + ns + ".q(\"\");this.parentNode.querySelector(\"input\").value=\"\"'" + (q ? "" : " hidden") + ">✕</button></label>" +
+      (noChips ? "" : "<div class='kf-fchips' role='group' aria-label='Filtrer'>" + FILTERS.map(function (x) {
+        return "<button type='button' class='" + ((f || "") === x[0] ? "on" : "") + "' onclick='" + ns + ".f(\"" + x[0] + "\")'>" + (x[0].length === 2 ? "<i class='kb-dot " + x[0] + "'></i>" : "") + x[1] + "</button>";
+      }).join("") + "</div>") + "</div>";
+  }
+  function setChips(root, f) { if (root) [].forEach.call(root.querySelectorAll(".kf-fchips button"), function (b) { b.classList.toggle("on", (b.getAttribute("onclick").match(/f\("([^"]*)"\)/) || [])[1] === (f || "")); }); }
+  function matches(e, q, f) {
+    if (f === "reactif" && !isReact(e)) return false;
+    if (f === "classique" && isReact(e)) return false;
+    if (f && f.charAt(0) === "c" && f.length === 2 && String(color(e.name)) !== f.charAt(1)) return false;
+    var words = norm(q).split(/\s+/).filter(Boolean); if (!words.length) return true;
+    var h = hay(e); return words.every(function (w) { return h.indexOf(w) >= 0 || h.indexOf(w.replace(/s$/, "")) >= 0; });
+  }
+  // Masque les éléments qui ne correspondent pas (chaque élément porte data-n = nom de l'exercice) et les titres de groupe vides
+  function applyFind(root, itemSel, q, f, emptyMsg) {
+    if (!root) return 0;
+    var n = 0;
+    [].forEach.call(root.querySelectorAll(itemSel), function (it) { var e = find(it.getAttribute("data-n")), ok = !e || matches(e, q, f); it.hidden = !ok; if (ok) n++; });
+    [].forEach.call(root.querySelectorAll("[data-grp]"), function (h) { var g = h.getAttribute("data-grp"); h.hidden = ![].some.call(root.querySelectorAll("[data-ing='" + g + "']"), function (x) { return !x.hidden; }); });
+    var cl = root.querySelector(".kf-clear"); if (cl) cl.hidden = !q;
+    var em = root.querySelector(".kf-none"); if (!em && emptyMsg !== false) { em = document.createElement("p"); em.className = "kf-none"; var anchor = root.querySelector(".kf-find"); if (anchor) anchor.insertAdjacentElement("afterend", em); }
+    if (em) { em.hidden = n > 0; em.textContent = "Aucun exercice ne correspond. Essayez un autre mot, ou retirez le filtre."; }
+    return n;
+  }
   function close() { var el = $("kb-sheet"); if (el) el.classList.remove("open"); }
   function demo(name) {
     var e = find(name); if (!e) return;
@@ -670,7 +707,8 @@ var KineBiblio = (function () {
     if (typeof openDemoEx === "function") openDemoEx(e);
   }
 
-  return { groups: GROUPS, colors: COLORS, all: all, find: find, extend: extend, color: color, open: open, close: close, demo: demo, wire: wire, NEW: NEW,
+  return { searchUI: searchUI, setChips: setChips, matches: matches, applyFind: applyFind, isReact: isReact, groupName: gname, norm: norm,
+           groups: GROUPS, colors: COLORS, all: all, find: find, extend: extend, color: color, open: open, close: close, demo: demo, wire: wire, NEW: NEW,
            reset: function () { FULL = null; }, baseColor: function (n) { var e = find(n); return e ? e.base : 0; } };
 })();
 window.KineBiblio = KineBiblio;

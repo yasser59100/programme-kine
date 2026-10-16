@@ -147,7 +147,7 @@ var KineCompose = (function () {
   }
 
   /* ════════ Écran : composer ════════ */
-  var sel = [], editing = null, title = "";
+  var sel = [], editing = null, title = "", cq = "", cf = "";
   function sheet() {
     var el = $("kc-sheet");
     if (!el) { el = document.createElement("div"); el.id = "kc-sheet"; el.className = "kf-sheet"; el.setAttribute("role", "dialog"); document.body.appendChild(el); }
@@ -173,10 +173,10 @@ var KineCompose = (function () {
       var gear = jget(GKEY, {});
       var items = KineBiblio.all().filter(function (e) { return e.group === g[0] && (!e.gear || gear[e.gear]); }).sort(function (a, b) { return KineBiblio.color(a.name) - KineBiblio.color(b.name); });
       if (!items.length) return "";
-      return "<div class='kf-phase' style='color:var(--text2)'>" + esc(g[1]) + (z[g[0]] === "nored" ? " <small class='kc-z'>pas de rouge</small>" : "") + "</div>" +
+      return "<div class='kf-phase' data-grp='" + g[0] + "' style='color:var(--text2)'>" + esc(g[1]) + (z[g[0]] === "nored" ? " <small class='kc-z'>pas de rouge</small>" : "") + "</div>" +
         items.map(function (e) {
           var c = KineBiblio.color(e.name), on = sel.indexOf(e.name) >= 0, lock = lockReason(e);
-          return "<div class='kc-row" + (on ? " on" : "") + (lock ? " locked" : "") + "'>" +
+          return "<div class='kc-row" + (on ? " on" : "") + (lock ? " locked" : "") + "' data-n='" + esc(e.name).replace(/'/g, "&#39;") + "' data-ing='" + g[0] + "'>" +
             "<button type='button' class='kc-pick' onclick='KineCompose.toggle(" + q(e.name) + ")'" + (lock && !on ? " aria-disabled='true'" : "") + ">" +
               "<i class='kb-dot c" + c + "'></i><span><b>" + esc(e.name) + "</b><small>" + (lock ? "🔒 " + esc(lock) : esc(KineBiblio.colors[c][1]) + ", " + esc(e.repsLabel)) + "</small></span>" +
               "<em aria-hidden='true'>" + (on ? "✓" : lock ? "" : "+") + "</em></button>" +
@@ -195,10 +195,11 @@ var KineCompose = (function () {
         return "<button type='button' class='kb-chip" + (on ? " on" : "") + "' aria-pressed='" + on + "' onclick='KineCompose.gear(\"" + g[0] + "\")'>" + (on ? "✓ " : "") + g[1] + "</button>"; }).join("") + "</div>" +
       (needEarly() ? "<button type='button' class='kc-early-card' onclick='KineCompose.early()'><b>🔓 Rééducation terminée ?</b><small>Accès anticipé aux exercices difficiles : 6 questions</small></button>" : "") +
       (chosen ? "<div class='kc-tray'>" + chosen + "<div class='kf-sub'>L'ordre alterne les groupes musculaires pour que chacun récupère.</div></div>" : "") +
-      groups + "</div>" +
+      KineBiblio.searchUI("KineCompose", cq, cf) + groups + "</div>" +
       "<div class='kf-sheet-foot kc-foot'><input id='kc-name' class='kc-name' maxlength='30' placeholder='Nom de la séance' value='" + esc(title) + "' oninput='KineCompose.name(this.value)'>" +
         "<button class='seq-btn-main' " + (ok ? "" : "disabled ") + "onclick='KineCompose.save(true)'>Enregistrer et lancer</button>" +
         "<button class='seq-btn-secondary' " + (ok ? "" : "disabled ") + "onclick='KineCompose.save(false)'>Enregistrer</button></div>";
+    KineBiblio.applyFind(el, ".kc-row", cq, cf);
     // Yass explique les nouveautés la première fois
     if (window.KineExplique) {
       var ec = el.querySelector(".kc-early-card"); if (ec) KineExplique.once("rouge", ec);
@@ -329,9 +330,22 @@ var KineCompose = (function () {
       "<h2 class='lx-section'>Explorer les exercices</h2>" +
       "<div class='kc-gear' id='mx-gear'><b>Mon matériel</b>" + [["elastique", "Un élastique"], ["charge", "Haltères ou charges"]].map(function (g) {
         var on = !!gear[g[0]]; return "<button type='button' class='kb-chip" + (on ? " on" : "") + "' aria-pressed='" + on + "' onclick='KineCompose.gearPage(\"" + g[0] + "\")'>" + (on ? "✓ " : "") + g[1] + "</button>"; }).join("") + "</div>" +
+      "<div class='mx-find' id='mx-find'>" + KineBiblio.searchUI("KineCompose.mx", mq, mf) +
+        "<div class='mx-res' id='mx-res' hidden>" + all.slice().sort(function (a, b) { return a.name.localeCompare(b.name, "fr"); }).map(function (e) {
+          var c = KineBiblio.color(e.name);
+          return "<button type='button' class='mx-row' data-n='" + esc(e.name).replace(/'/g, "&#39;") + "' onclick='KineBiblio.demo(" + q(e.name) + ")'><i class='kb-dot c" + c + "'></i><span><b>" + esc(e.name) + "</b><small>" + esc(KineBiblio.groupName(e.group)) + (KineBiblio.isReact(e) ? " · réactif" : "") + "</small></span><em aria-hidden='true'>▶</em></button>";
+        }).join("") + "</div></div>" +
       "<div class='mx-grid' id='mx-lib'>" + groups + "</div>" +
       "<button class='mx-all' onclick='KineBiblio.open(\"\")'>Voir les " + all.length + " exercices ›</button>" +
       "<button class='kc-kine' onclick='KineCompose.kine()'>Espace kiné</button>";
+    mxApply();
+  }
+  var mq = "", mf = "";
+  function mxApply() {
+    var box = $("mx-find"), on = !!(mq || mf), res = $("mx-res"), grid = $("mx-lib"), all2 = document.querySelector("#mes-root .mx-all"); if (!box) return;
+    if (res) res.hidden = !on; if (grid) grid.hidden = on; if (all2) all2.hidden = on;
+    KineBiblio.setChips(box, mf);
+    if (on) KineBiblio.applyFind(box, ".mx-row", mq, mf); else { var cl = box.querySelector(".kf-clear"); if (cl) cl.hidden = true; var em = box.querySelector(".kf-none"); if (em) em.hidden = true; }
   }
   var GUIDE = [
     { sel: "#mx-create", text: "Ici, tu crées ta propre séance : tu choisis 5 à 8 exercices, je m'occupe de l'échauffement, des étirements et de l'ordre.", gesture: "wave" },
@@ -361,7 +375,12 @@ var KineCompose = (function () {
     early: earlyOpen, earlyAns: earlyAns, earlyCheck: earlyCheck, earlyClose: earlyClose, earlyLines: earlyLines,
     lock: function () { kineOpen = 0; close(); },
     resetPin: function () { try { localStorage.removeItem(PKEY); } catch (e) {} kineOpen = 0; kine(); },
-    rules: { MIN: MIN, MAX: MAX, MAX_RED: MAX_RED, MAX_GROUP: MAX_GROUP }
+    rules: { MIN: MIN, MAX: MAX, MAX_RED: MAX_RED, MAX_GROUP: MAX_GROUP },
+    // recherche dans la création de séance (filtre en place, sans redessiner : le clavier reste ouvert)
+    q: function (v) { cq = v; KineBiblio.applyFind(sheet(), ".kc-row", cq, cf); },
+    f: function (v) { cf = v; KineBiblio.setChips(sheet(), cf); KineBiblio.applyFind(sheet(), ".kc-row", cq, cf); },
+    // recherche dans « Ma séance »
+    mx: { q: function (v) { mq = v; mxApply(); }, f: function (v) { mf = mf === v ? "" : v; mxApply(); } }
   };
 })();
 window.KineCompose = KineCompose;
