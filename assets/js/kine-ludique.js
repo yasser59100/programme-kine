@@ -28,17 +28,63 @@
   }
   function stopYass() {
     if (!cur) return;
-    var c = cur; cur = null; c.id.dead = true;
+    var c = cur; cur = null; c.id.dead = true; if (c.A.signs) c.A.signs(null);
     if (c.box.querySelector("canvas")) c.A.hide();
   }
   function play(c, seq, loop, then) {
-    var i = 0;
+    var i = 0, g = c.gen = (c.gen || 0) + 1;
     (function next() {
-      if (!c || c.id.dead || !c.box.isConnected) return;
+      if (!c || c.id.dead || !c.box.isConnected || c.gen !== g) return;
       if (i >= seq.length) { if (loop) i = 0; else { if (then) then(); return; } }
-      var s = seq[i++]; c.A.step({ pose: s[0], dur: s[1] });
+      var s = seq[i++]; c.sign = /^sV/.test(s[0]) ? "V" : /^sF/.test(s[0]) ? "F" : null; c.A.step({ pose: s[0], dur: s[1] });
+      if (c.signs && c.A.signs) { c.signs.hi = c.only || c.sign; c.A.signs(c.signs); }
       setTimeout(next, s[1] * 1000 + 40);
     })();
+  }
+  /* Pancartes Vrai / Faux : Yass en tient une dans chaque main (Vrai à droite de l'écran, comme le balayage) */
+  var ARM_HOLD = [18, -10, 0, 40], ARM_UP = [64, -22, 0, 6], ARM_UP2 = [58, -20, 0, 16];   // pancartes tenues devant lui ; il en tend une vers toi
+  function signPoses(def) {
+    var P = {}, base = def.poses.idle, cp = function (o) { return JSON.parse(JSON.stringify(o)); };
+    function mk(l, r, extra) { var q = cp(base); q.LA = { ang: l }; q.RA = { ang: r }; for (var k in extra || {}) q[k] = extra[k]; return q; }
+    P.sHold = mk(ARM_HOLD, ARM_HOLD, { head: 2 });
+    P.sV = mk(ARM_UP, ARM_HOLD, { head: 8, headY: 12 });  P.sV2 = mk(ARM_UP2, ARM_HOLD, { head: 6, headY: 8 });
+    P.sF = mk(ARM_HOLD, ARM_UP, { head: 8, headY: -12 });   P.sF2 = mk(ARM_HOLD, ARM_UP2, { head: 6, headY: -8 });
+    return P;
+  }
+  function withSigns(A) {
+    var def = KineAvatar._def(YASS); if (!def || A.__signs) return;
+    var d = JSON.parse(JSON.stringify(def)), P = signPoses(def); for (var k in P) d.poses[k] = P[k];
+    d.camera = Object.assign({}, d.camera || {}, { yaw: 0 });   // bien de face : les deux pancartes viennent vers toi de la même façon
+    A.register(YASS, d); A.__signs = true;
+  }
+  var ALT = [["sHold", 0.6], ["sV", 0.55], ["sV2", 0.35], ["sV", 0.35], ["sV", 0.8], ["sHold", 0.55], ["sF", 0.55], ["sF2", 0.35], ["sF", 0.35], ["sF", 0.8]];
+  var SIGN = { V: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='m5 12.5 4.5 4.5L19 7.5'/></svg>",
+               F: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3.2' stroke-linecap='round' aria-hidden='true'><path d='M6.5 6.5l11 11M17.5 6.5l-11 11'/></svg>" };
+  // Calque des pancartes : chaque pancarte est collée à la main de Yass, image par image, et peut dépasser du cadre
+  function signs(host, stage, c, only) {
+    var lay = document.createElement("div"); lay.className = "lq-signs"; lay.setAttribute("aria-hidden", "true");
+    lay.innerHTML = (only !== "F" ? "<div class='lq-sign v' data-k='V'><b>" + SIGN.V + "Vrai</b><i></i></div>" : "") +
+                    (only !== "V" ? "<div class='lq-sign f' data-k='F'><b>" + SIGN.F + "Faux</b><i></i></div>" : "");
+    host.appendChild(lay);
+    var sV = lay.querySelector(".v"), sF = lay.querySelector(".f");
+    (function tick() {
+      if (!c || c.id.dead || !stage.isConnected || !lay.isConnected) { lay.remove(); return; }
+      var h = c.A.hands && c.A.hands();
+      if (h) {
+        var r = stage.getBoundingClientRect(), o = host.getBoundingClientRect();
+        // la main gauche de Yass est à droite de l'écran : elle tient « Vrai »
+        var put = function (el, p, up) {
+          if (!el) return;
+          var ax = Math.max(36, Math.min(innerWidth - 36, r.left + p.x * r.width));   // la pancarte reste toujours dans l'écran
+          var x = ax - o.left, y = r.top - o.top + p.y * r.height;
+          el.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+          el.classList.toggle("up", up);
+        };
+        put(sV, h.L, only === "V" || c.sign === "V"); put(sF, h.R, only === "F" || c.sign === "F");
+      }
+      requestAnimationFrame(tick);
+    })();
+    return lay;
   }
   var THINK = [["idle", 1.2], ["talkA", 0.9], ["talkA", 1.1], ["idle", 0.9], ["talkB", 0.9], ["idle", 1.4]];
   var CHEER = [["cheer1", 0.45], ["cheer2", 0.3], ["cheer1", 0.3], ["cheer2", 0.3], ["cheer1", 0.3], ["thumb", 0.6], ["thumb", 1.4], ["idle", 0.7]];
@@ -52,41 +98,50 @@
     var q = el.querySelector(".ki-q"), btns = el.querySelector(".ki-vf-b");
     if (q && btns) return swipeCard(el, q, btns);
     var res = el.querySelector(".ki-vf-r");
-    if (res && Date.now() - justAnswered < 4000) reaction(el, res);
+    if (res) reaction(el, res, Date.now() - justAnswered < 4000);   // déjà répondu : Yass montre la bonne pancarte
   }
   function swipeCard(el, q, btns) {
     var deck = document.createElement("div"); deck.className = "lq-deck";
     deck.innerHTML = "<div class='lq-stage' aria-hidden='true'></div>" +
       "<div class='lq-card' tabindex='0' aria-label='Carte à balayer : à droite pour vrai, à gauche pour faux'>" +
         "<span class='lq-lab lq-v'>Vrai</span><span class='lq-lab lq-f'>Faux</span><div class='lq-q'></div>" +
-        "<small class='lq-hint'><span>‹ Faux</span><span>Vrai ›</span></small></div>";
+        "<small class='lq-hint'><span>‹ Faux</span><span>Vrai ›</span></small>" +
+        "<span class='lq-finger' aria-hidden='true'><svg viewBox='0 0 24 24' fill='#fff' stroke='#0F1D2E' stroke-width='1.6' stroke-linejoin='round'><path d='M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-.5V8a1.5 1.5 0 0 1 3 0v2m0-.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.6a6 6 0 0 1-4.7-2.3L3.3 15.4a1.6 1.6 0 0 1 2.4-2.1L9 16'/></svg></span></div>";
     el.insertBefore(deck, q); deck.querySelector(".lq-q").appendChild(q);
     var b = btns.querySelectorAll("button");
     if (b.length === 2) { b[0].innerHTML = "<span aria-hidden='true'>✓</span>Vrai"; b[1].innerHTML = "<span aria-hidden='true'>✕</span>Faux"; btns.insertBefore(b[1], b[0]); b[1].classList.add("lq-no"); b[0].classList.add("lq-yes"); }
     var card = deck.querySelector(".lq-card"), stage = deck.querySelector(".lq-stage");
+    // plus de boutons : la carte montre d'elle-même qu'il faut la glisser, jusqu'au premier toucher
+    el.classList.add("lq-swipe"); card.classList.add("lq-demo");
     // Yass réfléchit, seulement quand la carte est à l'écran
     watchVisible(stage, function (on) {
       if (on) yass(stage, function (c) {
-        if (c) { stage.classList.add("on"); play(c, THINK, true); }
+        if (c) { stage.classList.add("on"); withSigns(c.A); c.A.show(stage, YASS); c.signs = { L: "V", R: "F" }; c.A.signs && c.A.signs(c.signs); play(c, ALT, true); live = c; }
         else if (!stage.firstChild) { var f = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null; if (f) stage.innerHTML = "<img src='" + f + "' alt='' class='lq-face'>"; }
       });
       else if (cur && cur.box === stage) stopYass();
     });
-    var x0 = null, dx = 0, id = null;
+    var x0 = null, dx = 0, id = null, live = null, aim = null;
+    function lean(x) {
+      var c = live; if (!c || c.id.dead) return;
+      var want = x > 30 ? "V" : x < -30 ? "F" : null; if (want === aim) return; aim = want;
+      if (want) play(c, [[want === "V" ? "sV" : "sF", 0.3], [want === "V" ? "sV2" : "sF2", 0.35], [want === "V" ? "sV" : "sF", 0.35]], true);
+      else play(c, ALT, true);
+    }
     function set(x) {
-      dx = x;
+      dx = x; if (x0 != null) lean(x);
       card.style.transform = "translateX(" + x + "px) rotate(" + (x / 16) + "deg)";
       var k = Math.min(1, Math.abs(x) / 90);
       card.querySelector(".lq-v").style.opacity = x > 0 ? k : 0;
       card.querySelector(".lq-f").style.opacity = x < 0 ? k : 0;
       card.classList.toggle("lq-to-v", x > 40); card.classList.toggle("lq-to-f", x < -40);
     }
-    card.addEventListener("pointerdown", function (e) { x0 = e.clientX; id = e.pointerId; card.classList.add("drag"); try { card.setPointerCapture(id); } catch (er) {} });
+    card.addEventListener("pointerdown", function (e) { card.classList.remove("lq-demo"); deck.classList.add("lq-dragging"); x0 = e.clientX; id = e.pointerId; card.classList.add("drag"); try { card.setPointerCapture(id); } catch (er) {} });
     card.addEventListener("pointermove", function (e) { if (x0 == null || e.pointerId !== id) return; set(e.clientX - x0); });
     function up() {
       if (x0 == null) return;
-      x0 = null; card.classList.remove("drag");
-      if (Math.abs(dx) > 80) fly(dx > 0); else { card.style.transition = "transform .3s cubic-bezier(.2,.9,.3,1.3)"; set(0); setTimeout(function () { card.style.transition = ""; }, 320); }
+      x0 = null; card.classList.remove("drag"); deck.classList.remove("lq-dragging");
+      if (Math.abs(dx) > 80) fly(dx > 0); else { lean(0); card.style.transition = "transform .3s cubic-bezier(.2,.9,.3,1.3)"; set(0); setTimeout(function () { card.style.transition = ""; }, 320); }
     }
     card.addEventListener("pointerup", up); card.addEventListener("pointercancel", up);
     card.addEventListener("keydown", function (e) { if (e.key === "ArrowRight") fly(true); if (e.key === "ArrowLeft") fly(false); });
@@ -102,18 +157,20 @@
     });
   }
   function answer(yes) { justAnswered = Date.now(); stopYass(); if (window.KineIdees) KineIdees._vf(yes); }
-  function reaction(el, res) {
+  function reaction(el, res, recent) {
     var good = !!res.querySelector("b.ok");
     res.classList.add("lq-flip");
     var img = res.querySelector("img"), stage = document.createElement("div");
     stage.className = "lq-stage lq-react on"; stage.setAttribute("aria-hidden", "true");
     if (img) img.replaceWith(stage); else res.insertBefore(stage, res.firstChild);
-    if (good) confetti(el);
+    if (good && recent) confetti(el);
+    var truth = /C'est vrai/.test((res.querySelector("b") || {}).textContent || "") ? "V" : "F";
     yass(stage, function (c) {
       if (!c) { if (img) stage.replaceWith(img); return; }
-      play(c, good ? CHEER : SHRUG, false, function () {
-        setTimeout(function () { if (cur === c) stopYass(); if (img && stage.isConnected) stage.replaceWith(img); }, 1200);
-      });
+      withSigns(c.A); c.A.show(stage, YASS);
+      res.classList.add("lq-res"); c.only = truth; c.signs = truth === "V" ? { L: "V" } : { R: "F" }; c.A.signs && c.A.signs(c.signs);
+      var up = truth === "V" ? "sV" : "sF", up2 = truth === "V" ? "sV2" : "sF2";
+      play(c, recent ? [["sHold", 0.4], [up, 0.45], [up2, 0.3], [up, 0.3], [up2, 0.3], [up, 0.3], [up, 1.2]] : [[up, 0.6], [up2, 0.4], [up, 0.4]], false);   // il garde la pancarte levée
     });
   }
   function confetti(el) {

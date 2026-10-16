@@ -1437,7 +1437,11 @@
       var load = new T.Group(); load.position.y = -LEN.fore; el.add(load); load.visible = false;
       var bottle = mesh(new T.CylinderGeometry(0.036, 0.036, 0.19, 20), M.load, load); bottle.rotation.z = Math.PI / 2;
       var cap = mesh(new T.CylinderGeometry(0.016, 0.016, 0.03, 12), M.cap, load); cap.rotation.z = Math.PI / 2; cap.position.x = 0.11;
-      return { side: side, sh: sh, el: el, load: load };
+      // pancarte (vrai/faux) : un manche tenu dans la main, le panneau au-dessus ; cachée par défaut
+      var sign = new T.Group(); sign.position.y = -0.03; hand.add(sign); sign.visible = false;
+      var stick = mesh(new T.CylinderGeometry(0.0085, 0.0085, 0.14, 10), new T.MeshStandardMaterial({ color: 0xB78650, roughness: 0.8 }), sign); stick.position.y = 0.03;
+      var board = new T.Mesh(new T.PlaneGeometry(0.30, 0.2), new T.MeshBasicMaterial({ transparent: true, side: T.DoubleSide, toneMapped: false })); board.position.y = 0.4; sign.add(board);
+      return { side: side, sh: sh, el: el, load: load, sign: sign, board: board };
     }
     // Jogging : bande claire sur le côté extérieur de chaque jambe
     function pantsTex(u) {
@@ -1835,10 +1839,35 @@
     var v = R.view;
     v.yaw += (v.yawGoal - v.yaw) * 0.12;
     placeCamera(def, v.yaw);
+    if (R.signOn) orientSigns(v.yaw);
     R.renderer.render(R.scene, R.camera);
     if (anglesOn) drawAngles();
   }
 
+  /* ── Pancartes Vrai / Faux : toujours droites, tournées vers la caméra ; celle mise en avant grossit et se colore ── */
+  var SIGN_TEX = {};
+  function signTex(k, on) {
+    var key = k + (on ? 1 : 0); if (SIGN_TEX[key]) return SIGN_TEX[key];
+    var c = document.createElement("canvas"); c.width = 360; c.height = 240; var g = c.getContext("2d");
+    var col = k === "V" ? "#12A586" : "#E5484D";
+    g.fillStyle = on ? col : "#FFFFFF"; g.strokeStyle = col; g.lineWidth = 16;
+    var r = 34, w = 360, h = 240, x = 8, y = 8, W = w - 16, H = h - 16;
+    g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + W, y, x + W, y + H, r); g.arcTo(x + W, y + H, x, y + H, r); g.arcTo(x, y + H, x, y, r); g.arcTo(x, y, x + W, y, r); g.closePath(); g.fill(); g.stroke();
+    var ink = on ? "#FFFFFF" : col; g.strokeStyle = ink; g.lineWidth = 20; g.lineCap = "round"; g.lineJoin = "round"; g.beginPath();
+    if (k === "V") { g.moveTo(140, 92); g.lineTo(172, 122); g.lineTo(226, 62); } else { g.moveTo(150, 56); g.lineTo(210, 116); g.moveTo(210, 56); g.lineTo(150, 116); }
+    g.stroke();
+    g.fillStyle = ink; g.font = "800 66px Bricolage, Figtree, system-ui, sans-serif"; g.textAlign = "center"; g.fillText(k === "V" ? "VRAI" : "FAUX", 180, 202);
+    var t = new R.T.CanvasTexture(c); t.anisotropy = 4; if (R.T.sRGBEncoding) t.encoding = R.T.sRGBEncoding; SIGN_TEX[key] = t; return t;
+  }
+  function orientSigns(yaw) {
+    var T = R.T, q = new T.Quaternion(), qy = new T.Quaternion().setFromAxisAngle(new T.Vector3(0, 1, 0), yaw);
+    ["L", "R"].forEach(function (s) {
+      var a = R.arms[s]; if (!a.sign.visible) return;
+      a.sign.parent.getWorldQuaternion(q); a.sign.quaternion.copy(q.invert().multiply(qy));
+      var goal = a.hi ? 1.15 : 0.8; a.sc = (a.sc || goal) + (goal - (a.sc || goal)) * 0.25; a.board.scale.set(a.sc, a.sc, 1);
+      a.board.position.y = 0.05 + 0.09 * a.sc;
+    });
+  }
   /* ── Vrais angles mesurés sur l'avatar, dessinés par-dessus (arcs + valeurs) ── */
   var anglesOn = (function () { try { return localStorage.getItem("kf-angles") === "1"; } catch (e) { return false; } })(), angleSvg = null, angleJoints = [];
   var JOINT_LABEL = { hip: "Hanche", knee: "Genou", elbow: "Coude", shoulder: "Épaule" };
@@ -1970,6 +1999,24 @@
     },
 
     pause: function (on) { paused = !!on; },
+    // Pancartes : signs({ L: "V", R: "F", hi: "V" }) ; signs(null) les range
+    signs: function (o) {
+      if (!R) return;
+      R.signOn = !!o;
+      ["L", "R"].forEach(function (s) {
+        var a = R.arms[s], k = o && o[s];
+        a.sign.visible = !!k; if (!k) return;
+        a.hi = o.hi === k; var m = a.board.material, t = signTex(k, a.hi);
+        if (m.map !== t) { m.map = t; m.needsUpdate = true; }
+      });
+    },
+    // Position des mains à l'écran (fractions 0..1 du cadre), pour y accrocher des objets en HTML (pancartes…)
+    hands: function () {
+      if (!R || !R.arms) return null;
+      var T = R.T, o = {};
+      ["L", "R"].forEach(function (s) { var v = new T.Vector3(); R.arms[s].load.getWorldPosition(v); v.project(R.camera); o[s] = { x: (v.x + 1) / 2, y: (1 - v.y) / 2 }; });
+      return o;
+    },
     // Mode « rayons X » : le corps devient translucide et les os apparaissent
     xray: function (on) {
       if (!R || !R.xb) return;
