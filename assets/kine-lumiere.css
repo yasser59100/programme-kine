@@ -658,3 +658,13 @@ html.kin-on #km-peek { display: none !important; }
 .kc2-v { margin: 4px 4px 0; display: flex; align-items: center; gap: 4px; font-size: .72rem; font-weight: 700; color: #3341E0; }
 .kc2 .kcam-mode { margin-top: 18px; }
 .kc2-priv { margin: 12px 4px 0; font-size: .78rem; color: var(--text3); text-align: center; }
+
+/* Yass animé sur la carte du jour */
+.lu-ys { pointer-events: auto !important; border: 0; padding: 0; width: auto; background-color: transparent; background-repeat: no-repeat; background-position: 0 0; cursor: pointer; -webkit-tap-highlight-color: transparent; transform-origin: 50% 100%; }
+.lu-ys.play { animation: spFramesLu 1s .15s steps(var(--n)) forwards; }
+.lu-ys.play.jump { animation: spFramesLu 1s .15s steps(var(--n)) forwards, luJump .4s .35s cubic-bezier(.3,0,.5,1) 2; }
+.lu-ys.play.pump { animation: spFramesLu .95s .15s steps(var(--n)) forwards, luPump .45s .55s ease-in-out 2; }
+.lu-ys:active { scale: .96; }
+@keyframes spFramesLu { to { background-position: 100% 0; } }
+@keyframes luJump { 0%, 100% { translate: 0 0; } 45% { translate: 0 -22px; } }
+@keyframes luPump { 50% { scale: 1.05; } }

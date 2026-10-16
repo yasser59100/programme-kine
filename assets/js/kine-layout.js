@@ -87,7 +87,7 @@
         "<button class='lu-me' onclick='handleAuthClick()' aria-label='" + (who ? "Mon compte" : "Connexion") + "'>" + (who ? esc(who.charAt(0).toUpperCase()) : "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21a8 8 0 0 1 16 0'/></svg>") + "</button></div>" +
       "<h1 class='lu-hello'>" + hello + "</h1>" +
       "<div class='lu-days'>" + days + "</div>" + banner +
-      "<div class='lu-slab lu-" + state + "'><img src='assets/lumiere/" + (state === "done" ? "yass-bravo" : "yass-salut") + ".webp' alt='' class='lu-yass'>" +
+      "<div class='lu-slab lu-" + state + "'>" + yassHtml(state) +
         "<p class='lu-k'>" + esc(kick) + "</p>" +
         "<h2 class='lu-t'>" + esc(cap(nameOf(target))) + "</h2>" +
         "<p class='lu-m'>" + (lede ? esc(lede) + ". " : "") + nWork + " exercices, " + minutes(target) + " minutes, " + kitText(target) + "</p>" +
@@ -323,8 +323,31 @@
     if (duo && fin) { duo.insertBefore(fin, duo.firstChild); fin.textContent = "Passer"; }
   }
 
-  function renderAllLx() { renderHome(); renderSuivi(); renderProg(); }
-  window.KineLayout = { render: renderAllLx, chart: chart, bigText: bigText };
+
+  /* Yass sur la carte du jour : un geste animé (différent selon les jours et les ouvertures), et un autre à chaque toucher */
+  var YG = { salut: [12, 239, ""], joie: [13, 244, "jump"], biceps: [10, 245, "pump"], etire: [12, 244, ""], pouce: [10, 247, "pump"] }, yLast = null;
+  function yPick(state) {
+    var k = Object.keys(YG).filter(function (x) { return x !== yLast && (state === "done" || x !== "joie" || Math.random() < 0.5); });
+    if (state === "done" && yLast !== "joie") return "joie";
+    return k[Math.floor(Math.random() * k.length)];
+  }
+  function yassHtml(state) {
+    var g = yPick(state); yLast = g;
+    return "<button type='button' class='lu-yass lu-ys' aria-label='Yass' onclick='KineLayout.yass(this)' data-g='" + g + "'></button>";
+  }
+  function yassPlay(el, g) {
+    var d = YG[g]; if (!el || !d) return;
+    el.setAttribute("data-g", g);
+    el.style.cssText = "aspect-ratio:" + d[1] + "/300;background-image:url(assets/lumiere/yass-anim/" + g + ".webp);background-size:" + (d[0] * 100) + "% 100%;--n:" + (d[0] - 1);
+    el.className = "lu-yass lu-ys"; void el.offsetWidth;
+    var go = function () { el.classList.add("play"); if (d[2]) el.classList.add(d[2]); };
+    // pendant l'écran d'ouverture, on attend qu'il se lève pour que le geste soit vu
+    (function wait(n) { var sp = document.getElementById("kf-splash"); if (sp && sp.style.display !== "none" && n < 40) return setTimeout(function () { wait(n + 1); }, 150); go(); })(0);
+  }
+  function yassArm() { document.querySelectorAll(".lu-ys:not(.armed)").forEach(function (el) { el.classList.add("armed"); yassPlay(el, el.getAttribute("data-g")); }); }
+  function yassTap(el) { var g = yPick("today"); yLast = g; yassPlay(el, g); try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} }
+  function renderAllLx() { renderHome(); renderSuivi(); renderProg(); yassArm(); }
+  window.KineLayout = { yass: yassTap, render: renderAllLx, chart: chart, bigText: bigText };
   function init() {
     try { arrangeGuide(); renderAllLx(); } catch (e) {}
     // la nouvelle interface est dessinée : on lève l'écran de démarrage
