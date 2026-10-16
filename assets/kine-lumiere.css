@@ -569,3 +569,30 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 :root:root:root .modal h2 { font-family: var(--lu-head) !important; font-weight: 800 !important; letter-spacing: -.03em; font-size: 1.6rem !important; }
 :root:root:root .modal-input { background: var(--surface2) !important; border-radius: 14px !important; border-color: var(--border) !important; }
 :root:root:root #kf-cele h1, :root:root:root #kf-cele h2, :root:root:root .cele-title { font-family: var(--lu-head) !important; font-weight: 800 !important; letter-spacing: -.03em; }
+
+/* ════════ Installer sur l'écran d'accueil ════════ */
+#pwa-install-bar { display: none !important; }
+:root:root:root #kin-sheet { position: fixed; inset: 0; z-index: 4000; display: flex !important; flex-direction: column; align-items: center; justify-content: flex-end; background: rgba(15, 29, 46, .55); padding: 0; opacity: 0; pointer-events: none; transition: opacity .25s; transform: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; }
+:root:root:root #kin-sheet.open { opacity: 1; pointer-events: auto; }
+.kin-card { width: 100%; max-width: 520px; max-height: 94vh; overflow-y: auto; background: var(--bg); border-radius: 30px 30px 0 0; padding: 22px 20px calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateY(40px); transition: transform .35s cubic-bezier(.2, .9, .3, 1.1); font-family: var(--font); color: var(--text); }
+#kin-sheet.open .kin-card { transform: none; }
+.kin-hero { position: relative; height: 150px; border-radius: 24px; background: linear-gradient(160deg, #5867FF, #3341E0); overflow: hidden; margin-bottom: 16px; }
+.kin-icon { position: absolute; left: 22px; top: 50%; width: 76px; height: 76px; margin-top: -38px; border-radius: 20px; box-shadow: 0 14px 26px -12px rgba(0, 0, 0, .5); animation: kinPop 1.6s ease-in-out infinite; }
+@keyframes kinPop { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+.kin-yass { position: absolute; right: 8px; bottom: -6px; height: 160px; }
+.kin-h { font: 800 1.55rem/1.1 var(--lu-head); letter-spacing: -.03em; margin: 0 0 8px; }
+.kin-lede { margin: 0 0 14px; color: var(--text2); font-size: .95rem; line-height: 1.45; }
+.kin-p { margin: 0 0 12px; font-size: .95rem; line-height: 1.45; }
+.kin-small { font-size: .84rem; color: var(--text2); margin: 4px 0 10px; }
+.kin-steps { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.kin-steps li { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 12px 14px; }
+.kin-steps b { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--lu-ink); color: #fff; display: grid; place-items: center; font: 800 .95rem var(--lu-head); }
+.kin-steps span { flex: 1; font-size: .95rem; line-height: 1.35; }
+.kin-steps i { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--lu-ciel); color: var(--lu-ind2); display: grid; place-items: center; font-style: normal; }
+.kin-arrow { text-align: center; font: 800 2rem var(--lu-head); color: var(--lu-ind); animation: kinDown 1s ease-in-out infinite; }
+@keyframes kinDown { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+.kin-go, .kin-copy { width: 100%; min-height: 58px; border: none; border-radius: 30px; background: var(--lu-ink); color: #fff; font: 700 1.05rem var(--font); margin: 4px 0 6px; }
+.kin-copy { background: #fff; color: var(--lu-ind2); border: 1px solid var(--border); font-size: .95rem; min-height: 50px; }
+.kin-later { width: 100%; min-height: 48px; border: none; background: none; color: var(--text2); font: 600 .95rem var(--font); margin-top: 4px; }
+.kin-never { width: 100%; border: none; background: none; color: var(--text3); font: 500 .8rem var(--font); text-decoration: underline; text-underline-offset: 3px; padding: 4px; }
+html.kin-on #km-peek { display: none !important; }
