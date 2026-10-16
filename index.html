@@ -2972,7 +2972,7 @@ function kfvReady(ents) { for (var i = 0; i < ents.length; i++) if (!KFV.buf[ent
 function kfvDur(ents) { var d = 0; ents.forEach(function (e, i) { d += (e.d || 1) + (i ? 0.08 : 0); }); return d; }
 function kfvPlay(ents, onend) {
   var ctx = getAudioCtx(); if (!ctx) return false;
-  if (ctx.state === "suspended") ctx.resume();
+  if (ctx.state !== "running") { try { var rp = ctx.resume(); if (rp && rp.catch) rp.catch(function () {}); } catch (e) {} }   // « interrupted » sur iPhone quand la caméra s'allume
   var t = ctx.currentTime + 0.03, srcs = [];
   ents.forEach(function (e, i) {
     var src = ctx.createBufferSource(), g = ctx.createGain();

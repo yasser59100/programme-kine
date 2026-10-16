@@ -17,8 +17,29 @@
   function jset(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   // Yass parle même si la voix des séances est coupée (bouton haut-parleur propre à la caméra)
   function muted() { return !!jget("kf-cam-mute", 0); }
+  // iPhone : allumer la caméra « interrompt » le son de la page. On le relance (et le son muet qui contourne le bouton silencieux).
+  function audioUp() {
+    var c = null; try { c = typeof getAudioCtx === "function" ? getAudioCtx() : null; } catch (e) {}
+    if (c && c.state !== "running") { try { var r = c.resume(); if (r && r.catch) r.catch(function () {}); } catch (e) {} }
+    try { if (window.kfSilentEl && kfSilentEl.paused) { var p = kfSilentEl.play(); if (p && p.catch) p.catch(function () {}); } } catch (e) {}
+    return !c || c.state === "running";
+  }
+  function sndTip(show) {
+    var st = $("kcam-stage"), tip = $("kcam-sndtip"); if (!st) return;
+    if (!show) { if (tip) tip.remove(); return; }
+    if (tip || muted()) return;
+    tip = document.createElement("button"); tip.id = "kcam-sndtip"; tip.type = "button"; tip.className = "kcam-sndtip";
+    tip.innerHTML = sndIc(false) + "<span><b>Vous n'entendez pas Yass ?</b>Touchez ici pour activer sa voix. Vérifiez aussi le volume.</span>";
+    tip.onclick = function () { audioUp(); setTimeout(function () { if (audioUp()) { sndTip(false); say("Bien !"); } }, 250); };
+    st.appendChild(tip);
+  }
+  function audioWatch() {
+    [300, 900, 2000].forEach(function (ms) { setTimeout(function () { if (!S) return; var ok = audioUp(); if (ms === 2000 && !ok) sndTip(true); else if (ok) sndTip(false); }, ms); });
+    try { var c = getAudioCtx(); if (c && !c.__kcamWatch) { c.__kcamWatch = 1; c.addEventListener("statechange", function () { if (!S) return; if (c.state === "running") sndTip(false); else { audioUp(); setTimeout(function () { if (S && !audioUp()) sndTip(true); }, 800); } }); } } catch (e) {}
+  }
   function say(t, prio) {
     if (typeof speak !== "function" || muted() || !t) return;
+    audioUp();
     var a = window.seqSoundOn, b = window.seqVoiceOn;
     try { window.seqSoundOn = true; window.seqVoiceOn = true; speak(t, { prio: prio || 1, now: true, ttl: 3500 }); } catch (e) {}
     window.seqSoundOn = a; window.seqVoiceOn = b;
@@ -1037,7 +1058,7 @@
     if (typeof getAudioCtx === "function") { try { var c = getAudioCtx(); if (c && c.state === "suspended") c.resume(); } catch (e) {} }
     var facing = jget("kf-cam-facing", "user");
     navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: facing, width: { ideal: 640 }, height: { ideal: 480 } } }).then(function (stream) {
-      run(stream, facing);
+      run(stream, facing); audioWatch();
       return detector().then(function (det) { jset("kf-cam-seen", 1); if (S) { S.det = det; S.status(PR.calib === "stand" ? "stand" : ""); } })
         .catch(function () { if (S) S.status("err", "L'outil d'analyse n'a pas pu se charger. Vérifiez votre connexion, puis réessayez."); });
     }).catch(function (e) {
@@ -1070,6 +1091,7 @@
       (bil ? "<div class='kcam-end kb-end'><button class='seq-btn-secondary' onclick='KineCamera.bilanSkip()'>Passer ce test</button><button class='seq-btn-main' onclick='KineCamera.finish()'>Terminer</button></div>"
            : "<button class='seq-btn-main kcam-end' onclick='KineCamera.finish()'>Terminer</button>") + "</div>";
     counters();
+    var stg = $("kcam-stage"); if (stg) stg.addEventListener("touchend", function () { if (audioUp()) sndTip(false); }, { passive: true });
     var v = $("kcam-video"), cv = $("kcam-canvas"), ctx = cv.getContext("2d");
     v.srcObject = stream; if (facing !== "user") { v.style.transform = "none"; }
     var p = v.play(); if (p && p.catch) p.catch(function () {});
