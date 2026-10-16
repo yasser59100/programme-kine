@@ -422,7 +422,9 @@
   }
   function applyLayout(L) {
     var st = $("km-stage"), bu = document.querySelector("#kf-masc .km-bubble"); if (!st || !bu) return;
-    st.style.cssText = "position:fixed;margin:0;left:" + (L.kind === "walk" ? -L.s : L.x) + "px;top:" + L.y + "px;width:" + L.s + "px;height:" + L.s + "px";
+    // cadre plus large que haut : le bras tendu ne sort plus du dessin (même taille de Yass, centré au même endroit)
+    var w = Math.round(L.s * 1.9); L.dx = (w - L.s) / 2;
+    st.style.cssText = "position:fixed;margin:0;pointer-events:none;left:" + ((L.kind === "walk" ? -L.s : L.x) - L.dx) + "px;top:" + L.y + "px;width:" + w + "px;height:" + L.s + "px";
     // zone sous la case : bulle calée en bas, à côté de Yass ; zone au-dessus : calée en haut, pour ne jamais sortir de l'écran
     bu.style.cssText = "position:fixed;margin:0;left:" + L.bx + "px;width:" + L.bw + "px;" + (L.bottom ? "bottom:" + L.bb : "top:" + L.bt) + "px" + (L.kind === "walk" ? ";opacity:0" : "");
     var sc = $("km-scroll"); if (sc) sc.style.maxHeight = Math.max(90, L.bmax - 70) + "px";   // les boutons restent toujours visibles
@@ -469,7 +471,7 @@
     if (L && L.kind === "walk") {
       // il entre par la gauche, marche jusqu'à la case, saute, puis la montre en parlant
       var stg = $("km-stage"), bu = document.querySelector("#kf-masc .km-bubble"), dur = Math.max(0.9, (L.x + L.s) / 260);
-      requestAnimationFrame(function () { requestAnimationFrame(function () { stg.style.transition = "left " + dur + "s linear"; stg.style.left = L.x + "px"; }); });
+      requestAnimationFrame(function () { requestAnimationFrame(function () { stg.style.transition = "left " + dur + "s linear"; stg.style.left = (L.x - (L.dx || 0)) + "px"; }); });
       play([["wA", 0.32], ["wB", 0.32]], true, null, "L");
       talk(st.text);
       setTimeout(function () {
