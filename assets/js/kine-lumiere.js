@@ -78,7 +78,6 @@ var KineLumiere = (function () {
       (G ? row("KineLumiere.then('KineGuide.menu()')", "Guidage sonore", "Voix, bips ou métronome", G.label().toLowerCase()) : "") +
       (N && N.available() ? row("KineLumiere.then('KineNotifs.open()')", "Notifications du jour", "", N.label()) : "") +
       row("KineLayout.bigText();KineLumiere.settings()", "Taille du texte", "", bigOn() ? "grande" : "normale") +
-      row("KineLumiere.ecoCycle();KineLumiere.settings()", "Animations de Yass", "Économie : moins d'animations en même temps, pour la batterie", ecoPref() === "1" ? "économie" : ecoPref() === "0" ? "complètes" : (eco() ? "auto (économie)" : "auto")) +
       (window.KineCamera && KineCamera.modeSheet ? row("KineLumiere.then('KineCamera.modeSheet()')", "Caméra pendant la séance", "Jamais, me demander, ou toujours") : "") +
       (window.KineCompose ? row("KineLumiere.then('KineCompose.kine()')", "Espace kiné", "Réservé à votre kinésithérapeute") : "") +
       "</div>";
@@ -180,27 +179,11 @@ var KineLumiere = (function () {
   /* ════════ Mode économie : moins d'avatars 3D à la fois sur les téléphones lents ════════
      kf-eco = "1" (forcé), "0" (animations complètes) ; sinon automatique : mémoire faible, ou image saccadée mesurée. */
   function ecoPref() { try { return localStorage.getItem("kf-eco"); } catch (e) { return null; } }
-  function eco() {
-    var p = ecoPref(); if (p === "1") return true; if (p === "0") return false;
-    try { if (localStorage.getItem("kf-eco-auto") === "1") return true; } catch (e) {}
-    if (navigator.deviceMemory && navigator.deviceMemory <= 3) return true;
-    if (navigator.connection && navigator.connection.saveData) return true;
-    return false;
-  }
-  // Mesure de fluidité pendant une animation : moins de 30 images/s en moyenne → mode économie
-  var probed = false;
-  function probe() {
-    if (probed || ecoPref()) return; probed = true;
-    var n = 0, t0 = 0, last = 0, slow = 0;
-    (function f(t) {
-      if (!t0) { t0 = last = t; return requestAnimationFrame(f); }
-      n++; if (t - last > 50) slow++; last = t;
-      if (t - t0 < 4000) return requestAnimationFrame(f);
-      if (document.hidden) { probed = false; return; }
-      var fps = n * 1000 / (t - t0);
-      if (fps < 30 || slow > n * 0.25) { try { localStorage.setItem("kf-eco-auto", "1"); } catch (e) {} liveCheck(); }
-    })(0);
-  }
+  // Mode économie supprimé : il se déclenchait à tort sur beaucoup de téléphones (mesure de fluidité trompeuse)
+  // et cassait les animations. On efface aussi ce qu'il avait mémorisé.
+  try { localStorage.removeItem("kf-eco"); localStorage.removeItem("kf-eco-auto"); } catch (e) {}
+  function eco() { return false; }
+  function probe() {}
   function setEco(v) {
     try { if (v == null) localStorage.removeItem("kf-eco"); else localStorage.setItem("kf-eco", v ? "1" : "0"); if (v === false || v == null) localStorage.removeItem("kf-eco-auto"); } catch (e) {}
     liveStop(); liveCheck();
@@ -395,3 +378,27 @@ var KineLumiere = (function () {
   return { find: { q: function (v) { fq = v; findApply(); }, f: function () {} }, explainMenu: explainMenu, replay: replay, eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, go: go, menuHtml: menuHtml, loop: loop, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
 })();
 window.KineLumiere = KineLumiere;
+
+/* iPhone : après le clavier (recherche, nom de séance…), la barre du bas restait parfois au milieu de l'écran.
+   On la cache tant que le clavier est ouvert, et on recale l'écran quand il se ferme. */
+(function () {
+  "use strict";
+  function field(t) { return t && (t.tagName === "TEXTAREA" || (t.tagName === "INPUT" && !/^(checkbox|radio|button|range|submit)$/i.test(t.type || ""))); }
+  var tm = 0;
+  document.addEventListener("focusin", function (e) { if (field(e.target)) { clearTimeout(tm); document.documentElement.classList.add("kf-typing"); } }, true);
+  document.addEventListener("focusout", function (e) {
+    if (!field(e.target)) return;
+    clearTimeout(tm);
+    tm = setTimeout(function () {
+      if (field(document.activeElement)) return;
+      document.documentElement.classList.remove("kf-typing");
+      var x = window.scrollX, y = window.scrollY;
+      try { window.scrollTo(x, y + 1); window.scrollTo(x, y); } catch (er) {}
+      var nav = document.querySelector(".bottom-nav"); if (nav) { nav.style.transform = "translateZ(0)"; requestAnimationFrame(function () { nav.style.transform = ""; }); }
+    }, 120);
+  }, true);
+  if (window.visualViewport) visualViewport.addEventListener("resize", function () {
+    // clavier fermé sans perte de focus (bouton « OK » d'iOS) : on recale aussi
+    if (window.innerHeight - visualViewport.height < 80 && document.documentElement.classList.contains("kf-typing") && !field(document.activeElement)) document.documentElement.classList.remove("kf-typing");
+  });
+})();

@@ -882,3 +882,10 @@ html.kin-on #km-peek { display: none !important; }
 #kcam-run .kcam-sndtip svg { flex: none; width: 26px; height: 26px; }
 #kcam-run .kcam-sndtip b { display: block; font: 800 .92rem/1.2 var(--lu-head); }
 @keyframes kcSnd { 50% { transform: scale(1.02); } }
+/* Mode économie : portrait fixe de Yass, à la taille de sa nouvelle place */
+.lq-deck .lq-stage .lq-face { position: absolute; left: 0; bottom: 4px; width: 50px !important; height: 50px !important; margin: 0 !important; box-shadow: 0 6px 12px -8px rgba(15,29,46,.5); }
+/* La démo du glisser reste dans l'écran */
+@keyframes lqNudge { 0%, 8% { transform: none; } 26% { transform: translateX(16px) rotate(1.5deg); } 40%, 52% { transform: none; } 70% { transform: translateX(-16px) rotate(-1.5deg); } 84%, 100% { transform: none; } }
+@keyframes lqFinger { 0%, 4% { opacity: 0; transform: none; } 8% { opacity: 1; transform: scale(.9); } 26% { opacity: 1; transform: translateX(34px) scale(.9); } 40% { opacity: 1; transform: none; } 70% { opacity: 1; transform: translateX(-34px) scale(.9); } 84% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; } }
+.lq-deck { margin-right: 4px; }
+html.kf-typing .bottom-nav, html.kf-typing #km-peek { display: none !important; }
