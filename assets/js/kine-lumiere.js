@@ -64,6 +64,7 @@ var KineLumiere = (function () {
         (M ? it("KineMascotte.bouge()", "Bouger 2 minutes avec moi", "Une pause active, debout") : "") +
         (window.KineCheckin && canNote ? it("KineCheckin.open()", "Noter mon ressenti", "30 secondes") : "") +
         (window.KineLexique ? it("KineLexique.open()", "Les mots du kiné expliqués", "") : "") +
+        it("KineLumiere.explainMenu()", "Tu n'as pas compris comment ça marche ?", "Je te réexplique l'appli ou un onglet") +
         it("KineLumiere.settings()", "Réglages", "Coach, son, taille du texte") +
       "</div>";
   }
@@ -104,6 +105,7 @@ var KineLumiere = (function () {
     page.classList.remove("lu-t-prog", "lu-t-lib", "lu-t-mes"); page.classList.add("lu-t-" + tabNow);
     [].forEach.call(c.querySelectorAll(".lu-tabs button"), function (b) { var on = b.getAttribute("data-t") === tabNow; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
     if (tabNow === "lib") renderLib();
+    if (t) explainSoon();
   }
 
   var thumbs = {};
@@ -285,6 +287,63 @@ var KineLumiere = (function () {
   window.addEventListener("scroll", queueCheck, { passive: true });
   setInterval(function () { if (slots.length || !blocked()) liveCheck(); }, 1500);
 
+  /* ════════ Yass présente chaque onglet la première fois qu'on l'ouvre ════════ */
+  var TABS = {
+    prog: { key: "kf-g-prog", steps: [
+      { sel: ".lu-pslab", text: "Ici, ta semaine en cours et ta progression sur les vingt-huit jours du programme.", gesture: "point" },
+      { sel: ".lu-wks", text: "Tes quatre semaines : chacune a sa règle, et je te préviens quand tu passes à la suivante.", gesture: "point" },
+      { sel: ".lu-sess", text: "Tes cinq séances : touches-en une pour voir ses exercices ou la lancer.", gesture: "point" },
+      { sel: ".lu-pduo", text: "Tu peux aussi composer ta propre séance, ou relire les règles du programme.", gesture: "point" },
+      { sel: ".lu-tabs", text: "Et dans l'onglet Bibliothèque, tu trouves tous les exercices.", gesture: "open" } ] },
+    lib: { key: "kf-g-lib", steps: [
+      { sel: ".lu-hero2", text: "Ici, tu peux te filmer : je regarde ton mouvement et je te corrige à voix haute.", gesture: "point" },
+      { sel: ".lu-chips", text: "Filtre par zone du corps, ou choisis En vidéo pour voir les exercices que je suis à la caméra.", gesture: "point" },
+      { sel: "#lu-lib .lu-cards", text: "Fais défiler : je fais l'exercice dans les cases au milieu de l'écran. Touche une case pour le voir en grand.", gesture: "point" },
+      { sel: "#lu-lib .lu-camb", text: "Ce petit bouton caméra lance l'exercice directement devant la caméra.", gesture: "open" } ] },
+    suivi: { key: "kf-g-suivi", steps: [
+      { sel: ".lu-kpi", text: "Tes trois chiffres : les séances faites, celles de la semaine, et ta douleur depuis le début.", gesture: "point" },
+      { sel: "#suivi-v2 .kr-remind, #suivi-v2 .kr-cta", text: "Note ton ressenti chaque jour en trente secondes : douleur, sommeil, moral.", gesture: "point" },
+      { sel: ".lu-bars", text: "Ici, tes séances semaine par semaine.", gesture: "point" },
+      { sel: "#suivi-v2 .lx-send", text: "Ce bouton envoie ton bilan à ton kiné, par message ou par e-mail.", gesture: "point" },
+      { sel: ".lu-gear", text: "Et dans la petite roue, tes réglages : ma voix, la taille du texte, les animations.", gesture: "open" } ] },
+    community: { key: "kf-g-comm", steps: [
+      { sel: ".community-header", text: "La communauté : les séances des autres patients du cabinet, pour se motiver ensemble.", gesture: "wave" },
+      { sel: "#community-feed", text: "Connecte-toi pour partager tes séances, envoyer un message et encourager les autres.", gesture: "open" } ] }
+  };
+  // Revoir une explication, à la demande (bulle de Yass › « Tu n'as pas compris comment ça marche ? »)
+  function explainMenu() {
+    var o = function (js, t, sub) { return "<button class='lu-row' onclick=\"KineLumiere.closeSheet();setTimeout(function(){" + js + "},250)\"><span><b>" + esc(t) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>" + CHEV + "</button>"; };
+    sheet("<h2 class='lu-sh-t'>Je te réexplique quoi ?</h2><div class='lu-rows'>" +
+      o("KineLumiere.replay('tour')", "Toute l'appli", "La visite complète, en 7 étapes") +
+      o("KineLumiere.replay('prog')", "Exercices › Programme", "Tes 4 semaines et tes 5 séances") +
+      o("KineLumiere.replay('lib')", "Exercices › Bibliothèque", "Tous les exercices, la vidéo") +
+      o("KineLumiere.replay('mes')", "Ma séance", "Composer ta propre séance") +
+      o("KineLumiere.replay('suivi')", "Progrès", "Tes chiffres, ton bilan, tes réglages") +
+      o("KineLumiere.replay('community')", "Communauté", "Les autres patients du cabinet") + "</div>");
+  }
+  function replay(k) {
+    var M = window.KineMascotte; if (!M || !M.replay) return;
+    window.scrollTo(0, 0);
+    if (k === "tour") { showPage("home"); setTimeout(function () { window.scrollTo(0, 0); M.replay(null, "kf-tour-v2"); }, 500); return; }
+    if (k === "mes") { showPage("mes"); setTimeout(function () { try { localStorage.removeItem("kf-mes-guide"); } catch (e) {} if (window.KineCompose) KineCompose.tab(); }, 400); return; }
+    if (k === "prog" || k === "lib") { showPage("guide"); tab(k); } else showPage(k);
+    clearTimeout(explT);
+    setTimeout(function () { window.scrollTo(0, 0); M.replay(TABS[k].steps, TABS[k].key); }, 700);
+  }
+  var explT = null;
+  function explainSoon() { clearTimeout(explT); explT = setTimeout(explain, 1100); }
+  function explain() {
+    var M = window.KineMascotte; if (!M || !M.guide || (M.isOff && M.isOff())) return;
+    try { if (!localStorage.getItem("kf-tour-v2")) return; } catch (e) { return; }   // la visite générale passe d'abord
+    if (document.querySelector(".kf-sheet.open, #kf-masc.open, #rep-guide.open, #seq-overlay.open, #lu-sheet.open")) { explT = setTimeout(explain, 2500); return; }
+    var act = document.querySelector(".page.active"), id = act ? act.id.replace("page-", "") : "";
+    var k = id === "guide" ? tabNow : id === "suivi" || id === "community" ? id : null, g = k && TABS[k];
+    if (!g) return;
+    try { if (localStorage.getItem(g.key)) return; } catch (e) { return; }
+    window.scrollTo(0, 0);
+    M.guide(g.steps, g.key);
+  }
+
   /* ════════ Navigation ════════ */
   function hookNav() {
     if (typeof window.showPage !== "function" || window.showPage.__lu) return;
@@ -292,6 +351,7 @@ var KineLumiere = (function () {
     window.showPage = function (id) {
       base.apply(this, arguments);
       if (id === "guide") tab();
+      explainSoon();
     };
     window.showPage.__lu = true;
   }
@@ -323,6 +383,6 @@ var KineLumiere = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);
 
-  return { eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, go: go, menuHtml: menuHtml, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
+  return { explainMenu: explainMenu, replay: replay, eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, go: go, menuHtml: menuHtml, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
 })();
 window.KineLumiere = KineLumiere;

@@ -596,3 +596,12 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 .kin-later { width: 100%; min-height: 48px; border: none; background: none; color: var(--text2); font: 600 .95rem var(--font); margin-top: 4px; }
 .kin-never { width: 100%; border: none; background: none; color: var(--text3); font: 500 .8rem var(--font); text-decoration: underline; text-underline-offset: 3px; padding: 4px; }
 html.kin-on #km-peek { display: none !important; }
+/* Bulle de Yass hors menu : texte normal (le grand titre est réservé au menu « Je peux t'aider ? ») et pas de dégradé blanc derrière lui */
+:root:root:root .kf-masc:not(.ask) .km-text { font-family: var(--font); font-weight: 600; font-size: 1rem; letter-spacing: 0; line-height: 1.4; }
+:root:root:root .kf-masc:not(.ask):not(.big)::before { display: none !important; }
+/* Yass dans un coin / qui marche jusqu'à la case (visites guidées) */
+.kf-masc:is(.cornerL, .cornerR, .walk) .km-bubble::before { display: none !important; }
+.kf-masc:is(.cornerL, .cornerR, .walk) .km-bubble { pointer-events: auto; z-index: 2; transition: left .3s, bottom .3s; }
+.kf-masc:is(.cornerL, .cornerR, .walk) .km-stage { z-index: 1; -webkit-mask-image: linear-gradient(to top, transparent 0, #000 22px) !important; mask-image: linear-gradient(to top, transparent 0, #000 22px) !important; border-radius: 0 !important; background: none !important; }
+.kf-masc.hop .km-stage { animation: kmHop .55s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes kmHop { 0% { translate: 0 0; } 40% { translate: 0 -34px; } 100% { translate: 0 0; } }

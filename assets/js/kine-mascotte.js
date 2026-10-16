@@ -52,6 +52,14 @@
     KineAvatar.register(NAME + "_big", L.merge(DEF, { camera: { yaw: 0.1, pitch: 0.06, dist: 3.7, ty: 1.02 } }));
     // Portrait (tête et épaules), utilisé quand l'avatar 3D est déjà occupé par la séance
     var face = L.merge(base, { LA: { ang: [0, 82, 40, 108] }, RA: { ang: DOWN }, head: 4, headZ: 6 });
+    // Présentations « dans un coin » : buste tourné vers l'écran (à gauche ou à droite) et marche en entier
+    var X = { pUp: pose(DOWN, [105, 55, 0, 5], { head: -10, headY: -14 }), pSide: pose(DOWN, [22, 82, 0, 4], { headY: -18 }), pDown: pose(DOWN, [0, 38, 0, 4], { head: 16, headY: -14 }) };
+    var WB = L.STAND(0.1, 4), wk = function (sw) { var o = {}; o[sw] = { ang: [30, 2, 0, 38, 0] }; o[sw + "A"] = { ang: [-25, 8, 0, 25] }; o[sw === "L" ? "RA" : "LA"] = { ang: [28, 8, 0, 25] }; o.spine = [5, 0, 0]; return L.merge(WB, o); };
+    X.wA = wk("L"); X.wB = wk("R");
+    var CP = L.merge(DEF.poses, X);
+    KineAvatar.register(NAME + "_cornerL", { camera: { yaw: -0.5, pitch: 0.02, dist: 1.8, ty: 1.3 }, start: "idle", thumb: "idle", poses: CP });
+    KineAvatar.register(NAME + "_cornerR", { camera: { yaw: 0.5, pitch: 0.02, dist: 1.8, ty: 1.3 }, start: "idle", thumb: "idle", poses: CP });
+    KineAvatar.register(NAME + "_walk", { camera: { yaw: -1.25, pitch: 0.06, dist: 3.9, ty: 0.98 }, start: "idle", thumb: "idle", poses: CP });
     KineAvatar.register(NAME + "_face", { camera: { yaw: 0.12, pitch: 0.0, dist: 1.15, ty: 1.58 }, start: "f", thumb: "f", poses: { f: face } });
     var peek = L.merge(base, { LA: { ang: DOWN }, RA: { ang: DOWN }, head: 6, headZ: -12, headY: 8 });
     KineAvatar.register(NAME + "_peek", { camera: { yaw: 0.55, pitch: 0.02, dist: 1.05, ty: 1.6 }, start: "p", thumb: "p", poses: { p: peek } });
@@ -199,13 +207,13 @@
     e.addEventListener("touchend", function (ev) { if (y0 != null && ev.changedTouches[0].clientY - y0 > 60 && mode !== "bouge") hide(); y0 = null; });
     return e;
   }
-  function play(seq, loop, onStep) {
+  function play(seq, loop, onStep, side) {
     var i = 0, id = {};
     playing = id;
     (function next() {
       if (playing !== id) return;
       if (i >= seq.length) { if (loop) i = 0; else return; }
-      var s = seq[i++]; KineAvatar.step({ pose: s[0], dur: s[1] });
+      var s = seq[i++]; KineAvatar.step({ pose: s[0], dur: s[1], side: side || "L" });
       if (onStep) onStep(s);
       setTimeout(next, s[1] * 1000);
     })();
@@ -239,7 +247,7 @@
     lk = lk || "msg";
     var box = el(), wasOpen = box.classList.contains("open");
     if (!wasOpen || lk !== look) {
-      box.classList.remove("big", "ask");
+      box.classList.remove("big", "ask", "cornerL", "cornerR", "walk", "hop"); unlayout();
       if (lk !== "msg") box.classList.add(lk);
       look = lk;
       // le cadre change de taille : on relance l'avatar dans le nouveau cadre
@@ -272,7 +280,7 @@
     clearTimeout(timer); clearInterval(bougeT); playing = null; mode = null;
     var box = $("kf-masc"); if (!box || !box.classList.contains("open")) return;
     box.classList.remove("open"); look = null; hud(false);
-    setTimeout(function () { if (!box.classList.contains("open")) box.classList.remove("big", "ask"); }, 450);
+    setTimeout(function () { if (!box.classList.contains("open")) { box.classList.remove("big", "ask", "cornerL", "cornerR", "walk", "hop"); unlayout(); } }, 450);
     if (typeof stopSpeech === "function") { try { stopSpeech(); } catch (e) {} }
     setTimeout(function () { if (window.KineAvatar && !box.classList.contains("open") && $("km-stage") && $("km-stage").querySelector("canvas")) { KineAvatar.hide(); } }, 400);
   }
@@ -379,6 +387,50 @@
   ];
   var TOUR_MAIN = TOUR, TOUR_KEY = "kf-tour-v2";
   function guide(steps, key) { if (!steps || !steps.length) return false; TOUR = steps; TOUR_KEY = key || "kf-masc-guide"; return tour(0); }
+  /* Yass se place là où il ne cache pas ce qu'il montre : buste dans un coin, tête qui dépasse du bord,
+     ou il arrive en marchant jusqu'à la case. La bulle se met à côté de lui. */
+  function unlayout() {
+    var st = $("km-stage"), bu = document.querySelector("#kf-masc .km-bubble");
+    if (st) st.removeAttribute("style"); if (bu) bu.removeAttribute("style");
+    var sc = $("km-scroll"); if (sc) sc.style.maxHeight = "";
+  }
+  function layout(t, i) {
+    var vw = innerWidth, vh = innerHeight, nav = document.querySelector(".bottom-nav"), navTop = vh - (nav ? nav.offsetHeight : 80) - 4, top0 = 54;
+    var r = t ? t.getBoundingClientRect() : { top: vh * 0.35, bottom: vh * 0.35, left: 0, width: vw, height: 0 };
+    var below = navTop - r.bottom, above = r.top - top0, bottom = !t || below >= 200 || below >= above;
+    var z0 = bottom ? r.bottom + 6 : top0, z1 = bottom ? navTop : r.top - 6;
+    if (z1 - z0 < 160) { if (bottom) z0 = z1 - 170; else z1 = z0 + 170; }
+    var zh = z1 - z0, tc = r.left + r.width / 2;
+    var narrow = t && r.width < vw * 0.72 && r.height < vh * 0.4;
+    var v = !t ? 0 : i % 3, kind = narrow && v !== 2 ? "peek" : v === 2 && bottom && zh >= 190 ? "walk" : v === 1 ? "peek" : "bust";
+    var side = Math.abs(tc - vw / 2) < vw * 0.15 ? (i % 2 ? "R" : "L") : (tc < vw / 2 ? "R" : "L");   // Yass du côté opposé à la case
+    var s = Math.round(Math.min(kind === "walk" ? 250 : kind === "peek" ? 190 : 225, zh + 14)), x, vis;
+    if (kind === "walk") {
+      x = Math.max(-s * 0.15, Math.min(vw - s * 0.85, tc - s / 2)); vis = s; side = x + s / 2 < vw / 2 ? "L" : "R";
+    } else {
+      var off = kind === "peek" ? 0.42 : 0.12;
+      x = side === "R" ? vw - s * (1 - off) : -s * off; vis = s * (1 - off);
+    }
+    var y = z1 - s + (kind === "peek" ? s * 0.06 : 0);
+    if (kind === "peek" && narrow) {
+      // comme une tête qui passe par le bord de l'écran, à hauteur de la case, le bras tendu vers elle
+      s = 190; side = tc < vw / 2 ? "R" : "L"; x = side === "R" ? vw - s * 0.5 : -s * 0.5; vis = s * 0.5;
+      y = Math.max(top0, Math.min(navTop - s, r.top + r.height / 2 - s * 0.42));
+    }
+    var bw = Math.max(190, vw - (kind === "walk" ? s * 0.62 : vis) - 22), bx = side === "R" ? 10 : vw - bw - 10;
+    return { kind: kind, side: side, bottom: bottom, s: s, x: x, y: y, bx: bx, bw: bw, bb: vh - z1 + 8, bt: z0 + 4, bmax: Math.max(150, zh - 12), tc: tc, r: r };
+  }
+  function applyLayout(L) {
+    var st = $("km-stage"), bu = document.querySelector("#kf-masc .km-bubble"); if (!st || !bu) return;
+    st.style.cssText = "position:fixed;margin:0;left:" + (L.kind === "walk" ? -L.s : L.x) + "px;top:" + L.y + "px;width:" + L.s + "px;height:" + L.s + "px";
+    // zone sous la case : bulle calée en bas, à côté de Yass ; zone au-dessus : calée en haut, pour ne jamais sortir de l'écran
+    bu.style.cssText = "position:fixed;margin:0;left:" + L.bx + "px;width:" + L.bw + "px;" + (L.bottom ? "bottom:" + L.bb : "top:" + L.bt) + "px" + (L.kind === "walk" ? ";opacity:0" : "");
+    var sc = $("km-scroll"); if (sc) sc.style.maxHeight = Math.max(90, L.bmax - 70) + "px";   // les boutons restent toujours visibles
+  }
+  function pointSeq(L) {
+    var p = !L.r || !L.r.height || L.kind === "peek" ? "pSide" : L.bottom ? "pUp" : "pDown";
+    return [[p, 0.55], [p, 1.6], ["talkA", 0.5], [p, 0.5], [p, 1.4], ["talkB", 0.5], [p, 0.5], [p, 3]];
+  }
   function tour(i) {
     var st = TOUR[i];
     var hole = $("km-hole");
@@ -387,15 +439,25 @@
     var end = function () { set(TOUR_KEY, "1"); TOUR = TOUR_MAIN; TOUR_KEY = "kf-tour-v2"; hide(); return true; };
     if (!st || i === 99 || (i > 0 && busy())) return end();   // jamais par-dessus une séance
     if (st.sel && !document.querySelector(st.sel) && i < TOUR.length - 1) return tour(i + 1);
-    if (!appear()) return false;
+    var t = st.sel ? document.querySelector(st.sel) : null, corner = !!window.KineLumiere;
+    // l'élément expliqué remonte en haut de l'écran : la place en dessous est pour Yass
+    if (t && !t.closest(".bottom-nav")) {
+      var r0 = t.getBoundingClientRect(), nav = document.querySelector(".bottom-nav"), room = innerHeight - (nav ? nav.offsetHeight : 80) - r0.height;
+      var want = room > 300 ? 70 : Math.max(60, (innerHeight - r0.height) / 2 - 40);
+      if (Math.abs(r0.top - want) > 30) { try { window.scrollBy({ top: r0.top - want, behavior: "instant" }); } catch (e) { window.scrollBy(0, r0.top - want); } }
+    }
+    var L = corner ? layout(t, i) : null;
+    var lk = !L ? "msg" : L.kind === "walk" ? "walk" : "corner" + L.side;
+    if (!appear(lk)) return false;
+    var box = $("kf-masc");
+    if (L) { applyLayout(L); box.classList.remove("hop"); } else unlayout();
     mode = "tour"; clearTimeout(timer);
-    if (st.sel) {
+    if (t) {
       // un « trou » de lumière posé sur l'élément expliqué, le reste de l'écran assombri
       var place = function () {
         if (mode !== "tour") return;
-        var t = document.querySelector(st.sel); if (!t) return;
-        var r = t.getBoundingClientRect();
-        if (!t.closest(".bottom-nav") && (r.bottom > innerHeight - 260 || r.top < 60)) { try { window.scrollBy({ top: r.top - 140, behavior: "instant" }); } catch (e) { window.scrollBy(0, r.top - 140); } r = t.getBoundingClientRect(); }
+        var tt = document.querySelector(st.sel); if (!tt) return;
+        var r = tt.getBoundingClientRect();
         hole.style.cssText = "top:" + (r.top - 6) + "px;left:" + (r.left - 6) + "px;width:" + (r.width + 12) + "px;height:" + (r.height + 12) + "px";
         hole.classList.add("on");
       };
@@ -404,7 +466,21 @@
     bubble(st.text, "<div class='km-dots'>" + TOUR.map(function (_, j) { return "<i" + (j === i ? " class='on'" : "") + "></i>"; }).join("") + "</div>",
       "<button class='km-go' onclick='KineMascotte.tour(" + (i + 1) + ")'>" + (i < TOUR.length - 1 ? "Suivant" : "C'est compris") + "</button>" +
       (i < TOUR.length - 1 ? "<button class='km-later' onclick='KineMascotte.tour(99)'>Passer</button>" : ""));
-    play(GESTURES[st.gesture]); talk(st.text);
+    if (L && L.kind === "walk") {
+      // il entre par la gauche, marche jusqu'à la case, saute, puis la montre en parlant
+      var stg = $("km-stage"), bu = document.querySelector("#kf-masc .km-bubble"), dur = Math.max(0.9, (L.x + L.s) / 260);
+      requestAnimationFrame(function () { requestAnimationFrame(function () { stg.style.transition = "left " + dur + "s linear"; stg.style.left = L.x + "px"; }); });
+      play([["wA", 0.32], ["wB", 0.32]], true, null, "L");
+      talk(st.text);
+      setTimeout(function () {
+        if (mode !== "tour" || TOUR[i] !== st) return;
+        box.classList.add("hop"); if (bu) { bu.style.transition = "opacity .3s"; bu.style.opacity = "1"; }
+        play([["cheer1", 0.3], ["idle", 0.3]].concat(pointSeq(L)), false, null, L.side === "L" ? "R" : "L");
+      }, dur * 1000 + 50);
+    } else if (L) {
+      play(pointSeq(L), false, null, L.side === "R" ? "L" : "R");
+      talk(st.text);
+    } else { play(GESTURES[st.gesture]); talk(st.text); }
     return true;
   }
 
@@ -709,6 +785,8 @@
   }
 
   window.KineMascotte = {
+    replay: function (steps, key) { if (!register()) return false; hide(); TOUR = steps || TOUR_MAIN; TOUR_KEY = key || "kf-tour-v2"; return tour(0); },
+    mainTour: function () { return TOUR_MAIN; },
     menu: menu, guide: guide,
     show: show, hide: hide, maybe: maybe, pick: pickMessage, faq: faq, answer: answer, bouge: bouge, tour: tour,
     faqList: FAQ, errors: ERRORS, search: search, find: find, open: function (k) { var d = buildDocs()[k]; if (d) showDoc(d); }, doAct: doAct, docs: buildDocs, coachHtml: coachHtml, portrait: portrait,
