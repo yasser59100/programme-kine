@@ -1816,8 +1816,12 @@
   }
   var easeInOut = function (x) { return x * x * x * (10 + x * (6 * x - 15)); }; // minimum jerk
 
+  var lastW = 0, lastH = 0;
   function frame(now) {
     raf = requestAnimationFrame(frame);
+    // le cadre a changé de taille (clavier ouvert, rotation…) : on recale l'image pour ne pas écraser l'avatar
+    var cw = R.canvas.clientWidth, ch = R.canvas.clientHeight;
+    if (cw && ch && (cw !== lastW || ch !== lastH)) { lastW = cw; lastH = ch; resize(); }
     if (paused && tween) tween.start += now - lastNow; // figé pendant la pause
     lastNow = now;
     if (tween) {

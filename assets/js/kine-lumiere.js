@@ -307,6 +307,18 @@ var KineLumiere = (function () {
     hookNav(); exHeader(); tab();
     // le fond de la barre d'état suit le nouveau fond clair
     var m = document.querySelector("meta[name='theme-color']"); if (m) m.setAttribute("content", "#F6F8FB");
+    // iPhone : la zone de l'heure et de la batterie prend la couleur de la page. Quand un voile sombre couvre l'écran
+    // (visite de Yass, bulle, fenêtres), on l'assombrit aussi, sinon une bande blanche reste en haut.
+    var tint = "";
+    setInterval(function () {
+      var hole = document.getElementById("km-hole"), c = "#F6F8FB";
+      if (hole && parseFloat(getComputedStyle(hole).opacity) > 0.2) c = "#606368";
+      else if (document.querySelector("#kin-sheet.open, .kf-masc.ask.open, .kf-masc.big.open")) c = "#77808A";
+      else if (document.querySelector("#lu-sheet.open")) c = "#8E969F";
+      if (c === tint) return; tint = c;
+      if (m) m.setAttribute("content", c);
+      document.documentElement.style.backgroundColor = c;
+    }, 200);
     var tries = 0, t = setInterval(function () { if (face() || ++tries > 20) clearInterval(t); }, 1200);
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);

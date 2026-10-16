@@ -217,7 +217,22 @@
     $("km-acts").innerHTML = actsHtml || "";
     var sc = $("km-scroll"); if (sc) sc.scrollTop = 0;
   }
-  function talk(text) { if (typeof speak === "function" && (typeof seqSoundOn === "undefined" || seqSoundOn)) { try { speak(text, { prio: 1, now: true }); } catch (e) {} } }
+  // Le téléphone bloque le son tant qu'on n'a pas touché l'écran : la phrase est gardée et dite au premier toucher
+  var touched = false, pendingTalk = null, wanted = null;
+  function active() { return touched || !!(navigator.userActivation && navigator.userActivation.hasBeenActive); }
+  ["pointerdown", "touchend", "keydown"].forEach(function (ev) {
+    document.addEventListener(ev, function () {
+      if (touched) return; touched = true;
+      var t = pendingTalk; pendingTalk = null;
+      if (t && $("kf-masc") && $("kf-masc").classList.contains("open")) setTimeout(function () { if (wanted === t) talk(t); }, 150);
+    }, { capture: true, passive: true });
+  });
+  function talk(text) {
+    wanted = text;
+    if (typeof speak !== "function" || (typeof seqSoundOn !== "undefined" && !seqSoundOn)) return;
+    if (!active()) { pendingTalk = text; return; }
+    try { speak(text, { prio: 1, now: true, ttl: 6000 }); } catch (e) {}
+  }
   var look = null;
   function appear(lk) {
     if (!register()) return false;
@@ -264,7 +279,7 @@
   function maybe() {
     if (get("kf-masc-off") === "1" || busy() || mode) return;
     var page = currentPage(); if (!page || shown[page]) return;   // une apparition au plus par page et par ouverture
-    if (page === "home" && !get("kf-masc-tour")) { if (tour(0)) shown[page] = true; return; }
+    if (page === "home" && !get("kf-tour-v2")) { if (tour(0)) shown[page] = true; return; }
     var msg = pickMessage(page); if (!msg) return;
     if (show(msg)) shown[page] = true;
   }
@@ -352,21 +367,26 @@
   }
 
   /* ════════ Visite guidée (premier lancement) ════════ */
+  // Visite de la nouvelle appli : montrée une fois à tout le monde (nouveaux patients et anciens après la refonte)
   var TOUR = [
-    { sel: "#today-card .lx-cta", text: "Salut, je suis Yass, ton coach ! Ici, tu lances la séance du jour. Je te montre chaque mouvement, au bon rythme.", gesture: "wave" },
-    { sel: ".kr-remind, #ks-card", text: "Chaque jour, note ton ressenti en 30 secondes. Ton kiné et moi, on suit comme ça ta douleur et ton sommeil.", gesture: "point" },
-    { sel: "#bn-suivi", text: "Dans Suivi, tu verras tes progrès et tu pourras tout envoyer à ton kiné.", gesture: "point" },
-    { sel: null, text: "Pendant les exercices, si quelque chose fait mal, appuie sur « J'ai mal » : je te dirai quoi faire. Et touche-moi quand tu as une question !", gesture: "open" }
+    { sel: "#today-card .lu-slab, #today-card .lx-cta", text: "Salut, je suis Yass, ton coach ! Ici, c'est ta séance du jour : touche Commencer et je te guide, mouvement par mouvement.", gesture: "wave" },
+    { sel: "#lu-video", text: "Tester en vidéo : tu te filmes avec le téléphone, je regarde ton mouvement, je te corrige à voix haute et je compte pour toi.", gesture: "point" },
+    { sel: "#ki-express", text: "Pas le temps ? La séance express dure une dizaine de minutes.", gesture: "point" },
+    { sel: "#bn-guide", text: "Dans Exercices, tu as ton programme sur quatre semaines et la bibliothèque. Fais défiler : je fais chaque exercice dans sa case.", gesture: "point" },
+    { sel: "#bn-mes", text: "Au centre, Ma séance : compose ta propre séance avec les exercices que tu veux.", gesture: "point" },
+    { sel: "#bn-suivi", text: "Dans Progrès, tu vois tes chiffres et ton objectif, et tu envoies ton bilan à ton kiné. Les réglages sont dans la petite roue.", gesture: "point" },
+    { sel: null, text: "Et moi, je reste dans le coin de l'écran : touche ma tête pour une question, la vidéo ou les réglages. Si un exercice fait mal, appuie sur J'ai mal.", gesture: "open" }
   ];
-  var TOUR_MAIN = TOUR, TOUR_KEY = "kf-masc-tour";
+  var TOUR_MAIN = TOUR, TOUR_KEY = "kf-tour-v2";
   function guide(steps, key) { if (!steps || !steps.length) return false; TOUR = steps; TOUR_KEY = key || "kf-masc-guide"; return tour(0); }
   function tour(i) {
     var st = TOUR[i];
     var hole = $("km-hole");
     if (!hole) { hole = document.createElement("div"); hole.id = "km-hole"; document.body.appendChild(hole); }
     hole.classList.remove("on");
-    var end = function () { set(TOUR_KEY, "1"); TOUR = TOUR_MAIN; TOUR_KEY = "kf-masc-tour"; hide(); return true; };
+    var end = function () { set(TOUR_KEY, "1"); TOUR = TOUR_MAIN; TOUR_KEY = "kf-tour-v2"; hide(); return true; };
     if (!st || i === 99 || (i > 0 && busy())) return end();   // jamais par-dessus une séance
+    if (st.sel && !document.querySelector(st.sel) && i < TOUR.length - 1) return tour(i + 1);
     if (!appear()) return false;
     mode = "tour"; clearTimeout(timer);
     if (st.sel) {
@@ -705,6 +725,12 @@
 
   function init() {
     setTimeout(function () { if (window.THREE) { portrait(); maybe(); } else setTimeout(function () { portrait(); maybe(); }, 4000); }, 3500);
+    // Premier lancement : si l'avatar n'était pas encore prêt (connexion lente, installation), on réessaie
+    var tries = 0, again = setInterval(function () {
+      if (get("kf-tour-v2") || ++tries > 12) { clearInterval(again); return; }
+      if (mode === "tour") return;
+      if (!busy() && !document.querySelector("#kin-sheet.open")) { portrait(); shown.home = false; maybe(); }
+    }, 3000);
     setInterval(peekTick, 700);
     var base = window.showPage;
     if (typeof base === "function" && !base.__masc) {
