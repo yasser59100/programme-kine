@@ -6046,5 +6046,57 @@
  {
   "t": "Connecte-toi pour partager tes séances, envoyer un message et encourager les autres.",
   "g": "mascotte"
+ },
+ {
+  "t": "Premier repère. Debout, face au téléphone, bras le long du corps, pieds légèrement écartés. Ne bougez plus quelques secondes.",
+  "g": "camera"
+ },
+ {
+  "t": "Levez les deux bras tendus sur les côtés, le plus haut possible au-dessus de la tête, puis redescendez.",
+  "g": "camera"
+ },
+ {
+  "t": "Tournez-vous de profil par rapport au téléphone, bras le long du corps. Ne bougez plus.",
+  "g": "camera"
+ },
+ {
+  "t": "Toujours de profil, pieds écartés à la largeur du bassin. Faites trois squats, aussi bas que possible sans douleur.",
+  "g": "camera"
+ },
+ {
+  "t": "Jambes tendues, penchez-vous doucement en avant, bras pendants, comme pour toucher le sol. Allez jusqu'où c'est confortable, puis remontez.",
+  "g": "camera"
+ },
+ {
+  "t": "Toujours de profil. Levez les deux bras tendus devant vous, le plus haut possible au-dessus de la tête, puis redescendez.",
+  "g": "camera"
+ },
+ {
+  "t": "Dernier test. Asseyez-vous sur une chaise, de profil, bras croisés sur la poitrine. Au top, levez-vous et rasseyez-vous le plus vite possible pendant trente secondes.",
+  "g": "camera"
+ },
+ {
+  "t": "Équilibre. Levez le pied droit et tenez sur la jambe gauche, vingt secondes si vous pouvez. Restez près d'un appui.",
+  "g": "camera"
+ },
+ {
+  "t": "Équilibre. Levez le pied gauche et tenez sur la jambe droite, vingt secondes si vous pouvez. Restez près d'un appui.",
+  "g": "camera"
+ },
+ {
+  "t": "C'est noté.",
+  "g": "camera"
+ },
+ {
+  "t": "On passe à la suite.",
+  "g": "camera"
+ },
+ {
+  "t": "Top !",
+  "g": "camera"
+ },
+ {
+  "t": "Bilan terminé. Voici ce que j'ai observé.",
+  "g": "camera"
  }
 ]
