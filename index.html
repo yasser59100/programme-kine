@@ -28,7 +28,13 @@ html.kf-boot body{visibility:hidden}
 #kf-splash .sp-name span{display:inline-block;opacity:0;transform:translateY(14px);animation:spUp .45s cubic-bezier(.2,1.3,.4,1) forwards}
 #kf-splash .sp-name .f{color:#3341E0}
 #kf-splash .sp-sub{margin-top:8px;font:500 14px/1.3 "Figtree",system-ui,sans-serif;color:#66768C;opacity:0;animation:spFade .4s 1.2s forwards}
-#kf-splash .sp-yass{position:absolute;bottom:-12px;right:-6px;height:min(34vh,260px);transform:translateY(105%);animation:spYass .6s .9s cubic-bezier(.25,1.4,.45,1) forwards}
+#kf-splash .sp-yass{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:8px;height:min(30vh,240px);background-repeat:no-repeat;background-position:0 0;transform:translateY(130%);
+  animation:spYass .55s .8s cubic-bezier(.25,1.4,.45,1) forwards,spFrames 1s 1.2s steps(var(--n)) forwards}
+#kf-splash .sp-yass.jump{animation:spYass .55s .8s cubic-bezier(.25,1.4,.45,1) forwards,spFrames 1s 1.2s steps(var(--n)) forwards,spJump .4s 1.3s cubic-bezier(.3,0,.5,1) 2}
+#kf-splash .sp-yass.pump{animation:spYass .55s .8s cubic-bezier(.25,1.4,.45,1) forwards,spFrames .95s 1.2s steps(var(--n)) forwards,spPump .45s 1.5s ease-in-out 2}
+@keyframes spFrames{to{background-position:100% 0}}
+@keyframes spJump{0%,100%{translate:0 0}45%{translate:0 -26px}}
+@keyframes spPump{50%{scale:1.05}}
 #kf-splash .sp-bar{position:absolute;left:50%;bottom:calc(46px + env(safe-area-inset-bottom,0px));width:120px;height:4px;margin-left:-60px;border-radius:4px;background:#E3E8EF;overflow:hidden}
 #kf-splash .sp-bar i{position:absolute;inset:0;width:40%;border-radius:4px;background:#4B5BFF;animation:spLoad 1s ease-in-out infinite}
 @keyframes spPop{to{transform:scale(1)}}
@@ -1114,8 +1120,17 @@ input,select,textarea{font-family:var(--font);}
   <div class="sp-name"><span style='animation-delay:0.55s'>K</span><span style='animation-delay:0.60s'>i</span><span style='animation-delay:0.64s'>n</span><span style='animation-delay:0.69s'>é</span><span class='f' style='animation-delay:0.73s'>F</span><span class='f' style='animation-delay:0.78s'>o</span><span class='f' style='animation-delay:0.82s'>r</span><span class='f' style='animation-delay:0.86s'>c</span><span class='f' style='animation-delay:0.91s'>e</span></div>
   <svg class="sp-ecg" viewBox="0 0 200 30" aria-hidden="true"><path class="sp-pulse" d="M2 18h62l8-12 9 22 8-26 8 16h101"/></svg>
   <div class="sp-sub">Ta rééducation, avec Yass</div>
-  <img class="sp-yass" src="assets/lumiere/yass-salut.webp" alt="">
-  <div class="sp-bar"><i></i></div>
+  <div class="sp-yass" id="sp-yass"></div>
+  <script>
+  /* Yass change de geste à chaque ouverture (jamais deux fois le même d'affilée) */
+  (function(){var A=[["salut",12,239,""],["joie",13,244,"jump"],["biceps",10,245,"pump"],["etire",12,244,""],["pouce",10,247,"pump"]],last=-1;
+    try{last=+localStorage.getItem('kf-sp-last');}catch(e){}
+    var i=Math.floor(Math.random()*A.length);if(i===last)i=(i+1+Math.floor(Math.random()*(A.length-1)))%A.length;
+    try{localStorage.setItem('kf-sp-last',String(i));}catch(e){}
+    var a=A[i],el=document.getElementById('sp-yass');
+    el.style.cssText='aspect-ratio:'+a[2]+'/300;background-image:url(assets/lumiere/yass-anim/'+a[0]+'.webp);background-size:'+(a[1]*100)+'% 100%;--n:'+(a[1]-1);
+    if(a[3])el.classList.add(a[3]);})();
+  </script>
 </div>
 <script>
 /* Écran d'ouverture : reste au moins le temps de son animation, puis s'efface quand l'appli est dessinée.
