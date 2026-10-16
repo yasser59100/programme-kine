@@ -5954,5 +5954,33 @@
  {
   "t": "Dos au mur, descendez en position, de profil.",
   "g": "camera"
+ },
+ {
+  "t": "Salut, je suis Yass, ton coach ! Ici, c'est ta séance du jour : touche Commencer et je te guide, mouvement par mouvement.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Tester en vidéo : tu te filmes avec le téléphone, je regarde ton mouvement, je te corrige à voix haute et je compte pour toi.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Pas le temps ? La séance express dure une dizaine de minutes.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Dans Exercices, tu as ton programme sur quatre semaines et la bibliothèque. Fais défiler : je fais chaque exercice dans sa case.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Au centre, Ma séance : compose ta propre séance avec les exercices que tu veux.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Dans Progrès, tu vois tes chiffres et ton objectif, et tu envoies ton bilan à ton kiné. Les réglages sont dans la petite roue.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Et moi, je reste dans le coin de l'écran : touche ma tête pour une question, la vidéo ou les réglages. Si un exercice fait mal, appuie sur J'ai mal.",
+  "g": "mascotte"
  }
 ]
