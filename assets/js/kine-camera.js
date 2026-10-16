@@ -180,7 +180,12 @@
     ["nose", "lSh", "rSh", "lEl", "rEl", "lWr", "rWr", "lHip", "rHip", "lKn", "rKn", "lAn", "rAn", "lHe", "rHe", "lToe", "rToe"].forEach(function (k) { L[k] = P(lm, I[k]); });
     var c = { L: L, hip: mid(L.lHip, L.rHip), sh: mid(L.lSh, L.rSh), an: mid(L.lAn, L.rAn) };
     c.hipW = Math.max(0.02, Math.abs(L.lHip.x - L.rHip.x));
-    c.near = (lm[I.lKn].visibility || 0) >= (lm[I.rKn].visibility || 0) ? "l" : "r";
+    // Côté proche du téléphone : choisi sur plusieurs articulations et gardé tant que l'autre n'est pas nettement plus visible
+    // (de profil, le côté du fond est caché : ses points sont devinés et ne doivent jamais servir aux corrections)
+    var vis = function (sd) { return ["Hip", "Kn", "An", "He", "Toe"].reduce(function (a, k) { return a + (lm[I[sd + k]].visibility || 0); }, 0) / 5; };
+    var vl = vis("l"), vr = vis("r");
+    if (!A.nearSide || (A.nearSide === "l" ? vr - vl : vl - vr) > 0.25) A.nearSide = vl >= vr ? "l" : "r";
+    c.near = A.nearSide; c.nearVis = function (k) { return lm[I[c.near + k]].visibility || 0; };
     var n = c.near; c.N = { sh: L[n + "Sh"], el: L[n + "El"], wr: L[n + "Wr"], hip: L[n + "Hip"], kn: L[n + "Kn"], an: L[n + "An"], he: L[n + "He"], toe: L[n + "Toe"] };
     c.elbow = angle(c.N.sh, c.N.el, c.N.wr);
     c.kL = angle(L.lHip, L.lKn, L.lAn); c.kR = angle(L.rHip, L.rKn, L.rAn);
@@ -208,7 +213,12 @@
       } else {
         var trunk = tilt(c.N.sh, c.N.hip), tibia = tilt(c.N.kn, c.N.an);
         if (trunk > tibia + 28 && trunk > 45) flag("lean");
-        if ((A.base.heelY - c.N.he.y) / A.base.leg > 0.06) { flag("heel"); A.live[c.near + "He"] = 1; }
+        // Talon décollé : seulement si talon et pointe du pied proche sont bien vus, que la pointe reste au sol
+        // et que ça dure plusieurs images (jamais sur le pied du fond, qui est caché)
+        var seen = c.nearVis("He") > 0.75 && c.nearVis("Toe") > 0.75 && A.base.side === c.near;
+        var lift = seen ? (A.base.heelY - c.N.he.y) / A.base.leg : 0, toeStill = seen && Math.abs(c.N.toe.y - A.base.toeY) / A.base.leg < 0.03;
+        A.heelN = seen && toeStill && lift > 0.06 ? (A.heelN || 0) + 1 : 0;
+        if (A.heelN >= 6) { flag("heel"); A.live[c.near + "He"] = 1; }
       }
     },
     fente: function (c) {
@@ -224,7 +234,7 @@
     assis: function (c) {
       if ((A.base.y - c.hip.y) / Math.max(0.05, A.base.leg) > 0.3) return;   // seulement pendant le décollage de la chaise
       var L = c.L, near = function (w) { return Math.min(dist(w, c.N.kn), dist(w, mid(c.N.hip, c.N.kn))) < 0.18 * c.leg; };
-      if ((L.lWr.v > 0.5 && near(L.lWr)) || (L.rWr.v > 0.5 && near(L.rWr))) flag("hands");
+      if ((L.lWr.v > 0.7 && near(L.lWr)) || (L.rWr.v > 0.7 && near(L.rWr))) flag("hands");   // poignet bien vu, pas deviné derrière le corps
     },
     // Pompes : le corps reste droit des épaules aux genoux
     pompes: function (c) { var dev = above(c.N.hip, c.N.sh, c.N.kn); if (dev < -0.1) flag("sag"); else if (dev > 0.14) flag("high"); }
@@ -257,8 +267,9 @@
     else ok = true;
     if (ok) {
       A.still++; if (!A.stillT) A.stillT = now;
-      var b = A.base || (A.base = { y: c.hip.y, leg: c.leg, heelY: c.N.he.y, thigh: dist(c.N.hip, c.N.kn), dev: above(c.N.hip, c.N.sh, c.N.kn) });
-      b.y = b.y * 0.8 + c.hip.y * 0.2; b.leg = b.leg * 0.8 + c.leg * 0.2; b.heelY = b.heelY * 0.8 + c.N.he.y * 0.2; b.thigh = b.thigh * 0.8 + dist(c.N.hip, c.N.kn) * 0.2; b.dev = b.dev * 0.8 + above(c.N.hip, c.N.sh, c.N.kn) * 0.2;
+      if (A.base && A.base.side !== c.near) A.base = null;   // changement de côté : on repart d'une base propre à ce côté
+      var b = A.base || (A.base = { side: c.near, y: c.hip.y, leg: c.leg, heelY: c.N.he.y, toeY: c.N.toe.y, thigh: dist(c.N.hip, c.N.kn), dev: above(c.N.hip, c.N.sh, c.N.kn) });
+      b.y = b.y * 0.8 + c.hip.y * 0.2; b.leg = b.leg * 0.8 + c.leg * 0.2; b.heelY = b.heelY * 0.8 + c.N.he.y * 0.2; b.toeY = b.toeY * 0.8 + c.N.toe.y * 0.2; b.thigh = b.thigh * 0.8 + dist(c.N.hip, c.N.kn) * 0.2; b.dev = b.dev * 0.8 + above(c.N.hip, c.N.sh, c.N.kn) * 0.2;
     } else { A.still = 0; A.stillT = 0; }
     if (PR.calib === "none" || (A.still >= 3 && now - A.stillT > 1000)) { A.phase = "run"; A.hold.lastT = now; return PR.calib === "none" ? null : { msg: PR.go, voice: PR.go }; }
     if (!A.calibSaid) { A.calibSaid = 1; return { msg: PR.calib === "lie" ? "Allongez-vous sur le dos, genoux pliés, de profil." : PR.calib === "sit" ? "Asseyez-vous sur la chaise, de profil, bras croisés." : MSG.stand, voice: PR.calibSay || V.stand }; }
@@ -413,16 +424,84 @@
     return el;
   }
   // Sans exercice précisé : le choix de l'exercice
+  var AV = { squat: "Squat bilatéral", fente: "Fentes avant unilatérales", assis: "Assis-debout de chaise", pont: "Pont de hanche",
+    pompes: "Pompes sur genoux", unipodal: "Équilibre unipodal", planche: "Plank — gainage avant-bras", chaise: "Chaise contre le mur" };
+  var PITCH = { squat: "Je vérifie que tes genoux restent bien alignés", fente: "Je surveille ton genou avant et ton buste",
+    assis: "Je vérifie que tu te lèves sans t'aider des mains", pont: "Je regarde si ton bassin monte assez haut",
+    pompes: "Je surveille ton dos et ta descente", unipodal: "Je chronomètre et je te dis si tu vacilles",
+    planche: "Je te dis si tes fesses montent ou si ton dos creuse", chaise: "Je vérifie l'angle de tes genoux" };
+  var THUMB = {}, HERO = null;
+  function thumb(k) {
+    if (THUMB[k] !== undefined) return THUMB[k];
+    try { THUMB[k] = window.KineAvatar && KineAvatar.supports(AV[k]) ? KineAvatar.snapshot(AV[k], 220) : null; } catch (e) { THUMB[k] = null; }
+    return THUMB[k];
+  }
+  var EYE = "<svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' aria-hidden='true'>";
+  function viewTxt(p) { return p.views === "both" ? "De face ou de profil" : p.views === "profil" ? "De profil" : "De face"; }
   function picker() {
-    var el = shell();
-    el.innerHTML = "<div class='kcam-intro'><button class='kf-back' onclick='KineCamera.close()' aria-label='Retour'>←</button>" +
-      "<div class='kcam-badge'>Essai</div><div class='kf-h1'>Mon mouvement à la caméra</div>" +
-      "<div class='kf-sub'>Yass repère vos articulations, dessine votre silhouette, vous guide à voix haute et vous montre le replay de votre série.</div>" +
-      "<div class='kcam-pick'>" + ORDER.map(function (k) {
-        var p = PROF[k];
-        return "<button type='button' onclick='KineCamera.open(\"" + k + "\")'><b>" + esc(p.title) + "</b><small>" + (p.mode === "hold" ? "Tenue chronométrée" : "Répétitions comptées") + ", " +
-          (p.views === "both" ? "de face ou de profil" : p.views === "profil" ? "de profil" : "de face") + "</small><span aria-hidden='true'>›</span></button>";
-      }).join("") + "</div>" + modeHtml() + "</div>";
+    var el = shell(); heroStop();
+    var first = ORDER[0];
+    el.innerHTML = "<div class='kcam-intro kc2'><button class='kf-back' onclick='KineCamera.close()' aria-label='Retour'>←</button>" +
+      "<div class='kc2-hero'>" +
+        "<div class='kc2-phone'><div class='kc2-av' id='kc2-av'></div>" +
+          "<i class='kc2-c tl'></i><i class='kc2-c tr'></i><i class='kc2-c bl'></i><i class='kc2-c br'></i>" +
+          "<span class='kc2-rec'><i></i>En direct</span>" +
+          "<span class='kc2-cnt' id='kc2-cnt'>0</span><span class='kc2-ok' id='kc2-ok'>Bien !</span>" +
+          "<span class='kc2-name' id='kc2-name'>" + esc(PROF[first].title) + "</span></div>" +
+        "<div class='kc2-ht'><span class='kc2-tag'>Nouveau · essai</span>" +
+          "<h1>Yass te regarde bouger</h1>" +
+          "<p>Pose ton téléphone, recule, bouge. Yass compte pour toi et te corrige à voix haute.</p></div>" +
+        "<button class='kc2-go' id='kc2-go' onclick='KineCamera.open(\"" + first + "\")'>Essayer le " + esc(PROF[first].title.toLowerCase()) + " <span aria-hidden='true'>→</span></button>" +
+      "</div>" +
+      "<div class='kc2-steps'>" +
+        "<div><b>1</b><span>Pose le téléphone contre un mur</span></div>" +
+        "<div><b>2</b><span>Recule de 2 à 3 pas</span></div>" +
+        "<div><b>3</b><span>Bouge : Yass compte et te corrige</span></div></div>" +
+      "<div class='kc2-feat'><span><i><svg viewBox=\'0 0 24 24\' width=\'16\' height=\'16\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><circle cx=\'12\' cy=\'5\' r=\'2\'/><path d=\'M12 7v6M8 21l4-8 4 8M7 10h10\'/></svg></i>Silhouette suivie en direct</span><span><i><svg viewBox=\'0 0 24 24\' width=\'16\' height=\'16\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><path d=\'M11 5 6 9H3v6h3l5 4z\'/><path d=\'M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13\'/></svg></i>Conseils à voix haute</span><span><i><svg viewBox=\'0 0 24 24\' width=\'16\' height=\'16\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><path d=\'M3 12a9 9 0 1 0 3-6.7L3 8\'/><path d=\'M3 3v5h5M12 8v4l3 2\'/></svg></i>Replay de ta série</span><span><i><svg viewBox=\'0 0 24 24\' width=\'16\' height=\'16\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><rect x=\'5\' y=\'11\' width=\'14\' height=\'10\' rx=\'2\'/><path d=\'M8 11V7a4 4 0 0 1 8 0v4\'/></svg></i>Rien ne quitte ton téléphone</span></div>" +
+      "<h2 class='kc2-h'>Choisis ton exercice</h2>" +
+      "<div class='kc2-grid'>" + ORDER.map(function (k) {
+        var p = PROF[k], hold = p.mode === "hold", im = thumb(k);
+        return "<button type='button' class='kc2-card " + (hold ? "hold" : "reps") + "' onclick='KineCamera.open(\"" + k + "\")'>" +
+          "<span class='kc2-im'>" + (im ? "<img src='" + im + "' alt=''>" : "") + "<em>" + (hold ? "<svg viewBox='0 0 24 24' width='11' height='11' fill='none' stroke='currentColor' stroke-width='2.6' stroke-linecap='round' aria-hidden='true'><circle cx='12' cy='13' r='8'/><path d='M12 9v4l2 2M9 2h6'/></svg>Chrono" : "<svg viewBox='0 0 24 24' width='11' height='11' fill='none' stroke='currentColor' stroke-width='2.6' stroke-linecap='round' aria-hidden='true'><path d='M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5'/></svg>Répétitions") + "</em></span>" +
+          "<b>" + esc(p.title) + "</b><small>" + esc(PITCH[k] || "") + "</small>" +
+          "<span class='kc2-v'>" + EYE + "<path d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z'/><circle cx='12' cy='12' r='3'/></svg>" + viewTxt(p) + "</span></button>";
+      }).join("") + "</div>" + modeHtml() +
+      "<p class='kc2-priv'>L'analyse se fait uniquement sur ton téléphone : aucune image ne quitte l'appareil.</p></div>";
+    heroStart();
+  }
+  // Le héros : Yass fait les exercices l'un après l'autre, dans un « écran de caméra », avec le compteur qui tourne
+  function heroStop() {
+    if (!HERO) return; var h = HERO; HERO = null; clearTimeout(h.t); clearInterval(h.ti);
+    try { if (h.A && h.A.hide) h.A.hide(); } catch (e) {}
+  }
+  function heroStart() {
+    if (!window.KineLumiere || !KineLumiere.avatar || !KineLumiere.loop) return;
+    var h = HERO = { k: 0, A: null };
+    var box = $("kc2-av"); if (!box) return;
+    var alive = function () { return HERO === h && box.isConnected && !!box.querySelector("canvas") && !document.hidden; };
+    KineLumiere.avatar(7, function (A) {
+      if (!A || HERO !== h) return; h.A = A;
+      var seq = ["squat", "fente", "assis", "pompes", "planche", "chaise"];
+      (function next() {
+        if (HERO !== h || !box.isConnected) return;
+        var k = seq[h.k++ % seq.length], n = AV[k], p = PROF[k];
+        if (!A.supports(n) && KineAvatar._def && KineAvatar._def(n)) A.register(n, KineAvatar._def(n));
+        if (!A.supports(n) || !A.show(box, n)) { h.t = setTimeout(next, 50); return; }
+        if (A.pause) A.pause(false);
+        KineLumiere.loop(A, n, alive);
+        var nm = $("kc2-name"), cnt = $("kc2-cnt"), ok = $("kc2-ok"), go = $("kc2-go");
+        if (nm) nm.textContent = p.title;
+        if (go) { go.setAttribute("onclick", "KineCamera.open(\"" + k + "\")"); go.innerHTML = "Essayer " + (/^[aeéiouh]/i.test(p.title) ? "l'" : (p.title === "Planche" || p.title.indexOf("Chaise") === 0 || p.title.indexOf("Fente") === 0 ? "la " : p.title.indexOf("Pompes") === 0 ? "les " : "le ")) + esc(p.title.toLowerCase()) + " <span aria-hidden='true'>→</span>"; }
+        var c = 0, hold = p.mode === "hold"; if (cnt) { cnt.textContent = hold ? "0 s" : "0"; cnt.className = "kc2-cnt" + (hold ? " hold" : ""); }
+        clearInterval(h.ti);
+        h.ti = setInterval(function () {
+          if (HERO !== h) return; c++;
+          if (cnt) { cnt.textContent = hold ? c + " s" : String(Math.floor(c / 2)); cnt.classList.remove("pop"); void cnt.offsetWidth; cnt.classList.add("pop"); }
+          if (ok && c % 4 === 2) { ok.classList.remove("on"); void ok.offsetWidth; ok.classList.add("on"); }
+        }, hold ? 1000 : 1150);
+        h.t = setTimeout(next, 6800);
+      })();
+    });
   }
   /* Pendant les séances : jamais, bouton proposé (par défaut) ou caméra lancée d'office */
   var MODES = [["off", "Jamais"], ["ask", "Bouton proposé"], ["auto", "Automatique"]];
@@ -455,6 +534,7 @@
   }
   function open(pid, opt) {
     if (!pid || !PROF[pid]) { picker(); return; }
+    heroStop();
     PRID = pid; PR = PROF[pid]; OPT = opt || {};
     var el = shell(), seen = jget("kf-cam-seen", 0);
     if (typeof kfvPreloadAll === "function") { try { kfvPreloadAll("camera"); } catch (e) {} }
@@ -508,7 +588,7 @@
     el.innerHTML = "<div class='kcam-stage' id='kcam-stage'><video id='kcam-video' playsinline muted autoplay></video><canvas id='kcam-canvas'></canvas>" +
       "<div class='kcam-top'><button class='kcam-x' onclick='KineCamera.finish()' aria-label='Terminer'>✕</button>" +
         "<div class='kcam-count'><b id='kcam-reps'>0</b><small>" + lab1 + "</small></div><div class='kcam-count kcam-ok'><b id='kcam-good'>0</b><small>" + lab2 + "</small></div>" +
-        "<button class='kcam-flip kcam-snd' id='kcam-snd' onclick='KineCamera.mute()' aria-label='Couper ou remettre la voix'>" + (muted() ? "🔇" : "🔊") + "</button>" +
+        "<button class='kcam-flip kcam-snd' id='kcam-snd' onclick='KineCamera.mute()' aria-label='Couper ou remettre la voix'>" + sndIc(muted()) + "</button>" +
         "<button class='kcam-flip' onclick='KineCamera.flip()' aria-label='Changer de caméra'>⟲</button></div>" +
       "<div class='kcam-view' id='kcam-view'></div>" +
       "<div class='kcam-msg' id='kcam-msg' role='status'>Chargement de l'analyse…</div>" +
@@ -595,7 +675,7 @@
     S = null;
   }
   function close() {
-    stop(); if (REPLAY && REPLAY.url) URL.revokeObjectURL(REPLAY.url); REPLAY = null;
+    heroStop(); stop(); if (REPLAY && REPLAY.url) URL.revokeObjectURL(REPLAY.url); REPLAY = null;
     var el = $("kcam-run"); if (el) { el.classList.remove("open"); el.innerHTML = ""; }
     document.body.classList.remove("kf-lock");
     if (window.KineAvatar && KineAvatar.pause) KineAvatar.pause(false);
@@ -749,7 +829,8 @@
   }
   function watch() { var box = $("kb-sheet"); if (!box || box.__kcam) return; box.__kcam = 1; new MutationObserver(libCard).observe(box, { childList: true }); libCard(); }
 
-  function mute() { var m = !muted(); jset("kf-cam-mute", m ? 1 : 0); var b = $("kcam-snd"); if (b) b.textContent = m ? "🔇" : "🔊"; if (!m) say("Bien !"); }
+  function sndIc(m) { return "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M11 5 6 9H3v6h3l5 4z'/>" + (m ? "<path d='m16 9 5 6M21 9l-5 6'/>" : "<path d='M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13'/>") + "</svg>"; }
+  function mute() { var m = !muted(); jset("kf-cam-mute", m ? 1 : 0); var b = $("kcam-snd"); if (b) b.innerHTML = sndIc(m); if (!m) say("Bien !"); }
   window.KineCamera = { setMode: setMode, mode: mode, modeSheet: modeSheet, open: open, close: close, finish: finish, flip: flip, replay: replay, mute: mute, validate: validate,
     again: function () { open(PRID, OPT); }, forExercise: function (n) { return EX_MAP[n] || null; },
     _state: function () { return A; } };
