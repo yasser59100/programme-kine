@@ -2266,6 +2266,39 @@ function toggleSeqSound() {
   if (!seqSoundOn) stopSpeech();
 }
 
+// Bouton son, toujours visible en haut à droite : coupe ou remet le son de toute l'appli (choix gardé),
+// et signale quand le téléphone a coupé le moteur audio — un toucher suffit alors à le relancer.
+var KineSon = (function () {
+  try { if (localStorage.getItem("kf-mute") === "1") seqSoundOn = false; } catch (e) {}
+  var btn = null, was = null;
+  function broken() { return seqSoundOn && audioCtx && audioCtx.state !== "running"; }
+  function sync() {
+    if (!btn) return;
+    if (was !== seqSoundOn) { was = seqSoundOn; try { localStorage.setItem("kf-mute", seqSoundOn ? "0" : "1"); } catch (e) {} }
+    var off = !seqSoundOn, bad = !off && broken();
+    btn.innerHTML = off ? KFI.mute : KFI.sound;
+    btn.classList.toggle("off", off); btn.classList.toggle("warn", !!bad);
+    btn.setAttribute("aria-label", off ? "Remettre le son" : bad ? "Le son est bloqué : touche pour le relancer" : "Couper le son");
+    var b2 = document.getElementById("seq-sound-btn"); if (b2) { b2.innerHTML = seqSoundOn ? KFI.sound : KFI.mute; b2.classList.toggle("on", seqSoundOn); }
+  }
+  function tap() {
+    var bad = broken();
+    if (bad) { kfAudioStale = true; kfAudioHeal(); }      // son bloqué : on le relance sans le couper
+    else { seqSoundOn = !seqSoundOn; if (!seqSoundOn) stopSpeech(); }
+    sync();
+    if (seqSoundOn) setTimeout(function () { playBeep(880, 0.12, 0.18); }, 60);   // petit « bip » : on entend tout de suite que ça marche
+    if (window.navigator.vibrate) try { navigator.vibrate(12); } catch (e) {}
+  }
+  function mount() {
+    if (btn || !document.body) return;
+    btn = document.createElement("button"); btn.type = "button"; btn.id = "kf-snd"; btn.className = "kf-snd";
+    btn.addEventListener("click", tap); document.body.appendChild(btn); sync();
+    setInterval(sync, 1500);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount); else mount();
+  return { sync: sync };
+})();
+
 function _launchSeq(dayId) {
   seqStartTime = Date.now();
   preloadVoices();
