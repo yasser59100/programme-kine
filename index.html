@@ -1977,8 +1977,33 @@ function kfAudioPlayback() {
     var pr = kfSilentEl.play(); if (pr && pr.catch) pr.catch(function(){ kfSilentEl = null; });
   } catch(e){ kfSilentEl = null; }
 }
-["touchend", "click"].forEach(function (t) { document.addEventListener(t, kfAudioPlayback, { capture: true, passive: true }); });
-document.addEventListener("visibilitychange", function () { if (document.hidden && kfSilentEl) { try { kfSilentEl.pause(); } catch(e){} kfSilentEl = null; } });
+// Le son ne doit jamais « partir » : un téléphone peut couper ou figer le moteur audio (appli mise de côté, appel,
+// notification, caméra, casque débranché…). À chaque toucher, on vérifie qu'il tourne vraiment et, sinon, on le
+// recrée : c'est le seul moment où iPhone et Android acceptent de relancer le son.
+var kfAudioStale = false, kfAudioProbe = null;
+function kfAudioNew() {
+  var old = audioCtx; audioCtx = null;
+  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ audioCtx = old; return; }
+  if (old && old.state !== "closed") { try { var q = old.close(); if (q && q.catch) q.catch(function(){}); } catch(e){} }
+  kfAudioProbe = null;
+}
+function kfAudioHeal() {
+  kfAudioPlayback();
+  var c = audioCtx; if (!c) return;
+  var now = performance.now(), frozen = false;
+  if (c.state === "running" && kfAudioProbe && now - kfAudioProbe.w > 1500 && c.currentTime - kfAudioProbe.t < (now - kfAudioProbe.w) / 4000) frozen = true;   // « en marche » mais l'horloge du son n'avance plus
+  if (c.state === "closed" || c.state === "interrupted" || kfAudioStale || frozen) { kfAudioStale = false; kfAudioNew(); c = audioCtx; }
+  if (c && c.state !== "running") { try { var r = c.resume(); if (r && r.catch) r.catch(function(){}); } catch(e){} }
+  try { var b = c.createBuffer(1, 1, 22050), s0 = c.createBufferSource(); s0.buffer = b; s0.connect(c.destination); s0.start(0); } catch(e){}   // un son vide joué pendant le toucher : le moteur est déverrouillé
+  kfAudioProbe = { w: now, t: c.currentTime };
+}
+["touchend", "click"].forEach(function (t) { document.addEventListener(t, kfAudioHeal, { capture: true, passive: true }); });
+var kfHiddenAt = 0;
+document.addEventListener("visibilitychange", function () {
+  if (document.hidden) { kfHiddenAt = Date.now(); if (kfSilentEl) { try { kfSilentEl.pause(); } catch(e){} kfSilentEl = null; } }
+  else if (audioCtx && Date.now() - kfHiddenAt > 1500) { kfAudioStale = true; try { var r = audioCtx.resume(); if (r && r.catch) r.catch(function(){}); } catch(e){} }   // retour dans l'appli : au prochain toucher, moteur neuf
+});
+window.addEventListener("pageshow", function (e) { if (e.persisted) kfAudioStale = true; });
 function getAudioCtx() {
   kfAudioPlayback();
   if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }

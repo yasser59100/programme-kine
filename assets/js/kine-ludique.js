@@ -35,6 +35,7 @@
     var i = 0, g = c.gen = (c.gen || 0) + 1;
     (function next() {
       if (!c || c.id.dead || !c.box.isConnected || c.gen !== g) return;
+      if (c.A.host && c.A.host() !== c.box) return;   // Yass est parti illustrer autre chose : on ne lui remet pas les pancartes
       if (i >= seq.length) { if (loop) i = 0; else { if (then) then(); return; } }
       var s = seq[i++]; c.sign = /^sV/.test(s[0]) ? "V" : /^sF/.test(s[0]) ? "F" : null; c.A.step({ pose: s[0], dur: s[1] });
       if (c.signs && c.A.signs) { c.signs.hi = c.only || c.sign; c.A.signs(c.signs); }

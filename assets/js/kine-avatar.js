@@ -1314,7 +1314,15 @@
     if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 1500);
   });
 
-  var R = null;
+  var R = null, API = null, lostGL = false, curName = null, lastSigns = null;
+  function rebuild() {
+    lostGL = false;
+    var c = host, n = curName, sg = lastSigns;
+    if (raf) cancelAnimationFrame(raf); raf = 0; host = null;
+    if (R) { try { if (R.canvas.parentNode) R.canvas.parentNode.removeChild(R.canvas); R.renderer.dispose(); } catch (e) {} }
+    R = null; SIGN_TEX = {};
+    if (c && n && c.isConnected) { API.show(c, n); if (sg) API.signs(sg); }
+  }
   function build() {
     var T = window.THREE;
     var canvas = document.createElement("canvas");
@@ -1322,6 +1330,8 @@
     canvas.style.cssText = "display:block;width:min(320px,82vw);aspect-ratio:1/1;touch-action:pan-y;cursor:grab;";
     var renderer;
     try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); } catch (e) { return null; }
+    // Le téléphone peut couper la 3D (mémoire pleine, appli en arrière-plan) : on reconstruit l'avatar au lieu de laisser une image figée
+    canvas.addEventListener("webglcontextlost", function (e) { e.preventDefault(); lostGL = true; }, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
     renderer.outputEncoding = T.sRGBEncoding;
@@ -1822,10 +1832,12 @@
 
   var lastW = 0, lastH = 0;
   function frame(now) {
+    if (lostGL) { rebuild(); return; }
     raf = requestAnimationFrame(frame);
     // le cadre a changé de taille (clavier ouvert, rotation…) : on recale l'image pour ne pas écraser l'avatar
     var cw = R.canvas.clientWidth, ch = R.canvas.clientHeight;
-    if (cw && ch && (cw !== lastW || ch !== lastH)) { lastW = cw; lastH = ch; resize(); }
+    // (on vérifie aussi la taille réelle de l'image : une vignette prise entre-temps ne doit jamais laisser Yass étiré)
+    if (cw && ch && (cw !== lastW || ch !== lastH || R.canvas.width !== Math.floor(cw * R.renderer.getPixelRatio()) || R.canvas.height !== Math.floor(ch * R.renderer.getPixelRatio()))) { lastW = cw; lastH = ch; resize(); }
     if (paused && tween) tween.start += now - lastNow; // figé pendant la pause
     lastNow = now;
     if (tween) {
@@ -1953,7 +1965,7 @@
     R.renderer.setSize(w, h, false); R.camera.aspect = w / h; R.camera.updateProjectionMatrix();
   }
 
-  window.KineAvatar = {
+  API = window.KineAvatar = {
     info: info,
     holdSay: function (name, side) { var d = EX[name]; return d && d.holdSay ? d.holdSay[side === "R" ? "R" : "L"] : null; },
     plan: plan, isoFor: isoFor, isoText: isoText, isoTotal: isoTotal,
@@ -1970,7 +1982,9 @@
       var d = EX[name];
       if (!d || !d.poses || !window.THREE) { loadThree().catch(function () {}); return false; }
       if (!R) { R = build(); if (!R) return false; }
-      if (host === container && def === d && raf) return true;
+      if (host !== container && R.signOn) API.signs(null);   // les pancartes du Vrai/Faux ne suivent pas Yass ailleurs
+      curName = name;
+      if (host === container && def === d && raf && R.canvas.parentNode === container) return true;
       var start = d.poses[startPose(d)], keep = def === d && current;
       var near = current && def && def !== d && Math.abs((withY(current).pelvis.p[1]) - (withY(start).pelvis.p[1])) < 0.3 && !d.props && !(def && def.props);
       if (!keep) {
@@ -1999,10 +2013,11 @@
     },
 
     pause: function (on) { paused = !!on; },
+    host: function () { return host; },
     // Pancartes : signs({ L: "V", R: "F", hi: "V" }) ; signs(null) les range
     signs: function (o) {
       if (!R) return;
-      R.signOn = !!o;
+      R.signOn = !!o; lastSigns = o ? JSON.parse(JSON.stringify(o)) : null;
       ["L", "R"].forEach(function (s) {
         var a = R.arms[s], k = o && o[s];
         a.sign.visible = !!k; if (!k) return;
@@ -2158,7 +2173,8 @@
 
     hide: function () {
       if (raf) cancelAnimationFrame(raf);
-      raf = 0; host = null; tween = null; paused = false;
+      raf = 0; host = null; tween = null; paused = false; lastSigns = null;
+      if (R && R.signOn) API.signs(null);
       if (R && R.canvas.parentNode) R.canvas.parentNode.removeChild(R.canvas);
     }
   };
