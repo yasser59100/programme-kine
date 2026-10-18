@@ -26,7 +26,7 @@ test("accueil et ouverture", async ({ page }, info) => {
   await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
   await expect(page.locator(".lu-slab, .lu-hello").first()).toBeVisible();
   await navOk(page); await page.waitForTimeout(1200); await shot(page, info, "1-accueil");
-  await page.mouse.wheel(0, 1400); await page.waitForTimeout(900); await shot(page, info, "2-accueil-bas");
+  await page.evaluate(() => window.scrollBy(0, 1400)); await page.waitForTimeout(900); await shot(page, info, "2-accueil-bas");
   await clean(errs);
 });
 
