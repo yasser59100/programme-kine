@@ -1,0 +1,37 @@
+name: Tests iPhone et Android
+on:
+  push:
+    branches-ignore: [diag, voix-leo, ci-captures]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Installer Playwright (Safari et Chrome)
+        working-directory: tests
+        run: |
+          npm i --no-save @playwright/test@1.56.0 >/dev/null 2>&1
+          npx playwright install --with-deps chromium webkit >/dev/null 2>&1
+      - name: Lancer les tests
+        working-directory: tests
+        env:
+          SHOTS: captures
+        run: npx playwright test -c playwright.config.js
+      - name: Publier captures et résultats (branche ci-captures)
+        if: always()
+        working-directory: tests
+        run: |
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          mkdir -p /tmp/out && cp -r captures /tmp/out/ 2>/dev/null || true; cp resultats.json /tmp/out/ 2>/dev/null || true
+          cp -r test-results /tmp/out/echecs 2>/dev/null || true
+          cd .. && git fetch -q origin ci-captures || true
+          git checkout -q --orphan ci-tmp && git rm -rq --cached . >/dev/null 2>&1; rm -rf ./* .github 2>/dev/null; cp -r /tmp/out/* . 2>/dev/null || true
+          echo "${GITHUB_SHA} ${GITHUB_REF_NAME}" > COMMIT.txt
+          git add -A && git commit -q -m "Captures ${GITHUB_SHA::7} [skip ci]" && git push -q -f origin ci-tmp:ci-captures || true
