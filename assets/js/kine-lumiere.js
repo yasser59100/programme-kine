@@ -66,6 +66,7 @@ var KineLumiere = (function () {
         (window.KineLexique ? it("KineLexique.open()", "Les mots du kiné expliqués", "") : "") +
         it("KineLumiere.explainMenu()", "Tu n'as pas compris comment ça marche ?", "Je te réexplique l'appli ou un onglet") +
         it("KineLumiere.settings()", "Réglages", "Coach, son, taille du texte") +
+        (window.KineFiable ? it("KineFiable.open()", "Signaler un souci", "Un bug, un écran bizarre : dites-le-moi") : "") +
       "</div>";
   }
   function iso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
@@ -80,6 +81,8 @@ var KineLumiere = (function () {
       row("KineLayout.bigText();KineLumiere.settings()", "Taille du texte", "", bigOn() ? "grande" : "normale") +
       (window.KineCamera && KineCamera.modeSheet ? row("KineLumiere.then('KineCamera.modeSheet()')", "Caméra pendant la séance", "Jamais, me demander, ou toujours") : "") +
       (window.KineCompose ? row("KineLumiere.then('KineCompose.kine()')", "Espace kiné", "Réservé à votre kinésithérapeute") : "") +
+      (window.KineFiable ? row("KineLumiere.then('KineFiable.open()')", "Signaler un souci", "Un bug, un écran bizarre") : "") +
+      row("KineFiable.update()", "Version de l'appli", "Touchez pour vérifier les mises à jour", String(window.KF_VERSION || "").replace("kineforce-v", "n° ") || "…") +
       "</div>";
     sheet(h);
   }

@@ -1,0 +1,29 @@
+name: Rapports de bugs
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  lire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Lire les rapports
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npm i -s --no-save firebase-admin@12 >/dev/null 2>&1
+          node tools/lire_bugs.js "$RUNNER_TEMP/bugs.json"; code=$?
+          rm -f "$RUNNER_TEMP/sa.json"
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git fetch -q origin diag || true
+          git checkout -q -B diag
+          mkdir -p tools && cp "$RUNNER_TEMP/bugs.json" tools/bugs.json 2>/dev/null || echo "[]" > tools/bugs.json
+          git add tools/bugs.json && git commit -q -m "Rapports de bugs [skip ci]" && git push -q -f origin diag || true
+          exit $code

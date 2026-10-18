@@ -38,6 +38,18 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Rapports de bugs (automatiques ou envoyés par le patient) : anonymes, écriture seule, lus seulement par le kiné
+    match /bugs/{id} {
+      allow read, delete: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['k', 'm', 'src', 'st', 'v', 'ua', 'scr', 'pg', 'sa', 'n', 'log', 't'])
+        && request.resource.data.k in ['auto', 'user']
+        && request.resource.data.m is string && request.resource.data.m.size() <= 1200
+        && (!('st' in request.resource.data) || (request.resource.data.st is string && request.resource.data.st.size() <= 1500))
+        && (!('log' in request.resource.data) || (request.resource.data.log is string && request.resource.data.log.size() <= 1500))
+        && request.resource.data.ua is string && request.resource.data.ua.size() <= 400;
+      allow update: if false;
+    }
+
     // Abonnements aux notifications : chaque téléphone écrit le sien, personne ne peut les lire
     match /push/{id} {
       allow read: if false;

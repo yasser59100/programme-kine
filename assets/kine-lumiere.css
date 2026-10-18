@@ -889,3 +889,15 @@ html.kin-on #km-peek { display: none !important; }
 @keyframes lqFinger { 0%, 4% { opacity: 0; transform: none; } 8% { opacity: 1; transform: scale(.9); } 26% { opacity: 1; transform: translateX(34px) scale(.9); } 40% { opacity: 1; transform: none; } 70% { opacity: 1; transform: translateX(-34px) scale(.9); } 84% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; } }
 .lq-deck { margin-right: 4px; }
 html.kf-typing .bottom-nav, html.kf-typing #km-peek { display: none !important; }
+/* Signaler un souci */
+.kf-bug .kf-sheet-body { padding-bottom: 30px; }
+.kfb-h { margin: 10px 0 6px; font: 800 1.6rem/1.05 var(--lu-head); letter-spacing: -.03em; color: var(--text); }
+.kfb-p { margin: 0 0 12px; color: var(--text2); font-size: .92rem; line-height: 1.45; }
+.kf-bug textarea { width: 100%; box-sizing: border-box; padding: 14px; border-radius: 18px; border: 1.5px solid var(--border); background: var(--surface); font: 500 1rem/1.4 var(--font); color: var(--text); resize: vertical; outline: 0; }
+.kf-bug textarea:focus { border-color: #4B5BFF; box-shadow: 0 0 0 4px rgba(75,91,255,.12); }
+.kfb-ctx { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.kfb-ctx span { padding: 5px 10px; border-radius: 999px; background: var(--surface2); font-size: .74rem; font-weight: 700; color: var(--text3); }
+.kfb-ok { min-height: 1.2em; color: #0B6F5A; font-weight: 700; font-size: .9rem; }
+.kfb-item { margin-top: 8px; padding: 12px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #F5A524; }
+.kfb-item.user { border-left-color: #4B5BFF; }
+.kfb-item b { font-size: .8rem; color: var(--text2); } .kfb-item p { margin: 4px 0; font-size: .9rem; color: var(--text); word-break: break-word; } .kfb-item small { font-size: .72rem; color: var(--text3); }
