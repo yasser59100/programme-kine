@@ -18,6 +18,9 @@ jobs:
             echo "== lecture des abonnements push (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/push"
             echo "== ecriture programme sans compte (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"x":{"stringValue":"test"}}}' "$B/programme/test-verif"
             echo "== abonnement mal forme (doit etre refuse)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"hour":{"integerValue":"3"}}}' "$B/push/test-verif"
+            echo "== rapport de bug valide (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"auto"},"m":{"stringValue":"TEST de verification, a ignorer"},"ua":{"stringValue":"verif-github"},"v":{"stringValue":"test"}}}' "$B/bugs"
+            echo "== lecture des rapports sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/bugs"
+            echo "== rapport mal forme (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"pirate"},"m":{"stringValue":"x"},"ua":{"stringValue":"x"}}}' "$B/bugs"
           } > /tmp/verif.txt 2>&1
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git checkout -q -B diag && cp /tmp/verif.txt tools/verif_firebase.txt && git add tools/verif_firebase.txt && git commit -q -m "Verif [skip ci]" && git push -q -f origin diag
