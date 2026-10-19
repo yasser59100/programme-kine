@@ -80,7 +80,7 @@ var KineLumiere = (function () {
       (N && N.available() ? row("KineLumiere.then('KineNotifs.open()')", "Notifications du jour", "", N.label()) : "") +
       row("KineLayout.bigText();KineLumiere.settings()", "Taille du texte", "", bigOn() ? "grande" : "normale") +
       (window.KineCamera && KineCamera.modeSheet ? row("KineLumiere.then('KineCamera.modeSheet()')", "Caméra pendant la séance", "Jamais, me demander, ou toujours") : "") +
-      (window.KineCompose ? row("KineLumiere.then('KineCompose.kine()')", "Espace kiné", "Réservé à votre kinésithérapeute") : "") +
+      (window.KineCompose ? row("KineLumiere.then('KineCompose.kine()')", "Espace kiné", (window.fbUser && fbUser.isAdmin) ? "Connecté avec le compte kiné" : "Réservé au kinésithérapeute, avec son compte") : "") +
       (window.KineFiable ? row("KineLumiere.then('KineFiable.open()')", "Signaler un souci", "Un bug, un écran bizarre") : "") +
       (window.KineStats ? row("KineStats.toggle();KineLumiere.settings()", "Statistiques anonymes", "Aident à améliorer l'appli, sans aucun nom", KineStats.label()) : "") +
       (window.KineLegal ? row("KineLumiere.then('KineLegal.open()')", "Santé et confidentialité", "Précautions, données, mentions légales") : "") +

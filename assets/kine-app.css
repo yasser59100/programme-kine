@@ -2503,3 +2503,5 @@ html.kf-typing .kf-snd { display: none; }
 .kst-row span, .kst-row b { position: relative; z-index: 1; }
 .kst-row i { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(75, 91, 255, .10); border-radius: 10px; }
 .kst-none { margin: 0 0 4px; font-size: .86rem; color: var(--text3); }
+/* Liens « Espace kiné » dans les pages : seulement pour le compte du kiné (l'entrée des réglages reste, elle demande la connexion) */
+html:not(.kf-kine) .kc-kine { display: none !important; }

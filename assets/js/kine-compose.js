@@ -258,24 +258,20 @@ var KineCompose = (function () {
   }
 
   /* ════════ Espace kiné : code, zones protégées, déblocage des rouges ════════ */
-  var kineOpen = 0;
-  function hash(pin) { var h = 5381; for (var i = 0; i < pin.length; i++) h = ((h << 5) + h + pin.charCodeAt(i)) >>> 0; return "h" + h.toString(36); }
+  // Espace kiné : réservé au compte Google du kiné (plus de code à 4 chiffres)
+  function isKine() { return !!(window.fbUser && window.fbUser.isAdmin); }
+  try { localStorage.removeItem(PKEY); } catch (e) {}
+  var gate = false;
+  window.addEventListener("kf-auth", function () { var el = $("kc-sheet"); if (gate && el && el.classList.contains("open")) kine(); });
   function kine() {
-    var el = sheet(), hasPin = !!localStorage.getItem(PKEY);
-    if (Date.now() - kineOpen < 10 * 60000) return kinePanel();
+    var el = sheet();
+    if (isKine()) { gate = false; return kinePanel(); }
+    gate = true;
+    var other = window.fbUser && !window.fbUser.isAdmin;
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCompose.close()' aria-label='Retour'>←</button>" +
-      "<div><div class='kf-h1'>Espace kiné</div><div class='kf-sub'>" + (hasPin ? "Entrez votre code à 4 chiffres." : "Première fois : choisissez un code à 4 chiffres. Ne le donnez pas au patient.") + "</div></div>" +
-      "<input id='kc-pin' class='kc-pin' type='password' inputmode='numeric' maxlength='4' autocomplete='off' placeholder='••••'>" +
-      "<p class='kc-err' id='kc-pin-err'></p></div>" +
-      "<div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineCompose.pin()'>" + (hasPin ? "Déverrouiller" : "Créer le code") + "</button></div>";
-    el.classList.add("open"); setTimeout(function () { var i = $("kc-pin"); if (i) i.focus(); }, 100);
-  }
-  function pin() {
-    var v = ($("kc-pin") || {}).value || "", saved = localStorage.getItem(PKEY);
-    if (!/^\d{4}$/.test(v)) { $("kc-pin-err").textContent = "4 chiffres, s'il vous plaît."; return; }
-    if (!saved) localStorage.setItem(PKEY, hash(v));
-    else if (saved !== hash(v)) { $("kc-pin-err").textContent = "Code incorrect."; return; }
-    kineOpen = Date.now(); kinePanel();
+      "<div><div class='kf-h1'>Espace kiné</div><div class='kf-sub'>" + (other ? "Ce compte n'est pas celui du kinésithérapeute. Déconnectez-vous, puis connectez-vous avec le compte kiné." : "Réservé à votre kinésithérapeute. Connectez-vous avec le compte kiné pour continuer.") + "</div></div></div>" +
+      "<div class='kf-sheet-foot'>" + (other ? "<button class='seq-btn-secondary' onclick='fbSignOut()'>Me déconnecter</button>" : "<button class='seq-btn-main' onclick='signInWithGoogle()'>Se connecter avec Google</button>") + "</div>";
+    el.classList.add("open");
   }
   function kinePanel() {
     var z = zones(), open = jget(UKEY, false);
@@ -287,17 +283,17 @@ var KineCompose = (function () {
     }).join("");
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCompose.close()' aria-label='Retour'>←</button>" +
-      "<div><div class='kf-h1'>Espace kiné</div><div class='kf-sub'>Réglages de ce téléphone, pour « Ma séance ». Se verrouille seul après 10 minutes.</div></div>" +
+      "<div><div class='kf-h1'>Espace kiné</div><div class='kf-sub'>Connecté avec le compte kiné. Les zones protégées s'appliquent à ce téléphone, pour « Ma séance ».</div></div>" +
       "<div class='su-card'><b>Zones protégées</b><div class='kf-sub'>« Pas de rouge » retire les exercices difficiles du groupe, « Exclu » retire tout le groupe.</div>" + rows + "</div>" +
       "<label class='kc-check'><input type='checkbox' " + (open ? "checked " : "") + "onchange='KineCompose.reds(this.checked)'> Débloquer dès maintenant les exercices difficiles (hors zones protégées)</label>" +
       "<button class='v2-row' onclick='KineCompose.close();KineOfficiel.open()'><b>Programme officiel (tous les patients)</b><span>›</span></button>" +
       "<button class='v2-row' onclick='KineCompose.close();KineFiable.admin()'><b>Rapports de bugs</b><span>›</span></button>" +
       "<button class='v2-row' onclick='KineCompose.close();KineStats.admin()'><b>Statistiques d'utilisation</b><span>›</span></button>" +
-      "<button class='v2-row' onclick='KineCompose.resetPin()'><b>Changer le code</b><span>›</span></button></div>" +
-      "<div class='kf-sheet-foot'><button class='seq-btn-secondary' onclick='KineCompose.lock()'>Verrouiller</button></div>";
+      "</div>" +
+      "<div class='kf-sheet-foot'><button class='seq-btn-secondary' onclick='KineCompose.lock()'>Terminer et me déconnecter</button></div>";
     el.classList.add("open");
   }
-  function zone(g, v) { var z = zones(); if (v === "ok") delete z[g]; else z[g] = v; jset(ZKEY, z); kinePanel(); }
+  function zone(g, v) { if (!isKine()) return kine(); var z = zones(); if (v === "ok") delete z[g]; else z[g] = v; jset(ZKEY, z); kinePanel(); }
 
   /* ════════ Onglet « Ma séance » ════════ */
   var thumbs = {};
@@ -373,11 +369,10 @@ var KineCompose = (function () {
     gearPage: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); page(); },
     open: open, close: close, toggle: toggle, save: save, start: start, remove: remove, listHtml: listHtml, order: order, lockReason: lockReason, addBlock: addBlock,
     name: function (v) { title = v; }, saved: function () { return jget(KEY, []); },
-    gear: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); var y = sheet().scrollTop; render(); sheet().scrollTop = y; }, kine: kine, pin: pin, zone: zone,
-    reds: function (v) { jset(UKEY, !!v); },
+    gear: function (k) { var g = jget(GKEY, {}); g[k] = !g[k]; jset(GKEY, g); var y = sheet().scrollTop; render(); sheet().scrollTop = y; }, kine: kine, zone: zone,
+    reds: function (v) { if (isKine()) jset(UKEY, !!v); },
     early: earlyOpen, earlyAns: earlyAns, earlyCheck: earlyCheck, earlyClose: earlyClose, earlyLines: earlyLines,
-    lock: function () { kineOpen = 0; close(); },
-    resetPin: function () { try { localStorage.removeItem(PKEY); } catch (e) {} kineOpen = 0; kine(); },
+    lock: function () { close(); if (window.fbSignOut) fbSignOut(); },   // sur le téléphone d'un patient : on ne laisse pas le compte kiné connecté
     rules: { MIN: MIN, MAX: MAX, MAX_RED: MAX_RED, MAX_GROUP: MAX_GROUP },
     // recherche dans la création de séance (filtre en place, sans redessiner : le clavier reste ouvert)
     q: function (v) { cq = v; KineBiblio.applyFind(sheet(), ".kc-row", cq, cf); },

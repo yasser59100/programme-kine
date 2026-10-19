@@ -80,13 +80,16 @@ onAuthStateChanged(auth, function(user) {
       name: user.displayName || user.email.split("@")[0],
       email: user.email,
       photo: user.photoURL,
-      isAdmin: user.email === ADMIN_EMAIL
+      isAdmin: user.email === ADMIN_EMAIL && user.emailVerified === true
     };
     onFbLogin();
   } else {
     window.fbUser = null;
     onFbLogout();
   }
+  // Espace kiné : visible et ouvert seulement avec le compte du kiné (le serveur le vérifie aussi pour les données)
+  document.documentElement.classList.toggle("kf-kine", !!(window.fbUser && window.fbUser.isAdmin));
+  window.dispatchEvent(new Event("kf-auth"));
 });
 
 // ── GOOGLE SIGN IN ──
