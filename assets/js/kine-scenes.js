@@ -361,7 +361,9 @@ var KineScenes = (function () {
     def: function (i) {
       var s = S[i]; if (!s || !window.KineAvatar || !KineAvatar.lib) return null;
       if (window.KineMascotte && KineMascotte.portrait) KineMascotte.portrait();
-      var poses = s.poses(), first = null; for (var k in poses) { if (!poses[k]) delete poses[k]; else if (!first) first = k; }
+      var poses = s.poses(), first = null;
+      for (var k in poses) { if (!poses[k]) delete poses[k]; else if (!poses[k].pelvis) return null; else if (!first) first = k; }   // Yass pas encore prêt : on garde l'image fixe, la scène se relancera
+      if (!first) return null;
       return { camera: s.cam, props: s.props, poses: poses, start: first, thumb: first };
     },
     run: function (i, c) { if (S[i]) S[i].run(c); }

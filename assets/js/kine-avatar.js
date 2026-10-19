@@ -1905,6 +1905,7 @@
     var names = Object.keys(d.poses), min = {}, max = {};
     if (d.easyUntil) { var useK = curWeek() <= d.easyUntil; names = names.filter(function (n) { var k = /K$/.test(n) && d.poses[n.slice(0, -1)]; return useK ? (k || !d.poses[n + "K"]) : !k; }); }
     names.forEach(function (n) {
+      if (!d.poses[n] || !d.poses[n].pelvis) return;
       applyPose(d.poses[n]); R.pelvis.updateMatrixWorld(true);
       ["L", "R"].forEach(function (sd) { var j = jointGeo(sd); for (var k in j) { var key = k + sd; min[key] = Math.min(min[key] == null ? 999 : min[key], j[k].v); max[key] = Math.max(max[key] == null ? -999 : max[key], j[k].v); } });
     });
@@ -1986,6 +1987,7 @@
       curName = name;
       if (host === container && def === d && raf && R.canvas.parentNode === container) return true;
       var start = d.poses[startPose(d)], keep = def === d && current;
+      if (!start || !start.pelvis) return false;   // définition incomplète : pas d'avatar plutôt qu'un plantage
       var near = current && def && def !== d && Math.abs((withY(current).pelvis.p[1]) - (withY(start).pelvis.p[1])) < 0.3 && !d.props && !(def && def.props);
       if (!keep) {
         if (near) { var from0 = current; def = d; tween = { from: from0, to: start, start: performance.now(), dur: 550, kNow: 0, limbs: limbTween(from0, start) }; }
