@@ -21,6 +21,10 @@ jobs:
             echo "== rapport de bug valide (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"auto"},"m":{"stringValue":"TEST de verification, a ignorer"},"ua":{"stringValue":"verif-github"},"v":{"stringValue":"test"}}}' "$B/bugs"
             echo "== lecture des rapports sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/bugs"
             echo "== rapport mal forme (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"pirate"},"m":{"stringValue":"x"},"ua":{"stringValue":"x"}}}' "$B/bugs"
+            P="projects/programme-kine/databases/(default)/documents"; R=$(date +%s)
+            echo "== statistiques valides (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"writes":[{"update":{"name":"'"$P"'/stats/verif-'"$R"'","fields":{"s":{"stringValue":"verif"},"v":{"stringValue":"test"},"d":{"stringValue":"autre"},"i":{"booleanValue":false},"e":{"arrayValue":{"values":[{"stringValue":"o|verif|0"}]}}}},"updateTransforms":[{"fieldPath":"t","setToServerValue":"REQUEST_TIME"}],"currentDocument":{"exists":false}}]}' "https://firestore.googleapis.com/v1/$P:commit"
+            echo "== lecture des statistiques sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/stats"
+            echo "== statistiques mal formees (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"s":{"stringValue":"x"},"nom":{"stringValue":"Jean"}}}' "$B/stats"
           } > /tmp/verif.txt 2>&1
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git checkout -q -B diag && cp /tmp/verif.txt tools/verif_firebase.txt && git add tools/verif_firebase.txt && git commit -q -m "Verif [skip ci]" && git push -q -f origin diag
