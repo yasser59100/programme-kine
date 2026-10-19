@@ -323,6 +323,7 @@ var KineCompose = (function () {
         "<b>" + esc(g[1]) + "</b><small>" + it.length + " exercice" + (it.length > 1 ? "s" : "") + "</small></button>";
     }).join("");
     root.innerHTML =
+      "<div class='community-header mx-head'><h1 class='lx-title'>Ma séance</h1></div>" +
       "<div class='mx-hero' id='mx-create'>" + (face ? "<img class='mx-face' src='" + face + "' alt=''>" : "") +
         "<div><h1>Compose ta séance</h1><p>" + all.length + " exercices animés. Tu choisis, je m'occupe de l'échauffement, des étirements et de l'ordre.</p></div>" +
         "<button class='mx-cta' onclick='KineCompose.open()'>＋ Créer une séance</button></div>" +

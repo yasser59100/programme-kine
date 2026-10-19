@@ -196,13 +196,25 @@ var KineLumiere = (function () {
      Une rangée entière s'anime (2 cases dans la Bibliothèque, 3 dans Ma séance).
      Chaque case a son propre avatar : le premier est celui de l'appli, les autres sont des copies chargées à la demande. */
   var POOL = [], poolSrc = null, slots = [], chkRaf = 0, gen = 0;
+  // Jamais plus de MAXGL Yass en 3D gardés en mémoire : on libère d'abord ceux qui ne sont plus à l'écran, du plus ancien au plus récent
+  var MAXGL = 4, USED = {};
+  function trimGL(keep) {
+    var live = POOL.map(function (A, k) { return A && A.built && A.built() ? k : -1; }).filter(function (k) { return k > 0 && k !== keep; });
+    if (live.length + 1 < MAXGL) return;
+    live.filter(function (k) { return !POOL[k].host(); }).sort(function (a, b) { return (USED[a] || 0) - (USED[b] || 0); })
+      .slice(0, live.length + 2 - MAXGL).forEach(function (k) { POOL[k].release(); });
+  }
+  // Un Yass qui n'est plus à l'écran depuis 30 s rend sa mémoire
+  setInterval(function () { var now = Date.now(); POOL.forEach(function (A, k) { if (k > 0 && A && A.built && A.built() && !A.host() && now - (USED[k] || 0) > 30000) A.release(); }); }, 15000);
   function inst(i, cb) {
     if (i === 0) return cb(window.KineAvatar || null);
-    if (POOL[i]) return cb(POOL[i]);
+    USED[i] = Date.now();
+    if (POOL[i]) { trimGL(i); return cb(POOL[i]); }
     if (!poolSrc) poolSrc = fetch("assets/js/kine-avatar.js").then(function (r) { return r.text(); }).catch(function () { return null; });
     poolSrc.then(function (src) {
       if (!src) return cb(null);
       if (!POOL[i]) { try { (new Function(src.replace("window.KineAvatar = {", "window.__kaCopy = {")))(); POOL[i] = window.__kaCopy; window.__kaCopy = null; } catch (e) { return cb(null); } }
+      trimGL(i);
       cb(POOL[i] || null);
     });
   }
@@ -378,7 +390,7 @@ var KineLumiere = (function () {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 30); }); else setTimeout(init, 30);
 
-  return { find: { q: function (v) { fq = v; findApply(); }, f: function () {} }, explainMenu: explainMenu, replay: replay, eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, go: go, menuHtml: menuHtml, loop: loop, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
+  return { find: { q: function (v) { fq = v; findApply(); }, f: function () {} }, explainMenu: explainMenu, replay: replay, eco: eco, ecoCycle: function () { var p = ecoPref(); setEco(p == null ? true : p === "1" ? false : null); }, avatar: inst, _gl: function () { return POOL.map(function (A, k) { return A && A.built() ? k + (A.host() ? '*' : '') : null; }).filter(function (x) { return x != null; }); }, go: go, menuHtml: menuHtml, loop: loop, _live: function () { return slots.map(function (x) { return x.card.getAttribute("data-n") + (x.started ? "" : "?"); }); }, check: function () { liveCheck(); }, hub: hub, settings: settings, closeSheet: closeSheet, then: function (js) { then(function () { (new Function(js))(); }); }, tab: tab, filter: filter, renderLib: renderLib };
 })();
 window.KineLumiere = KineLumiere;
 

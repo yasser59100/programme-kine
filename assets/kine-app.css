@@ -2476,3 +2476,4 @@ html.kf-typing .bottom-nav, html.kf-typing #km-peek { display: none !important; 
 @keyframes kfSndPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, .45); } 50% { box-shadow: 0 0 0 9px rgba(229, 72, 77, 0); } }
 .lu-me, .lu-gear { margin-right: 52px; }
 html.kf-typing .kf-snd { display: none; }
+#mes-root .mx-head { text-align: left; }

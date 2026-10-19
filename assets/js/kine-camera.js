@@ -604,7 +604,9 @@
       flex: mk({ LA: { ang: [172, 6, 0, 5] }, RA: { ang: [172, 6, 0, 5] } }) };
     A.register("__kbF", { camera: { yaw: 0.05, pitch: 0.05, dist: 3.5, ty: 0.95 }, start: "stand", poses: P });
     A.register("__kbP", { camera: { yaw: 1.45, pitch: 0.05, dist: 3.5, ty: 0.92 }, start: "stand", poses: P });
-    A.register("__kbC", { camera: { yaw: 1.3, pitch: 0.05, dist: 3.5, ty: 0.75 }, props: ch.props, chair: ch.chair, start: "sit", poses: ch.poses });
+    // assis-debout : bras croisés sur la poitrine, comme le test officiel (les mains ne poussent pas sur les cuisses)
+    var CP = cp(ch.poses); for (var k in CP) { CP[k].LA = { ang: [58, -35, -80, 130] }; CP[k].RA = { ang: [58, -35, -80, 130] }; }
+    A.register("__kbC", { camera: { yaw: 1.3, pitch: 0.05, dist: 3.5, ty: 0.75 }, props: ch.props, chair: ch.chair, start: "sit", poses: CP });
     A.__kbd = true; return true;
   }
   function demoSync() {

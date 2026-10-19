@@ -2039,7 +2039,7 @@ var isSpeaking = false;
 // assets/voix/manifest.json associe chaque phrase (normalisée) à un petit fichier audio.
 // Une phrase est jouée avec les enregistrements si tous ses morceaux existent ; sinon, voix du téléphone.
 function kfNorm(t) { return String(t).normalize("NFC").toLowerCase().replace(/[’]/g, "'").replace(/[^a-zà-ÿœæç0-9' ]+/g, " ").replace(/\s+/g, " ").trim(); }
-var KFV = { map: null, buf: {}, pending: {}, cur: null, base: "assets/voix/" };
+var KFV = { map: null, buf: {}, raw: {}, dec: {}, lru: [], pending: {}, cur: null, base: "assets/voix/" };
 function kfvInit() {
   if (KFV.map !== null) return;
   KFV.map = {};
@@ -2048,7 +2048,7 @@ function kfvInit() {
       .then(function (m) {
         KFV.map = (m && m.clips) || {}; if (m && m.base) KFV.base = m.base;
         if (!Object.keys(KFV.map).length) return;
-        setTimeout(function () { kfvPreloadAll("seance"); }, 2500);     // tout ce qui se dit pendant une séance
+        setTimeout(function () { kfvPreloadAll("seance"); }, 6000);   // après l'ouverture, pour ne pas la ralentir     // tout ce qui se dit pendant une séance
         // puis la mascotte, sauf en mode économie de données ou connexion lente (elle se charge alors à la demande)
         var cn = navigator.connection || {};
         if (!cn.saveData && !/2g|3g/.test(cn.effectiveType || "")) setTimeout(function () { kfvPreloadAll("mascotte"); }, 15000);
@@ -2078,20 +2078,38 @@ function kfvResolve(text) {
   }
   return out.length ? out : null;
 }
-function kfvLoad(e) {
-  if (KFV.buf[e.f] || KFV.pending[e.f]) return;
-  var ctx = getAudioCtx(); if (!ctx) return;
+// Les voix restent compressées en mémoire (quelques Mo) et ne sont décodées qu'au moment de parler.
+// Avant, tout était décodé d'avance : des centaines de Mo, de quoi faire couper le son ou la 3D sur un téléphone.
+var KFV_MAXDEC = 60;
+function kfvLoad(e, warm) {   // warm : on la met seulement dans le cache du téléphone (réponses de Yass), sans la garder en mémoire
+  if (KFV.raw[e.f] || KFV.pending[e.f]) return;
   KFV.pending[e.f] = true;
-  fetch(KFV.base + e.f).then(function (r) { return r.arrayBuffer(); })
-    .then(function (ab) { return new Promise(function (ok, ko) { ctx.decodeAudioData(ab, ok, ko); }); })
-    .then(function (b) { KFV.buf[e.f] = b; }).catch(function () {}).then(function () { delete KFV.pending[e.f]; });
+  fetch(KFV.base + e.f).then(function (r) { return r.ok ? r.arrayBuffer() : null; })
+    .then(function (ab) { if (ab && !warm) KFV.raw[e.f] = ab; }).catch(function () {}).then(function () { delete KFV.pending[e.f]; });
+}
+function kfvDecode(e) {
+  if (KFV.buf[e.f] || KFV.dec[e.f] || !KFV.raw[e.f]) return;
+  var ctx = getAudioCtx(); if (!ctx) return;
+  KFV.dec[e.f] = true;
+  new Promise(function (ok, ko) { var p = ctx.decodeAudioData(KFV.raw[e.f].slice(0), ok, ko); if (p && p.catch) p.catch(ko); })
+    .then(function (b) {
+      KFV.buf[e.f] = b; KFV.lru.push(e.f);
+      while (KFV.lru.length > KFV_MAXDEC) { var old = KFV.lru.shift(); if (old !== e.f) delete KFV.buf[old]; }
+    }).catch(function () {}).then(function () { delete KFV.dec[e.f]; });
 }
 function kfvPreloadAll(group) {
   if (!KFV.map) return;
   var keys = Object.keys(KFV.map).filter(function (k) { return !group || (KFV.map[k].g || "seance") === group; }), i = 0;
-  (function batch() { for (var n = 0; n < 12 && i < keys.length; n++, i++) kfvLoad(KFV.map[keys[i]]); if (i < keys.length) setTimeout(batch, 250); })();
+  (function batch() { for (var n = 0; n < 8 && i < keys.length; n++, i++) { var e0 = KFV.map[keys[i]]; kfvLoad(e0, (e0.g || "seance") === "mascotte"); } if (i < keys.length) setTimeout(batch, 300); })();
 }
-function kfvReady(ents) { for (var i = 0; i < ents.length; i++) if (!KFV.buf[ents[i].f]) { ents.forEach(kfvLoad); return false; } return true; }
+function kfvReady(ents) {
+  var ok = true;
+  ents.forEach(function (e) {
+    if (KFV.buf[e.f]) { var j = KFV.lru.indexOf(e.f); if (j >= 0) { KFV.lru.splice(j, 1); KFV.lru.push(e.f); } return; }
+    ok = false; if (KFV.raw[e.f]) kfvDecode(e); else kfvLoad(e);
+  });
+  return ok;
+}
 function kfvDur(ents) { var d = 0; ents.forEach(function (e, i) { d += (e.d || 1) + (i ? 0.08 : 0); }); return d; }
 function kfvPlay(ents, onend) {
   var ctx = getAudioCtx(); if (!ctx) return false;
@@ -2210,10 +2228,10 @@ function processSpeechQueue() {
   var ents = kfvResolve(text);
   // Le fichier n'est pas encore chargé : on lui laisse un court instant plutôt que de changer de voix
   // (une longue réponse de la mascotte peut attendre un peu plus : plusieurs fichiers à charger)
-  if (ents && !kfvReady(ents) && (item.waits || 0) < 6 && Date.now() - item.at < item.ttl - 400) {
+  if (ents && !kfvReady(ents) && (item.waits || 0) < 24 && Date.now() - item.at < item.ttl - 400) {
     item.waits = (item.waits || 0) + 1; if (item.prio < 2) item.ttl = Math.max(item.ttl, 3200);
     speechQueue.unshift(item); finished = true;
-    kfSpeechWatch = setTimeout(processSpeechQueue, 350);
+    kfSpeechWatch = setTimeout(processSpeechQueue, 60);   // le décodage d'une phrase prend quelques millisecondes
     return;
   }
   if (ents && kfvReady(ents) && kfvPlay(ents, function () { next(90); })) {

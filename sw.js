@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v106';
+const VERSION = 'kineforce-v107';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
@@ -131,7 +131,9 @@ self.addEventListener('fetch', function (e) {
   // Fichiers de l'appli : réseau d'abord, cache si hors connexion
   if (url.origin === self.location.origin) {
     e.respondWith(
-      fetch(req, { cache: 'no-store' }).then(function (res) { return saveCopy(req, res); }).catch(function () {
+      // « no-cache » : on demande toujours au serveur si le fichier a changé (version toujours à jour),
+      // mais s'il n'a pas bougé il répond « pas changé » en quelques octets au lieu de tout renvoyer
+      fetch(req, { cache: 'no-cache' }).then(function (res) { return saveCopy(req, res); }).catch(function () {
         return caches.match(req).then(function (hit) {
           return hit || (req.mode === 'navigate' ? caches.match('index.html') : undefined);
         });

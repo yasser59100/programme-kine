@@ -1332,7 +1332,7 @@
     try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); } catch (e) { return null; }
     // Le téléphone peut couper la 3D (mémoire pleine, appli en arrière-plan) : on reconstruit l'avatar au lieu de laisser une image figée
     canvas.addEventListener("webglcontextlost", function (e) { e.preventDefault(); lostGL = true; }, false);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, navigator.deviceMemory && navigator.deviceMemory <= 3 ? 1.5 : 2));   // petits téléphones : image un peu moins fine, beaucoup moins de mémoire
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
     renderer.outputEncoding = T.sRGBEncoding;
     renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
@@ -2016,6 +2016,15 @@
 
     pause: function (on) { paused = !!on; },
     host: function () { return host; },
+    built: function () { return !!R; },
+    // Libère la 3D d'un Yass qui n'est plus affiché (mémoire du téléphone) ; elle se recrée toute seule au prochain affichage
+    release: function () {
+      if (!R || host) return false;
+      if (raf) cancelAnimationFrame(raf); raf = 0;
+      try { R.renderer.dispose(); if (R.renderer.forceContextLoss) R.renderer.forceContextLoss(); } catch (e) {}
+      R = null; SIGN_TEX = {}; lastW = lastH = 0; lostGL = false;
+      return true;
+    },
     // Pancartes : signs({ L: "V", R: "F", hi: "V" }) ; signs(null) les range
     signs: function (o) {
       if (!R) return;
