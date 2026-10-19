@@ -5,7 +5,7 @@ service cloud.firestore {
     // Compte du kiné (connexion Google)
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email == "yasser@ladraa-kine.be"
+        && request.auth.token.email == "yasser59100@gmail.com"
         && request.auth.token.email_verified == true;
     }
 
