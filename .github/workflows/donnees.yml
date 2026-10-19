@@ -1,0 +1,39 @@
+name: Entretien des données
+on:
+  workflow_dispatch:
+    inputs:
+      tache:
+        description: "emails, purge ou stats"
+        required: true
+        default: stats
+  schedule:
+    - cron: "17 3 1 * *"   # le 1er de chaque mois : suppression des données trop anciennes
+permissions:
+  contents: write
+jobs:
+  entretien:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Entretien
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+          TACHE: ${{ github.event.inputs.tache || 'purge' }}
+        run: |
+          printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npm i -s --no-save firebase-admin@12 >/dev/null 2>&1
+          node tools/donnees.js "$TACHE" "$RUNNER_TEMP/stats.json"; code=$?
+          rm -f "$RUNNER_TEMP/sa.json"
+          if [ "$TACHE" = "stats" ] && [ -f "$RUNNER_TEMP/stats.json" ]; then
+            git config user.name "github-actions" && git config user.email "actions@github.com"
+            git fetch -q origin diag || true
+            git checkout -q -B diag origin/diag 2>/dev/null || git checkout -q -B diag
+            mkdir -p tools && cp "$RUNNER_TEMP/stats.json" tools/stats.json
+            git add tools/stats.json && git commit -q -m "Statistiques [skip ci]" && git push -q -f origin diag || true
+          fi
+          exit $code

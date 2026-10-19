@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v107';
+const VERSION = 'kineforce-v108';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
@@ -40,7 +40,7 @@ const APP_FILES = [
   'assets/js/kine-ludique.js',
   'assets/js/kine-createur.js',
   'assets/js/kine-eveil.js',
-  'assets/js/kine-fiable.js',
+  'assets/js/kine-fiable.js', 'assets/js/kine-stats.js', 'assets/js/kine-legal.js',
   'assets/kine-app.css',
   'assets/fonts/bricolage-grotesque-latin-700-normal.woff2',
   'assets/fonts/bricolage-grotesque-latin-800-normal.woff2',
@@ -68,7 +68,8 @@ const APP_FILES = [
   'assets/icons/icon-192.png',
   'assets/icons/icon-512.png'
 ];
-const STATIC_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
+const STATIC_HOSTS = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
+const STATIC = 'kineforce-static-1';   // 3D et Firebase : adresses versionnées, gardées entre les mises à jour (Yass reste là hors connexion)
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
@@ -82,7 +83,7 @@ self.addEventListener('install', function (e) {
 self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.filter(function (k) { return k !== VERSION && k !== VOIX && k !== POSE; }).map(function (k) { return caches.delete(k); }));
+      return Promise.all(keys.filter(function (k) { return k !== VERSION && k !== VOIX && k !== POSE && k !== STATIC; }).map(function (k) { return caches.delete(k); }));
     }).then(function () { return self.clients.claim(); })
   );
 });
@@ -103,7 +104,10 @@ self.addEventListener('fetch', function (e) {
   // Bibliothèque 3D et polices : ne changent pas → cache d'abord
   if (STATIC_HOSTS.indexOf(url.hostname) >= 0) {
     e.respondWith(caches.match(req).then(function (hit) {
-      return hit || fetch(req).then(function (res) { return saveCopy(req, res); });
+      return hit || fetch(req).then(function (res) {
+        if (res && res.ok && (res.type === 'basic' || res.type === 'cors')) { var c = res.clone(); caches.open(STATIC).then(function (cache) { cache.put(req, c); }); }
+        return res;
+      });
     }));
     return;
   }

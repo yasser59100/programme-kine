@@ -292,6 +292,7 @@ var KineCompose = (function () {
       "<label class='kc-check'><input type='checkbox' " + (open ? "checked " : "") + "onchange='KineCompose.reds(this.checked)'> Débloquer dès maintenant les exercices difficiles (hors zones protégées)</label>" +
       "<button class='v2-row' onclick='KineCompose.close();KineOfficiel.open()'><b>Programme officiel (tous les patients)</b><span>›</span></button>" +
       "<button class='v2-row' onclick='KineCompose.close();KineFiable.admin()'><b>Rapports de bugs</b><span>›</span></button>" +
+      "<button class='v2-row' onclick='KineCompose.close();KineStats.admin()'><b>Statistiques d'utilisation</b><span>›</span></button>" +
       "<button class='v2-row' onclick='KineCompose.resetPin()'><b>Changer le code</b><span>›</span></button></div>" +
       "<div class='kf-sheet-foot'><button class='seq-btn-secondary' onclick='KineCompose.lock()'>Verrouiller</button></div>";
     el.classList.add("open");

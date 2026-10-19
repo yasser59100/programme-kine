@@ -103,6 +103,9 @@ window.signInWithGoogle = async function() {
 
 // ── RAPPORTS DE BUGS (anonymes) ──
 window.fbReport = function (d) { d.t = serverTimestamp(); return addDoc(collection(db, "bugs"), d); };
+// Statistiques d'usage anonymes (numéro au hasard renouvelé chaque mois, aucun nom) : écriture seule, lues par le kiné
+window.fbStat = function (d) { d.t = serverTimestamp(); return addDoc(collection(db, "stats"), d); };
+window.fbStats = async function (days) { const since = new Date(Date.now() - (days || 30) * 864e5); const q = query(collection(db, "stats"), where("t", ">=", since), orderBy("t", "desc"), limit(3000)); const s = await getDocs(q); return s.docs.map(function (x) { return x.data(); }); };
 window.fbBugs = async function () { const q = query(collection(db, "bugs"), orderBy("t", "desc"), limit(60)); const s = await getDocs(q); return s.docs.map(function (x) { var o = x.data(); o.id = x.id; return o; }); };
 window.fbBugDel = function (id) { return deleteDoc(doc(db, "bugs", id)); };
 if (window.KineFiable && KineFiable.flush) setTimeout(function () { KineFiable.flush(); }, 0);
@@ -120,8 +123,7 @@ window.fbPostMessage = async function(text, extra) {
     uid: window.fbUser.uid,
     name: window.fbUser.name,
     photo: window.fbUser.photo || "",
-    email: window.fbUser.email,
-    timestamp: serverTimestamp()
+    timestamp: serverTimestamp()   // pas d'adresse e-mail : les messages sont publics
   }, extra || {});
   await addDoc(collection(db, "messages"), data);
 };
@@ -1024,7 +1026,7 @@ window.fbGetStats = async function() {
   <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg></span><span>Communauté</span></button>
 </nav>
 
-<div class="signature">Programme établi par <strong>Yasser Ladraa, Kinésithérapeute</strong>, Renforcement musculaire poids du corps, Cycle 4 semaines, Usage thérapeutique post-hospitalisation</div>
+<div class="signature">Programme établi par <strong>Yasser Ladraa, Kinésithérapeute</strong>, Renforcement musculaire poids du corps, Cycle 4 semaines, Usage thérapeutique post-hospitalisation<span class="klg-foot">Ne remplace pas un avis médical. Arrête en cas de douleur vive. <button type="button" onclick="KineLegal.open('sante')">Santé et confidentialité</button></span></div>
 
 <script>
 // Early global stubs — ensure onclick handlers work before full script loads
@@ -3705,5 +3707,7 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-installer.js" defer></script>
 <script src="assets/js/kine-scenes.js" defer></script>
 <script src="assets/js/kine-ludique.js" defer></script>
+<script src="assets/js/kine-stats.js" defer></script>
+<script src="assets/js/kine-legal.js" defer></script>
 </body>
 </html>

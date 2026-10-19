@@ -2477,3 +2477,29 @@ html.kf-typing .bottom-nav, html.kf-typing #km-peek { display: none !important; 
 .lu-me, .lu-gear { margin-right: 52px; }
 html.kf-typing .kf-snd { display: none; }
 #mes-root .mx-head { text-align: left; }
+
+/* Santé, confidentialité et mentions légales */
+.klg .klg-nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 4px; }
+.klg .klg-nav button { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 999px; padding: 8px 14px; font: 700 .82rem var(--lu-head, inherit); }
+.klg-sec { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 16px 16px 6px; }
+.klg-sec h3 { margin: 0 0 8px; font: 800 1.12rem/1.2 var(--lu-head, inherit); letter-spacing: -.02em; color: var(--text); }
+.klg-sec h4 { margin: 14px 0 4px; font-size: .9rem; color: var(--text); }
+.klg-sec p, .klg-sec li { margin: 0 0 10px; font-size: .9rem; line-height: 1.5; color: var(--text2); }
+.klg-sec ul { margin: 0 0 6px; padding-left: 18px; }
+.klg-sec a { color: var(--lu-ind, #4B5BFF); font-weight: 700; }
+.klg-del { width: 100%; margin: 4px 0 12px; padding: 14px; border-radius: 16px; border: 1px solid #E5484D; background: #fff; color: #C2292E; font-weight: 800; font-size: .92rem; }
+.klg-del.sure { background: #E5484D; color: #fff; }
+.klg-foot { display: block; margin: 18px auto 0; text-align: center; font-size: .78rem; color: var(--text3); }
+.klg-foot button { border: 0; background: none; color: inherit; text-decoration: underline; font: inherit; padding: 4px; }
+
+/* Statistiques (kiné) */
+.kst-kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.kst-kpis div { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 12px 14px; }
+.kst-kpis b { display: block; font: 800 1.6rem/1 var(--lu-head, inherit); color: var(--text); letter-spacing: -.03em; }
+.kst-kpis small { font-size: .76rem; color: var(--text3); font-weight: 600; }
+.kst-blk { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 14px; }
+.kst-blk h3 { margin: 0 0 8px; font-size: .92rem; color: var(--text); }
+.kst-row { position: relative; display: flex; justify-content: space-between; gap: 10px; padding: 7px 10px; margin-bottom: 4px; border-radius: 10px; overflow: hidden; font-size: .86rem; color: var(--text); }
+.kst-row span, .kst-row b { position: relative; z-index: 1; }
+.kst-row i { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(75, 91, 255, .10); border-radius: 10px; }
+.kst-none { margin: 0 0 4px; font-size: .86rem; color: var(--text3); }

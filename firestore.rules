@@ -50,6 +50,19 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // Statistiques d'usage anonymes (numéro au hasard renouvelé chaque mois) : écriture seule, lues seulement par le kiné
+    match /stats/{id} {
+      allow read, delete: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['s', 'v', 'd', 'i', 'e', 't'])
+        && request.resource.data.s is string && request.resource.data.s.size() <= 20
+        && request.resource.data.v is string && request.resource.data.v.size() <= 30
+        && request.resource.data.d in ['ios', 'android', 'autre']
+        && request.resource.data.i is bool
+        && request.resource.data.e is list && request.resource.data.e.size() <= 40
+        && request.resource.data.t == request.time;
+      allow update: if false;
+    }
+
     // Abonnements aux notifications : chaque téléphone écrit le sien, personne ne peut les lire
     match /push/{id} {
       allow read: if false;
