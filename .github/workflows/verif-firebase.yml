@@ -25,6 +25,7 @@ jobs:
             echo "== statistiques valides (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"writes":[{"update":{"name":"'"$P"'/stats/verif-'"$R"'","fields":{"s":{"stringValue":"verif"},"v":{"stringValue":"test"},"d":{"stringValue":"autre"},"i":{"booleanValue":false},"e":{"arrayValue":{"values":[{"stringValue":"o|verif|0"}]}}}},"updateTransforms":[{"fieldPath":"t","setToServerValue":"REQUEST_TIME"}],"currentDocument":{"exists":false}}]}' "https://firestore.googleapis.com/v1/$P:commit"
             echo "== lecture des statistiques sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/stats"
             echo "== statistiques mal formees (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"s":{"stringValue":"x"},"nom":{"stringValue":"Jean"}}}' "$B/stats"
+            echo "== messages publics contenant un e-mail (doit etre 0)"; curl -s "$B/messages?pageSize=300" | grep -c '"email"' || true
           } > /tmp/verif.txt 2>&1
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git checkout -q -B diag && cp /tmp/verif.txt tools/verif_firebase.txt && git add tools/verif_firebase.txt && git commit -q -m "Verif [skip ci]" && git push -q -f origin diag
