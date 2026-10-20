@@ -1978,9 +1978,9 @@
   }
   function placeCamera(d0, yaw) {
     var c = d0.camera || {};
-    var d = c.dist || 4.1, pitch = c.pitch || 0.15, ty = c.ty != null ? c.ty : 0.88, tz = c.tz || 0;
-    R.camera.position.set(d * Math.sin(yaw) * Math.cos(pitch), ty + d * Math.sin(pitch), tz + d * Math.cos(yaw) * Math.cos(pitch));
-    R.camera.lookAt(0, ty, tz);
+    var d = c.dist || 4.1, pitch = c.pitch || 0.15, ty = c.ty != null ? c.ty : 0.88, tz = c.tz || 0, tx = (c.tx || 0) * (curSideSign || 1);
+    R.camera.position.set(tx + d * Math.sin(yaw) * Math.cos(pitch), ty + d * Math.sin(pitch), tz + d * Math.cos(yaw) * Math.cos(pitch));
+    R.camera.lookAt(tx, ty, tz);
   }
   function resize() {
     var w = R.canvas.clientWidth, h = R.canvas.clientHeight;
@@ -2115,6 +2115,32 @@
       return { img: url, legs: legs, arms: armsPts, shoulder: [(shp.x + 1) / 2 * size, (1 - shp.y) / 2 * size] };
     },
 
+    // Contrôle 3D d'une pose (outil de mise au point) : positions des articulations, du rouleau, et rendu sous un angle libre
+    _pose3d: function (name, poseName, side, cam, px) {
+      var d = EX[name]; if (!d || !d.poses || !window.THREE) return null;
+      if (!R) { R = build(); if (!R) return null; }
+      var T = R.T, p = d.poses[poseName]; if (side === "R") p = mirror(p);
+      for (var k0 in R.props) R.props[k0].visible = (d.props || []).indexOf(k0) >= 0;
+      var d0 = def; def = d; showLoad(d, side === "R" ? "R" : "L"); applyPose(p); R.pelvis.updateMatrixWorld(true); R.scene.updateMatrixWorld(true);
+      var W = function (g, lx, ly, lz) { var v = new T.Vector3(lx || 0, ly || 0, lz || 0); g.localToWorld(v); return [+v.x.toFixed(3), +v.y.toFixed(3), +v.z.toFixed(3)]; };
+      var out = { pelvis: W(R.pelvis), chest: W(R.spine, 0, 0.3, 0), neck: W(R.spine, 0, LEN.shY, 0), head: W(R.head, 0, 0.12, 0) };
+      ["L", "R"].forEach(function (s2) {
+        var g = R.legs[s2], a = R.arms[s2];
+        out[s2] = { hip: W(g.hip), knee: W(g.knee), ankle: W(g.ankle), toe: W(g.ankle, 0, -0.06, 0.17) };
+        out[s2 + "A"] = { sh: W(a.sh), el: W(a.el), hand: W(a.el, 0, -LEN.fore, 0) };
+      });
+      var ro = R.props.roller; if (ro && ro.visible) { var spin = ro.userData.spin; out.roller = { a: W(spin, 0, -0.45, 0), b: W(spin, 0, 0.45, 0), r: 0.075 }; }
+      var img = null;
+      if (cam) {
+        var size = px || 420; R.renderer.setSize(size, size, false); R.camera.aspect = 1; R.camera.updateProjectionMatrix();
+        var c = cam, dd = c.dist || 3.4, yw = c.yaw || 0, pt = c.pitch || 0.2, ty = c.ty != null ? c.ty : 0.4, tz = c.tz || 0, tx = c.tx || 0;
+        R.camera.position.set(tx + dd * Math.sin(yw) * Math.cos(pt), ty + dd * Math.sin(pt), tz + dd * Math.cos(yw) * Math.cos(pt)); R.camera.lookAt(tx, ty, tz);
+        R.renderer.render(R.scene, R.camera); img = R.canvas.toDataURL("image/png");
+      }
+      def = d0; if (def) { for (var k2 in R.props) R.props[k2].visible = (def.props || []).indexOf(k2) >= 0; showLoad(def, curSide); applyPose(current); }
+      lastW = 0; if (host) resize();
+      out.img = img; return out;
+    },
     // Mesure des angles articulaires d'une pose (contrôle des amplitudes)
     // Contrôle qualité : genou qui ne pointe pas dans l'axe du pied (rotation de hanche anormale) — pour les tests
     _audit: function () {
