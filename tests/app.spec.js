@@ -86,6 +86,8 @@ test("caméra, bilan et réglages", async ({ page }, info) => {
 
 test("programmes ciblés et journal de course", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
+  // sans Firebase : le programme réellement publié par le kiné ne doit pas fausser le test
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
   await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
   // masqués par défaut : un patient ne voit aucun programme ciblé
   expect(await page.evaluate(() => KineTheme.available())).toEqual([]);
