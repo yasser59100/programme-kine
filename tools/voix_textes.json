@@ -6174,5 +6174,85 @@
  {
   "t": "Récupération terminée.",
   "g": "seance"
+ },
+ {
+  "t": "Inclinaison de la nuque",
+  "g": "seance"
+ },
+ {
+  "t": "Assis, tenez la chaise d'une main. Penchez l'oreille vers l'épaule opposée, sans tourner la tête.",
+  "g": "seance"
+ },
+ {
+  "t": "Arrière de l'épaule, bras croisé",
+  "g": "seance"
+ },
+ {
+  "t": "Bras tendu devant la poitrine, l'autre main ramène le coude vers vous.",
+  "g": "seance"
+ },
+ {
+  "t": "Avant-bras, paume vers l'avant",
+  "g": "seance"
+ },
+ {
+  "t": "Bras tendu, doigts vers le bas : l'autre main tire doucement les doigts vers vous.",
+  "g": "seance"
+ },
+ {
+  "t": "Inclinaison latérale debout",
+  "g": "seance"
+ },
+ {
+  "t": "Un bras au-dessus de la tête, penchez-vous sur le côté sans basculer en avant.",
+  "g": "seance"
+ },
+ {
+  "t": "Genoux à la poitrine",
+  "g": "seance"
+ },
+ {
+  "t": "Sur le dos, ramenez les genoux vers la poitrine. Le bas du dos reste au sol.",
+  "g": "seance"
+ },
+ {
+  "t": "Fessier allongé, genou vers l'épaule opposée",
+  "g": "seance"
+ },
+ {
+  "t": "Sur le dos, ramenez le genou vers l'épaule opposée avec les deux mains.",
+  "g": "seance"
+ },
+ {
+  "t": "Fessier assis sur une chaise",
+  "g": "seance"
+ },
+ {
+  "t": "Cheville sur le genou opposé, dos droit, penchez le buste en avant.",
+  "g": "seance"
+ },
+ {
+  "t": "Papillon assis",
+  "g": "seance"
+ },
+ {
+  "t": "Plantes des pieds jointes, dos droit, laissez les genoux descendre.",
+  "g": "seance"
+ },
+ {
+  "t": "Ischio-jambiers debout, talon sur une marche",
+  "g": "seance"
+ },
+ {
+  "t": "Jambe tendue, pointe du pied vers vous, penchez le buste dos droit.",
+  "g": "seance"
+ },
+ {
+  "t": "Soléaire contre le mur",
+  "g": "seance"
+ },
+ {
+  "t": "Comme pour le mollet, mais genou arrière plié, talon au sol.",
+  "g": "seance"
  }
 ]
