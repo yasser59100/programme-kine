@@ -516,7 +516,7 @@ var KineTheme = (function () {
   // Accueil : on change de programme d'un toucher, sans passer par l'onglet Exercices
   function homeSwitchHtml() {
     if (!active() && !available().length) return "";
-    return "<div class='th-switch th-home'><div class='th-sw-h'><span>Mon programme</span>" + (active() ? "<button onclick='KineTheme.info()'>Comprendre</button>" : "") + "</div>" + pillsHtml() + "</div>";
+    return "<div class='th-switch th-home'><div class='th-sw-h'><span>Mon programme</span></div>" + pillsHtml() + "</div>";
   }
   // Petite étiquette du mode en cours, en haut de l'accueil
   function chipHtml() {
