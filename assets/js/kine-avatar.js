@@ -1731,6 +1731,11 @@
       st.quaternion.copy(qb).multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0, 0, 1), Math.PI / 2));
       st.scale.set(1, 1.25, 1); st.visible = true; return;
     }
+    if (tool === "cane") {   // canne tenue dans la main droite, posée au sol un peu devant
+      var cH = bandEnd("RH", "L"); cH = cH.c || cH.p;
+      var foot = new T.Vector3(cH.x, 0, cH.z + 0.1), cd = cH.clone().sub(foot), cl = Math.max(0.1, cd.length()), cs = R.tools.stick;
+      cs.position.copy(cH.clone().add(foot).multiplyScalar(0.5)); cs.scale.set(1.4, cl, 1.4); cs.quaternion.setFromUnitVectors(Y, cd.normalize()); cs.visible = true; return;
+    }
     if (tool === "ballKnees") {
       var b = R.tools.ball, kL = w(R.legs.L.knee), kR = w(R.legs.R.knee);
       b.visible = true; b.position.copy(kL.add(kR).multiplyScalar(0.5)); b.scale.set(0.8, 0.8, 0.8);

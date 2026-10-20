@@ -282,35 +282,67 @@ var KineTheme = (function () {
   }
   // L'interface prend la couleur du programme
   function mark() { var id = active(); document.documentElement.setAttribute("data-mode", id || "general"); }
-  // Mode coureur : Yass traverse l'écran en courant, jambes en roue de dessin animé, et laisse une traînée de feu
-  function runFx(el) {
+  // Chaque mode a sa petite scène : Yass traverse l'écran (en courant, avec une canne, en boitant, à cloche-pied, en marchant)
+  // et un effet le suit (feu, éclairs de douleur au dos, au genou ou à la cheville, étincelles)
+  var SCENE = {
+    coureur: { img: "course", n: 12, cyc: 0.42, dur: 1500, fx: "fire" },
+    dos: { img: "mode-dos", n: 12, cyc: 1.15, dur: 2300, fx: "bolt", at: [0.42, 0.46] },
+    genou: { img: "mode-genou", n: 12, cyc: 0.95, dur: 2100, fx: "bolt", at: [0.47, 0.71] },
+    cheville: { img: "mode-cheville", n: 10, cyc: 0.55, dur: 1900, fx: "bolt", at: [0.34, 0.79] },
+    general: { img: "mode-general", n: 12, cyc: 0.8, dur: 1700, fx: "spark" }
+  };
+  function sceneFx(el, id) {
+    var C = SCENE[id]; if (!C) return null;
     var cv = document.createElement("canvas"), y = document.createElement("div");
     cv.className = "th-fire"; y.className = "th-runner"; el.insertBefore(cv, el.firstChild); el.appendChild(y);
+    y.style.backgroundImage = "url(assets/lumiere/yass-anim/" + C.img + ".webp)"; y.style.backgroundSize = (C.n * 100) + "% 100%";
+    y.style.setProperty("--bpx", (C.n / (C.n - 1) * 100) + "%"); y.style.animation = "thRun " + C.cyc + "s steps(" + C.n + ") infinite";
     var W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1), c = cv.getContext("2d");
     cv.width = W * dpr; cv.height = H * dpr; c.scale(dpr, dpr);
-    var S = Math.min(220, W * 0.55), y0 = H * 0.5 - S * 0.62, t0 = performance.now(), dur = 1500, P = [], raf = 0, alive = true;
+    var S = Math.min(260, W * 0.66), y0 = H * 0.5 - S * 0.62, t0 = performance.now(), P = [], B = [], raf = 0, alive = true, lastBolt = 0;
     y.style.width = y.style.height = S + "px"; y.style.top = y0 + "px";
+    function bolt(x, yy) {   // un éclair en zigzag qui part du point douloureux
+      var a = Math.random() * Math.PI * 2, L = 26 + Math.random() * 34, pts = [[x, yy]], n = 5;
+      for (var i = 1; i <= n; i++) { var d = L * i / n, j = (i < n ? (Math.random() - 0.5) * 16 : 0); pts.push([x + Math.cos(a) * d - Math.sin(a) * j, yy + Math.sin(a) * d + Math.cos(a) * j]); }
+      B.push({ p: pts, l: 1 });
+    }
     function frame(now) {
       if (!alive) return;
-      var t = (now - t0) / dur, k = Math.min(1, t), x = -S + (W + 2 * S) * (k < 0.5 ? 2 * k * k * 0.6 + k * 0.4 : k);
+      var t = (now - t0) / C.dur, k = Math.min(1, t), x = -S + (W + 2 * S) * k;
+      if (C.fx === "fire") x = -S + (W + 2 * S) * (k < 0.5 ? 2 * k * k * 0.6 + k * 0.4 : k);
       y.style.transform = "translateX(" + x + "px)"; if (k >= 1) y.style.display = "none";
-      // flammes : nées aux pieds et dans le dos de Yass tant qu'il court
-      if (t < 1.02) for (var n = 0; n < 8; n++) P.push({ x: x + S * (0.2 + Math.random() * 0.3), y: y0 + S * (0.8 + Math.random() * 0.14), vx: -(0.4 + Math.random() * 1.6), vy: -(1.2 + Math.random() * 3.2), w: Math.random() * 6.28, r: 5 + Math.random() * 11, l: 1, d: 0.014 + Math.random() * 0.02 });
-      c.clearRect(0, 0, W, H); c.globalCompositeOperation = "lighter";
+      c.clearRect(0, 0, W, H);
+      if (C.fx === "fire" && t < 1.02) for (var n = 0; n < 8; n++) P.push({ x: x + S * (0.2 + Math.random() * 0.3), y: y0 + S * (0.8 + Math.random() * 0.14), vx: -(0.4 + Math.random() * 1.6), vy: -(1.2 + Math.random() * 3.2), w: Math.random() * 6.28, r: 5 + Math.random() * 11, l: 1, d: 0.014 + Math.random() * 0.02, k: "f" });
+      if (C.fx === "spark" && t < 1.02) for (var m = 0; m < 3; m++) P.push({ x: x + S * (0.3 + Math.random() * 0.2), y: y0 + S * (0.3 + Math.random() * 0.6), vx: -(0.5 + Math.random()), vy: (Math.random() - 0.5) * 0.8, w: 0, r: 2 + Math.random() * 3.5, l: 1, d: 0.018 + Math.random() * 0.02, k: "s" });
+      if (C.fx === "bolt" && t < 1) {
+        var ax = x + S * C.at[0], ay = y0 + S * C.at[1];
+        if (now - lastBolt > 85) { lastBolt = now; bolt(ax, ay); if (Math.random() < 0.6) bolt(ax, ay); }
+        var pr = (now / 380) % 1;   // onde de douleur qui pulse
+        c.globalCompositeOperation = "source-over";
+        c.strokeStyle = "rgba(255,60,70," + (0.55 * (1 - pr)) + ")"; c.lineWidth = 3; c.beginPath(); c.arc(ax, ay, 8 + 26 * pr, 0, Math.PI * 2); c.stroke();
+        var g0 = c.createRadialGradient(ax, ay, 0, ax, ay, 22); g0.addColorStop(0, "rgba(255,70,70,.75)"); g0.addColorStop(1, "rgba(255,70,70,0)");
+        c.fillStyle = g0; c.beginPath(); c.arc(ax, ay, 22, 0, Math.PI * 2); c.fill();
+      }
+      c.globalCompositeOperation = "lighter";
       for (var i = P.length - 1; i >= 0; i--) {
-        var p = P[i]; p.w += 0.25; p.x += p.vx + Math.sin(p.w) * 0.8; p.y += p.vy; p.vy -= 0.04; p.l -= p.d; p.r *= 0.975;   // les flammes montent en ondulant
+        var p = P[i]; p.w += 0.25; p.x += p.vx + (p.k === "f" ? Math.sin(p.w) * 0.8 : 0); p.y += p.vy; if (p.k === "f") p.vy -= 0.04; p.l -= p.d; p.r *= p.k === "f" ? 0.975 : 0.99;
         if (p.l <= 0) { P.splice(i, 1); continue; }
-        var g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2);
-        var a = p.l, hot = p.l > 0.6;
-        g.addColorStop(0, hot ? "rgba(255,240,170," + a + ")" : "rgba(255,170,60," + a + ")");
-        g.addColorStop(0.45, "rgba(255,110,30," + a * 0.75 + ")");
-        g.addColorStop(1, "rgba(220,30,40,0)");
+        var g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2), a = p.l;
+        if (p.k === "f") { g.addColorStop(0, p.l > 0.6 ? "rgba(255,240,170," + a + ")" : "rgba(255,170,60," + a + ")"); g.addColorStop(0.45, "rgba(255,110,30," + a * 0.75 + ")"); g.addColorStop(1, "rgba(220,30,40,0)"); }
+        else { g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.4, "rgba(120,140,255," + a * 0.8 + ")"); g.addColorStop(1, "rgba(80,100,255,0)"); }
         c.fillStyle = g; c.beginPath(); c.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2); c.fill();
       }
-      if (t < 1.02 || P.length) raf = requestAnimationFrame(frame); else cv.remove();
+      for (var j = B.length - 1; j >= 0; j--) {
+        var b = B[j]; b.l -= 0.12; if (b.l <= 0) { B.splice(j, 1); continue; }
+        c.lineJoin = "round"; c.lineCap = "round";
+        [[7, "rgba(255,90,60," + 0.45 * b.l + ")"], [3.2, "rgba(255,225,80," + b.l + ")"], [1.2, "rgba(255,255,255," + b.l + ")"]].forEach(function (st) {
+          c.lineWidth = st[0]; c.strokeStyle = st[1]; c.beginPath(); b.p.forEach(function (q, qi) { if (qi) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.stroke();
+        });
+      }
+      if (t < 1.02 || P.length || B.length) raf = requestAnimationFrame(frame); else cv.remove();
     }
     raf = requestAnimationFrame(frame);
-    return function () { alive = false; cancelAnimationFrame(raf); };
+    return { stop: function () { alive = false; cancelAnimationFrame(raf); }, lead: C.dur };
   }
   // Animation au centre de l'écran quand on change de programme
   function fx(id) {
@@ -326,7 +358,10 @@ var KineTheme = (function () {
     var stop = null, done = function () { if (stop) stop(); el.classList.add("out"); setTimeout(function () { el.remove(); }, 450); };
     el.onclick = done;
     var lead = 0;
-    if (id === "coureur" && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) { el.classList.add("run"); stop = runFx(el); lead = 1500; }
+    if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+      var sc = sceneFx(el, id);
+      if (sc) { el.classList.add("run"); el.style.setProperty("--lead", (sc.lead - 150) / 1000 + "s"); stop = sc.stop; lead = sc.lead; }
+    }
     setTimeout(done, lead + (first ? 3200 : 1700));
     if (first) { seen[id] = 1; try { localStorage.setItem("kf-mode-seen", JSON.stringify(seen)); } catch (e) {} }
   }

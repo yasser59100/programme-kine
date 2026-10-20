@@ -2695,9 +2695,9 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 @keyframes thFxLine { from { transform: translateX(0); } to { transform: translateX(300%); } }
 @media (prefers-reduced-motion: reduce) { .th-fx, .th-fx-in, .th-fx-ic, .th-fx-lines i { animation-duration: .01s !important; } }
 /* mode coureur : Yass traverse l'écran en laissant du feu, puis la carte apparaît */
-.th-fx.run .th-fx-in { animation-delay: 1.35s; }
-.th-fx.run .th-fx-lines i { animation-delay: 1.3s; }
+.th-fx.run .th-fx-in { animation-delay: var(--lead, 1.35s); }
+.th-fx.run .th-fx-lines i { animation-delay: var(--lead, 1.3s); }
 .th-fire { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.th-runner { position: absolute; left: 0; pointer-events: none; background: url(lumiere/yass-anim/course.webp) 0 0 / 1200% 100% no-repeat; animation: thRun .42s steps(12) infinite; filter: drop-shadow(0 10px 12px rgba(0,0,0,.35)); }
-@keyframes thRun { to { background-position: 109.0909% 0; } }
+.th-runner { position: absolute; left: 0; pointer-events: none; background: 0 0 / 1200% 100% no-repeat; filter: drop-shadow(0 10px 12px rgba(0,0,0,.35)); }
+@keyframes thRun { to { background-position: var(--bpx, 109.0909%) 0; } }
 @keyframes thRunOut { to { opacity: 0; } }
