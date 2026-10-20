@@ -201,14 +201,9 @@ var KineTheme = (function () {
   };
   var ORDER = ["coureur", "genou", "dos", "cheville"];
   // Identité de chaque mode : pictogramme (traits), couleurs, phrase d'accueil
-  var SV = function (p) { return "<svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" + p + "</svg>"; };
-  var ICON = {
-    general: SV("<circle cx='24' cy='9' r='4.5'/><path d='M24 15v15M14 21l10 3 10-3M18 44l6-14 6 14'/>"),
-    coureur: SV("<circle cx='30' cy='8' r='4.5'/><path d='M27 15l-7 9 8 5-3 12M20 24l-8-2M27 15l7 7 8-1M28 29l9 8'/><path d='M4 30h7M2 37h8' opacity='.55'/>"),
-    genou: SV("<path d='M18 4l4 18M30 44l-6-20'/><circle cx='24' cy='23' r='5.5'/><path d='M14 23h-6M40 23h-6' opacity='.55'/>"),
-    dos: SV("<rect x='19' y='4' width='10' height='7' rx='3'/><rect x='18' y='14' width='12' height='7' rx='3'/><rect x='18' y='24' width='12' height='7' rx='3'/><rect x='19' y='34' width='10' height='8' rx='3'/>"),
-    cheville: SV("<path d='M20 4v20c0 6-2 10-8 13l-4 3c-2 2-1 5 2 5h24c3 0 4-3 3-6l-3-6c-1-3-2-6-2-9V4'/><circle cx='27' cy='29' r='2.5'/>")
-  };
+  // Pictogramme de chaque mode : Yass lui-même, tiré de son animation (il court, marche avec sa canne, boite, tient sa cheville…)
+  var ICON = {};
+  ["general", "coureur", "genou", "dos", "cheville"].forEach(function (k) { ICON[k] = "<img class='th-yimg' src='assets/lumiere/yass-anim/ic-" + k + ".webp' alt=''>"; });
   var MODE = {
     coureur: { a: "#FF5A36", b: "#E2304F", hi: "Mode coureur activé", sub: "2 séances par semaine et votre journal de course" },
     genou: { a: "#14B8A6", b: "#0B7F8C", hi: "Programme genou activé", sub: "Calmer, renforcer, puis reprendre vos activités" },
