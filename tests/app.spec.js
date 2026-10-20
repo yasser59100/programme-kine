@@ -94,7 +94,7 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
   expect(await page.evaluate(() => Object.keys(SEQ_DAYS))).toEqual(["c0", "c1"]);
   expect(await page.evaluate(() => SEQ_DAYS.c1.exercises.map(e => e.name))).toContain("Petits sauts sur place");
   await page.evaluate(() => showPage("guide")); await page.waitForTimeout(900);
-  await expect(page.locator(".th-pill.on")).toContainText("Coureur"); await shot(page, info, "7-programme-coureur");
+  await expect(page.locator("#prog-v2 .th-pill.on")).toContainText("Coureur"); await expect(page.locator("#today-card .th-pill.on")).toContainText("Coureur"); await shot(page, info, "7-programme-coureur");
   await page.evaluate(() => { KineCourse.open(); KineCourse.add(); });
   await page.locator("#kco-km").fill("6,5"); await page.locator("#kco-sheet .seq-btn-main").click();
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kf-runs"))[0].km)).toBe(6.5);
