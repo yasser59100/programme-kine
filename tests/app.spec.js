@@ -83,3 +83,25 @@ test("caméra, bilan et réglages", async ({ page }, info) => {
   await page.evaluate(() => KineFiable.open()); await page.waitForTimeout(500); await shot(page, info, "10-signaler");
   await clean(errs);
 });
+
+test("programmes ciblés et journal de course", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  // masqués par défaut : un patient ne voit aucun programme ciblé
+  expect(await page.evaluate(() => KineTheme.available())).toEqual([]);
+  // le kiné en rend un visible (programme publié), le patient le choisit
+  await page.evaluate(() => { KineOfficiel.apply({ v: 1, ex: {}, days: {}, themes: { coureur: true } }); KineTheme.choose("coureur"); });
+  expect(await page.evaluate(() => Object.keys(SEQ_DAYS))).toEqual(["c0", "c1"]);
+  expect(await page.evaluate(() => SEQ_DAYS.c1.exercises.map(e => e.name))).toContain("Petits sauts sur place");
+  await page.evaluate(() => showPage("guide")); await page.waitForTimeout(900);
+  await expect(page.locator(".th-banner")).toBeVisible(); await shot(page, info, "7-programme-coureur");
+  await page.evaluate(() => { KineCourse.open(); KineCourse.add(); });
+  await page.locator("#kco-km").fill("6,5"); await page.locator("#kco-sheet .seq-btn-main").click();
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kf-runs"))[0].km)).toBe(6.5);
+  await shot(page, info, "8-journal-course");
+  // le kiné le masque : retour automatique au programme général
+  await page.evaluate(() => { KineCourse.close(); KineOfficiel.apply({ v: 2, ex: {}, days: {}, themes: {} }); });
+  expect(await page.evaluate(() => [KineTheme.active(), Object.keys(SEQ_DAYS).length])).toEqual([null, 5]);
+  await page.evaluate(() => { KineOfficiel.apply({ v: 3, ex: {}, days: {}, themes: { cheville: true } }); KineTheme.choose("cheville"); launchSeq("e0"); });
+  await clean(errs);
+});

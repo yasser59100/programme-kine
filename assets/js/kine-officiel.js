@@ -68,6 +68,7 @@ var KineOfficiel = (function () {
       if (o.err && window.KineMascotte && KineMascotte.errors) { if (!(n in ORIG_ERR)) ORIG_ERR[n] = KineMascotte.errors[n] || ""; KineMascotte.errors[n] = o.err; }
     });
     if (window.KineBiblio && KineBiblio.reset) KineBiblio.reset();
+    if (window.KineTheme) KineTheme.apply();   // programme ciblé choisi par le patient : ses séances remplacent les 5 séances
   }
   function rerender() {
     try { if (typeof renderAll === "function") renderAll(); } catch (e) {}
@@ -173,6 +174,7 @@ var KineOfficiel = (function () {
       }).join("") +
       "<button class='v2-row kc-new' onclick='KineCapture.open()'><b>＋ Créer un exercice en me filmant</b><span>›</span></button>" +
       "<button class='v2-row kc-new' onclick='KineCreateur.open()'><b>＋ Créer un exercice avec les curseurs</b><span>›</span></button>" +
+      (window.KineTheme ? "<div class='kf-phase' style='color:var(--text2)'>Programmes ciblés</div><div class='kf-sub'>Masqués par défaut. Cochez ceux que tous vos patients peuvent choisir, puis publiez.</div>" + KineTheme.adminHtml(d.themes || {}) : "") +
       "<div class='kf-phase' style='color:var(--text2)'>Fiches d'exercices</div>" +
       "<button class='v2-row' onclick='KineOfficiel.lib()'><b>Toutes les fiches de la bibliothèque</b><span>›</span></button>" +
       (changed() ? "<div class='kf-note'>Des modifications ne sont pas encore publiées.</div><button class='kc-kine' onclick='KineOfficiel.discard()'>Annuler les modifications non publiées</button>" : ""),
@@ -269,6 +271,9 @@ var KineOfficiel = (function () {
     lib: function () { go(lib); }, edit: edit, saveEx: saveEx, publish: publish,
     discard: function () { jset(DKEY, null); home(); },
     customs: function () { return (data && data.custom) || {}; },
+    asExercise: function (n) { return asExercise(n); }, reapply: function () { apply(data); },
+    themes: function () { return (data && data.themes) || {}; },
+    theme: function (id, on) { var d = draft(); d.themes = d.themes || {}; if (on) d.themes[id] = true; else delete d.themes[id]; saveDraft(d); var el = sheet(), y = el.scrollTop; home(); el.scrollTop = y; },
     customDraft: function () { return draft().custom || {}; },
     saveCustom: function (x, oldName) {
       var d = draft(), n = x.fiche.name; d.custom = d.custom || {};

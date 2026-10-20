@@ -153,9 +153,11 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     "Équilibre unipodal": "Fixez un point devant vous, bougez doucement les bras."
   };
   window.KF_CUES = CUES;
-  window.KF = { kitFor: function (d) { return kitFor(d); }, tempoText: function (e) { return tempoText(e); }, get DAY_OF_WEEK() { return DAY_OF_WEEK; }, week: function () { return week(); } };
+  window.KF = { kitFor: function (d) { return kitFor(d); }, tempoText: function (e) { return tempoText(e); }, get DAY_OF_WEEK() { return dowMap(); }, week: function () { return week(); } };
 
   var DAY_OF_WEEK = { 1: "day0", 2: "day1", 3: "day2", 5: "day3", 6: "day4" }; // Lun J1 … Sam J5
+  // Programme ciblé choisi (coureur, genou…) : ses propres jours de séance
+  function dowMap() { var m = window.KineTheme && KineTheme.schedule(); return m || DAY_OF_WEEK; }
   var WEEKDAYS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   var PHASES = { warm: ["Échauffement", "var(--amber)"], work: ["Renforcement", "var(--blue)"], cool: ["Retour au calme", "var(--green)"] };
   var BORG = [null, ["Très facile"], ["Facile"], ["Modéré"], ["Difficile"], ["Épuisant"]];
@@ -205,7 +207,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var box = $("today-card");
     if (!box || typeof SEQ_DAYS === "undefined") return;
     var page = $("page-home"); if (page) page.classList.add("v2");
-    var now = new Date(), dow = now.getDay(), todayId = DAY_OF_WEEK[dow], w = KineProgress.week();
+    var now = new Date(), dow = now.getDay(), todayId = dowMap()[dow], w = KineProgress.week();
     var list = typeof sessions !== "undefined" ? sessions : [];
     var mon = mondayISO(), todayISO = now.toISOString().slice(0, 10);
     var doneWeek = list.filter(function (s) { return s.date && s.date >= mon; });
@@ -213,7 +215,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
 
     var targetId = todayId, kicker = "Séance du jour";
     if (!todayId) {
-      for (var i = 1; i <= 7; i++) { var n = DAY_OF_WEEK[(dow + i) % 7]; if (n) { targetId = n; kicker = "Aujourd'hui : repos, prochaine séance " + WEEKDAYS[(dow + i) % 7]; break; } }
+      for (var i = 1; i <= 7; i++) { var n = dowMap()[(dow + i) % 7]; if (n) { targetId = n; kicker = "Aujourd'hui : repos, prochaine séance " + WEEKDAYS[(dow + i) % 7]; break; } }
     }
     var day = SEQ_DAYS[targetId], code = day.label.split(" — ")[0];
     var doneToday = todayId && list.some(function (s) { return s.date === todayISO && String(s.seance || "").indexOf(code) === 0; });
@@ -222,7 +224,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var bar = ""; for (var k = 1; k <= 4; k++) bar += "<i" + (k <= w ? " class='on'" : "") + "></i>";
     var days = "";
     [1, 2, 3, 4, 5, 6, 0].forEach(function (d) {
-      var id = DAY_OF_WEEK[d], c = id ? SEQ_DAYS[id].label.split(" — ")[0] : null;
+      var id = dowMap()[d], c = id && SEQ_DAYS[id] ? SEQ_DAYS[id].label.split(" — ")[0] : null;
       var cls = "v2-day" + (!id ? " rest" : "") + (d === dow ? " today" : "") + (c && doneCodes.indexOf(c) >= 0 ? " done" : "");
       days += "<div class='" + cls + "'><span>" + SHORT[d] + "</span><b>" + (id ? (doneCodes.indexOf(c) >= 0 ? "✓ " : "") + c : "repos") + "</b></div>";
     });
@@ -237,7 +239,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     else if (st.cycleDone) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Cycle de 4 semaines terminé.</strong> Parlez-en à votre kinésithérapeute pour la suite.</div>";
     box.innerHTML = banner +
       "<div class='v2-hello'><span>" + WEEKDAYS[dow] + "</span><strong>Bonjour" + (name ? " " + esc(name) : "") + "</strong></div>" +
-      "<div class='v2-week'><div class='v2-week-top'><b>Semaine " + w + " sur 4" + (st.start ? ", jour " + Math.min(28, st.dayInCycle) : "") + "</b><span>" + doneWeek.length + " séance" + (doneWeek.length > 1 ? "s" : "") + " sur 5 faite" + (doneWeek.length > 1 ? "s" : "") + "</span></div>" +
+      "<div class='v2-week'><div class='v2-week-top'><b>Semaine " + w + " sur 4" + (st.start ? ", jour " + Math.min(28, st.dayInCycle) : "") + "</b><span>" + doneWeek.length + " séance" + (doneWeek.length > 1 ? "s" : "") + " sur " + Object.keys(SEQ_DAYS).length + " faite" + (doneWeek.length > 1 ? "s" : "") + "</span></div>" +
         "<div class='today-bar'>" + bar + "</div></div>" +
       "<div class='v2-card'>" +
         "<div><div class='today-kicker'>" + esc(kicker) + "</div><div class='today-title'>" + esc(day.label) + "</div></div>" +

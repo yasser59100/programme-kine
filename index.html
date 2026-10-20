@@ -2788,7 +2788,8 @@ function closeSeqAndSuivi() {
     day3: ['J4','Fessiers bassin'],
     day4: ['J5','Global fonctionnel']
   };
-  var info = dayMap[dayId] || ['J1','Membres inférieurs'];
+  var lab = SEQ_DAYS[dayId] && SEQ_DAYS[dayId].label.split(' — ');
+  var info = dayMap[dayId] || (lab && lab[1] ? [lab[0], lab[1]] : ['J1','Membres inférieurs']);
   qlPreFill(info[0], info[1], dayId);
 }
 
@@ -3700,6 +3701,8 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-capture.js" defer></script>
 <script src="assets/js/kine-eveil.js" defer></script>
 <script src="assets/js/kine-officiel.js" defer></script>
+<script src="assets/js/kine-themes.js" defer></script>
+<script src="assets/js/kine-course.js" defer></script>
 <script src="assets/js/kine-harmonie.js" defer></script>
 <script src="assets/js/kine-metronome.js" defer></script>
 <script src="assets/js/kine-celebration.js" defer></script>

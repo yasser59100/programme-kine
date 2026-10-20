@@ -97,6 +97,7 @@
         (window.KineCamera ? "<button class='lu-blk lu-vid' id='lu-video' onclick='KineCamera.open()'><span class='lu-ic'>" + ICAM + "</span><b>Tester en vidéo</b><small>Yass regarde ton mouvement et te corrige</small></button>" : "") +
         (xd ? "<button class='lu-blk lu-exp' id='ki-express' onclick=\"KineIdees.express('" + target + "')\"><span class='lu-ic'>" + IZAP + "</span><b>" + (xd.minutes || 10) + " minutes</b><small>Séance express, pas le temps</small></button>" : "") +
       "</div>" +
+      (window.KineTheme && KineTheme.homeHtml ? KineTheme.homeHtml() : "") +
       (window.KineCheckin ? KineCheckin.homeReminder() : "");
     var page = $("page-home"); if (page) page.classList.add("lx");
   }
@@ -271,7 +272,7 @@
         "<span class='lu-ses-t'><b>" + esc(cap(nameOf(id))) + "</b><small>" + (d.circuit ? "Circuit" : nEx + " exercices") + " · " + minutes(id) + " min</small>" +
         (tag ? "<em>" + esc(tag) + "</em>" : "") + "</span><span class='lu-chev' aria-hidden='true'>›</span></button>";
     }).join("");
-    box.innerHTML =
+    box.innerHTML = (window.KineTheme ? KineTheme.bannerHtml() : "") +
       "<div class='lu-pslab'><p class='lu-k'>" + (st.start ? "Jour " + day + " sur 28" : "Le programme démarre à votre première séance") + "</p>" +
         "<h2 class='lu-t'>Semaine " + p.week + " sur 4</h2><p class='lu-m'>" + esc(cur[1]) + "</p>" +
         "<div class='lu-ptrack'>" + [1, 2, 3, 4].map(function (n) {
@@ -279,7 +280,7 @@
           return "<span><i style='width:" + f + "%'></i></span>"; }).join("") + "</div>" +
         (p.reason ? "<p class='lu-why'>" + esc(p.reason) + "</p>" : "") + "</div>" +
       "<h2 class='lx-section'>Mes 4 semaines</h2><div class='lu-wks'>" + weeks + "</div>" +
-      "<h2 class='lx-section'>Les 5 séances</h2><div class='lu-sess'>" + rows + "</div>" +
+      "<h2 class='lx-section'>Les " + Object.keys(SEQ_DAYS).length + " séances</h2><div class='lu-sess'>" + rows + "</div>" +
       "<div class='lu-pduo'>" +
         (window.KineCompose ? "<button onclick=\"showPage('mes');KineCompose.tab()\"><span class='lu-ic'>＋</span><b>Composer ma séance</b><small>Mes propres exercices</small></button>" : "") +
         "<button onclick='KineProgram.understand()'><span class='lu-ic'>?</span><b>Comprendre mon programme</b><small>Les règles, en clair</small></button></div>" +
