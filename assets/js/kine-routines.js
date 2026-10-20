@@ -188,12 +188,12 @@
       loop: loop("up", 4, "down", 4) },
     "savasana": { camera: { yaw: 0.9, pitch: 0.55, dist: 3.6, ty: 0.15, tz: -0.1 }, start: "hold", poses: { hold: SAVASANA }, loop: loop("hold", 3) }
   };
-  // Positions vérifiées en 3D : main qui tient la cheville, pied et tête posés au sol, avant-bras à plat sur le mur, main sur le coude
+  // Positions vérifiées en 3D : main qui tient la cheville, mains sur le tibia, pied et tête posés au sol, avant-bras à plat sur le mur, main sur le coude en passant derrière la tête
   MOVES.quadStretch.poses.hold = {"pelvis":{"p":[0,"auto",0],"r":[0,0,0]},"spine":[2,0,0],"head":0,"R":{"foot":{"at":[-0.1,0,0.12],"yaw":0}},"L":{"ang":[-10.736,3,0,148.996,-20]},"LA":{"hand":{"at":[0.119,0.935,-0.176],"pole":[0.4,0,-1]}},"RA":{"hand":{"at":[-0.52,1.1,0.05],"pole":[-0.3,-1,-0.4]}}};
-  MOVES.hamSeated.poses.hold = {"pelvis":{"p":[0,0.14,0],"r":[30,0,0]},"spine":[22,0,0],"head":10,"L":{"ang":[120,4,0,0,10]},"R":{"foot":{"at":[0.11,0,0.3],"yaw":60,"pole":[-1,0.7,0.2]}},"LA":{"hand":{"at":[0.12,0.2,0.7],"pole":[0.3,1,0]}},"RA":{"hand":{"at":[0.04,0.2,0.66],"pole":[-0.3,1,0]}}};
+  MOVES.hamSeated.poses.hold = {"pelvis":{"p":[0,0.14,0],"r":[27.628,0,0]},"spine":[19,0,0],"head":15,"L":{"ang":[120,4,0,0,10]},"R":{"foot":{"at":[0.11,0,0.3],"yaw":60,"pole":[-1,0.7,0.2]}},"LA":{"hand":{"at":[0.2,0.2,0.74],"pole":[0.6,-0.3,0]}},"RA":{"hand":{"at":[0.11,0.21,0.72],"pole":[-0.6,-0.3,0]}}};
   MOVES.childPose.poses.hold = {"pelvis":{"p":[0,0.284,-0.32],"r":[96.25,0,0]},"spine":[4,0,0],"head":12.125,"L":{"ang":[155.562,4,0,150,-60]},"R":{"ang":[155.562,4,0,150,-60]},"LA":{"hand":{"at":[0.25,0.047,0.66],"pole":[0.3,1,0]}},"RA":{"hand":{"at":[-0.25,0.047,0.66],"pole":[-0.3,1,0]}}};
   MOVES.pecWall.poses.hold = {"pelvis":{"p":[-0.123,"auto",0],"r":[0,0,0]},"spine":[0,0,-18],"head":0,"headY":-9,"L":{"foot":{"at":[-0.003,0,0],"yaw":0}},"R":{"foot":{"at":[-0.242,0,0],"yaw":0}},"LA":{"ang":[4,7,0,10]},"RA":{"hand":{"at":[-0.575,1.668,0],"pole":[0,-1,0.3]}}};
-  MOVES.triceps.poses.hold = {"pelvis":{"p":[0,"auto",0],"r":[0,0,0]},"spine":[0,0,0],"head":6,"L":{"foot":{"at":[0.12,0,0],"yaw":0}},"R":{"foot":{"at":[-0.12,0,0],"yaw":0}},"LA":{"ang":[172,8,0,150]},"RA":{"hand":{"at":[0.24,1.74,0.06],"pole":[-1,0,0.3]}}};
+  MOVES.triceps.poses.hold = {"pelvis":{"p":[0,"auto",0],"r":[0,0,0]},"spine":[0,0,0],"head":6,"L":{"foot":{"at":[0.12,0,0],"yaw":0}},"R":{"foot":{"at":[-0.12,0,0],"yaw":0}},"LA":{"hand":{"at":[0.104,1.493,-0.235],"pole":[0.3,1,0.71]}},"RA":{"hand":{"at":[0.148,1.735,-0.095],"pole":[-0.7,1,-7.193]}}};
   // Au sol, Yass est cadré plus près pour bien voir la position
   ["hamSeated", "childPose", "figure4", "lowLunge", "adductorSeated", "cobra", "lumbarTwist", "catCow", "breathSupine", "breathTransverse", "savasana", "hipRotSupine"].forEach(function (k) {
     if (MOVES[k]) MOVES[k].camera = Object.assign({}, MOVES[k].camera, { dist: (MOVES[k].camera.dist || 4.1) * 0.8 });
