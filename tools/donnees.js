@@ -19,6 +19,14 @@ async function purge(col, months) {
   }
   console.log(col + " : " + n + " document(s) de plus de " + months + " mois supprimé(s)");
 }
+// Lit les règles Firestore en place et dit quel compte est reconnu comme kiné
+async function regles(out) {
+  const rs = await admin.securityRules().getFirestoreRuleset();
+  const src = rs.source.map(f => f.content).join("\n");
+  const m = src.match(/request\.auth\.token\.email\s*==\s*"([^"]+)"/);
+  const txt = "Règles publiées le " + rs.createTime + "\nCompte kiné reconnu : " + (m ? m[1] : "introuvable") + "\nStatistiques protégées : " + (/match \/stats\//.test(src) ? "oui" : "non") + "\n";
+  require("fs").writeFileSync(out || "regles.txt", txt); console.log(txt);
+}
 async function stats(out) {
   const since = new Date(Date.now() - 30 * 864e5);
   const s = await db.collection("stats").where("t", ">=", since).get();
@@ -31,5 +39,6 @@ async function stats(out) {
   if (m === "emails") await emails();
   else if (m === "purge") { await purge("stats", 13); await purge("bugs", 12); }
   else if (m === "stats") await stats(process.argv[3]);
+  else if (m === "regles") await regles(process.argv[3]);
   else throw new Error("tâche inconnue : " + m);
 })().catch(e => { console.error("Erreur :", e.message); process.exit(1); });
