@@ -287,8 +287,8 @@ var KineTheme = (function () {
   var SCENE = {
     coureur: { img: "course", n: 12, cyc: 0.42, dur: 1500, fx: "fire" },
     dos: { img: "mode-dos", n: 12, cyc: 1.15, dur: 2300, fx: "bolt", at: [0.42, 0.46] },
-    genou: { img: "mode-genou", n: 12, cyc: 0.9, dur: 2300, fx: "bolt", at: [0.55, 0.6], deco: "stairs" },
-    cheville: { img: "mode-cheville", n: 10, cyc: 0.55, dur: 2200, fx: "bolt", at: [0.34, 0.79], deco: "stones" },
+    genou: { img: "mode-velo", n: 12, cyc: 0.62, dur: 2400, fx: "none", deco: "bike" },
+    cheville: { img: "mode-surf", n: 12, cyc: 1.5, dur: 2500, fx: "spray", deco: "wave" },
     general: { img: "mode-general", n: 12, cyc: 0.8, dur: 1700, fx: "spark" }
   };
   function sceneFx(el, id) {
@@ -296,7 +296,7 @@ var KineTheme = (function () {
     var cv = document.createElement("canvas"), y = document.createElement("div");
     cv.className = "th-fire"; y.className = "th-runner"; el.insertBefore(cv, el.firstChild); el.appendChild(y);
     y.style.backgroundImage = "url(assets/lumiere/yass-anim/" + C.img + ".webp)"; y.style.backgroundSize = (C.n * 100) + "% 100%";
-    y.style.setProperty("--bpx", (C.n / (C.n - 1) * 100) + "%"); y.style.animation = "thRun " + C.cyc + "s steps(" + C.n + ") infinite";
+    y.style.animation = "none";
     var W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1), c = cv.getContext("2d");
     cv.width = W * dpr; cv.height = H * dpr; c.scale(dpr, dpr);
     var S = Math.min(260, W * 0.66), y0 = H * 0.5 - S * 0.62, t0 = performance.now(), P = [], B = [], raf = 0, alive = true, lastBolt = 0;
@@ -307,7 +307,7 @@ var KineTheme = (function () {
     function kAtFoot(xf) { return Math.max(0, Math.min(1, (xf - S * 0.5 + S) / (W + 2 * S))); }
     var stones = [];
     if (C.deco === "stones") for (var q = 0; q < 12; q++) { var tl = (q + 0.75) * C.cyc * 1000 / C.dur; if (tl > 1) break; stones.push({ x: -S + (W + 2 * S) * tl + S * 0.5, t: tl, hit: false }); }
-    function decor(k, now) {
+    function decor(k, now, x, fr, ph) {
       c.globalCompositeOperation = "source-over"; var fade = k > 0.82 ? Math.max(0, (1 - k) / 0.18) : 1;
       if (C.deco === "stairs") {
         var w = 48, M = MODE[id];
@@ -317,6 +317,47 @@ var KineTheme = (function () {
           c.globalAlpha = 0.9 * fade; c.fillStyle = g1; c.fillRect(sx, sy, w + 1, H - sy);
           c.globalAlpha = fade; c.fillStyle = "rgba(255,255,255,.55)"; c.fillRect(sx, sy, w + 1, 3);
         }
+        c.globalAlpha = 1;
+      }
+      // genou : un vélo, roues et pédalier synchronisés avec le pédalage de Yass
+      if (C.deco === "bike") {
+        var M2 = MODE[id], pxm = S / 2.35, U = function (z) { return x + S / 2 + z * pxm; }, V = function (yy) { return y0 + S / 2 - (yy - 0.98) * pxm; };
+        var Rw = 0.34 * pxm, rot = (x + S) / Rw, hubs = [[-0.5, 0.34], [0.6, 0.34]], crank = [0.1, 0.36], seat = [-0.07, 0.88], head = [0.46, 0.96];
+        c.globalAlpha = fade; c.lineCap = "round"; c.lineJoin = "round";
+        hubs.forEach(function (h) {
+          var hx = U(h[0]), hy = V(h[1]);
+          c.strokeStyle = "#1E2430"; c.lineWidth = 6; c.beginPath(); c.arc(hx, hy, Rw, 0, Math.PI * 2); c.stroke();
+          c.strokeStyle = M2.a; c.lineWidth = 2; c.beginPath(); c.arc(hx, hy, Rw - 5, 0, Math.PI * 2); c.stroke();
+          c.strokeStyle = "rgba(255,255,255,.75)"; c.lineWidth = 1.2;
+          for (var sp = 0; sp < 8; sp++) { var an = rot + sp * Math.PI / 4; c.beginPath(); c.moveTo(hx, hy); c.lineTo(hx + Math.cos(an) * (Rw - 5), hy + Math.sin(an) * (Rw - 5)); c.stroke(); }
+        });
+        var L2 = function (a, b) { c.beginPath(); c.moveTo(U(a[0]), V(a[1])); c.lineTo(U(b[0]), V(b[1])); c.stroke(); };
+        c.strokeStyle = M2.b; c.lineWidth = 6;
+        L2(hubs[0], crank); L2(crank, seat); L2(seat, hubs[0]); L2(seat, head); L2(crank, [0.44, 0.86]); L2(head, hubs[1]);
+        c.strokeStyle = "#1E2430"; c.lineWidth = 5; L2(head, [0.52, 1.08]); L2([-0.16, 0.9], [0.02, 0.9]);
+        var th = 2 * Math.PI * fr / C.n, r2 = 0.17;
+        [th, th + Math.PI].forEach(function (a) { c.lineWidth = 4; L2(crank, [crank[0] + r2 * Math.sin(a), crank[1] - r2 * Math.cos(a)]); });
+        c.fillStyle = "#1E2430"; c.beginPath(); c.arc(U(crank[0]), V(crank[1]), 6, 0, Math.PI * 2); c.fill();
+        c.globalAlpha = 1;
+      }
+      // cheville : Yass surfe, la planche suit son équilibre, la vague déferle derrière lui
+      if (C.deco === "wave") {
+        var by = y0 + S * 0.93, bx = x + S / 2, tilt = Math.sin(ph * 2 * Math.PI) * 0.12, M3 = MODE[id];
+        c.globalAlpha = fade;
+        var crestX = bx - S * 0.55, base = by + 10;
+        var gw2 = c.createLinearGradient(0, base - 90, 0, base + 160); gw2.addColorStop(0, "rgba(70,170,255,.95)"); gw2.addColorStop(1, "rgba(20,70,170,.9)");
+        c.fillStyle = gw2; c.beginPath(); c.moveTo(-10, base + 170); c.lineTo(-10, base - 20);
+        for (var wx2 = -10; wx2 <= W + 10; wx2 += 8) {
+          var dd = (wx2 - crestX) / 70, hump = Math.exp(-dd * dd) * 85 * (wx2 < crestX + 40 ? 1 : 0.6);
+          c.lineTo(wx2, base - hump + Math.sin(wx2 / 26 + now / 220) * 3);
+        }
+        c.lineTo(W + 10, base + 170); c.closePath(); c.fill();
+        c.fillStyle = "rgba(255,255,255,.85)";   // écume sur la crête
+        for (var fz = -3; fz <= 3; fz++) { var fx2 = crestX + fz * 14, fd = (fx2 - crestX) / 70; c.beginPath(); c.arc(fx2, base - Math.exp(-fd * fd) * 85, 7 + Math.random() * 3, 0, Math.PI * 2); c.fill(); }
+        c.save(); c.translate(bx, by + 4); c.rotate(tilt);
+        c.fillStyle = "#FFFFFF"; c.beginPath(); c.ellipse(0, 0, S * 0.5, 8, 0, 0, Math.PI * 2); c.fill();
+        c.fillStyle = M3.a; c.fillRect(-S * 0.42, -2, S * 0.84, 4); c.restore();
+        if (Math.random() < 0.9) for (var sq = 0; sq < 3; sq++) P.push({ x: bx - S * 0.45, y: by + 4, vx: -(1 + Math.random() * 2.5), vy: -(1 + Math.random() * 2.5), w: 0, r: 2 + Math.random() * 3, l: 1, d: 0.03, k: "w" });
         c.globalAlpha = 1;
       }
       if (C.deco === "stones") {
@@ -344,9 +385,11 @@ var KineTheme = (function () {
       if (!alive) return;
       var t = (now - t0) / C.dur, k = Math.min(1, t), x = -S + (W + 2 * S) * k;
       if (C.fx === "fire") x = -S + (W + 2 * S) * (k < 0.5 ? 2 * k * k * 0.6 + k * 0.4 : k);
+      var fr = Math.floor((now - t0) / 1000 / C.cyc * C.n) % C.n, ph = ((now - t0) / 1000 / C.cyc) % 1;
+      y.style.backgroundPosition = (fr / (C.n - 1) * 100) + "% 0";
       var ty = C.deco === "stairs" ? topAt(k) - y0 : 0;
       y.style.transform = "translate(" + x + "px," + ty + "px)"; if (k >= 1) y.style.display = "none";
-      c.clearRect(0, 0, W, H); if (k < 1) decor(k, now);
+      c.clearRect(0, 0, W, H); if (k < 1) decor(k, now, x, fr, ph);
       if (C.fx === "fire" && t < 1.02) for (var n = 0; n < 8; n++) P.push({ x: x + S * (0.2 + Math.random() * 0.3), y: y0 + S * (0.8 + Math.random() * 0.14), vx: -(0.4 + Math.random() * 1.6), vy: -(1.2 + Math.random() * 3.2), w: Math.random() * 6.28, r: 5 + Math.random() * 11, l: 1, d: 0.014 + Math.random() * 0.02, k: "f" });
       if (C.fx === "spark" && t < 1.02) for (var m = 0; m < 3; m++) P.push({ x: x + S * (0.3 + Math.random() * 0.2), y: y0 + S * (0.3 + Math.random() * 0.6), vx: -(0.5 + Math.random()), vy: (Math.random() - 0.5) * 0.8, w: 0, r: 2 + Math.random() * 3.5, l: 1, d: 0.018 + Math.random() * 0.02, k: "s" });
       if (C.fx === "bolt" && t < 1) {
