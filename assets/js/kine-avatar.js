@@ -1451,7 +1451,7 @@
       var sign = new T.Group(); sign.position.y = -0.03; hand.add(sign); sign.visible = false;
       var stick = mesh(new T.CylinderGeometry(0.0085, 0.0085, 0.14, 10), new T.MeshStandardMaterial({ color: 0xB78650, roughness: 0.8 }), sign); stick.position.y = 0.03;
       var board = new T.Mesh(new T.PlaneGeometry(0.30, 0.2), new T.MeshBasicMaterial({ transparent: true, side: T.DoubleSide, toneMapped: false })); board.position.y = 0.4; sign.add(board);
-      return { side: side, sh: sh, el: el, load: load, sign: sign, board: board };
+      return { side: side, sh: sh, el: el, hand: hand, load: load, sign: sign, board: board };
     }
     // Jogging : bande claire sur le côté extérieur de chaque jambe
     function pantsTex(u) {
@@ -1662,6 +1662,8 @@
         g.sh.rotation.set(-a[0] * D2R, sg * a[2] * D2R, sg * a[1] * D2R);
         g.el.rotation.set(-a[3] * D2R, 0, 0);
       }
+      // poignet (facultatif) : flexion / extension et rotation de l'avant-bras ; 0 par défaut
+      if (g.hand) g.hand.rotation.set(-(A.wrist || 0) * D2R, (A.roll || 0) * D2R * sg, 0);
     });
     updateBands();
   }

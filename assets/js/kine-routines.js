@@ -194,6 +194,8 @@
   MOVES.childPose.poses.hold = {"pelvis":{"p":[0,0.284,-0.32],"r":[96.25,0,0]},"spine":[4,0,0],"head":12.125,"L":{"ang":[155.562,4,0,150,-60]},"R":{"ang":[155.562,4,0,150,-60]},"LA":{"hand":{"at":[0.25,0.047,0.66],"pole":[0.3,1,0]}},"RA":{"hand":{"at":[-0.25,0.047,0.66],"pole":[-0.3,1,0]}}};
   MOVES.pecWall.poses.hold = {"pelvis":{"p":[-0.123,"auto",0],"r":[0,0,0]},"spine":[0,0,-18],"head":0,"headY":-9,"L":{"foot":{"at":[-0.003,0,0],"yaw":0}},"R":{"foot":{"at":[-0.242,0,0],"yaw":0}},"LA":{"ang":[4,7,0,10]},"RA":{"hand":{"at":[-0.575,1.668,0],"pole":[0,-1,0.3]}}};
   MOVES.triceps.poses.hold = {"pelvis":{"p":[0,"auto",0],"r":[0,0,0]},"spine":[0,0,0],"head":6,"L":{"foot":{"at":[0.12,0,0],"yaw":0}},"R":{"foot":{"at":[-0.12,0,0],"yaw":0}},"LA":{"hand":{"at":[0.104,1.493,-0.235],"pole":[0.3,1,0.71]}},"RA":{"hand":{"at":[0.148,1.735,-0.095],"pole":[-0.7,1,-7.193]}}};
+  // Paumes à plat sur le mur, doigts vers le haut (les doigts ne traversent plus le mur)
+  MOVES.calfWall.poses.hold.LA.wrist = 70; MOVES.calfWall.poses.hold.RA.wrist = 70;
   // Au sol, Yass est cadré plus près pour bien voir la position
   ["hamSeated", "childPose", "figure4", "lowLunge", "adductorSeated", "cobra", "lumbarTwist", "catCow", "breathSupine", "breathTransverse", "savasana", "hipRotSupine"].forEach(function (k) {
     if (MOVES[k]) MOVES[k].camera = Object.assign({}, MOVES[k].camera, { dist: (MOVES[k].camera.dist || 4.1) * 0.8 });
