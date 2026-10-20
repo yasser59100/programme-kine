@@ -1580,7 +1580,7 @@
     }
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
-    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, cones: cones, curveNow: 0, xb: XBONES, xbody: XBODY, xskin: XSKIN,
+    return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, floor: [ground, ring], pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, cones: cones, curveNow: 0, xb: XBONES, xbody: XBODY, xskin: XSKIN,
              head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops, tools: tools };
   }
 
@@ -2177,7 +2177,9 @@
         var size = px || 420; R.renderer.setSize(size, size, false); R.camera.aspect = 1; R.camera.updateProjectionMatrix();
         var c = cam, dd = c.dist || 3.4, yw = c.yaw || 0, pt = c.pitch || 0.2, ty = c.ty != null ? c.ty : 0.4, tz = c.tz || 0, tx = c.tx || 0;
         R.camera.position.set(tx + dd * Math.sin(yw) * Math.cos(pt), ty + dd * Math.sin(pt), tz + dd * Math.cos(yw) * Math.cos(pt)); R.camera.lookAt(tx, ty, tz);
+        if (c.bare) R.floor.forEach(function (m) { m.visible = false; });   // sans sol ni cercle (images détourées)
         R.renderer.render(R.scene, R.camera); img = R.canvas.toDataURL("image/png");
+        if (c.bare) R.floor.forEach(function (m) { m.visible = true; });
       }
       def = d0; if (def) { for (var k2 in R.props) R.props[k2].visible = (def.props || []).indexOf(k2) >= 0; showLoad(def, curSide); applyPose(current); }
       lastW = 0; if (host) resize();

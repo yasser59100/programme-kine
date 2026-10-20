@@ -282,6 +282,36 @@ var KineTheme = (function () {
   }
   // L'interface prend la couleur du programme
   function mark() { var id = active(); document.documentElement.setAttribute("data-mode", id || "general"); }
+  // Mode coureur : Yass traverse l'écran en courant, jambes en roue de dessin animé, et laisse une traînée de feu
+  function runFx(el) {
+    var cv = document.createElement("canvas"), y = document.createElement("div");
+    cv.className = "th-fire"; y.className = "th-runner"; el.insertBefore(cv, el.firstChild); el.appendChild(y);
+    var W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1), c = cv.getContext("2d");
+    cv.width = W * dpr; cv.height = H * dpr; c.scale(dpr, dpr);
+    var S = Math.min(220, W * 0.55), y0 = H * 0.5 - S * 0.62, t0 = performance.now(), dur = 1500, P = [], raf = 0, alive = true;
+    y.style.width = y.style.height = S + "px"; y.style.top = y0 + "px";
+    function frame(now) {
+      if (!alive) return;
+      var t = (now - t0) / dur, k = Math.min(1, t), x = -S + (W + 2 * S) * (k < 0.5 ? 2 * k * k * 0.6 + k * 0.4 : k);
+      y.style.transform = "translateX(" + x + "px)"; if (k >= 1) y.style.display = "none";
+      // flammes : nées aux pieds et dans le dos de Yass tant qu'il court
+      if (t < 1.02) for (var n = 0; n < 8; n++) P.push({ x: x + S * (0.2 + Math.random() * 0.3), y: y0 + S * (0.8 + Math.random() * 0.14), vx: -(0.4 + Math.random() * 1.6), vy: -(1.2 + Math.random() * 3.2), w: Math.random() * 6.28, r: 5 + Math.random() * 11, l: 1, d: 0.014 + Math.random() * 0.02 });
+      c.clearRect(0, 0, W, H); c.globalCompositeOperation = "lighter";
+      for (var i = P.length - 1; i >= 0; i--) {
+        var p = P[i]; p.w += 0.25; p.x += p.vx + Math.sin(p.w) * 0.8; p.y += p.vy; p.vy -= 0.04; p.l -= p.d; p.r *= 0.975;   // les flammes montent en ondulant
+        if (p.l <= 0) { P.splice(i, 1); continue; }
+        var g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2);
+        var a = p.l, hot = p.l > 0.6;
+        g.addColorStop(0, hot ? "rgba(255,240,170," + a + ")" : "rgba(255,170,60," + a + ")");
+        g.addColorStop(0.45, "rgba(255,110,30," + a * 0.75 + ")");
+        g.addColorStop(1, "rgba(220,30,40,0)");
+        c.fillStyle = g; c.beginPath(); c.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2); c.fill();
+      }
+      if (t < 1.02 || P.length) raf = requestAnimationFrame(frame); else cv.remove();
+    }
+    raf = requestAnimationFrame(frame);
+    return function () { alive = false; cancelAnimationFrame(raf); };
+  }
   // Animation au centre de l'écran quand on change de programme
   function fx(id) {
     var M = MODE[id] || MODE.general, seen = jget("kf-mode-seen", {}), first = id !== "general" && !seen[id];
@@ -293,9 +323,11 @@ var KineTheme = (function () {
       (first ? "<small>Des exercices généraux, à suivre sur les conseils de votre kiné : ils ne remplacent pas une consultation.</small>" : "") + "</div>";
     document.body.appendChild(el);
     try { if (navigator.vibrate) navigator.vibrate([12, 40, 18]); } catch (e) {}
-    var done = function () { el.classList.add("out"); setTimeout(function () { el.remove(); }, 450); };
+    var stop = null, done = function () { if (stop) stop(); el.classList.add("out"); setTimeout(function () { el.remove(); }, 450); };
     el.onclick = done;
-    setTimeout(done, first ? 3200 : 1700);
+    var lead = 0;
+    if (id === "coureur" && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) { el.classList.add("run"); stop = runFx(el); lead = 1500; }
+    setTimeout(done, lead + (first ? 3200 : 1700));
     if (first) { seen[id] = 1; try { localStorage.setItem("kf-mode-seen", JSON.stringify(seen)); } catch (e) {} }
   }
 
