@@ -375,7 +375,7 @@
   function finish() {
     var done = P && P.onDone;
     close(true);
-    say(P0kind === "Échauffement" ? "Échauffement terminé." : "Étirements terminés.");
+    say(P0kind === "Échauffement" ? "Échauffement terminé." : P0kind === "Récupération" ? "Récupération terminée." : "Étirements terminés.");
     if (done) done();
   }
   var P0kind = "";
@@ -394,7 +394,7 @@
     open: function (ex, onDone) {
       var steps = R[ex.name]; if (!steps) return false;
       ensureSheet().classList.add("open");
-      P0kind = ex.phase === "cool" ? "Étirements" : "Échauffement";
+      P0kind = ex.kind || (ex.phase === "cool" ? "Étirements" : "Échauffement");
       P = { steps: steps, onDone: onDone, kind: P0kind, i: 0, paused: false, pausedFor: 0 };
       $("kr-pause").textContent = "Pause";
       startStep(0);
@@ -414,7 +414,10 @@
       rgOpenPain();
       rgPain.onResume = function () { KineRoutine.pause(); };
     },
-    moves: MOVES
+    moves: MOVES,
+    // Enchaînements ajoutés par d'autres modules (récupération…) : mêmes étapes chronométrées
+    define: function (name, steps) { R[name] = steps; },
+    addMove: function (key, def) { MOVES[key] = def; KineAvatar.register("move:" + key, def); }
   };
 
   /* ════════ 5. BRANCHEMENT DANS L'APPLI ════════ */

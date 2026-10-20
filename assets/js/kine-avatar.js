@@ -1499,8 +1499,17 @@
       chair: new T.Group(),
       wallSide: mesh(new T.BoxGeometry(0.05, 2.1, 1.2), M.wall, scene),
       table: new T.Group(),
-      cushion: mesh(new T.BoxGeometry(0.42, 0.08, 0.36), M.prop, scene)
+      cushion: mesh(new T.BoxGeometry(0.42, 0.08, 0.36), M.prop, scene),
+      roller: new T.Group()
     };
+    // Rouleau de massage : mousse bleu nuit, rainures plus claires ; couché sur le côté (axe X) par défaut
+    scene.add(props.roller);
+    (function () {
+      var foam = mat("#3A46C8", 0.88), groove = mat("#6E7BF0", 0.8), spin = new T.Group(); spin.rotation.z = Math.PI / 2; props.roller.add(spin);
+      mesh(new T.CylinderGeometry(0.075, 0.075, 0.9, 28, 1), foam, spin);
+      for (var gi = -3; gi <= 3; gi++) { var rg = mesh(new T.TorusGeometry(0.0755, 0.006, 6, 28), groove, spin); rg.rotation.x = Math.PI / 2; rg.position.y = gi * 0.12; }
+      props.roller.userData.spin = spin;
+    })();
     // Table solide (tirage inversé) : plateau à 74 cm, bord avant en z = 0
     scene.add(props.table);
     mesh(new T.BoxGeometry(1.1, 0.04, 0.8), M.wood, props.table).position.set(0, 0.74, -0.38);
@@ -1782,6 +1791,17 @@
     if (!R) return;
     var c = (d && d.chair) || { z: 0, turn: false };
     R.props.chair.rotation.y = c.turn ? Math.PI : 0; R.props.chair.position.z = c.z || 0;
+    var ro = R.props.roller, rc = d && d.roller;
+    if (ro) { if (rc) { var rp = rc.p || [0, 0.075, 0]; ro.position.set(rp[0] * (curSideSign || 1), rp[1] == null ? 0.075 : rp[1], rp[2]); ro.rotation.set(0, rc.along === "z" ? Math.PI / 2 : (rc.yaw || 0) * D2R * (curSideSign || 1), 0); } }
+  }
+  var curSideSign = 1, rollPrev = null;
+  // Le rouleau tourne sous le corps quand celui-ci glisse dessus
+  function rollSpin() {
+    var ro = R.props.roller; if (!ro || !ro.visible) { rollPrev = null; return; }
+    var v = new R.T.Vector3(); R.pelvis.getWorldPosition(v);
+    var along = def && def.roller && def.roller.along === "z", q = along ? v.x : v.z;
+    if (rollPrev != null) ro.userData.spin.rotation.x += (q - rollPrev) / 0.075 * 0.5 * (along ? 1 : -1);
+    rollPrev = q;
   }
   // Plots de couleur : seulement pour les exercices qui en ont
   function syncCones(d) {
@@ -1795,6 +1815,7 @@
     if (!R) return;
     placeProps(d);
     syncCones(d);
+    curSideSign = side === "R" ? -1 : 1; placeProps(d);
     R.props.wallSide.position.x = side === "R" ? 0.62 : -0.62;
     if (R.props.cushion) R.props.cushion.position.x = side === "R" ? 0.1 : -0.1;
     bandDef = d; bandSide = side === "R" ? "R" : "L";
@@ -1851,6 +1872,7 @@
     var v = R.view;
     v.yaw += (v.yawGoal - v.yaw) * 0.12;
     placeCamera(def, v.yaw);
+    rollSpin();
     if (R.signOn) orientSigns(v.yaw);
     R.renderer.render(R.scene, R.camera);
     if (anglesOn) drawAngles();

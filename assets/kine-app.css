@@ -2505,3 +2505,22 @@ html.kf-typing .kf-snd { display: none; }
 .kst-none { margin: 0 0 4px; font-size: .86rem; color: var(--text3); }
 /* Liens « Espace kiné » dans les pages : seulement pour le compte du kiné (l'entrée des réglages reste, elle demande la connexion) */
 html:not(.kf-kine) .kc-kine { display: none !important; }
+
+/* ── Récupération : étirements et auto-massage ── */
+#page-guide:not(.lu-t-rec) #lu-rec { display: none !important; }
+#page-guide.lu-t-rec #prog-v2, #page-guide.lu-t-rec #lu-lib, #page-guide.lu-t-rec #mes-root { display: none !important; }
+.rc-intro { margin: 2px 0 6px; color: var(--text2); font-size: .92rem; line-height: 1.45; }
+.rc-flows { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.rc-flow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px 10px 10px; border-radius: 22px; border: 1px solid var(--border); background: #fff; text-align: left; font-family: var(--font); color: var(--text); box-shadow: 0 10px 22px -18px rgba(51, 65, 224, .45); }
+.rc-fl-im { flex: 0 0 76px; height: 76px; border-radius: 16px; background: radial-gradient(70% 70% at 50% 60%, #E4ECFF, #F4F7FC); overflow: hidden; display: grid; place-items: center; }
+.rc-fl-im img { width: 100%; height: 100%; object-fit: contain; }
+.rc-fl-im img:not([src]) { visibility: hidden; }
+.rc-fl-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rc-fl-tx b { font: 800 1.02rem/1.2 var(--lu-head, inherit); letter-spacing: -.01em; }
+.rc-fl-tx small { color: var(--text2); font-size: .8rem; }
+.rc-fl-tx em { font-style: normal; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: .74rem; font-weight: 800; color: #3A46C8; }
+.rc-fl-tx em svg { width: 15px; height: 15px; }
+.rc-fl-go { flex: 0 0 40px; height: 40px; border-radius: 50%; background: #0F1D2E; color: #fff; display: grid; place-items: center; }
+.rc-note { margin: 8px 0 2px; padding: 10px 12px; border-radius: 14px; background: #F1F4FF; color: var(--text2); font-size: .8rem; line-height: 1.45; }
+.rc-note b { display: block; color: var(--text); font-size: .82rem; margin-bottom: 2px; }
+.rc-card .lu-d b { font-size: .86rem; }

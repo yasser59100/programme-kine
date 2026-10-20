@@ -95,20 +95,22 @@ var KineLumiere = (function () {
     var page = $("page-guide"), c = page && page.querySelector(".content"); if (!c || $("lu-exh")) return c;
     var h = document.createElement("div"); h.id = "lu-exh"; h.className = "lu-exh";
     h.innerHTML = "<h1 class='lu-h1'>Exercices</h1><div class='lu-tabs' role='tablist'>" +
-      [["prog", "Programme"], ["lib", "Bibliothèque"]].map(function (t) {
+      [["prog", "Programme"], ["lib", "Bibliothèque"]].concat(window.KineRecup ? [["rec", "Récupération"]] : []).map(function (t) {
         return "<button role='tab' data-t='" + t[0] + "' onclick=\"KineLumiere.tab('" + t[0] + "')\">" + t[1] + "</button>"; }).join("") + "</div>";
     c.insertBefore(h, c.firstChild);
     var lib = document.createElement("div"); lib.id = "lu-lib"; lib.className = "lu-panel"; c.appendChild(lib);
+    var rec = document.createElement("div"); rec.id = "lu-rec"; rec.className = "lu-panel"; c.appendChild(rec);
     return c;
   }
   function tab(t) {
     if (t) { tabNow = t; jset(TAB_KEY, t); }
-    if (tabNow !== "lib") tabNow = "prog";
+    if (tabNow !== "lib" && !(tabNow === "rec" && window.KineRecup)) tabNow = "prog";
     var c = exHeader(); if (!c) return;
     var page = $("page-guide");
-    page.classList.remove("lu-t-prog", "lu-t-lib", "lu-t-mes"); page.classList.add("lu-t-" + tabNow);
+    page.classList.remove("lu-t-prog", "lu-t-lib", "lu-t-mes", "lu-t-rec"); page.classList.add("lu-t-" + tabNow);
     [].forEach.call(c.querySelectorAll(".lu-tabs button"), function (b) { var on = b.getAttribute("data-t") === tabNow; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
     if (tabNow === "lib") renderLib();
+    if (tabNow === "rec" && window.KineRecup) { var rb = $("lu-rec"); if (rb && !rb.firstChild) KineRecup.render(); if (rb) lazyThumbs(rb); setTimeout(liveCheck, 450); }
     if (t) explainSoon();
   }
 
@@ -220,7 +222,7 @@ var KineLumiere = (function () {
       cb(POOL[i] || null);
     });
   }
-  function lib() { var p = $("page-guide"); return p && p.classList.contains("active") && p.classList.contains("lu-t-lib") ? "#lu-lib .lu-card" : null; }
+  function lib() { var p = $("page-guide"); return p && p.classList.contains("active") ? (p.classList.contains("lu-t-lib") ? "#lu-lib .lu-card" : p.classList.contains("lu-t-rec") ? "#lu-rec .lu-card" : null) : null; }
   function mes() { var p = $("page-mes"); return p && p.classList.contains("active") ? "#mx-lib .mx-grp[data-n]" : null; }
   function blocked() {
     if (document.hidden) return true;
@@ -266,8 +268,21 @@ var KineLumiere = (function () {
       if (!ok) { s.dead = true; box.innerHTML = s.html; return; }
       s.started = true; box.classList.add("lu-live"); probe();
       if (A.pause) A.pause(false);
-      if (!rid) loop(A, name, alive);
+      if (/^move:/.test(name)) loopMove(A, name, alive);
+      else if (!rid) loop(A, name, alive);
     });
+  }
+  // Étirements et rouleau : on rejoue le mouvement en boucle (côté gauche puis droit)
+  function loopMove(A, name, alive) {
+    var d = KineAvatar._def(name), seq = (d && d.loop) || [], k = 0, n = 0, side = "L";
+    if (!seq.length) return;
+    (function nx() {
+      if (!alive()) return;
+      var s0 = seq[k % seq.length]; k++;
+      if (d.sides && k % (seq.length * 3) === 0) side = side === "L" ? "R" : "L";
+      A.step({ pose: s0.pose, dur: s0.dur, side: side });
+      setTimeout(nx, s0.dur * 1000 + 30); n++;
+    })();
   }
   function loop(A, name, alive) {
     var e = KineBiblio.find(name) || {}, wk = window.KineProgress ? (KineProgress.state().week || 1) : 1;

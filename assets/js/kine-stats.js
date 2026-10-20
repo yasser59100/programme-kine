@@ -82,7 +82,7 @@
     el.classList.add("open");
     if (typeof window.fbStats !== "function" || !(window.fbUser && fbUser.isAdmin)) { $("kst-st").textContent = "Connectez-vous avec votre compte kiné (Communauté, en haut) pour lire les statistiques."; return; }
     fbStats(30).then(function (docs) {
-      var now = Date.now(), wk = now - 7 * 864e5, P7 = {}, P30 = {}, open7 = 0, st = 0, fin = 0, quit = {}, skip = {}, pain = {}, pages = {}, durs = [], devs = {}, inst = {}, cam = 0, comp = 0;
+      var now = Date.now(), wk = now - 7 * 864e5, P7 = {}, P30 = {}, open7 = 0, st = 0, fin = 0, quit = {}, skip = {}, pain = {}, pages = {}, durs = [], devs = {}, inst = {}, cam = 0, comp = 0, rec = {};
       docs.forEach(function (d) {
         var t = d.t && d.t.toDate ? d.t.toDate().getTime() : now; P30[d.s] = 1; if (t >= wk) P7[d.s] = 1;
         devs[d.s] = d.d; inst[d.s] = d.i;
@@ -97,6 +97,7 @@
           else if (c === "p") pages[LBL[a] || a] = (pages[LBL[a] || a] || 0) + 1;
           else if (c === "c") cam++;
           else if (c === "n") comp++;
+          else if (c === "r") rec[a] = (rec[a] || 0) + 1;
         });
       });
       var n30 = Object.keys(P30).length, dv = { ios: 0, android: 0, autre: 0 }, ni = 0;
@@ -117,6 +118,7 @@
         list("Exercices passés", top(skip)) +
         list("« J'ai mal » touché", top(pain)) +
         list("Écrans les plus ouverts", top(pages)) +
+        list("Récupération la plus lancée", top(rec)) +
         "<div class='kst-blk'><h3>Téléphones</h3><p class='kst-none'>iPhone " + dv.ios + " · Android " + dv.android + (dv.autre ? " · ordinateur " + dv.autre : "") + " · appli installée chez " + ni + " sur " + n30 + "</p>" +
         "<p class='kst-none'>Caméra ouverte " + cam + " fois · séance composée " + comp + " fois</p></div>";
     }).catch(function () { $("kst-st").textContent = "Lecture impossible : vérifiez la connexion et le compte kiné."; });
