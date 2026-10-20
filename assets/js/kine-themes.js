@@ -200,6 +200,22 @@ var KineTheme = (function () {
     }
   };
   var ORDER = ["coureur", "genou", "dos", "cheville"];
+  // Identité de chaque mode : pictogramme (traits), couleurs, phrase d'accueil
+  var SV = function (p) { return "<svg viewBox='0 0 48 48' fill='none' stroke='currentColor' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" + p + "</svg>"; };
+  var ICON = {
+    general: SV("<circle cx='24' cy='9' r='4.5'/><path d='M24 15v15M14 21l10 3 10-3M18 44l6-14 6 14'/>"),
+    coureur: SV("<circle cx='30' cy='8' r='4.5'/><path d='M27 15l-7 9 8 5-3 12M20 24l-8-2M27 15l7 7 8-1M28 29l9 8'/><path d='M4 30h7M2 37h8' opacity='.55'/>"),
+    genou: SV("<path d='M18 4l4 18M30 44l-6-20'/><circle cx='24' cy='23' r='5.5'/><path d='M14 23h-6M40 23h-6' opacity='.55'/>"),
+    dos: SV("<rect x='19' y='4' width='10' height='7' rx='3'/><rect x='18' y='14' width='12' height='7' rx='3'/><rect x='18' y='24' width='12' height='7' rx='3'/><rect x='19' y='34' width='10' height='8' rx='3'/>"),
+    cheville: SV("<path d='M20 4v20c0 6-2 10-8 13l-4 3c-2 2-1 5 2 5h24c3 0 4-3 3-6l-3-6c-1-3-2-6-2-9V4'/><circle cx='27' cy='29' r='2.5'/>")
+  };
+  var MODE = {
+    coureur: { a: "#FF5A36", b: "#E2304F", hi: "Mode coureur activé", sub: "2 séances par semaine et votre journal de course" },
+    genou: { a: "#14B8A6", b: "#0B7F8C", hi: "Programme genou activé", sub: "Calmer, renforcer, puis reprendre vos activités" },
+    dos: { a: "#7C5CFF", b: "#4B2FD6", hi: "Programme dos activé", sub: "Bouger à nouveau, en confiance" },
+    cheville: { a: "#F08A1C", b: "#C2410C", hi: "Programme cheville activé", sub: "Équilibre, force, puis retour aux sauts" },
+    general: { a: "#5867FF", b: "#3341E0", hi: "Programme général", sub: "Tout le corps, 5 séances par semaine" }
+  };
 
   /* ════════ Visibilité et choix ════════ */
   function isAdmin() { return !!(window.fbUser && fbUser.isAdmin); }
@@ -232,7 +248,9 @@ var KineTheme = (function () {
     if (!GENERAL) GENERAL = Object.keys(SEQ_DAYS);
     // on retire les séances d'un programme ciblé précédent
     Object.keys(SEQ_DAYS).forEach(function (k) { if (GENERAL.indexOf(k) < 0) delete SEQ_DAYS[k]; });
-    var id = active(); if (!id) return;
+    var id = active();
+    try { document.documentElement.setAttribute("data-mode", id || "general"); } catch (e) {}
+    if (!id) return;
     var T = THEMES[id], k = ids(id), days = {};
     T.sessions.forEach(function (s, i) {
       var list = [exercise(s.warm)].concat(s.ex.map(function (x) { return exercise(x[0], x[1], x[2]); }), [exercise(s.cool)]).filter(Boolean);
@@ -245,13 +263,40 @@ var KineTheme = (function () {
     try { if (typeof renderAll === "function") renderAll(); } catch (e) {}
     try { if (window.KineLayout) KineLayout.render(); } catch (e) {}
   }
-  function choose(id) {
-    var prev = get(KEY);
+  // Chaque programme garde sa propre progression : on peut passer de l'un à l'autre et revenir sans repartir à zéro
+  function jget(k, d) { try { var v = JSON.parse(get(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
+  function choose(id, quiet) {
+    var prev = get(KEY) || "general", next = id || "general";
+    closeSheet();
+    if (prev === next) return;
+    var st = jget("kf-mode-start", {});
+    st[prev] = { s: get("kf-start") || "", r: get("kf-reset") || "" };
+    var nx = st[next] || { s: "", r: "" };
+    set("kf-start", nx.s); set("kf-reset", nx.r);
+    try { localStorage.setItem("kf-mode-start", JSON.stringify(st)); } catch (e) {}
     set(KEY, id || null);
-    if ((prev || null) !== (id || null)) { set("kf-start", ""); set("kf-reset", ""); }   // nouveau programme : on repart en semaine 1
     if (window.KineOfficiel && KineOfficiel.reapply) KineOfficiel.reapply(); else apply();
-    rerender(); closeSheet();
-    if (window.KineStats) KineStats.ev("p", "programme:" + (id || "general"));
+    mark(); rerender();
+    if (!quiet) fx(next);
+    if (window.KineStats) KineStats.ev("p", "programme:" + next);
+  }
+  // L'interface prend la couleur du programme
+  function mark() { var id = active(); document.documentElement.setAttribute("data-mode", id || "general"); }
+  // Animation au centre de l'écran quand on change de programme
+  function fx(id) {
+    var M = MODE[id] || MODE.general, seen = jget("kf-mode-seen", {}), first = id !== "general" && !seen[id];
+    var old = $("th-fx"); if (old) old.remove();
+    var el = document.createElement("div"); el.id = "th-fx"; el.className = "th-fx" + (first ? " first" : ""); el.setAttribute("role", "status");
+    el.style.setProperty("--ma", M.a); el.style.setProperty("--mb", M.b);
+    el.innerHTML = "<div class='th-fx-lines'><i></i><i></i><i></i><i></i><i></i></div><div class='th-fx-in'><div class='th-fx-ic'>" + (ICON[id] || ICON.general) + "</div>" +
+      "<b>" + esc(M.hi) + "</b><span>" + esc(M.sub) + "</span>" +
+      (first ? "<small>Des exercices généraux, à suivre sur les conseils de votre kiné : ils ne remplacent pas une consultation.</small>" : "") + "</div>";
+    document.body.appendChild(el);
+    try { if (navigator.vibrate) navigator.vibrate([12, 40, 18]); } catch (e) {}
+    var done = function () { el.classList.add("out"); setTimeout(function () { el.remove(); }, 450); };
+    el.onclick = done;
+    setTimeout(done, first ? 3200 : 1700);
+    if (first) { seen[id] = 1; try { localStorage.setItem("kf-mode-seen", JSON.stringify(seen)); } catch (e) {} }
   }
 
   /* ════════ Écrans ════════ */
@@ -294,9 +339,20 @@ var KineTheme = (function () {
     var cur = active(), list = available();
     if (!cur && !list.length) return "";
     var T = cur && THEMES[cur];
-    return "<button class='th-banner' onclick='KineTheme.picker()'><span class='th-dot' style='background:" + (T ? T.color : "var(--blue)") + "'></span>" +
-      "<span><small>Mon programme</small><b>" + esc(T ? T.label : "Programme général") + "</b></span><span class='th-chg'>Changer</span></button>" +
+    var pill = function (id) {
+      var on = (cur || "general") === id, M = MODE[id], lab = id === "general" ? "Général" : THEMES[id].label.replace(" après entorse", "").replace(" douloureux", "");
+      return "<button class='th-pill" + (on ? " on" : "") + "' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick=\"KineTheme.choose(" + (id === "general" ? "null" : "'" + id + "'") + ")\" aria-pressed='" + on + "'>" +
+        "<span class='th-pi'>" + ICON[id] + "</span>" + esc(lab) + (id !== "general" && isAdmin() && !visible(id) ? "<em>masqué</em>" : "") + "</button>";
+    };
+    return "<div class='th-switch'><div class='th-sw-h'><span>Mon programme</span><button onclick='KineTheme.picker()'>Détails</button></div>" +
+      "<div class='th-pills'>" + ["general"].concat(list).map(pill).join("") + "</div></div>" +
       (T ? "<div class='th-links'><button onclick='KineTheme.info()'>Comprendre ce programme</button>" + (T.runLog && window.KineCourse ? "<button onclick='KineCourse.open()'>Mon journal de course</button>" : "") + "</div>" : "");
+  }
+  // Petite étiquette du mode en cours, en haut de l'accueil
+  function chipHtml() {
+    var cur = active(); if (!cur) return "";
+    var M = MODE[cur];
+    return "<button class='th-chip' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick=\"showPage('guide')\"><span class='th-pi'>" + ICON[cur] + "</span>" + esc(THEMES[cur].label) + "</button>";
   }
   // Accueil, programme coureur : la sortie du jour se note en un geste, et la question du lendemain matin
   function homeHtml() {
@@ -317,12 +373,12 @@ var KineTheme = (function () {
   }
 
   function init() {
-    apply(); rerender();
-    window.addEventListener("kf-auth", function () { if (window.KineOfficiel && KineOfficiel.reapply) KineOfficiel.reapply(); else apply(); rerender(); });
+    apply(); mark(); rerender();
+    window.addEventListener("kf-auth", function () { if (window.KineOfficiel && KineOfficiel.reapply) KineOfficiel.reapply(); else apply(); mark(); rerender(); });
   }
   if (document.readyState === "complete") setTimeout(init, 0); else window.addEventListener("load", function () { setTimeout(init, 0); });
 
   return { THEMES: THEMES, ORDER: ORDER, apply: apply, active: active, schedule: schedule, available: available, choose: choose, picker: picker, info: info,
-           close: closeSheet, bannerHtml: bannerHtml, homeHtml: homeHtml, perWeek: perWeek, adminHtml: adminHtml, visible: visible };
+           close: closeSheet, bannerHtml: bannerHtml, chipHtml: chipHtml, homeHtml: homeHtml, fx: fx, perWeek: perWeek, adminHtml: adminHtml, visible: visible };
 })();
 window.KineTheme = KineTheme;

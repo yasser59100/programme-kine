@@ -85,6 +85,7 @@
     box.innerHTML =
       "<div class='lu-top'><p class='lx-date'>" + cap(WD[dow]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
         "<button class='lu-me' onclick='handleAuthClick()' aria-label='" + (who ? "Mon compte" : "Connexion") + "'>" + (who ? esc(who.charAt(0).toUpperCase()) : "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21a8 8 0 0 1 16 0'/></svg>") + "</button></div>" +
+      (window.KineTheme && KineTheme.chipHtml ? KineTheme.chipHtml() : "") +
       "<h1 class='lu-hello'>" + hello + "</h1>" +
       "<div class='lu-days'>" + days + "</div>" + banner +
       "<div class='lu-slab lu-" + state + "'>" + yassHtml(state) +

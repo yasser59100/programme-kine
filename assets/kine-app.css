@@ -2637,3 +2637,60 @@ html:not(.kf-kine) .kc-kine { display: none !important; }
 .kco-eff { flex-wrap: wrap; }
 .kco-eff button { flex: 1 1 30%; }
 #kco-sheet .kf-sheet-body > *, #th-sheet .kf-sheet-body > * { flex-shrink: 0; }
+
+/* ═══ Modes : l'interface prend la couleur du programme choisi ═══ */
+html[data-mode="coureur"] { --ma: #FF5A36; --mb: #E2304F; --mshadow: rgba(226, 48, 79, .55); }
+html[data-mode="genou"] { --ma: #14B8A6; --mb: #0B7F8C; --mshadow: rgba(11, 127, 140, .55); }
+html[data-mode="dos"] { --ma: #7C5CFF; --mb: #4B2FD6; --mshadow: rgba(75, 47, 214, .55); }
+html[data-mode="cheville"] { --ma: #F08A1C; --mb: #C2410C; --mshadow: rgba(194, 65, 12, .55); }
+html:is([data-mode="coureur"], [data-mode="genou"], [data-mode="dos"], [data-mode="cheville"]):root:root:root {
+  --blue: var(--ma); --blue-dim: color-mix(in srgb, var(--ma) 12%, transparent); --lu-ind: var(--ma); --lu-ind2: var(--mb);
+  --h-accent: var(--mb); --h-sel-bg: color-mix(in srgb, var(--ma) 12%, transparent); --h-sel-border: var(--ma); }
+html:is([data-mode="coureur"], [data-mode="genou"], [data-mode="dos"], [data-mode="cheville"]) :is(.lu-slab:not(.lu-rest):not(.lu-done), .lu-pslab) {
+  background: linear-gradient(160deg, var(--ma), var(--mb)); box-shadow: 0 24px 40px -20px var(--mshadow); transition: background .5s ease; }
+/* motif propre à chaque mode, en filigrane dans les grandes cartes */
+html[data-mode="coureur"] :is(.lu-slab:not(.lu-rest):not(.lu-done), .lu-pslab)::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: repeating-linear-gradient(115deg, transparent 0 34px, rgba(255,255,255,.07) 34px 40px); }
+html[data-mode="coureur"] .lu-pslab, html[data-mode="genou"] .lu-pslab, html[data-mode="dos"] .lu-pslab, html[data-mode="cheville"] .lu-pslab { position: relative; }
+html:is([data-mode="genou"], [data-mode="dos"], [data-mode="cheville"]) :is(.lu-slab:not(.lu-rest):not(.lu-done), .lu-pslab)::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(circle at 85% 15%, rgba(255,255,255,.16), transparent 45%); }
+html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -.045em; }
+
+/* sélecteur de programme : un toucher */
+.th-switch { margin: 0 0 10px; }
+.th-sw-h { display: flex; justify-content: space-between; align-items: baseline; margin: 0 2px 8px; }
+.th-sw-h span { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text2); }
+.th-sw-h button { border: 0; background: none; color: var(--text2); font: inherit; font-size: .85rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.th-pills { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 6px; margin: 0 -2px; }
+.th-pills::-webkit-scrollbar { display: none; }
+.th-pill { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-weight: 700; font-size: .92rem; transition: transform .15s ease, background .3s ease; }
+.th-pill:active { transform: scale(.96); }
+.th-pill .th-pi { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--ma) 14%, transparent); color: var(--ma); }
+.th-pill .th-pi svg { width: 20px; height: 20px; }
+.th-pill.on { background: linear-gradient(135deg, var(--ma), var(--mb)); border-color: transparent; color: #fff; box-shadow: 0 10px 20px -12px var(--mb); }
+.th-pill.on .th-pi { background: rgba(255,255,255,.22); color: #fff; }
+.th-pill em { font-style: normal; font-size: .7rem; font-weight: 800; opacity: .75; }
+.th-chip { display: inline-flex; align-items: center; gap: 6px; margin: 8px 0 -6px; padding: 4px 12px 4px 4px; border-radius: 999px; border: 0; background: linear-gradient(135deg, var(--ma), var(--mb)); color: #fff; font: inherit; font-size: .82rem; font-weight: 800; }
+.th-chip .th-pi { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.22); }
+.th-chip svg { width: 16px; height: 16px; }
+
+/* animation de changement de programme */
+.th-fx { position: fixed; inset: 0; z-index: 7000; display: grid; place-items: center; background: rgba(8, 10, 18, .45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: thFxIn .25s ease both; overflow: hidden; cursor: pointer; }
+.th-fx.out { animation: thFxOut .4s ease both; }
+.th-fx-in { position: relative; width: min(300px, 78vw); padding: 30px 22px 26px; border-radius: 34px; color: #fff; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: linear-gradient(150deg, var(--ma), var(--mb)); box-shadow: 0 30px 60px -20px var(--mb); animation: thFxPop .55s cubic-bezier(.2, 1.4, .4, 1) both; }
+.th-fx-ic { width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.18); margin-bottom: 6px; animation: thFxIc .9s ease .15s both; }
+.th-fx-ic svg { width: 58px; height: 58px; }
+.th-fx b { font: 800 1.45rem/1.1 var(--lu-head, inherit); letter-spacing: -.03em; }
+.th-fx span { font-size: .95rem; opacity: .92; line-height: 1.35; }
+.th-fx small { margin-top: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.25); font-size: .8rem; line-height: 1.4; opacity: .9; }
+.th-fx-lines { position: absolute; inset: 0; pointer-events: none; }
+.th-fx-lines i { position: absolute; left: -40%; height: 3px; width: 40%; border-radius: 3px; background: linear-gradient(90deg, transparent, var(--ma)); opacity: .8; animation: thFxLine .9s ease-out both; }
+.th-fx-lines i:nth-child(1) { top: 30%; animation-delay: .05s; } .th-fx-lines i:nth-child(2) { top: 38%; width: 55%; animation-delay: .12s; }
+.th-fx-lines i:nth-child(3) { top: 62%; animation-delay: .2s; } .th-fx-lines i:nth-child(4) { top: 70%; width: 30%; animation-delay: .08s; } .th-fx-lines i:nth-child(5) { top: 50%; width: 65%; animation-delay: .16s; }
+@keyframes thFxIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes thFxOut { to { opacity: 0; transform: scale(1.04); } }
+@keyframes thFxPop { from { opacity: 0; transform: scale(.6) translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes thFxIc { 0% { transform: scale(.4) rotate(-20deg); opacity: 0; } 60% { transform: scale(1.12) rotate(4deg); opacity: 1; } 100% { transform: none; } }
+@keyframes thFxLine { from { transform: translateX(0); } to { transform: translateX(300%); } }
+@media (prefers-reduced-motion: reduce) { .th-fx, .th-fx-in, .th-fx-ic, .th-fx-lines i { animation-duration: .01s !important; } }
