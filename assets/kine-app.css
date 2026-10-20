@@ -2701,10 +2701,4 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 .th-runner { position: absolute; left: 0; pointer-events: none; background: 0 0 / 1200% 100% no-repeat; filter: drop-shadow(0 10px 12px rgba(0,0,0,.35)); }
 @keyframes thRun { to { background-position: var(--bpx, 109.0909%) 0; } }
 @keyframes thRunOut { to { opacity: 0; } }
-.th-yimg { display: block; width: 100%; height: 100%; object-fit: contain; }
-.th-fx-ic { overflow: hidden; background: rgba(255,255,255,.95) !important; }
-.th-fx-ic .th-yimg { width: 86px; height: 86px; }
-.th-pi { overflow: hidden; }
-.th-pill .th-pi, .th-chip .th-pi { background: #fff !important; }
-.th-pill .th-pi .th-yimg { width: 30px; height: 30px; }
-.th-chip .th-pi .th-yimg { width: 24px; height: 24px; }
+.th-home { margin: 14px 0 6px; }

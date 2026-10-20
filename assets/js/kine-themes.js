@@ -201,9 +201,29 @@ var KineTheme = (function () {
   };
   var ORDER = ["coureur", "genou", "dos", "cheville"];
   // Identité de chaque mode : pictogramme (traits), couleurs, phrase d'accueil
-  // Pictogramme de chaque mode : Yass lui-même, tiré de son animation (il court, marche avec sa canne, boite, tient sa cheville…)
+  // Pictogramme de chaque mode : genou, cheville, colonne, chaussure de course, silhouette (pleins, couleur du texte)
+  var MICONS = {
+  // genou de profil : fémur, rotule, tibia, interligne articulaire
+  genou: "<path d='M17 3h11l-1.6 15.5c-.2 2.2-2 3.8-4.2 3.8h-1.4c-2.6 0-4.4-2.4-3.8-4.9z'/>" +
+         "<ellipse cx='29.5' cy='24.2' rx='3.6' ry='4.6'/>" +
+         "<path d='M17.4 26.4h9.8c1.9 0 3.3 1.7 3 3.6L27.6 45h-9.4l-2.6-15.2c-.3-1.8 1.1-3.4 2.8-3.4z'/>" +
+         "<rect x='15' y='23.3' width='13' height='1.6' rx='.8' opacity='.45'/>",
+  // cheville et pied de profil, malléole marquée
+  cheville: "<path d='M14 3h9v20.5c0 1.6 1 3 2.4 3.6l11.8 4.8c3 1.2 5 4.1 5 7.3V40c0 1.7-1.3 3-3 3H11.2c-2.1 0-3.6-2-3-4l3.3-11.4c.3-1.2.5-2.4.5-3.6z'/>" +
+            "<circle cx='17.6' cy='27' r='3.4' fill='none' stroke='rgba(0,0,0,.22)' stroke-width='2'/>",
+  // colonne : vertèbres et disques, légère courbure
+  dos: "<rect x='17' y='3' width='14' height='6.5' rx='3'/><rect x='16' y='11.5' width='15' height='6.5' rx='3'/><rect x='16.5' y='20' width='15' height='6.8' rx='3'/>" +
+       "<rect x='17.5' y='28.8' width='15' height='6.8' rx='3'/><rect x='18.5' y='37.6' width='13' height='7' rx='3.2'/>" +
+       "<path d='M12 7h3M11 15h3.5M11.5 23.5h3.6M12.5 32h3.6M13.5 41h3.6' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' opacity='.5'/>",
+  // chaussure de course et traits de vitesse
+  coureur: "<path d='M15 18c2.2 0 3.6 1.2 4.6 3l1.2 2.4 4.8-1.6 1.4 2.8-4.6 1.8 1.1 2.1 4.7-1.7 1.4 2.8-4.6 1.7c2.4 2.2 6 3.1 10.6 3.3 3.6.2 5.4 2 5.4 4.6v.8c0 1.3-1 2.4-2.4 2.4H11.4C9 36.8 7 34.8 7 32.4V22.2c0-2.3 1.9-4.2 4.2-4.2z'/>" +
+           "<rect x='7' y='38.6' width='35.6' height='3.4' rx='1.7'/>" +
+           "<path d='M2 21h3M1 27h4' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' opacity='.55'/>",
+  // tout le corps
+  general: "<circle cx='24' cy='7.5' r='4.8'/><path d='M12.5 14.5h23c1.6 0 2.6 1.8 1.7 3.1l-.4.6c-.4.6-1 .9-1.7.9H29.5l-.8 9.4 3.2 13.6c.4 1.7-.9 3.3-2.6 3.3-1.3 0-2.4-.9-2.6-2.2L24.3 31h-.6l-2.4 12.2c-.3 1.3-1.4 2.2-2.6 2.2-1.7 0-3-1.6-2.6-3.3l3.2-13.6-.8-9.4h-5.6c-.7 0-1.3-.3-1.7-.9l-.4-.6c-.9-1.3.1-3.1 1.7-3.1z'/>"
+};
   var ICON = {};
-  ["general", "coureur", "genou", "dos", "cheville"].forEach(function (k) { ICON[k] = "<img class='th-yimg' src='assets/lumiere/yass-anim/ic-" + k + ".webp' alt=''>"; });
+  Object.keys(MICONS).forEach(function (k) { ICON[k] = "<svg viewBox='0 0 48 48' fill='currentColor' aria-hidden='true'>" + MICONS[k] + "</svg>"; });
   var MODE = {
     coureur: { a: "#FF5A36", b: "#E2304F", hi: "Mode coureur activé", sub: "2 séances par semaine et votre journal de course" },
     genou: { a: "#14B8A6", b: "#0B7F8C", hi: "Programme genou activé", sub: "Calmer, renforcer, puis reprendre vos activités" },
@@ -476,18 +496,27 @@ var KineTheme = (function () {
     el.classList.add("open"); el.scrollTop = 0;
   }
   // Bandeau en haut de l'onglet Programme : programme en cours, et accès au choix
-  function bannerHtml() {
+  function pillsHtml() {
     var cur = active(), list = available();
-    if (!cur && !list.length) return "";
-    var T = cur && THEMES[cur];
     var pill = function (id) {
       var on = (cur || "general") === id, M = MODE[id], lab = id === "general" ? "Général" : THEMES[id].label.replace(" après entorse", "").replace(" douloureux", "");
       return "<button class='th-pill" + (on ? " on" : "") + "' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick=\"KineTheme.choose(" + (id === "general" ? "null" : "'" + id + "'") + ")\" aria-pressed='" + on + "'>" +
         "<span class='th-pi'>" + ICON[id] + "</span>" + esc(lab) + (id !== "general" && isAdmin() && !visible(id) ? "<em>masqué</em>" : "") + "</button>";
     };
+    return "<div class='th-pills'>" + ["general"].concat(list).map(pill).join("") + "</div>";
+  }
+  function bannerHtml() {
+    var cur = active(), list = available();
+    if (!cur && !list.length) return "";
+    var T = cur && THEMES[cur];
     return "<div class='th-switch'><div class='th-sw-h'><span>Mon programme</span><button onclick='KineTheme.picker()'>Détails</button></div>" +
-      "<div class='th-pills'>" + ["general"].concat(list).map(pill).join("") + "</div></div>" +
+      pillsHtml() + "</div>" +
       (T ? "<div class='th-links'><button onclick='KineTheme.info()'>Comprendre ce programme</button>" + (T.runLog && window.KineCourse ? "<button onclick='KineCourse.open()'>Mon journal de course</button>" : "") + "</div>" : "");
+  }
+  // Accueil : on change de programme d'un toucher, sans passer par l'onglet Exercices
+  function homeSwitchHtml() {
+    if (!active() && !available().length) return "";
+    return "<div class='th-switch th-home'><div class='th-sw-h'><span>Mon programme</span>" + (active() ? "<button onclick='KineTheme.info()'>Comprendre</button>" : "") + "</div>" + pillsHtml() + "</div>";
   }
   // Petite étiquette du mode en cours, en haut de l'accueil
   function chipHtml() {
@@ -520,6 +549,6 @@ var KineTheme = (function () {
   if (document.readyState === "complete") setTimeout(init, 0); else window.addEventListener("load", function () { setTimeout(init, 0); });
 
   return { THEMES: THEMES, ORDER: ORDER, apply: apply, active: active, schedule: schedule, available: available, choose: choose, picker: picker, info: info,
-           close: closeSheet, bannerHtml: bannerHtml, chipHtml: chipHtml, homeHtml: homeHtml, fx: fx, perWeek: perWeek, adminHtml: adminHtml, visible: visible };
+           close: closeSheet, bannerHtml: bannerHtml, chipHtml: chipHtml, homeSwitchHtml: homeSwitchHtml, homeHtml: homeHtml, fx: fx, perWeek: perWeek, adminHtml: adminHtml, visible: visible };
 })();
 window.KineTheme = KineTheme;
