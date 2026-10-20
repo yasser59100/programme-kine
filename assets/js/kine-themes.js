@@ -287,8 +287,8 @@ var KineTheme = (function () {
   var SCENE = {
     coureur: { img: "course", n: 12, cyc: 0.42, dur: 1500, fx: "fire" },
     dos: { img: "mode-dos", n: 12, cyc: 1.15, dur: 2300, fx: "bolt", at: [0.42, 0.46] },
-    genou: { img: "mode-genou", n: 12, cyc: 0.95, dur: 2100, fx: "bolt", at: [0.47, 0.71] },
-    cheville: { img: "mode-cheville", n: 10, cyc: 0.55, dur: 1900, fx: "bolt", at: [0.34, 0.79] },
+    genou: { img: "mode-genou", n: 12, cyc: 0.9, dur: 2300, fx: "bolt", at: [0.55, 0.6], deco: "stairs" },
+    cheville: { img: "mode-cheville", n: 10, cyc: 0.55, dur: 2200, fx: "bolt", at: [0.34, 0.79], deco: "stones" },
     general: { img: "mode-general", n: 12, cyc: 0.8, dur: 1700, fx: "spark" }
   };
   function sceneFx(el, id) {
@@ -301,6 +301,40 @@ var KineTheme = (function () {
     cv.width = W * dpr; cv.height = H * dpr; c.scale(dpr, dpr);
     var S = Math.min(260, W * 0.66), y0 = H * 0.5 - S * 0.62, t0 = performance.now(), P = [], B = [], raf = 0, alive = true, lastBolt = 0;
     y.style.width = y.style.height = S + "px"; y.style.top = y0 + "px";
+    // genou : Yass monte un escalier (le geste qui réveille la douleur) ; cheville : il saute de pierre en pierre
+    var RISE = C.deco === "stairs" ? H * 0.26 : 0, yBase = C.deco === "stairs" ? y0 + RISE / 2 : y0, FOOT = 0.93;
+    function topAt(k) { return yBase - RISE * k; }
+    function kAtFoot(xf) { return Math.max(0, Math.min(1, (xf - S * 0.5 + S) / (W + 2 * S))); }
+    var stones = [];
+    if (C.deco === "stones") for (var q = 0; q < 12; q++) { var tl = (q + 0.75) * C.cyc * 1000 / C.dur; if (tl > 1) break; stones.push({ x: -S + (W + 2 * S) * tl + S * 0.5, t: tl, hit: false }); }
+    function decor(k, now) {
+      c.globalCompositeOperation = "source-over"; var fade = k > 0.82 ? Math.max(0, (1 - k) / 0.18) : 1;
+      if (C.deco === "stairs") {
+        var w = 48, M = MODE[id];
+        for (var sx = -w; sx < W + w; sx += w) {
+          var sy = topAt(kAtFoot(sx + w / 2)) + S * FOOT;
+          var g1 = c.createLinearGradient(0, sy, 0, H); g1.addColorStop(0, M.a); g1.addColorStop(1, M.b);
+          c.globalAlpha = 0.9 * fade; c.fillStyle = g1; c.fillRect(sx, sy, w + 1, H - sy);
+          c.globalAlpha = fade; c.fillStyle = "rgba(255,255,255,.55)"; c.fillRect(sx, sy, w + 1, 3);
+        }
+        c.globalAlpha = 1;
+      }
+      if (C.deco === "stones") {
+        c.globalAlpha = fade;
+        var wy = y0 + S * FOOT + 4, ph = now / 300;
+        var gw = c.createLinearGradient(0, wy - 10, 0, wy + 40); gw.addColorStop(0, "rgba(90,170,255,.55)"); gw.addColorStop(1, "rgba(40,110,220,.15)");
+        c.fillStyle = gw; c.beginPath(); c.moveTo(0, wy + 30);
+        for (var wx = 0; wx <= W; wx += 12) c.lineTo(wx, wy + Math.sin(wx / 30 + ph) * 3);
+        c.lineTo(W, wy + 40); c.lineTo(0, wy + 40); c.fill();
+        stones.forEach(function (st) {
+          var sink = st.hit ? 2 : 0;
+          if (!st.hit && k >= st.t) { st.hit = true; for (var d = 0; d < 10; d++) P.push({ x: st.x + (Math.random() - 0.5) * 40, y: wy, vx: (Math.random() - 0.5) * 3, vy: -(1 + Math.random() * 2.5), w: 0, r: 2 + Math.random() * 2.5, l: 1, d: 0.03, k: "w" }); }
+          var gs = c.createRadialGradient(st.x - 8, wy - 6 + sink, 2, st.x, wy + sink, 30); gs.addColorStop(0, "#C9C2B6"); gs.addColorStop(1, "#7D7468");
+          c.fillStyle = gs; c.beginPath(); c.ellipse(st.x, wy + sink, 30, 10, 0, 0, Math.PI * 2); c.fill();
+        });
+        c.globalAlpha = 1;
+      }
+    }
     function bolt(x, yy) {   // un éclair en zigzag qui part du point douloureux
       var a = Math.random() * Math.PI * 2, L = 26 + Math.random() * 34, pts = [[x, yy]], n = 5;
       for (var i = 1; i <= n; i++) { var d = L * i / n, j = (i < n ? (Math.random() - 0.5) * 16 : 0); pts.push([x + Math.cos(a) * d - Math.sin(a) * j, yy + Math.sin(a) * d + Math.cos(a) * j]); }
@@ -310,12 +344,13 @@ var KineTheme = (function () {
       if (!alive) return;
       var t = (now - t0) / C.dur, k = Math.min(1, t), x = -S + (W + 2 * S) * k;
       if (C.fx === "fire") x = -S + (W + 2 * S) * (k < 0.5 ? 2 * k * k * 0.6 + k * 0.4 : k);
-      y.style.transform = "translateX(" + x + "px)"; if (k >= 1) y.style.display = "none";
-      c.clearRect(0, 0, W, H);
+      var ty = C.deco === "stairs" ? topAt(k) - y0 : 0;
+      y.style.transform = "translate(" + x + "px," + ty + "px)"; if (k >= 1) y.style.display = "none";
+      c.clearRect(0, 0, W, H); if (k < 1) decor(k, now);
       if (C.fx === "fire" && t < 1.02) for (var n = 0; n < 8; n++) P.push({ x: x + S * (0.2 + Math.random() * 0.3), y: y0 + S * (0.8 + Math.random() * 0.14), vx: -(0.4 + Math.random() * 1.6), vy: -(1.2 + Math.random() * 3.2), w: Math.random() * 6.28, r: 5 + Math.random() * 11, l: 1, d: 0.014 + Math.random() * 0.02, k: "f" });
       if (C.fx === "spark" && t < 1.02) for (var m = 0; m < 3; m++) P.push({ x: x + S * (0.3 + Math.random() * 0.2), y: y0 + S * (0.3 + Math.random() * 0.6), vx: -(0.5 + Math.random()), vy: (Math.random() - 0.5) * 0.8, w: 0, r: 2 + Math.random() * 3.5, l: 1, d: 0.018 + Math.random() * 0.02, k: "s" });
       if (C.fx === "bolt" && t < 1) {
-        var ax = x + S * C.at[0], ay = y0 + S * C.at[1];
+        var ax = x + S * C.at[0], ay = y0 + ty + S * C.at[1];
         if (now - lastBolt > 85) { lastBolt = now; bolt(ax, ay); if (Math.random() < 0.6) bolt(ax, ay); }
         var pr = (now / 380) % 1;   // onde de douleur qui pulse
         c.globalCompositeOperation = "source-over";
@@ -325,10 +360,11 @@ var KineTheme = (function () {
       }
       c.globalCompositeOperation = "lighter";
       for (var i = P.length - 1; i >= 0; i--) {
-        var p = P[i]; p.w += 0.25; p.x += p.vx + (p.k === "f" ? Math.sin(p.w) * 0.8 : 0); p.y += p.vy; if (p.k === "f") p.vy -= 0.04; p.l -= p.d; p.r *= p.k === "f" ? 0.975 : 0.99;
+        var p = P[i]; p.w += 0.25; p.x += p.vx + (p.k === "f" ? Math.sin(p.w) * 0.8 : 0); p.y += p.vy; if (p.k === "f") p.vy -= 0.04; if (p.k === "w") p.vy += 0.15; p.l -= p.d; p.r *= p.k === "f" ? 0.975 : 0.99;
         if (p.l <= 0) { P.splice(i, 1); continue; }
         var g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 2), a = p.l;
         if (p.k === "f") { g.addColorStop(0, p.l > 0.6 ? "rgba(255,240,170," + a + ")" : "rgba(255,170,60," + a + ")"); g.addColorStop(0.45, "rgba(255,110,30," + a * 0.75 + ")"); g.addColorStop(1, "rgba(220,30,40,0)"); }
+        else if (p.k === "w") { g.addColorStop(0, "rgba(230,245,255," + a + ")"); g.addColorStop(1, "rgba(90,170,255,0)"); }
         else { g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.4, "rgba(120,140,255," + a * 0.8 + ")"); g.addColorStop(1, "rgba(80,100,255,0)"); }
         c.fillStyle = g; c.beginPath(); c.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2); c.fill();
       }
