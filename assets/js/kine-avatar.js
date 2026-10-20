@@ -1358,7 +1358,8 @@
               shirt: mat(AVATAR.shirt, 0.8), shoes: mat(AVATAR.shoes, 0.55), sole: mat(AVATAR.sole, 0.7), lips: mat(AVATAR.lips, 0.6),
               eyes: mat(AVATAR.eyes, 0.3), white: mat("#F4F1EC", 0.4), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95),
               load: new T.MeshStandardMaterial({ color: lin("#7cc4ff"), roughness: 0.2, transparent: true, opacity: 0.75 }),
-              cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75), trim: mat(AVATAR.print, 0.8) };
+              cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75), trim: mat(AVATAR.print, 0.8),
+              iron: mat("#2A2E35", 0.5), steel: mat("#B9C2CC", 0.3), pad: mat("#23262C", 0.7) };
     var XB = new T.MeshBasicMaterial({ color: 0xF2FBFF }), XBONES = [];
     var XSKIN = new T.MeshBasicMaterial({ color: 0x6FD3FF, transparent: true, opacity: 0.16, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending });
     function xbone(geo, parent, x, y, z) { var o = new T.Mesh(geo, XB); o.position.set(x || 0, y || 0, z || 0); o.visible = false; parent.add(o); XBONES.push(o); return o; }
@@ -1445,8 +1446,19 @@
       var palm = ball(0.043, M.skin, hand); palm.scale.set(0.82, 1.05, 0.5); palm.position.y = -0.026;
       var thumb = ball(0.016, M.skin, hand); thumb.scale.set(0.9, 1.7, 0.9); thumb.position.set(side * -0.028, -0.014, 0.012); thumb.rotation.z = side * 0.5;
       var load = new T.Group(); load.position.y = -LEN.fore; el.add(load); load.visible = false;
-      var bottle = mesh(new T.CylinderGeometry(0.036, 0.036, 0.19, 20), M.load, load); bottle.rotation.z = Math.PI / 2;
-      var cap = mesh(new T.CylinderGeometry(0.016, 0.016, 0.03, 12), M.cap, load); cap.rotation.z = Math.PI / 2; cap.position.x = 0.11;
+      // charge tenue : bouteille d'eau (par défaut), haltère ou kettlebell, selon l'exercice (loadKind)
+      var kinds = { bottle: group(load), dumbbell: group(load), kettlebell: group(load) };
+      var bottle = mesh(new T.CylinderGeometry(0.036, 0.036, 0.19, 20), M.load, kinds.bottle); bottle.rotation.z = Math.PI / 2;
+      var cap = mesh(new T.CylinderGeometry(0.016, 0.016, 0.03, 12), M.cap, kinds.bottle); cap.rotation.z = Math.PI / 2; cap.position.x = 0.11;
+      var grip = mesh(new T.CylinderGeometry(0.015, 0.015, 0.15, 14), M.steel, kinds.dumbbell); grip.rotation.z = Math.PI / 2;
+      [-1, 1].forEach(function (k) {
+        var plate = mesh(new T.CylinderGeometry(0.052, 0.052, 0.05, 24), M.iron, kinds.dumbbell); plate.rotation.z = Math.PI / 2; plate.position.x = k * 0.1;
+        var rim = mesh(new T.CylinderGeometry(0.045, 0.045, 0.012, 24), M.steel, kinds.dumbbell); rim.rotation.z = Math.PI / 2; rim.position.x = k * 0.131;
+      });
+      var kbH = mesh(new T.TorusGeometry(0.045, 0.011, 10, 28, Math.PI), M.iron, kinds.kettlebell); kbH.rotation.z = Math.PI; kbH.position.y = 0.0;
+      var kbB = ball(0.082, M.iron, kinds.kettlebell); kbB.position.y = -0.105; kbB.scale.set(1, 0.95, 1);
+      var kbF = mesh(new T.CylinderGeometry(0.05, 0.05, 0.012, 20), M.iron, kinds.kettlebell); kbF.position.y = -0.18;
+      load.userData.kinds = kinds;
       // pancarte (vrai/faux) : un manche tenu dans la main, le panneau au-dessus ; cachée par défaut
       var sign = new T.Group(); sign.position.y = -0.03; hand.add(sign); sign.visible = false;
       var stick = mesh(new T.CylinderGeometry(0.0085, 0.0085, 0.14, 10), new T.MeshStandardMaterial({ color: 0xB78650, roughness: 0.8 }), sign); stick.position.y = 0.03;
@@ -1500,8 +1512,17 @@
       wallSide: mesh(new T.BoxGeometry(0.05, 2.1, 1.2), M.wall, scene),
       table: new T.Group(),
       cushion: mesh(new T.BoxGeometry(0.42, 0.08, 0.36), M.prop, scene),
-      roller: new T.Group()
+      roller: new T.Group(),
+      bench: new T.Group()
     };
+    // Banc de musculation : assise rembourrée à 45 cm, dans l'axe du corps (z) par défaut
+    scene.add(props.bench);
+    mesh(new T.BoxGeometry(0.3, 0.07, 1.15), M.pad, props.bench).position.set(0, 0.415, 0);
+    [-0.45, 0.45].forEach(function (z) {
+      mesh(new T.BoxGeometry(0.26, 0.04, 0.05), M.steel, props.bench).position.set(0, 0.36, z);
+      mesh(new T.BoxGeometry(0.05, 0.34, 0.05), M.steel, props.bench).position.set(0, 0.18, z);
+      mesh(new T.BoxGeometry(0.34, 0.03, 0.06), M.steel, props.bench).position.set(0, 0.015, z);
+    });
     // Rouleau de massage : mousse bleu nuit, rainures plus claires ; couché sur le côté (axe X) par défaut
     scene.add(props.roller);
     (function () {
@@ -1665,6 +1686,7 @@
       // poignet (facultatif) : flexion / extension et rotation de l'avant-bras ; 0 par défaut
       if (g.hand) g.hand.rotation.set(-(A.wrist || 0) * D2R, (A.roll || 0) * D2R * sg, 0);
     });
+    hangKB();
     updateBands();
   }
 
@@ -1795,6 +1817,10 @@
     R.props.chair.rotation.y = c.turn ? Math.PI : 0; R.props.chair.position.z = c.z || 0;
     var ro = R.props.roller, rc = d && d.roller;
     if (ro) { if (rc) { var rp = rc.p || [0, 0.075, 0]; ro.position.set(rp[0] * (curSideSign || 1), rp[1] == null ? 0.075 : rp[1], rp[2]); ro.rotation.set(0, rc.along === "z" ? Math.PI / 2 : (rc.yaw || 0) * D2R * (curSideSign || 1), 0); } }
+    // banc et marche placés par l'exercice (créateur) : { x, z, along: "x" pour un banc en travers }
+    var sgn = curSideSign || 1, bc = (d && d.bench) || { x: 0, z: -0.2 }, be = R.props.bench;
+    if (be) { be.position.set((bc.x || 0) * sgn, 0, bc.z || 0); be.rotation.set(0, bc.along === "x" ? Math.PI / 2 : 0, 0); }
+    var stp = d && d.stepAt; R.props.step.position.set(stp ? (stp.x || 0) * sgn : 0, 0.09, stp ? stp.z || 0 : 0.42); R.props.step.rotation.set(0, stp && stp.along === "z" ? Math.PI / 2 : 0, 0);
   }
   var curSideSign = 1, rollPrev = null;
   // Le rouleau tourne sous le corps quand celui-ci glisse dessus
@@ -1824,6 +1850,8 @@
     var both = d && d.load === "both";
     var arm = d && d.load && !both ? (side === "R" ? (d.load === "R" ? "L" : "R") : d.load) : null;
     R.arms.L.load.visible = both || arm === "L"; R.arms.R.load.visible = both || arm === "R";
+    var kind = (d && d.loadKind) || "bottle";
+    ["L", "R"].forEach(function (s) { var ks = R.arms[s].load.userData.kinds; if (ks) for (var k in ks) ks[k].visible = k === kind; });
   }
   // Un bras ou une jambe décrit par des angles d'un côté et par une cible de l'autre ne peut pas être
   // interpolé directement : on interpole alors les rotations des articulations (plus de saut d'une pose à l'autre).
@@ -1844,11 +1872,23 @@
     applyPose(from);
     return { list: list, from: f, to: t };
   }
+  // La kettlebell pend toujours vers le sol, quelle que soit la position du bras
+  function hangKB() {
+    var T = R.T;
+    ["L", "R"].forEach(function (s) {
+      var g = R.arms[s], kb = g.load.userData.kinds && g.load.userData.kinds.kettlebell;
+      if (!kb || !g.load.visible || !kb.visible) return;
+      g.el.updateMatrixWorld(true); var qk = new T.Quaternion(); g.load.getWorldQuaternion(qk);
+      var py = new T.Quaternion(); R.pelvis.getWorldQuaternion(py); var e = new T.Euler().setFromQuaternion(py, "YXZ");
+      kb.quaternion.copy(qk.invert().multiply(new T.Quaternion().setFromEuler(new T.Euler(0, e.y, 0))));
+    });
+  }
   function blendLimbs(L, k) {
     L.list.forEach(function (l) {
       LIMB_BONES[l].forEach(function (b, i) { boneOf(l, b).quaternion.copy(L.from[l][i]).slerp(L.to[l][i], k); });
     });
     R.pelvis.updateMatrixWorld(true);
+    hangKB();
     updateBands();
   }
   var easeInOut = function (x) { return x * x * x * (10 + x * (6 * x - 15)); }; // minimum jerk
@@ -2143,6 +2183,23 @@
       lastW = 0; if (host) resize();
       out.img = img; return out;
     },
+    // Ajustement d'une pose sur des points filmés (créateur par caméra) : position des articulations d'une pose brute,
+    // sans rendu. _fitEnd() remet l'avatar affiché dans son état.
+    _joints: function (p, d) {
+      if (!window.THREE) return null;
+      if (!R) { R = build(); if (!R) return null; }
+      var T = R.T; bandDef = d || null; applyPose(p); R.pelvis.updateMatrixWorld(true);
+      var W = function (g, lx, ly, lz) { var v = new T.Vector3(lx || 0, ly || 0, lz || 0); g.localToWorld(v); return [v.x, v.y, v.z]; };
+      var out = { pelvis: W(R.pelvis), neck: W(R.spine, 0, LEN.shY, 0), head: W(R.head, 0, 0.12, 0) };
+      ["L", "R"].forEach(function (s2) {
+        var g = R.legs[s2], a = R.arms[s2];
+        out[s2] = { hip: W(g.hip), knee: W(g.knee), ankle: W(g.ankle), toe: W(g.ankle, 0, -0.06, 0.17) };
+        out[s2 + "A"] = { sh: W(a.sh), el: W(a.el), hand: W(a.el, 0, -LEN.fore, 0) };
+      });
+      return out;
+    },
+    _fitEnd: function () { if (!R) return; bandDef = def; if (def) showLoad(def, curSide); if (current) applyPose(current); },
+    LEN: LEN,
     // Mesure des angles articulaires d'une pose (contrôle des amplitudes)
     // Contrôle qualité : genou qui ne pointe pas dans l'axe du pied (rotation de hanche anormale) — pour les tests
     _audit: function () {

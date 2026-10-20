@@ -147,6 +147,10 @@ window.fbGetProgramme = async function() {
   var snap = await getDoc(doc(db, "programme", "officiel"));
   return snap.exists() ? snap.data() : null;
 };
+// Suivi en direct : chaque téléphone ouvert reçoit le programme dès que le kiné publie (une seule lecture du document)
+window.fbWatchProgramme = function(cb) {
+  return onSnapshot(doc(db, "programme", "officiel"), function(snap) { cb(snap.exists() ? snap.data() : null); }, function() {});
+};
 window.fbSetProgramme = async function(data) {
   if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("admin");
   await setDoc(doc(db, "programme", "officiel"), data);
@@ -3693,6 +3697,7 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-biblio.js" defer></script>
 <script src="assets/js/kine-compose.js" defer></script>
 <script src="assets/js/kine-createur.js" defer></script>
+<script src="assets/js/kine-capture.js" defer></script>
 <script src="assets/js/kine-eveil.js" defer></script>
 <script src="assets/js/kine-officiel.js" defer></script>
 <script src="assets/js/kine-harmonie.js" defer></script>

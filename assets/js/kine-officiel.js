@@ -75,21 +75,38 @@ var KineOfficiel = (function () {
     try { if (window.KineLayout) KineLayout.render(); } catch (e) {}
   }
   function inSession() { var s = $("seq-overlay"); return !!(s && s.classList.contains("open")); }
+  // Nouvelle version reçue : appliquée tout de suite, ou à la fin de la séance en cours
+  var pending = null;
+  function received(d) {
+    var cur = jget(CKEY);
+    if (!d || (cur && cur.v === d.v)) return;
+    jset(CKEY, d);
+    var news = Object.keys(d.custom || {}).filter(function (n) { return !(cur && cur.custom && cur.custom[n]); });
+    if (inSession()) { pending = d; return; }
+    apply(d); rerender(); if (cur && news.length) toast(news);
+  }
+  setInterval(function () { if (pending && !inSession()) { var d = pending; pending = null; apply(d); rerender(); } }, 4000);
+  function toast(news) {
+    var t = document.createElement("div"); t.className = "ko-toast"; t.setAttribute("role", "status");
+    t.textContent = news.length > 1 ? news.length + " nouveaux exercices de ton kiné dans la bibliothèque" : "Nouvel exercice de ton kiné : " + news[0];
+    document.body.appendChild(t); setTimeout(function () { t.classList.add("on"); }, 30);
+    setTimeout(function () { t.classList.remove("on"); setTimeout(function () { t.remove(); }, 400); }, 4500);
+  }
   function refresh() {
     if (typeof window.fbGetProgramme !== "function") return;
-    window.fbGetProgramme().then(function (d) {
-      var cur = jget(CKEY);
-      if (!d) return;
-      if (cur && cur.v === d.v) return;
-      jset(CKEY, d);
-      if (!inSession()) { apply(d); rerender(); }
-    }).catch(function () {});
+    window.fbGetProgramme().then(received).catch(function () {});
+  }
+  var watching = false;
+  function watch() {
+    if (watching) return;
+    if (typeof window.fbWatchProgramme === "function") { watching = true; try { window.fbWatchProgramme(received); } catch (e) { watching = false; refresh(); } }
+    else refresh();
   }
 
-  // Au chargement : la copie locale tout de suite, puis la version en ligne
+  // Au chargement : la copie locale tout de suite, puis la version en ligne, suivie en direct
   apply(jget(CKEY));
-  if (typeof window.fbGetProgramme === "function") setTimeout(refresh, 1500);
-  else window.addEventListener("kf-fb-ready", function () { setTimeout(refresh, 1500); });
+  if (typeof window.fbGetProgramme === "function") setTimeout(watch, 1500);
+  else window.addEventListener("kf-fb-ready", function () { setTimeout(watch, 1500); });
 
   /* ════════ Éditeur du kiné ════════ */
   function draft() { return jget(DKEY) || JSON.parse(JSON.stringify(data || { ex: {}, days: {} })); }
@@ -154,7 +171,8 @@ var KineOfficiel = (function () {
         var c = d.custom[n];
         return "<button class='v2-row' onclick='KineCreateur.open(" + q(n) + ")'><b><i class='kb-dot c" + c.fiche.color + "'></i>" + esc(n) + "</b><span>✎</span></button>";
       }).join("") +
-      "<button class='v2-row kc-new' onclick='KineCreateur.open()'><b>＋ Créer un exercice avec l'avatar</b><span>›</span></button>" +
+      "<button class='v2-row kc-new' onclick='KineCapture.open()'><b>＋ Créer un exercice en me filmant</b><span>›</span></button>" +
+      "<button class='v2-row kc-new' onclick='KineCreateur.open()'><b>＋ Créer un exercice avec les curseurs</b><span>›</span></button>" +
       "<div class='kf-phase' style='color:var(--text2)'>Fiches d'exercices</div>" +
       "<button class='v2-row' onclick='KineOfficiel.lib()'><b>Toutes les fiches de la bibliothèque</b><span>›</span></button>" +
       (changed() ? "<div class='kf-note'>Des modifications ne sont pas encore publiées.</div><button class='kc-kine' onclick='KineOfficiel.discard()'>Annuler les modifications non publiées</button>" : ""),
@@ -237,7 +255,7 @@ var KineOfficiel = (function () {
     var btn = sheet().querySelector(".seq-btn-main"); if (btn) { btn.disabled = true; btn.textContent = "Publication…"; }
     window.fbSetProgramme(d).then(function () {
       jset(CKEY, d); jset(DKEY, null); apply(d); rerender();
-      frame("Programme publié", "Vos patients recevront la mise à jour à la prochaine ouverture de l'appli.", "<div class='kf-note'>Publié le " + new Date(d.v).toLocaleString("fr-FR") + ".</div>",
+      frame("Programme publié", "C'est déjà chez vos patients : tout de suite si leur appli est ouverte, sinon à la prochaine ouverture.", "<div class='kf-note'>Publié le " + new Date(d.v).toLocaleString("fr-FR") + ".</div>",
         "<button class='seq-btn-secondary' onclick='KineOfficiel.close()'>Fermer</button>");
     }).catch(function (e) {
       if (btn) { btn.disabled = false; btn.textContent = "Publier pour tous les patients"; }

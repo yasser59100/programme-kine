@@ -84,8 +84,28 @@ var KineCreateur = (function () {
     if (x.noIso) d.noIso = true;
     if (x.load) d.load = x.load;
     if (x.base === "side" || x.base === "prone") d.snapSideChange = true;
+    if (x.load) d.loadKind = x.loadKind || "bottle";
+    var bd = x.band && BANDS[x.band.kind];
+    if (bd) d.bands = bd(x.band);
+    if (x.bench) d.bench = { x: +x.bench.x || 0, z: +x.bench.z || 0, along: x.bench.along || "z" };
+    if (x.stepAt) d.stepAt = { x: +x.stepAt.x || 0, z: +x.stepAt.z || 0 };
     return d;
   }
+  // Élastique : où il est accroché. Point fixe : devant, derrière ou en haut, à la hauteur choisie
+  function fixedAt(b) { var h = b.h != null ? +b.h : 1.0; return b.kind === "front" ? [0, h, 0.95] : b.kind === "back" ? [0, h, -0.95] : [0, Math.max(h, 1.6), 0.35]; }
+  function armsOf(b, f) { var a = b.arms || "both", o = []; if (a !== "R") o.push(f("L")); if (a !== "L") o.push(f("R")); return o; }
+  var BANDS = {
+    hands: function () { return [["LH", "RH"]]; },
+    feet: function (b) { return armsOf(b, function (s) { return [s + "H", s + "A"]; }); },
+    knees: function () { return [["LK", "RK"]]; },
+    ankles: function () { return [["LA", "RA"]]; },
+    front: function (b) { var p = fixedAt(b); return armsOf(b, function (s) { return [s + "H", p.slice()]; }); },
+    back: function (b) { var p = fixedAt(b); return armsOf(b, function (s) { return [s + "H", p.slice()]; }); },
+    high: function (b) { var p = fixedAt(b); return armsOf(b, function (s) { return [s + "H", p.slice()]; }); }
+  };
+  var BAND_LABEL = [["", "Pas d'élastique"], ["hands", "Entre les mains"], ["feet", "Sous les pieds, tenu en main"], ["knees", "Autour des genoux"], ["ankles", "Autour des chevilles"],
+                    ["front", "Accroché devant"], ["back", "Accroché derrière"], ["high", "Accroché en haut"]];
+  var LOADS = [["", "Pas de charge"], ["dumbbell", "Haltères"], ["kettlebell", "Kettlebell"], ["bottle", "Bouteilles d'eau"]];
   function register(name, x) { try { if (window.KineAvatar) KineAvatar.register(name, buildDef(x)); } catch (e) {} }
 
   /* ════════ Écran du créateur ════════ */
@@ -104,6 +124,12 @@ var KineCreateur = (function () {
     var v = get(path);
     return "<label class='kcr-sl'><span>" + esc(label) + "<b id='v-" + path.replace(/\./g, "-") + "'>" + fmt(v, unit) + "</b></span>" +
       "<input type='range' min='" + min + "' max='" + max + "' step='" + (stepv || 1) + "' value='" + v + "' oninput='KineCreateur.set(\"" + path + "\",this.value,\"" + (unit || "°") + "\")'></label>";
+  }
+  // Position d'un accessoire posé au sol (banc, step) : avant / arrière et gauche / droite
+  function placeSl(key, label) {
+    var o = cur[key] || {}, z = o.z != null ? o.z : (key === "bench" ? -0.2 : 0.42), xx = o.x || 0;
+    return "<label class='kcr-sl'><span>" + label + " : avant / arrière<b id='v-" + key + "-z'>" + Math.round(z * 100) + " cm</b></span><input type='range' min='-1.2' max='1.2' step='0.02' value='" + z + "' oninput='KineCreateur.place(\"" + key + "\",\"z\",this.value)'></label>" +
+      "<label class='kcr-sl'><span>" + label + " : gauche / droite<b id='v-" + key + "-x'>" + Math.round(xx * 100) + " cm</b></span><input type='range' min='-0.8' max='0.8' step='0.02' value='" + xx + "' oninput='KineCreateur.place(\"" + key + "\",\"x\",this.value)'></label>";
   }
   function fmt(v, unit) { return unit === "m" ? Math.round(v * 100) + " cm" : unit === "s" ? String(v).replace(".", ",") + " s" : Math.round(v) + "°"; }
   function get(path) { var o = cur.poses[which]; path.split(".").forEach(function (k) { o = o[k]; }); return o; }
@@ -129,14 +155,21 @@ var KineCreateur = (function () {
     var y = el.scrollTop;
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCreateur.close()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + (origName ? "Modifier l'exercice" : "Créer un exercice") + "</div><div class='kf-sub'>Réglez la position de départ, puis la position d'arrivée. L'avatar bouge en direct.</div></div>" +
+      (x.src === "camera" && !origName ? "<div class='kcr-cam'><b>Calculé depuis ta vidéo.</b> Regarde le départ et l'arrivée, corrige si besoin avec les curseurs, puis remplis la fiche.</div>" : "") +
       "<div class='kcr-stage-wrap'><div id='kcr-stage' class='kcr-stage'></div>" +
         "<div class='kcr-tabs'><button class='" + (which === "a" ? "on" : "") + "' onclick='KineCreateur.which(\"a\")'>Départ</button><button class='" + (which === "b" ? "on" : "") + "' onclick='KineCreateur.which(\"b\")'>Arrivée</button>" +
         "<button onclick='KineCreateur.play()'>▶ Lecture</button></div></div>" +
       "<details class='kf-acc' open><summary>Position et matériel</summary>" +
         "<label class='ko-f'><span>Position de base</span><select onchange='KineCreateur.base(this.value)'>" + bases + "</select></label>" +
-        "<div class='kc-gear'>" + [["chair", "Chaise"], ["wall", "Mur devant"], ["step", "Marche"]].map(function (pr) {
-          var on = x.props.indexOf(pr[0]) >= 0; return "<button type='button' class='kb-chip" + (on ? " on" : "") + "' onclick='KineCreateur.prop(\"" + pr[0] + "\")'>" + (on ? "✓ " : "") + pr[1] + "</button>"; }).join("") +
-          "<button type='button' class='kb-chip" + (x.load ? " on" : "") + "' onclick='KineCreateur.load()'>" + (x.load ? "✓ " : "") + "Bouteilles</button></div>" +
+        "<div class='kc-gear'>" + [["chair", "Chaise"], ["bench", "Banc"], ["step", "Step"], ["wall", "Mur devant"], ["wallBack", "Mur derrière"]].map(function (pr) {
+          var on = x.props.indexOf(pr[0]) >= 0; return "<button type='button' class='kb-chip" + (on ? " on" : "") + "' onclick='KineCreateur.prop(\"" + pr[0] + "\")'>" + (on ? "✓ " : "") + pr[1] + "</button>"; }).join("") + "</div>" +
+        (x.props.indexOf("bench") >= 0 ? placeSl("bench", "Banc") + "<label class='kc-check'><input type='checkbox'" + (x.bench && x.bench.along === "x" ? " checked" : "") + " onchange='KineCreateur.benchCross(this.checked)'> Banc en travers</label>" : "") +
+        (x.props.indexOf("step") >= 0 ? placeSl("stepAt", "Step") : "") +
+        "<label class='ko-f'><span>Charge</span><select onchange='KineCreateur.loadKind(this.value)'>" + LOADS.map(function (o) { var on = (x.load ? (x.loadKind || "bottle") : "") === o[0]; return "<option value='" + o[0] + "'" + (on ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></label>" +
+        (x.load ? "<label class='ko-f'><span>Tenue</span><select onchange='KineCreateur.loadSide(this.value)'>" + [["both", "Dans les deux mains"], ["L", "Main gauche"], ["R", "Main droite"]].map(function (o) { return "<option value='" + o[0] + "'" + (x.load === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></label>" : "") +
+        "<label class='ko-f'><span>Élastique</span><select onchange='KineCreateur.band(this.value)'>" + BAND_LABEL.map(function (o) { return "<option value='" + o[0] + "'" + (((x.band && x.band.kind) || "") === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></label>" +
+        (x.band && /feet|front|back|high/.test(x.band.kind) ? "<label class='ko-f'><span>Tenu par</span><select onchange='KineCreateur.bandArms(this.value)'>" + [["both", "Les deux mains"], ["L", "Main gauche"], ["R", "Main droite"]].map(function (o) { return "<option value='" + o[0] + "'" + ((x.band.arms || "both") === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + "</select></label>" : "") +
+        (x.band && /front|back|high/.test(x.band.kind) ? "<label class='kcr-sl'><span>Hauteur de l'accroche<b id='v-bandh'>" + Math.round((x.band.h != null ? x.band.h : 1) * 100) + " cm</b></span><input type='range' min='0.05' max='2.2' step='0.05' value='" + (x.band.h != null ? x.band.h : 1) + "' oninput='KineCreateur.bandH(this.value)'></label>" : "") +
         "<label class='kcr-sl'><span>Angle de vue<b id='v-cam'>" + Math.round(((x.cam != null ? x.cam : B.cam) * 180 / Math.PI)) + "°</b></span><input type='range' min='-3.14' max='3.14' step='0.05' value='" + (x.cam != null ? x.cam : B.cam) + "' oninput='KineCreateur.cam(this.value)'></label>" +
       "</details>" +
       "<details class='kf-acc' open><summary>Tronc et bassin (" + (which === "a" ? "départ" : "arrivée") + ")</summary>" +
@@ -195,6 +228,13 @@ var KineCreateur = (function () {
     cur = name && store[name] ? clone(store[name]) : blank(); origName = name || null; which = "a"; live = null;
     render();
   }
+  // Exercice préparé ailleurs (filmé à la caméra) : on l'ouvre pour les retouches et la fiche
+  function openWith(x) {
+    var b = blank(); cur = clone(x); ["tempo", "words", "fiche"].forEach(function (k) { cur[k] = Object.assign({}, b[k], cur[k] || {}); });
+    ["mode", "seconds", "sides"].forEach(function (k) { if (cur[k] == null) cur[k] = b[k]; });
+    cur.props = cur.props || []; origName = null; which = "b"; live = null;
+    render(); setTimeout(play, 400);
+  }
   function close() { playing++; var el = $("kcr-sheet"); if (el) el.classList.remove("open"); if (window.KineAvatar) KineAvatar.hide(); live = null; }
   function readFiche() {
     var f = cur.fiche;
@@ -216,11 +256,19 @@ var KineCreateur = (function () {
   }
 
   return {
-    BASES: BASES, buildDef: buildDef, register: register, open: open, close: close, save: save, play: play,
+    BASES: BASES, buildDef: buildDef, register: register, open: open, openWith: openWith, close: close, save: save, play: play,
+    pose: build, blankP: blankP, basePose: basePose,
+    loadKind: function (k) { if (!k) { cur.load = null; delete cur.loadKind; } else { cur.load = cur.load || "both"; cur.loadKind = k; } render(); },
+    loadSide: function (v) { cur.load = v; preview(true); },
+    band: function (k) { if (!k) delete cur.band; else cur.band = Object.assign({ arms: "both", h: 1 }, cur.band || {}, { kind: k }); render(); },
+    bandArms: function (v) { cur.band.arms = v; preview(true); },
+    bandH: function (v) { cur.band.h = +v; var l = $("v-bandh"); if (l) l.textContent = Math.round(v * 100) + " cm"; preview(true); },
+    place: function (key, axis, v) { cur[key] = cur[key] || {}; cur[key][axis] = +v; var l = $("v-" + key + "-" + axis); if (l) l.textContent = Math.round(v * 100) + " cm"; preview(true); },
+    benchCross: function (on) { cur.bench = cur.bench || { x: 0, z: -0.2 }; cur.bench.along = on ? "x" : "z"; preview(true); },
     set: setv, which: function (w) { which = w; render(); },
     free: function (s, on) { var P = cur.poses[which]; P[s].free = !!on; render(); },
     base: function (b) { cur.base = b; cur.poses = { a: blankP(b), b: blankP(b) }; cur.cam = null; cur.props = (BASES[b].props || []).slice(); render(); },
-    prop: function (p) { var i = cur.props.indexOf(p); if (i >= 0) cur.props.splice(i, 1); else cur.props.push(p); render(); },
+    prop: function (p) { var i = cur.props.indexOf(p); if (i >= 0) cur.props.splice(i, 1); else { cur.props.push(p); if (p === "bench" && !cur.bench) cur.bench = { x: 0, z: -0.2, along: "z" }; if (p === "step" && !cur.stepAt) cur.stepAt = { x: 0, z: 0.42 }; } render(); },
     load: function () { cur.load = cur.load ? null : "both"; render(); },
     cam: function (v) { cur.cam = +v; var l = $("v-cam"); if (l) l.textContent = Math.round(v * 180 / Math.PI) + "°"; preview(true); },
     tempo: function (k, v) { cur.tempo[k] = +v; var l = $("v-" + k); if (l) l.textContent = fmt(+v, "s"); },
