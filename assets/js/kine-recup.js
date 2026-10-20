@@ -27,6 +27,20 @@
     rollPec: {"camera":{"yaw":0.55,"pitch":0.5,"dist":2.7,"ty":0.25,"tz":-0.2},"props":["roller"],"roller":{"p":[0,0.075,-0.36],"along":"z"},"start":"a","poses":{"a":{"pelvis":{"p":[0,0.264,0.011],"r":[-90,0,0]},"spine":[0,0,0],"head":0,"L":{"foot":{"at":[0.2,0,0.561],"yaw":0,"pole":[0.12,1,0]}},"R":{"foot":{"at":[-0.2,0,0.561],"yaw":0,"pole":[-0.12,1,0]}},"LA":{"ang":[40,95,144,20]},"RA":{"ang":[40,95,144,20]}},"b":{"pelvis":{"p":[0,0.267,0.03],"r":[-90,0,0]},"spine":[0,0,0],"head":0,"L":{"foot":{"at":[0.2,0,0.58],"yaw":0,"pole":[0.12,1,0]}},"R":{"foot":{"at":[-0.2,0,0.58],"yaw":0,"pole":[-0.12,1,0]}},"LA":{"ang":[35.375,125,63,25]},"RA":{"ang":[35.375,125,63,25]}}},"loop":LOOP(4)}
   };
   Object.keys(MOVES).forEach(function (k) { KineRoutine.addMove(k, MOVES[k]); });
+  // Étirements ajoutés (positions vérifiées en 3D, comme le rouleau)
+  var MORE = {
+    neckSide: {"props":["chair"],"chair":{"z":0.3},"poses":{"hold":{"pelvis":{"p":[0,0.5,-0.05],"r":[0,0,0]},"spine":[0,0,0],"head":0,"L":{"ang":[90,6,0,90,0]},"R":{"ang":[90,6,0,90,0]},"headZ":34.219,"LA":{"hand":{"at":[0.245,0.46,-0.05],"pole":[0.6,-0.3,-0.3]}},"RA":{"hand":{"at":[-0.085,1.451,-0.063],"pole":[-1,0.8,0.2]}}}},"camera":{"yaw":0.25,"ty":1.0,"dist":2.6},"start":"hold","sides":true,"loop":[step("hold", 3)]},
+    postShoulder: {"props":[],"poses":{"hold":{"pelvis":{"p":[0,"auto",0],"r":[0,0,0]},"spine":[0,0,0],"head":0,"headY":12,"L":{"foot":{"at":[0.12,0,0],"yaw":0}},"R":{"foot":{"at":[-0.12,0,0],"yaw":0}},"LA":{"hand":{"at":[-0.255,1.43,0.245],"pole":[0,-1,0.6]}},"RA":{"hand":{"at":[-0.019,1.367,0.217],"pole":[-0.4,-1,0.4]}}}},"camera":{"yaw":0.6,"ty":1.2,"dist":2.6},"start":"hold","sides":true,"loop":[step("hold", 3)]},
+    wristFlex: {"props":[],"poses":{"hold":{"pelvis":{"p":[0,"auto",0],"r":[0,0,0]},"spine":[0,0,0],"head":8,"L":{"foot":{"at":[0.12,0,0],"yaw":0}},"R":{"foot":{"at":[-0.12,0,0],"yaw":0}},"LA":{"ang":[88,4,0,0]},"RA":{"hand":{"at":[0.188,1.385,0.528],"pole":[-0.6,-1,0]}}}},"camera":{"yaw":1.0,"ty":1.2,"dist":2.6},"start":"hold","sides":true,"loop":[step("hold", 3)]},
+    sideBend: {"props":[],"poses":{"hold":{"pelvis":{"p":[0.06,"auto",0],"r":[0,0,0]},"spine":[0,19.938,0],"head":0,"L":{"foot":{"at":[0.2,0,0],"yaw":8}},"R":{"foot":{"at":[-0.2,0,0],"yaw":-8}},"LA":{"ang":[173,10,0,15]},"RA":{"hand":{"at":[-0.14,0.98,0.02],"pole":[-1,0,-0.6]}}}},"camera":{"yaw":0.1,"ty":1.0,"dist":3.4},"start":"hold","sides":true,"loop":[step("hold", 3)]},
+    kneesChest: {"props":[],"poses":{"hold":{"pelvis":{"p":[0,0.12,0],"r":[-90,0,0]},"spine":[0,0,0],"head":12,"L":{"ang":[123.976,8,0,141.512,0]},"R":{"ang":[123.976,8,0,141.512,0]},"LA":{"hand":{"at":[0.15,0.462,-0.183],"pole":[1,0.2,-0.4]}},"RA":{"hand":{"at":[-0.15,0.462,-0.183],"pole":[-1,0.2,-0.4]}}}},"camera":{"yaw":1.25,"pitch":0.35,"dist":2.8,"ty":0.25,"tz":-0.15},"start":"hold","loop":[step("hold", 3)]},
+    butterfly: {"props":[],"poses":{"hold":{"pelvis":{"p":[0,0.14,0],"r":[3.254,0,0]},"spine":[34,0,0],"head":5,"L":{"ang":[105.875,52.375,62.75,132.125,0]},"R":{"ang":[105.875,52.375,62.75,132.125,0]},"LA":{"hand":{"at":[0.06,0.1,0.36],"pole":[1,0.5,0]}},"RA":{"hand":{"at":[-0.06,0.1,0.36],"pole":[-1,0.5,0]}}}},"camera":{"yaw":0.35,"pitch":0.35,"dist":2.6,"ty":0.35,"tz":0.1},"start":"hold","loop":[step("hold", 3)]},
+    piriChair: {"props":["chair"],"chair":{"z":0.3},"poses":{"hold":{"pelvis":{"p":[0,0.5,-0.05],"r":[0,0,0]},"spine":[13.643,0,0],"head":-8,"L":{"foot":{"at":[0.15,0,0.36],"yaw":0,"pole":[0.2,1,0.6]}},"R":{"ang":[103.347,18.487,84.191,106.881,0]},"LA":{"hand":{"at":[0.183,0.609,0.376],"pole":[1,0,-0.3]}},"RA":{"hand":{"at":[-0.235,0.666,0.356],"pole":[-1,0,-0.3]}}}},"camera":{"yaw":0.7,"ty":0.75,"dist":2.9},"start":"hold","sides":true,"loop":[step("hold", 3)]},
+    soleusWall: {"props":["wall"],"poses":{"hold":{"pelvis":{"p":[0,0.82,0.02],"r":[8,0,0]},"spine":[4,0,0],"head":0,"L":{"foot":{"at":[0.1,0,0.3],"yaw":0}},"R":{"foot":{"at":[-0.1,0,-0.18],"yaw":0}},"LA":{"hand":{"at":[0.22,1.2,0.54],"pole":[0.5,-1,-0.3]}},"RA":{"hand":{"at":[-0.22,1.2,0.54],"pole":[-0.5,-1,-0.3]}}}},"camera":{"yaw":1.3,"dist":3.6},"start":"hold","sides":true,"loop":[step("hold", 3)]},
+    hamStep: {"props":["step"],"poses":{"hold":{"pelvis":{"p":[0,1.01,0.138],"r":[36.818,0,0]},"spine":[6,0,0],"head":-6,"L":{"foot":{"at":[0.11,0.18,0.48],"yaw":0,"lift":-25}},"R":{"foot":{"at":[-0.11,0,-0.08],"yaw":0}},"LA":{"hand":{"at":[0.16,0.902,0.26],"pole":[1,0,-0.3]}},"RA":{"hand":{"at":[0.04,0.902,0.26],"pole":[-1,0,-0.3]}}}},"camera":{"yaw":1.3,"ty":0.75,"dist":3.4},"start":"hold","sides":true,"loop":[step("hold", 3)]},
+    gluteSupine: {"props":[],"poses":{"hold":{"pelvis":{"p":[0,0.12,0],"r":[-90,0,0]},"spine":[0,0,0],"head":12,"L":{"ang":[118.465,-20.643,-16.075,101.575,0]},"R":{"ang":[0,4,0,0,-30]},"LA":{"hand":{"at":[-0.0,0.512,-0.196],"pole":[1,0.2,-0.3]}},"RA":{"hand":{"at":[-0.12,0.512,-0.196],"pole":[-1,0.2,-0.3]}}}},"camera":{"yaw":0.6,"pitch":0.45,"dist":2.8,"ty":0.25,"tz":-0.2},"start":"hold","sides":true,"loop":[step("hold", 3)]}
+  };
+  Object.keys(MORE).forEach(function (k) { KineRoutine.addMove(k, MORE[k]); });
 
   /* ── 2. Contenu ── */
   // Rouleau : 1 minute par zone (30 s par côté)
@@ -43,19 +57,29 @@
   ];
   // Étirements : mêmes textes que les routines existantes (voix déjà enregistrées)
   var STRETCH = [
-    { move: "quadStretch", name: "Étirement des quadriceps, debout", cue: "Talon vers la fesse, genoux serrés, main sur le mur.", zone: "Cuisses, devant", sides: true },
-    { move: "hamSeated", name: "Ischio-jambiers, assis jambe tendue", cue: "Dos droit, penchez-vous vers le pied sans forcer.", zone: "Cuisses, derrière", sides: true },
-    { move: "calfWall", name: "Mollets en fente basse contre le mur", cue: "Jambe arrière tendue, talon au sol.", zone: "Mollets", sides: true },
-    { move: "figure4", name: "Rotation de hanche en figure 4", cue: "Cheville sur le genou opposé, tirez la cuisse vers vous.", zone: "Fessiers", sides: true },
-    { move: "lowLunge", name: "Fente basse au sol pour l'iliopsoas", cue: "Genou arrière au sol, avancez le bassin, buste droit.", zone: "Avant de la hanche", sides: true },
-    { move: "adductorSeated", name: "Demi-grand écart assis, adducteurs", cue: "Jambes écartées, dos droit, penchez-vous légèrement.", zone: "Cuisses, intérieur" },
-    { move: "childPose", name: "Position de l'enfant, bras tendus", cue: "Assis sur les talons, front vers le sol, bras loin devant.", zone: "Dos" },
-    { move: "catCow", name: "Chat-vache à quatre pattes", cue: "Inspirez en creusant le bas du dos (bassin basculé vers l'avant, regard devant). Expirez en arrondissant le bas du dos (bassin rentré, tête vers le sol).", zone: "Dos", breath: [4, 4] },
-    { move: "lumbarTwist", name: "Torsion lombaire, allongé sur le dos", cue: "Genoux vers le sol d'un côté, épaules à plat.", zone: "Bas du dos", sides: true },
-    { move: "cobra", name: "Cobra allongé", cue: "Bassin au sol, poussez sur les mains, épaules basses.", zone: "Ventre et dos" },
-    { move: "pecWall", name: "Pectoraux contre le mur, coude à 90°", cue: "Avant-bras sur le mur, tournez le buste à l'opposé.", zone: "Poitrine", sides: true },
-    { move: "triceps", name: "Triceps, coude derrière la tête", cue: "L'autre main pousse doucement le coude.", zone: "Bras", sides: true },
-    { move: "neckElongation", name: "Auto-agrandissement cervical, assis", cue: "Grandissez-vous comme si un fil tirait le sommet du crâne.", zone: "Nuque" }
+    { g: "Nuque et épaules", move: "neckElongation", name: "Auto-agrandissement cervical, assis", cue: "Grandissez-vous comme si un fil tirait le sommet du crâne.", zone: "Nuque" },
+    { g: "Nuque et épaules", move: "neckSide", name: "Inclinaison de la nuque", cue: "Assis, tenez la chaise d'une main. Penchez l'oreille vers l'épaule opposée, sans tourner la tête.", zone: "Nuque", sides: true },
+    { g: "Nuque et épaules", move: "postShoulder", name: "Arrière de l'épaule, bras croisé", cue: "Bras tendu devant la poitrine, l'autre main ramène le coude vers vous.", zone: "Épaules", sides: true },
+    { g: "Nuque et épaules", move: "pecWall", name: "Pectoraux contre le mur, coude à 90°", cue: "Avant-bras sur le mur, tournez le buste à l'opposé.", zone: "Poitrine", sides: true },
+    { g: "Nuque et épaules", move: "triceps", name: "Triceps, coude derrière la tête", cue: "L'autre main pousse doucement le coude.", zone: "Bras", sides: true },
+    { g: "Nuque et épaules", move: "wristFlex", name: "Avant-bras, paume vers l'avant", cue: "Bras tendu, doigts vers le bas : l'autre main tire doucement les doigts vers vous.", zone: "Avant-bras", sides: true },
+    { g: "Dos", move: "sideBend", name: "Inclinaison latérale debout", cue: "Un bras au-dessus de la tête, penchez-vous sur le côté sans basculer en avant.", zone: "Flancs", sides: true },
+    { g: "Dos", move: "catCow", name: "Chat-vache à quatre pattes", cue: "Inspirez en creusant le bas du dos (bassin basculé vers l'avant, regard devant). Expirez en arrondissant le bas du dos (bassin rentré, tête vers le sol).", zone: "Dos", breath: [4, 4] },
+    { g: "Dos", move: "childPose", name: "Position de l'enfant, bras tendus", cue: "Assis sur les talons, front vers le sol, bras loin devant.", zone: "Dos" },
+    { g: "Dos", move: "kneesChest", name: "Genoux à la poitrine", cue: "Sur le dos, ramenez les genoux vers la poitrine. Le bas du dos reste au sol.", zone: "Bas du dos" },
+    { g: "Dos", move: "lumbarTwist", name: "Torsion lombaire, allongé sur le dos", cue: "Genoux vers le sol d'un côté, épaules à plat.", zone: "Bas du dos", sides: true },
+    { g: "Dos", move: "cobra", name: "Cobra allongé", cue: "Bassin au sol, poussez sur les mains, épaules basses.", zone: "Ventre et dos" },
+    { g: "Hanches", move: "figure4", name: "Rotation de hanche en figure 4", cue: "Cheville sur le genou opposé, tirez la cuisse vers vous.", zone: "Fessiers", sides: true },
+    { g: "Hanches", move: "gluteSupine", name: "Fessier allongé, genou vers l'épaule opposée", cue: "Sur le dos, ramenez le genou vers l'épaule opposée avec les deux mains.", zone: "Fessiers", sides: true },
+    { g: "Hanches", move: "piriChair", name: "Fessier assis sur une chaise", cue: "Cheville sur le genou opposé, dos droit, penchez le buste en avant.", zone: "Fessiers", sides: true },
+    { g: "Hanches", move: "lowLunge", name: "Fente basse au sol pour l'iliopsoas", cue: "Genou arrière au sol, avancez le bassin, buste droit.", zone: "Avant de la hanche", sides: true },
+    { g: "Hanches", move: "butterfly", name: "Papillon assis", cue: "Plantes des pieds jointes, dos droit, laissez les genoux descendre.", zone: "Cuisses, intérieur" },
+    { g: "Hanches", move: "adductorSeated", name: "Demi-grand écart assis, adducteurs", cue: "Jambes écartées, dos droit, penchez-vous légèrement.", zone: "Cuisses, intérieur" },
+    { g: "Jambes", move: "quadStretch", name: "Étirement des quadriceps, debout", cue: "Talon vers la fesse, genoux serrés, main sur le mur.", zone: "Cuisses, devant", sides: true },
+    { g: "Jambes", move: "hamSeated", name: "Ischio-jambiers, assis jambe tendue", cue: "Dos droit, penchez-vous vers le pied sans forcer.", zone: "Cuisses, derrière", sides: true },
+    { g: "Jambes", move: "hamStep", name: "Ischio-jambiers debout, talon sur une marche", cue: "Jambe tendue, pointe du pied vers vous, penchez le buste dos droit.", zone: "Cuisses, derrière", sides: true },
+    { g: "Jambes", move: "calfWall", name: "Mollets en fente basse contre le mur", cue: "Jambe arrière tendue, talon au sol.", zone: "Mollets", sides: true },
+    { g: "Jambes", move: "soleusWall", name: "Soléaire contre le mur", cue: "Comme pour le mollet, mais genou arrière plié, talon au sol.", zone: "Mollets", sides: true }
   ];
   var BY = {}; ROLL.concat(STRETCH).forEach(function (e) { BY[e.move] = e; });
   function st(move, dur) { var e = BY[move]; var o = { name: e.name, dur: dur || 60, move: move, cue: e.cue }; if (e.sides) o.sides = true; if (e.breath) o.breath = e.breath; return o; }
@@ -68,7 +92,7 @@
     { id: "hanches", name: "Hanches et bassin", sub: "Fessiers, adducteurs, avant de hanche", kit: true,
       steps: [st("rollGlute"), st("rollITB"), st("rollAdd"), st("figure4"), st("lowLunge"), st("adductorSeated", 40), BREATH] },
     { id: "souple", name: "Souplesse sans matériel", sub: "Étirements du corps entier", kit: false,
-      steps: [st("quadStretch"), st("hamSeated"), st("calfWall"), st("figure4"), st("lowLunge"), st("childPose"), st("pecWall")] }
+      steps: [st("neckSide"), st("postShoulder"), st("sideBend"), st("quadStretch"), st("hamSeated"), st("figure4"), st("childPose")] }
   ];
   FLOWS.forEach(function (f) { KineRoutine.define("Récupération : " + f.name, f.steps); });
   function mins(steps) { return Math.round(steps.reduce(function (a, s) { return a + s.dur; }, 0) / 60); }
@@ -109,7 +133,9 @@
       "<div class='lu-cards'>" + ROLL.map(card).join("") + "</div>" +
       "<h2 class='lu-gh'>Étirements<small>" + STRETCH.length + "</small></h2>" +
       "<div class='rc-note'><b>Bien s'étirer</b>Une tension douce, jamais une douleur. Respire calmement, sans à-coups.</div>" +
-      "<div class='lu-cards'>" + STRETCH.map(card).join("") + "</div>";
+      ["Nuque et épaules", "Dos", "Hanches", "Jambes"].map(function (g) {
+        return "<h3 class='rc-sub'>" + g + "</h3><div class='lu-cards'>" + STRETCH.filter(function (e) { return e.g === g; }).map(card).join("") + "</div>";
+      }).join("");
   }
 
   window.KineRecup = { render: render, flow: flow, one: one, moves: MOVES, list: function () { return { roll: ROLL, stretch: STRETCH, flows: FLOWS }; } };

@@ -2524,3 +2524,4 @@ html:not(.kf-kine) .kc-kine { display: none !important; }
 .rc-note { margin: 8px 0 2px; padding: 10px 12px; border-radius: 14px; background: #F1F4FF; color: var(--text2); font-size: .8rem; line-height: 1.45; }
 .rc-note b { display: block; color: var(--text); font-size: .82rem; margin-bottom: 2px; }
 .rc-card .lu-d b { font-size: .86rem; }
+.rc-sub { margin: 16px 0 0; font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); }
