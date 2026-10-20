@@ -385,7 +385,7 @@ var KineTheme = (function () {
       if (!alive) return;
       var t = (now - t0) / C.dur, k = Math.min(1, t), x = -S + (W + 2 * S) * k;
       if (C.fx === "fire") x = -S + (W + 2 * S) * (k < 0.5 ? 2 * k * k * 0.6 + k * 0.4 : k);
-      var fr = Math.floor((now - t0) / 1000 / C.cyc * C.n) % C.n, ph = ((now - t0) / 1000 / C.cyc) % 1;
+      var el0 = Math.max(0, now - t0), fr = Math.floor(el0 / 1000 / C.cyc * C.n) % C.n, ph = (el0 / 1000 / C.cyc) % 1;
       y.style.backgroundPosition = (fr / (C.n - 1) * 100) + "% 0";
       var ty = C.deco === "stairs" ? topAt(k) - y0 : 0;
       y.style.transform = "translate(" + x + "px," + ty + "px)"; if (k >= 1) y.style.display = "none";
@@ -438,7 +438,7 @@ var KineTheme = (function () {
     el.onclick = done;
     var lead = 0;
     if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
-      var sc = sceneFx(el, id);
+      var sc = window.KineModeFx && KineModeFx.STORIES[id] ? KineModeFx.play(el, id, MODE[id]) : sceneFx(el, id);
       if (sc) { el.classList.add("run"); el.style.setProperty("--lead", (sc.lead - 150) / 1000 + "s"); stop = sc.stop; lead = sc.lead; }
     }
     setTimeout(done, lead + (first ? 3200 : 1700));

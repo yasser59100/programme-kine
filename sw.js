@@ -23,6 +23,7 @@ const APP_FILES = [
   'assets/js/kine-compose.js',
   'assets/js/kine-officiel.js',
   'assets/js/kine-themes.js',
+  'assets/js/kine-modefx.js',
   'assets/js/kine-course.js',
   'assets/js/kine-harmonie.js',
   'assets/js/kine-metronome.js',
