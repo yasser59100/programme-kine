@@ -174,7 +174,7 @@ var KineOfficiel = (function () {
       }).join("") +
       "<button class='v2-row kc-new' onclick='KineCapture.open()'><b>＋ Créer un exercice en me filmant</b><span>›</span></button>" +
       "<button class='v2-row kc-new' onclick='KineCreateur.open()'><b>＋ Créer un exercice avec les curseurs</b><span>›</span></button>" +
-      (window.KineTheme ? "<div class='kf-phase' style='color:var(--text2)'>Programmes ciblés</div><div class='kf-sub'>Masqués par défaut. Cochez ceux que tous vos patients peuvent choisir, puis publiez.</div>" + KineTheme.adminHtml(d.themes || {}) : "") +
+      (window.KineTheme ? "<div class='kf-phase' style='color:var(--text2)'>Programmes ciblés</div><div class='kf-sub'>Masqués par défaut. Un programme activé est proposé tout de suite à tous vos patients ; désactivé, il disparaît de leur appli.</div>" + KineTheme.adminHtml((data && data.themes) || {}) : "") +
       "<div class='kf-phase' style='color:var(--text2)'>Fiches d'exercices</div>" +
       "<button class='v2-row' onclick='KineOfficiel.lib()'><b>Toutes les fiches de la bibliothèque</b><span>›</span></button>" +
       (changed() ? "<div class='kf-note'>Des modifications ne sont pas encore publiées.</div><button class='kc-kine' onclick='KineOfficiel.discard()'>Annuler les modifications non publiées</button>" : ""),
@@ -273,7 +273,22 @@ var KineOfficiel = (function () {
     customs: function () { return (data && data.custom) || {}; },
     asExercise: function (n) { return asExercise(n); }, reapply: function () { apply(data); },
     themes: function () { return (data && data.themes) || {}; },
-    theme: function (id, on) { var d = draft(); d.themes = d.themes || {}; if (on) d.themes[id] = true; else delete d.themes[id]; saveDraft(d); var el = sheet(), y = el.scrollTop; home(); el.scrollTop = y; },
+    // Programmes ciblés : l'interrupteur publie tout de suite (seulement cette visibilité, le reste du brouillon attend)
+    theme: function (id, on, input) {
+      var live = JSON.parse(JSON.stringify(data || { ex: {}, days: {} })); live.themes = live.themes || {};
+      if (on) live.themes[id] = true; else delete live.themes[id];
+      live.v = Date.now(); live.by = window.fbUser && window.fbUser.email;
+      if (input) input.disabled = true;
+      window.fbSetProgramme(live).then(function () {
+        jset(CKEY, live);
+        var d = jget(DKEY); if (d) { d.themes = live.themes; d.v = live.v; d.by = live.by; jset(DKEY, JSON.stringify(d) === JSON.stringify(live) ? null : d); }
+        apply(live); rerender();
+        var el = sheet(), y = el.scrollTop; home(); el.scrollTop = y;
+      }).catch(function () {
+        if (input) { input.disabled = false; input.checked = !on; }
+        alert("La mise à jour n'a pas pu être publiée. Vérifiez la connexion, puis réessayez.");
+      });
+    },
     customDraft: function () { return draft().custom || {}; },
     saveCustom: function (x, oldName) {
       var d = draft(), n = x.fiche.name; d.custom = d.custom || {};

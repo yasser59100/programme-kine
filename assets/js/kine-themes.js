@@ -237,7 +237,8 @@ var KineTheme = (function () {
   function published() { return (window.KineOfficiel && KineOfficiel.themes) ? KineOfficiel.themes() : {}; }
   function visible(id) { return !!published()[id]; }
   function canSee(id) { return !!THEMES[id] && (visible(id) || isAdmin()); }
-  function available() { return ORDER.filter(canSee); }
+  // Programmes proposés : ceux que le kiné a publiés (+ celui qu'il teste sur son téléphone, s'il est masqué)
+  function available() { var cur = get(KEY); return ORDER.filter(function (id) { return visible(id) || (isAdmin() && id === cur); }); }
   function active() { var id = get(KEY); return id && canSee(id) ? id : null; }
   function ids(id) { var c = THEMES[id].code.toLowerCase(); return THEMES[id].sessions.map(function (_, i) { return c + i; }); }   // « c0 », « g1 », « e2 »…
   function schedule() {
@@ -449,7 +450,10 @@ var KineTheme = (function () {
       (first ? "<small>Des exercices généraux, à suivre sur les conseils de votre kiné : ils ne remplacent pas une consultation.</small>" : "") + "</div>";
     document.body.appendChild(el);
     try { if (navigator.vibrate) navigator.vibrate([12, 40, 18]); } catch (e) {}
-    var stop = null, done = function () { if (stop) stop(); el.classList.add("out"); setTimeout(function () { el.remove(); }, 450); };
+    var stop = null, closed = false, done = function () {
+      if (closed) return; closed = true; if (stop) stop(); el.classList.add("out"); setTimeout(function () { el.remove(); }, 450);
+      if (first && THEMES[id] && THEMES[id].runLog && window.KineCourse && KineCourse.intro) setTimeout(KineCourse.intro, 350);   // le journal de course, présenté une fois
+    };
     el.onclick = done;
     var lead = 0;
     if (!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) {
@@ -469,7 +473,7 @@ var KineTheme = (function () {
   function closeSheet() { var el = $("th-sheet"); if (el) el.classList.remove("open"); }
   var WARN = "<div class='th-warn'><b>À suivre sur les conseils de votre kiné.</b> Ces programmes sont généraux : ils ne remplacent pas un bilan ni une consultation. En cas de doute, ou si la douleur augmente, demandez-lui.</div>";
   function picker() {
-    var cur = active(), list = available();
+    var cur = active(), list = isAdmin() ? ORDER.slice() : available();
     var row = function (id, T) {
       var on = (cur || "") === (id || "");
       return "<button class='th-opt" + (on ? " on" : "") + "' onclick=\"KineTheme.choose(" + (id ? "'" + id + "'" : "null") + ")\">" +
@@ -538,8 +542,8 @@ var KineTheme = (function () {
     return ORDER.map(function (id) {
       var T = THEMES[id], on = !!themesDraft[id];
       return "<label class='th-tg'><span><b>" + esc(T.label) + "</b><small>" + esc(T.short) + "</small></span>" +
-        "<input type='checkbox'" + (on ? " checked" : "") + " onchange='KineOfficiel.theme(\"" + id + "\",this.checked)'><i aria-hidden='true'></i></label>";
-    }).join("") + "<button class='v2-row' onclick='KineTheme.picker()'><b>Tester un programme sur ce téléphone</b><span>›</span></button>";
+        "<input type='checkbox'" + (on ? " checked" : "") + " onchange='KineOfficiel.theme(\"" + id + "\",this.checked,this)'><i aria-hidden='true'></i></label>";
+    }).join("") + "<button class='v2-row' onclick='KineTheme.picker()'><b>Tester un programme masqué sur ce téléphone</b><span>›</span></button>";
   }
 
   function init() {

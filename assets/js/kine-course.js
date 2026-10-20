@@ -136,8 +136,21 @@ var KineCourse = (function () {
     if (window.KineStats) KineStats.ev("p", "course");
     open();
   }
+  // Présentation, au premier passage en mode coureur
+  function intro() {
+    var el = sheet();
+    el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCourse.close()' aria-label='Fermer'>←</button>" +
+      "<div><div class='kf-h1'>Nouveau : votre journal de course</div><div class='kf-sub'>Le mode coureur ajoute un carnet pour suivre vos sorties. C'est ce qui protège le plus des blessures.</div></div>" +
+      "<div class='kco-intro'>" +
+        "<div><b>1</b><span><strong>Après chaque sortie</strong>Durée, effort et douleur éventuelle : 20 secondes.</span></div>" +
+        "<div><b>2</b><span><strong>Le lendemain matin</strong>L'appli vous demande comment va la douleur au réveil.</span></div>" +
+        "<div><b>3</b><span><strong>Elle vous prévient</strong>Si vos minutes de course montent trop vite, ou si la douleur dépasse les repères.</span></div>" +
+      "</div><p class='kf-sub'>Vous le retrouvez sur l'accueil et dans l'onglet Exercices. Tout reste sur votre téléphone.</p></div>" +
+      "<div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineCourse.add()'>Noter ma dernière sortie</button><button class='seq-btn-secondary' onclick='KineCourse.close()'>Plus tard</button></div>";
+    el.classList.add("open"); el.scrollTop = 0;
+  }
   return {
-    open: open, close: close, add: add, save: saveRun, load: load, pain: pain, pending: pending, weeks: weeks,
+    open: open, close: close, add: add, intro: intro, save: saveRun, load: load, pain: pain, pending: pending, weeks: weeks,
     eff: function (btn, v) { var s = btn.parentNode; s.setAttribute("data-v", v); Array.prototype.forEach.call(s.children, function (b) { b.classList.toggle("on", b === btn); }); },
     painIn: function (v) { $("kco-vp").textContent = v + " sur 10"; var z = $("kco-zw"); if (z) z.hidden = !+v; },
     next: function (id, v) { var a = runs(); a.forEach(function (r) { if (r.id === id) r.next = v; }); save(a); open(); },
