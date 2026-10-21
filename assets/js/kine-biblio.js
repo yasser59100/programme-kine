@@ -9,9 +9,9 @@ var KineBiblio = (function () {
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
   var GROUPS = [
-    ["genou", "Genou et quadriceps"], ["hanche", "Hanche et fessiers"], ["ischio", "Ischio-jambiers"], ["mollet", "Mollets et cheville"],
-    ["dos", "Dos bas"], ["gainage", "Gainage"], ["epaule", "Épaules"], ["poussee", "Poussée"], ["tirage", "Tirage et dos haut"],
-    ["bras", "Bras"], ["equilibre", "Équilibre"], ["mobilite", "Mobilité"], ["cardio", "Cardio doux"], ["reactif", "Réactivité (couleurs)"]
+    ["genou", "Genou et quadriceps"], ["hanche", "Hanche et fessiers"], ["ischio", "Ischio-jambiers"], ["mollet", "Mollets, cheville et pied"],
+    ["dos", "Dos bas"], ["gainage", "Gainage"], ["cou", "Cou et nuque"], ["epaule", "Épaules"], ["poussee", "Poussée"], ["tirage", "Tirage et dos haut"],
+    ["bras", "Bras"], ["main", "Coude, poignet et main"], ["equilibre", "Équilibre"], ["mobilite", "Mobilité"], ["cardio", "Cardio doux"], ["reactif", "Réactivité (couleurs)"]
   ];
   var COLORS = { 1: ["vert", "Facile"], 2: ["orange", "Intermédiaire"], 3: ["rouge", "Difficile"] };
 
@@ -510,7 +510,7 @@ var KineBiblio = (function () {
       desc: "Un livre léger posé à plat sur la tête, marche lentement en ligne droite en posant le talon d'un pied juste devant les orteils de l'autre. Regarde droit devant, bras légèrement écartés.",
       cue: "Grand et droit : le livre ne doit pas tomber.",
       err: "Ne regarde pas tes pieds.",
-      tip: "Le livre oblige à garder la tête droite et la posture haute. Faites-le le long d'un mur ou d'un plan de travail.",
+      tip: "Le livre oblige à garder la tête droite et la posture haute. Fais-le le long d'un mur ou d'un plan de travail.",
       stop: "Arrêt en cas de vertige." },
     { name: "Le bûcheron avec ballon", group: "gainage", color: 2, kit: ["un ballon ou une bouteille"], repsLabel: "10 répétitions par côté",
       desc: "Debout, pieds écartés, un ballon tenu à deux mains au-dessus d'une épaule. Descends en diagonale, en pliant les genoux, pour amener le ballon près du genou opposé, comme pour donner un coup de hache, puis remonte en haut. Toutes les répétitions d'un côté, puis l'autre.",
@@ -549,7 +549,7 @@ var KineBiblio = (function () {
       tip: "C'est la première étape pour savoir se relever du sol. Garde une chaise à côté de toi comme appui.",
       stop: "Arrêt si douleur au genou posé au sol." },
     { name: "Le chef d'orchestre", group: "equilibre", color: 2, kit: ["un appui à portée de main"], repsLabel: "30 secondes par pied",
-      desc: "Debout sur un pied, l'autre genou légèrement levé. Faites de grands mouvements de bras dans toutes les directions, comme un chef d'orchestre, sans poser le pied.",
+      desc: "Debout sur un pied, l'autre genou légèrement levé. Fais de grands mouvements de bras dans toutes les directions, comme un chef d'orchestre, sans poser le pied.",
       cue: "Les bras bougent, la jambe d'appui tient.",
       err: "Le genou d'appui reste légèrement fléchi.",
       tip: "Les bras qui bougent déséquilibrent le corps : la cheville et la hanche apprennent à corriger. Reste près d'un mur.",

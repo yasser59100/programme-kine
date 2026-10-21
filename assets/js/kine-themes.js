@@ -69,7 +69,7 @@ var KineTheme = (function () {
     });
     if (window.KineBiblio && KineBiblio.extend) KineBiblio.extend([
       { name: "Petits sauts sur place", group: "mollet", color: 2, kit: [], repsLabel: "20 répétitions",
-        desc: "Debout, pieds à largeur de hanches. Faites de petits sauts rapides sur l'avant des pieds, genoux presque tendus, comme un ressort. Les talons ne touchent pas le sol. Réception souple et silencieuse.",
+        desc: "Debout, pieds à largeur de hanches. Fais de petits sauts rapides sur l'avant des pieds, genoux presque tendus, comme un ressort. Les talons ne touchent pas le sol. Réception souple et silencieuse.",
         cue: "Petits rebonds sur l'avant des pieds, comme un ressort.", err: "Ne saute pas haut : ce sont les chevilles qui travaillent, pas les cuisses.",
         tip: "Plus facile : 10 sauts, une pause, puis 10 sauts. Plus dur : en avançant et en reculant.", stop: "Arrêt si douleur aux tibias, au tendon d'Achille ou sous le pied." },
       { name: "Sauts sur une jambe", group: "mollet", color: 3, kit: [], repsLabel: "8 répétitions par jambe",
@@ -113,7 +113,7 @@ var KineTheme = (function () {
       cards: [
         { t: "Trop, trop vite", b: "La plupart des blessures de course viennent d'une hausse trop rapide : plus de kilomètres, plus vite, plus de dénivelé, de nouvelles chaussures. Change <b>un seul paramètre à la fois</b>, et prévois une semaine plus légère toutes les 3 ou 4 semaines. Ton journal de course te prévient si ça monte trop vite." },
         { t: "La douleur, ton repère", b: "Une petite gêne n'est pas un danger. Ce qui compte : son intensité et le lendemain matin." + PAIN_RULE },
-        { t: "Pourquoi ces deux séances", b: "Chez des coureurs débutants, deux séances de renforcement des hanches et du tronc par semaine ont réduit d'environ un tiers les blessures de surmenage (essai publié en 2024). Faites-les un jour sans course, ou après une sortie facile, jamais juste avant une sortie intense." },
+        { t: "Pourquoi ces deux séances", b: "Chez des coureurs débutants, deux séances de renforcement des hanches et du tronc par semaine ont réduit d'environ un tiers les blessures de surmenage (essai publié en 2024). Fais-les un jour sans course, ou après une sortie facile, jamais juste avant une sortie intense." },
         { t: "La cadence", b: "Faire des pas un peu plus courts et un peu plus nombreux (5 à 10 % de pas en plus par minute) diminue les contraintes sur le genou et la hanche. À essayer sur des sorties faciles, progressivement." },
         { t: "Les chaussures", b: "Choisis avant tout celles qui sont <b>confortables</b> pour toi. Changer de modèle, surtout pour plus léger ou plus plat, se fait progressivement, sur plusieurs semaines." },
         { t: "Quand consulter", b: "Douleur qui te fait boiter, douleur précise sur un os qui fait mal quand on appuie dessus, gonflement, douleur la nuit, ou douleur qui dure plus de deux semaines malgré une baisse de l'entraînement." }

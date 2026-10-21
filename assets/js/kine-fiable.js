@@ -66,7 +66,7 @@
   function open() {
     var el = sheet(), c = ctx();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineFiable.close()' aria-label='Retour'>←</button>" +
-      "<h2 class='kfb-h'>Signaler un souci</h2><p class='kfb-p'>Dites en une phrase ce qui ne va pas : un écran bizarre, un bouton qui ne répond pas, Yass qu'on n'entend pas… Je reçois aussi le modèle du téléphone et la version de l'appli, rien d'autre.</p>" +
+      "<h2 class='kfb-h'>Signaler un souci</h2><p class='kfb-p'>Dis en une phrase ce qui ne va pas : un écran bizarre, un bouton qui ne répond pas, Yass qu'on n'entend pas… Je reçois aussi le modèle du téléphone et la version de l'appli, rien d'autre.</p>" +
       "<textarea id='kfb-t' maxlength='800' rows='5' placeholder='Ex. : quand je lance la caméra, je n’entends pas Yass.'></textarea>" +
       "<div class='kfb-ctx'><span>Version " + esc(String(c.v).replace("kineforce-v", "")) + "</span><span>" + esc(c.scr) + "</span><span>" + (c.sa ? "Appli installée" : "Navigateur") + "</span></div>" +
       "<p class='kfb-ok' id='kfb-ok' role='status'></p>" +

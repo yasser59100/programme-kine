@@ -278,7 +278,8 @@
     scapula: "<svg viewBox='0 0 140 120' width='140' height='120' aria-hidden='true'><rect x='67' y='8' width='6' height='104' rx='3' fill='var(--text2)'/>" +
              "<g class='kr-scap-l'><path d='M28 22 L58 26 L50 88 Z' fill='rgba(61,142,240,.35)' stroke='var(--blue)' stroke-width='3' stroke-linejoin='round'/></g>" +
              "<g class='kr-scap-r'><path d='M112 22 L82 26 L90 88 Z' fill='rgba(61,142,240,.35)' stroke='var(--blue)' stroke-width='3' stroke-linejoin='round'/></g>" +
-             "<path class='kr-arrow' d='M16 58 L36 58 M30 52 L36 58 L30 64 M124 58 L104 58 M110 52 L104 58 L110 64' stroke='var(--amber)' stroke-width='4' fill='none' stroke-linecap='round'/></svg>",
+             "<path class='kr-arrow' d='M16 58 L36 58 M30 52 L36 58 L30 64 M124 58 L104 58 M110 52 L104 58 L110 64' stroke='var(--amber)' stroke-width='4' fill='none' stroke-linecap='round'/>" +
+             "<path class='ka-outw' d='M36 58 L14 58 M20 52 L14 58 L20 64 M104 58 L126 58 M120 52 L126 58 L120 64' stroke='var(--amber)' stroke-width='4' fill='none' stroke-linecap='round'/></svg>",
     grow: "<svg viewBox='0 0 120 120' width='120' height='120' aria-hidden='true'><circle cx='60' cy='78' r='22' fill='none' stroke='var(--text2)' stroke-width='3'/><path class='kr-grow' d='M60 48 L60 8 M50 18 L60 8 L70 18' stroke='var(--amber)' stroke-width='4' fill='none' stroke-linecap='round'/></svg>",
     wrist: "<svg viewBox='0 0 120 120' width='120' height='120' aria-hidden='true'><rect x='10' y='54' width='60' height='14' rx='7' fill='var(--text2)'/><g class='kr-wrist'><rect x='66' y='50' width='40' height='22' rx='9' fill='#B07A52'/></g><path d='M92 24 A30 30 0 0 1 92 98' stroke='var(--amber)' stroke-width='3' fill='none' stroke-dasharray='5 5'/></svg>",
     spine: "<svg viewBox='0 0 150 110' width='150' height='110' aria-hidden='true'>" +

@@ -515,7 +515,7 @@
       },
       live: function (s) { return s.head == null ? "" : "tête " + s.head.toFixed(0) + "°"; } },
     { id: "squat", view: "profil", kind: "track", dur: 18000, title: "Squat",
-      say: "Toujours de profil, pieds écartés à la largeur du bassin. Faites trois squats, aussi bas que possible sans douleur.",
+      say: "Toujours de profil, pieds écartés à la largeur du bassin. Fais trois squats, aussi bas que possible sans douleur.",
       sample: function (c) { return { k: c.kNear, heel: c.nearVis("He") > 0.7 ? c.N.he.y : null }; },
       live: function (S) { return reps(S, "k", 125, 155) + " / 3"; },
       done: function (S) { return reps(S, "k", 125, 155) >= 3; },

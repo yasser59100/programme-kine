@@ -562,7 +562,9 @@ input, select, textarea { font-family:var(--font); }
 .kr-aid[data-phase="in"] .kr-scap-r { transform: translateX(-9px); }
 .kr-aid[data-phase="out"] .kr-scap-l { transform: translateX(-6px); }
 .kr-aid[data-phase="out"] .kr-scap-r { transform: translateX(6px); }
-.kr-aid[data-aid="scapula"][data-phase="out"] .kr-arrow { transform: scaleX(-1); transform-origin: center; }
+.kr-aid .ka-outw { opacity: 0; transition: opacity .4s; }
+.kr-aid[data-aid="scapula"][data-phase="out"] .kr-arrow { opacity: 0; }
+.kr-aid[data-aid="scapula"][data-phase="out"] .ka-outw { opacity: 1; }
 .kr-aid .kr-wrist { transform-origin: left center; }
 .kr-aid[data-phase="b"] .kr-wrist { transform: rotate(45deg); }
 .kr-aid[data-phase="a"] .kr-wrist { transform: rotate(-35deg); }
@@ -2627,3 +2629,50 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 .kco-intro > div { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); line-height: 1.4; font-size: .93rem; color: var(--text2); }
 .kco-intro > div > b { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--blue); color: #fff; font-size: .85rem; }
 .kco-intro strong { display: block; color: var(--text); }
+
+/* Schémas animés des nouveaux exercices (coin de Yass) */
+.kf-aid { display: flex; z-index: 3; pointer-events: none; padding: 5px 5px 6px; gap: 2px; border-radius: 14px; }
+.kf-aid-bl { left: 8px; bottom: 8px; right: auto; }
+.kf-aid-tl { left: 8px; top: 8px; right: auto; bottom: auto; }
+.kf-aid .kr-aid-t { max-width: 96px; font-size: 0.62rem; }
+.kf-aid .ka-m, .kf-aid .kr-scap-l, .kf-aid .kr-scap-r, .kf-aid .kr-wrist, .kf-aid .ka-r { transition: transform var(--ad, 1s) ease-in-out, opacity .4s; transform-box: fill-box; }
+.kf-aid[data-phase="in"] .ka-head { transform: translateX(-10px); }
+.kf-aid .ka-arrow { opacity: 0; transition: opacity .4s; }
+.kf-aid[data-phase="in"] .ka-arrow { opacity: 1; }
+.kf-aid .ka-pulse { opacity: .25; transform-box: fill-box; transform-origin: center; transition: opacity .3s; }
+.kf-aid[data-phase="push"] .ka-pulse { opacity: 1; }
+.kf-aid[data-hold="1"] .ka-pulse { animation: kaPulse .5s ease-in-out infinite alternate; }
+.kf-aid .ka-still { opacity: 0; transition: opacity .3s; }
+.kf-aid[data-hold="1"] .ka-still { opacity: 1; }
+@keyframes kaPulse { from { transform: scale(.9); } to { transform: scale(1.12); } }
+.kf-aid[data-phase="mid"] .kr-scap-l, .kf-aid[data-phase="mid"] .kr-scap-r { transform: none; }
+.kf-aid[data-aid="scapula"][data-phase="mid"] .kr-arrow { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .kf-aid[data-hold="1"] .ka-pulse { animation: none; } }
+.kf-aid .ka-wr { transform-origin: 0% 50%; }
+.kf-aid[data-phase="up"] .ka-wr { transform: rotate(-32deg); }
+.kf-aid[data-phase="down"] .ka-wr { transform: rotate(28deg); }
+.kf-aid .ka-ball { transform-origin: center; }
+.kf-aid[data-phase="grip"] .ka-ball { transform: scale(.72, .8); }
+.kf-aid .ka-pr { transform-origin: 50% 92%; }
+.kf-aid[data-phase="pro"] .ka-pr { transform: rotate(-75deg); }
+.kf-aid[data-phase="sup"] .ka-pr { transform: rotate(75deg); }
+.kf-aid[data-aid="quad"][data-phase="push"] .ka-pulse { opacity: 1; animation: kaGlow .8s ease-in-out infinite alternate; transform: none; }
+.kf-aid[data-aid="quad"][data-phase="push"] .ka-still { opacity: 1; }
+@keyframes kaGlow { from { opacity: .55; } to { opacity: 1; } }
+.kf-aid .ka-lo, .kf-aid .ka-hi { transition: opacity var(--ad, 1s) ease-in-out; }
+.kf-aid .ka-hi { opacity: 0; }
+.kf-aid[data-phase="up"] .ka-hi { opacity: 1; }
+.kf-aid[data-phase="up"] .ka-lo { opacity: 0; }
+.kf-aid[data-aid="arch"][data-phase="up"] .ka-arrow { opacity: 1; }
+.kf-aid .ka-toe { transform-origin: 0% 50%; }
+.kf-aid[data-phase="curl"] .ka-toe { transform: rotate(42deg); }
+.kf-aid .ka-towel { transition: d var(--ad, 1s); }
+.kf-aid[data-phase="in"] .kr-scap-l { transform: translateX(5px); }
+.kf-aid[data-phase="in"] .kr-scap-r { transform: translateX(-5px); }
+.kf-aid .ka-outw { opacity: 0; transition: opacity .4s; }
+.kf-aid[data-aid="scapula"][data-phase="out"] .kr-arrow { opacity: 0; transform: none; }
+.kf-aid[data-aid="scapula"][data-phase="out"] .ka-outw { opacity: 1; }
+.kf-aid[data-phase="curl"] .ka-toe { transform: rotate(55deg); }
+.kf-aid[data-aid="toes"] .ka-hi { opacity: 0; }
+.kf-aid[data-aid="toes"][data-phase="curl"] .ka-hi { opacity: 1; }
+.kf-aid[data-aid="toes"][data-phase="curl"] .ka-lo { opacity: 0; }

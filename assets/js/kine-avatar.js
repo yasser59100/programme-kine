@@ -2045,7 +2045,8 @@
     register: function (name, d) { EX[name] = d; },
     _def: function (name) { return EX[name]; },
     lib: { merge: merge, STAND: STAND, feet: feet, step: step, QUAD: QUAD, FOREARMS: FOREARMS,
-           SUPINE_FEET: SUPINE_FEET, SUPINE_HANDS: SUPINE_HANDS, BRIDGE_DOWN: BRIDGE_DOWN },
+           SUPINE_FEET: SUPINE_FEET, SUPINE_HANDS: SUPINE_HANDS, BRIDGE_DOWN: BRIDGE_DOWN,
+           SEAT: SEAT, SIDE: SIDE, CROSS: CROSS, WALL_HANDS: WALL_HANDS, lifted: lifted, L3_PRONE: L3_PRONE, L3_PRONE_W: L3_PRONE_W, ARMS_RELAXED: ARMS_RELAXED },
     startOf: function (name) { var d = EX[name]; return d && d.poses ? startPose(d) : null; },
 
     show: function (container, name) {
@@ -2078,6 +2079,7 @@
       if (!def || !raf || !s || !s.pose || !def.poses[s.pose]) return;
       var to = def.poses[s.pose], side = s.side === "R" ? "R" : "L";
       var dur = def.snapSideChange && side !== curSide ? 0.05 : s.dur;
+      if (def.camFlip && side !== curSide && R) { var y0 = def.camera && def.camera.yaw != null ? def.camera.yaw : 0.6; R.view.yawGoal = side === "R" ? -y0 : y0; }   // la caméra passe du côté qui travaille
       curSide = side; showLoad(def, side);
       var target = side === "R" ? mirror(to) : to;
       tween = { from: current, to: target, start: performance.now(), dur: Math.max(0.05, dur) * 1000, kNow: 0, limbs: dur > 0.06 ? limbTween(current, target) : null };

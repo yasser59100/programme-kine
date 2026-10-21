@@ -107,3 +107,19 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
   await page.evaluate(() => { KineOfficiel.apply({ v: 3, ex: {}, days: {}, themes: { cheville: true } }); KineTheme.choose("cheville"); launchSeq("e0"); });
   await clean(errs);
 });
+
+test("nouveaux exercices et schémas animés", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  const ok = await page.evaluate(() => ["Rentrer le menton", "Pendulaire de Codman", "Spanish squat à l'élastique", "Pied court", "Planche Copenhague genou sur chaise", "Extension en appui sur les mains"]
+    .every(n => KineBiblio.find(n) && KineAvatar.supports(n)));
+  expect(ok).toBe(true);
+  await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
+  await expect(page.locator(".kf-sheet.open").getByText("Rentrer le menton").first()).toBeVisible();
+  await page.evaluate(() => { document.querySelectorAll(".kf-sheet.open").forEach(e => e.classList.remove("open")); KineBiblio.demo("Rentrer le menton"); });
+  await page.waitForTimeout(3000);
+  if (await page.evaluate(() => !!window.THREE)) await expect(page.locator(".kf-aid[data-aid='chin']")).toBeVisible();
+  await shot(page, info, "9-nouvel-exercice");
+  await clean(errs);
+});
