@@ -97,9 +97,9 @@ var KineProgress = (function () {
 
   // Variante décrite dans la fiche de l'exercice (« Variante S4 : … », « Variante S3–S4 : … »)
   function variant(dayId, idx) {
-    var el = document.querySelector("#ex-" + dayId + "-" + idx + " .ex-variant");
-    if (!el) return null;
-    var txt = el.textContent.replace(/\s+/g, " ").trim(), m = txt.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
+    var ex = typeof SEQ_DAYS !== "undefined" && SEQ_DAYS[dayId] && SEQ_DAYS[dayId].exercises[idx];
+    if (!ex || !ex.variant) return null;
+    var txt = ex.variant, m = txt.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
     if (!m) return null;
     var from = +m[1], to = m[2] ? +m[2] : from, w = loadWeek();
     return w >= from ? txt.replace(/^Variante[^:]*:\s*/, "") : null;

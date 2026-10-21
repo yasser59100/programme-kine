@@ -334,500 +334,12 @@ window.fbGetStats = async function() {
 <div class="page active" id="page-home">
 <div class="content">
   <div id="today-card"></div>
-  <div class="hero">
-    <div class="hero-greeting">Bonjour</div>
-    <div class="hero-name" id="hero-name">Mon programme</div>
-    <div class="hero-sub">Post-hospitalisation, 4 semaines, Poids du corps, Sans matériel</div>
-    <div class="hero-stats">
-      <div class="hstat"><div class="hstat-val" id="stat-seances">0</div><div class="hstat-label">Séances</div></div>
-      <div class="hstat"><div class="hstat-val" id="stat-semaine">S1</div><div class="hstat-label">Cycle</div></div>
-      <div class="hstat"><div class="hstat-val" id="stat-streak">0</div><div class="hstat-label">Cette sem.</div></div>
-    </div>
-  </div>
-  <div class="sec-title">Planning de la semaine</div>
-  <div class="week-strip">
-    <div class="wday train"><div class="wday-label">Lun</div><div class="wday-val">J1</div></div>
-    <div class="wday train"><div class="wday-label">Mar</div><div class="wday-val">J2</div></div>
-    <div class="wday train"><div class="wday-label">Mer</div><div class="wday-val">J3</div></div>
-    <div class="wday rest"><div class="wday-label">Jeu</div><div class="wday-val">—</div></div>
-    <div class="wday train"><div class="wday-label">Ven</div><div class="wday-val">J4</div></div>
-    <div class="wday train"><div class="wday-label">Sam</div><div class="wday-val">J5</div></div>
-    <div class="wday rest"><div class="wday-label">Dim</div><div class="wday-val">—</div></div>
-  </div>
-  <div class="sec-title">Mes séances</div>
-  <div class="day-cards">
-    <div class="day-card" style="--card-color:var(--blue)" onclick="showPage('day0')">
-      <div class="day-card-num">J1</div><div class="day-card-name">Membres inférieurs</div>
-      <div class="day-card-meta">Quadriceps, Fessiers, Mollets, ~40 min</div>
-      <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day0" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--blue)" onclick="event.stopPropagation();openPreview('day0')">Lancer la séance</button>
-    </div>
-    <div class="day-card" style="--card-color:var(--teal)" onclick="showPage('day1')">
-      <div class="day-card-num">J2</div><div class="day-card-name">Membres supérieurs</div>
-      <div class="day-card-meta">Pectoraux, Épaules, Dos, ~40 min</div>
-      <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day1" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--teal)" onclick="event.stopPropagation();openPreview('day1')">Lancer la séance</button>
-    </div>
-    <div class="day-card" style="--card-color:var(--amber)" onclick="showPage('day2')">
-      <div class="day-card-num">J3</div><div class="day-card-name">Rachis & Gainage</div>
-      <div class="day-card-meta">Transverse, Multifides, ~40 min</div>
-      <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day2" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--amber)" onclick="event.stopPropagation();openPreview('day2')">Lancer la séance</button>
-    </div>
-    <div class="day-card" style="--card-color:var(--purple)" onclick="showPage('day3')">
-      <div class="day-card-num">J4</div><div class="day-card-name">Fessiers & Bassin</div>
-      <div class="day-card-meta">Grand/Moyen fessier, ~40 min</div>
-      <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day3" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--purple)" onclick="event.stopPropagation();openPreview('day3')">Lancer la séance</button>
-    </div>
-    <div class="day-card" style="--card-color:var(--green);grid-column:span 2" onclick="showPage('day4')">
-      <div class="day-card-num">J5</div><div class="day-card-name">Global fonctionnel</div>
-      <div class="day-card-meta">Corps entier, Coordination, Proprioception, ~40 min</div>
-      <div class="day-card-prog"><div class="day-card-prog-fill" id="hprog-day4" style="width:0%"></div></div>
-    <button class="seq-launch-btn" style="background:var(--green)" onclick="event.stopPropagation();openPreview('day4')">Lancer la séance</button>
-    </div>
-  </div>
-  <div class="sec-title">Mes badges</div>
-  <div class="badges-grid" id="badges-home"></div>
 </div>
 </div>
 
 <!-- PAGE GUIDE -->
 <div class="page" id="page-guide">
 <div class="content">
-  <div class="notice-bar"><strong>Notice :</strong> Programme de continuité de soins post-hospitalisation. Adaptez l'intensité à votre état du jour. Tout symptôme inhabituel impose l'arrêt immédiat et un contact avec votre kinésithérapeute.</div>
-  <div class="sec-title">Organisation de la semaine</div>
-  <div class="info-card">
-    <h3>Planning recommandé</h3>
-    <p style="margin-bottom:10px">J3 (gainage) est au milieu — récupération active. Si vous ratez une séance, décalez le programme plutôt que de sauter une étape.</p>
-    <div class="week-strip">
-      <div class="wday train"><div class="wday-label">Lun</div><div class="wday-val">J1</div></div>
-      <div class="wday train"><div class="wday-label">Mar</div><div class="wday-val">J2</div></div>
-      <div class="wday train"><div class="wday-label">Mer</div><div class="wday-val">J3</div></div>
-      <div class="wday rest"><div class="wday-label">Jeu</div><div class="wday-val">Repos</div></div>
-      <div class="wday train"><div class="wday-label">Ven</div><div class="wday-val">J4</div></div>
-      <div class="wday train"><div class="wday-label">Sam</div><div class="wday-val">J5</div></div>
-      <div class="wday rest"><div class="wday-label">Dim</div><div class="wday-val">Repos</div></div>
-    </div>
-  </div>
-  <div class="sec-title">Progression 4 semaines</div>
-  <div class="info-card">
-    <h3>Surcharge progressive — un seul paramètre à la fois</h3>
-    <p style="margin-bottom:10px">Semaine 1, puis toujours 2 tours, quelle que soit votre forme. Les 2 premières séances servent à vérifier la technique.</p>
-    <div class="prog-grid">
-      <div class="prog-week pw-active"><h4>S1</h4><div class="prog-item">Tours<strong>2</strong></div><div class="prog-item">Objectif<strong>Apprentissage</strong></div></div>
-      <div class="prog-week"><h4>S2</h4><div class="prog-item">Tours<strong>2–3</strong></div><div class="prog-item">Reps<strong>+2</strong></div></div>
-      <div class="prog-week"><h4>S3</h4><div class="prog-item">Tours<strong>3</strong></div><div class="prog-item">Objectif<strong>Renforcement</strong></div></div>
-      <div class="prog-week"><h4>S4</h4><div class="prog-item">Tours<strong>3</strong></div><div class="prog-item">Reps<strong>Variante avancée</strong></div></div>
-    </div>
-  </div>
-  <div class="sec-title">Échelle d'effort (Borg)</div>
-  <div class="info-card">
-    <h3>Zone cible : 2–3, Réduire si vous atteignez régulièrement 4–5</h3>
-    <div class="borg-scale">
-      <div class="borg-row"><div class="borg-num b1">1</div><div class="borg-zone">Très léger</div><div class="borg-desc">Aucun essoufflement, conversation facile</div><div class="borg-target">S1</div></div>
-      <div class="borg-row"><div class="borg-num b2">2</div><div class="borg-zone">Léger</div><div class="borg-desc">Légère chaleur musculaire</div><div class="borg-target">S1–S2</div></div>
-      <div class="borg-row"><div class="borg-num b3">3</div><div class="borg-zone">Modéré ✓</div><div class="borg-desc">Effort perceptible, conversation possible</div><div class="borg-target">S2–S3</div></div>
-      <div class="borg-row"><div class="borg-num b4">4</div><div class="borg-zone">Difficile</div><div class="borg-desc">Fatigue marquée, transpiration</div><div class="borg-target">S4 max</div></div>
-      <div class="borg-row"><div class="borg-num b5">5</div><div class="borg-zone">Trop intense</div><div class="borg-desc">Épuisement — réduire l'intensité</div></div>
-    </div>
-  </div>
-  <div class="sec-title">DOMS — Normal vs Signal d'alarme</div>
-  <div class="info-card">
-    <h3>Les courbatures sont normales les 2 premières semaines</h3>
-    <div class="doms-grid">
-      <div class="doms-card doms-ok"><h4>✓ Normal — continuez</h4><ul><li>Raideur musculaire diffuse</li><li>Douleur à la pression du muscle</li><li>Disparaît en 48–72h</li><li>S'améliore à l'échauffement</li><li>Symétrique (deux côtés)</li></ul></div>
-      <div class="doms-card doms-warn"><h4>Alarme — arrêtez</h4><ul><li>Douleur articulaire</li><li>Douleur vive et localisée</li><li>Gonflement ou chaleur</li><li>Asymétrique</li><li>Dure plus de 5 jours</li></ul></div>
-    </div>
-    <p style="margin-top:10px;font-size:0.74rem;color:var(--text3)">En cas de courbatures normales : séance suivante à 50%. Le mouvement est le meilleur traitement.</p>
-  </div>
-  <div class="sec-title">Recommandations générales</div>
-  <div class="info-card">
-    <h3>Pour optimiser votre programme</h3>
-    <ul>
-      <li><strong>Hydratation :</strong> 250 ml avant chaque séance, boire régulièrement pendant l'effort.</li>
-      <li><strong>Tenue :</strong> Chaussures de sport fermées obligatoires pour les exercices debout.</li>
-      <li><strong>Timing :</strong> Évitez les 2h suivant un repas copieux ou l'heure avant le coucher.</li>
-      <li><strong>Médicaments :</strong> Si somnolence ou vertiges, prévenez votre kinésithérapeute avant.</li>
-      <li><strong>Surface :</strong> Sol non glissant. Tapis fin recommandé pour les exercices au sol.</li>
-      <li><strong>Absence &gt; 1 semaine :</strong> Reprendre au niveau Semaine 1, sans exception.</li>
-    </ul>
-  </div>
-</div>
-</div>
-
-<!-- J1 -->
-<div class="page" id="page-day0">
-<div class="content" style="--day-color:var(--blue);--day-color-dim:var(--blue-dim)">
-  <div class="day-header">
-    <div class="day-header-top"><div class="day-pill">J1</div><div><h2>Membres inférieurs</h2><p>Chaîne fermée — quadriceps, ischio-jambiers, mollets, stabilisateurs de cheville.</p></div></div>
-    <div class="dtags"><span class="dtag">Quadriceps</span><span class="dtag">Ischio-jambiers</span><span class="dtag">Mollets</span><span class="dtag">Stabilité cheville</span><span class="dtag hl">~40 min</span></div>
-    <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day0" style="width:0%"></div></div><div class="day-prog-label" id="cnt-day0">0/7</div></div>
-  </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Échauffement dynamique, 3 min</div>
-  <div class="pbox amber">Étirements dynamiques uniquement — pas de maintien prolongé avant l'effort.</div>
-  <div class="ex" id="ex-day0-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Mobilisation articulaire progressive MI</div><button class="ex-check-btn" onclick="toggleEx('day0',0)">✓</button></div>
-    <div class="ex-desc">Marche sur place à rythme croissant (50 s), puis flexions-extensions actives des chevilles assis (25 s), puis leg swings avant/arrière en appui mur (15 s × 2), puis rotations de genoux debout (25 s), puis squats dynamiques à faible amplitude (25 s), puis rotations de hanches (25 s).</div>
-    <div class="ex-tags"><span class="tag amber">3 min continu</span><span class="tag blue">Dynamique — pas de maintien</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot"></span>Circuit de renforcement, 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 12–15 reps — 30 s entre les exercices — 2 min entre les tours</div>
-  <div class="ex" id="ex-day0-1"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Squat bilatéral en chaîne fermée</div><button class="ex-check-btn" onclick="toggleEx('day0',1)">✓</button></div>
-    <div class="ex-desc">Pieds à largeur d'épaules, orteils légèrement vers l'extérieur. Flexion lente jusqu'à 80–90°, talons en appui permanent, rachis neutre. Contraction fessière complète à la remontée. Expirer à la remontée.</div>
-    <div class="ex-tags"><span class="tag blue">3 × 12 reps (S3–S4)</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Squat pause 2 sec en bas — augmente le temps sous tension</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos inter-séries')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos inter-exercices')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Amplitude réduite à 60° si douleur rotulienne. Tenir le dossier d'une chaise si équilibre précaire.</div>
-    <div class="ex-stop">Arrêt si : douleur vive au genou, craquement articulaire, ou douleur lombaire à la descente.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day0-2"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 2</div><div class="ex-name">Fentes avant unilatérales</div><button class="ex-check-btn" onclick="toggleEx('day0',2)">✓</button></div>
-    <div class="ex-desc">Grand pas en avant, toujours avec la même jambe : 8 répétitions jambe droite, puis 8 jambe gauche. Descendre jusqu'à 90° de flexion des deux genoux, genou avant aligné sur le 2e orteil (ne dépasse pas le pied), genou arrière proche du sol. Poussée sur la jambe avant pour revenir. Descente 2 sec, remontée 1 sec.</div>
-    <div class="ex-tags"><span class="tag blue">8 reps / jambe en S1</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Fente avec dépôt complet du genou au sol</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Fentes statiques si instabilité. Tenir un mur si besoin.</div>
-    <div class="ex-stop">Arrêt si : douleur interne ou externe du genou, instabilité de cheville.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day0-3"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 3</div><div class="ex-name">Chaise contre le mur (isométrique)</div><button class="ex-check-btn" onclick="toggleEx('day0',3)">✓</button></div>
-    <div class="ex-desc">Dos plaqué contre le mur, pieds écartés à la largeur des hanches et avancés d'environ 40 cm. Glisser jusqu'à 90° de flexion de hanches et de genoux, genoux au-dessus des chevilles. Tenir en respirant normalement.</div>
-    <div class="ex-tags"><span class="tag blue">S1 : 30 s</span><span class="tag blue">S2 : 45 s</span><span class="tag blue">S3–S4 : 1 min</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Si c'est trop difficile, remonter légèrement pour réduire la flexion.</div>
-    <div class="ex-stop">Arrêt si : douleur à l'avant du genou ou douleur lombaire.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day0-4"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 4</div><div class="ex-name">Pont ischio-jambiers talons sur chaise</div><button class="ex-check-btn" onclick="toggleEx('day0',4)">✓</button></div>
-    <div class="ex-desc">Allongé sur le dos, talons posés sur l'assise d'une chaise, genoux légèrement fléchis, bras le long du corps. Pousser dans les talons pour décoller le bassin jusqu'à l'alignement épaules–hanches–genoux. Tenir 2 sec en haut. Descente lente 3 sec. Cible les ischio-jambiers.</div>
-    <div class="ex-tags"><span class="tag blue">3 × 12 reps</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Garder les talons appuyés sur la chaise sans pousser avec les orteils ; si crampe à l'arrière de la cuisse, fléchir un peu plus les genoux.</div>
-    <div class="ex-stop">Arrêt si : douleur à l'arrière du genou ou douleur lombaire.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day0-5"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 5</div><div class="ex-name">Élévation des talons (gastrocnémiens / soléaire)</div><button class="ex-check-btn" onclick="toggleEx('day0',5)">✓</button></div>
-    <div class="ex-desc">Debout, pieds parallèles, appui léger sur un mur. Montée lente 2 sec, tenir 1 sec en haut, descente excentrique 3 sec. Amplitude maximale montée et descente.</div>
-    <div class="ex-tags"><span class="tag blue">3 × 15 reps</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Unilatéral, ou légère flexion de genou pour cibler le soléaire</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day0-6"><div class="ex-top"><div class="ex-accent"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 6</div><div class="ex-name">Step-up sur marche (fonctionnel)</div><button class="ex-check-btn" onclick="toggleEx('day0',6)">✓</button></div>
-    <div class="ex-desc">Poser un pied sur une marche d'escalier. Monter en poussant sur ce pied (ne pas s'aider de la jambe libre), ramener l'autre pied doucement. Descente contrôlée en excentrique. Alterner les jambes. Tenir la rampe si besoin.</div>
-    <div class="ex-tags"><span class="tag blue">3 × 10 reps / jambe</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Marche plus haute ou tempo excentrique 4 sec</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Excellent travail fonctionnel pour la montée des escaliers au quotidien.</div>
-    <div class="ex-stop">Arrêt si : genou en valgus (vers l'intérieur) de façon incontrôlée à la montée.</div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs, 5 min</div>
-  <div class="ex" id="ex-day0-7"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Protocole étirements membres inférieurs</div><button class="ex-check-btn" onclick="toggleEx('day0',7)">✓</button></div>
-    <div class="ex-desc">Quadriceps debout (40s × 2), puis ischio-jambiers assis jambe tendue (40s × 2), puis mollets en fente basse contre mur (30s × 2), puis rotation hanche figure 4 (30s × 2), puis respiration diaphragmatique de clôture (2 min : inspirer 4s, expirer 6s).</div>
-    <div class="ex-tags"><span class="tag teal">5 min — étirements passifs maintenus</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Étirements')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
-  </div></div></div>
-  <table class="sum-table"><thead><tr><th>Phase</th><th>Durée</th><th>Muscles ciblés</th></tr></thead><tbody>
-    <tr><td>Échauffement dynamique</td><td><strong>3 min</strong></td><td>Activation neuromusculaire MI, proprioception</td></tr>
-    <tr><td>Circuit renforcement (6 ex.)</td><td><strong>28 min</strong></td><td>Quadriceps, ischio-jambiers, fessiers, mollets</td></tr>
-    <tr><td>Étirements + respiration</td><td><strong>5 min</strong></td><td>Retour élastique musculaire, régulation SNA</td></tr>
-  </tbody></table>
-</div>
-</div>
-
-<!-- J2 -->
-<div class="page" id="page-day1">
-<div class="content" style="--day-color:var(--teal);--day-color-dim:var(--teal-dim)">
-  <div class="day-header">
-    <div class="day-header-top"><div class="day-pill" style="color:var(--teal);border-color:var(--teal);background:var(--teal-dim)">J2</div><div><h2>Membres supérieurs</h2><p>Pectoraux, deltoïdes, triceps, rhomboïdes et stabilisateurs de la scapula.</p></div></div>
-    <div class="dtags"><span class="dtag">Pectoraux</span><span class="dtag">Deltoïdes</span><span class="dtag">Triceps</span><span class="dtag">Rhomboïdes</span><span class="dtag">Rotateurs ext.</span><span class="dtag hl">~40 min</span></div>
-    <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day1" style="width:0%;background:var(--teal)"></div></div><div class="day-prog-label" id="cnt-day1">0/7</div></div>
-  </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Échauffement dynamique, 3 min</div>
-  <div class="ex" id="ex-day1-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Mobilisation active membres supérieurs + cage thoracique</div><button class="ex-check-btn" onclick="toggleEx('day1',0)">✓</button></div>
-    <div class="ex-desc">Pendules des bras en cercles progressifs (45 s), puis rétropulsion/antépulsion scapulaires répétées (25 s), puis rotations dynamiques des épaules (25 s), puis flexions-extensions poignets et coudes (25 s), puis 10 pompes contre mur à rythme lent (1 min).</div>
-    <div class="ex-tags"><span class="tag amber">3 min</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Circuit de renforcement, 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 8–12 reps — 30 s entre les exercices — 2 min entre les tours</div>
-  <div class="ex" id="ex-day1-1"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Rotation externe d'épaule en décubitus latéral</div><button class="ex-check-btn" onclick="toggleEx('day1',1)">✓</button></div>
-    <div class="ex-desc">Allongé sur le côté, coude du bras supérieur collé au flanc, fléchi à 90°. Lever l'avant-bras vers le plafond en rotation externe — sans décoller le coude. Descente lente 3 sec. Cible infra-épineux et petit rond.</div>
-    <div class="kf-load"><strong>Charge :</strong> un haltère de 1 kg ou une bouteille d'eau d'1 litre fait l'affaire.</div>
-    <div class="ex-tags"><span class="tag teal">3 × 15 reps / côté</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Exercice clé en rééducation d'épaule. Amplitude souvent limitée au début — c'est normal.</div>
-    <div class="ex-stop">Arrêt si : douleur profonde dans l'épaule ou sensation de ressaut.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day1-2"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 2</div><div class="ex-name">Pompes en appui sur genoux (push-up modifié)</div><button class="ex-check-btn" onclick="toggleEx('day1',2)">✓</button></div>
-    <div class="ex-desc">Mains légèrement plus larges que les épaules, corps aligné tête–hanches–genoux. Descente lente 3 sec jusqu'au quasi-contact. Coudes à 45° du tronc. Remontée en 1 sec.</div>
-    <div class="ex-tags"><span class="tag teal">3 × 8–12 reps</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Pompes complètes sur orteils</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Version débutant : pompes contre un mur ou plan incliné. Plus le plan est incliné, plus c'est facile.</div>
-    <div class="ex-stop">Arrêt si : douleur au poignet ou à l'avant de l'épaule.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day1-3"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 3</div><div class="ex-name">Dips sur chaise (triceps brachial)</div><button class="ex-check-btn" onclick="toggleEx('day1',3)">✓</button></div>
-    <div class="ex-desc">Mains sur le bord d'une chaise stable, dos proche du siège. Descendre le bassin en fléchissant les coudes jusqu'à 90° max. Épaules basses et en arrière. Remonter en extension complète des coudes.</div>
-    <div class="ex-tags"><span class="tag teal">3 × 10 reps</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Pieds plus éloignés (augmente la charge)</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-stop">Arrêt si : douleur à l'arrière de l'épaule ou craquement douloureux du coude.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day1-4"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 4</div><div class="ex-name">Pike push-up (deltoïdes — faisceau antérieur et médian)</div><button class="ex-check-btn" onclick="toggleEx('day1',4)">✓</button></div>
-    <div class="ex-desc"><strong>S1–S2 : sur les genoux</strong>, hanches au-dessus des genoux, mains devant. <strong>À partir de S3 :</strong> position en V inversé sur les pieds (fessiers en l'air). Fléchir les coudes pour amener le sommet du crâne entre les mains, remonter. Analogue à un développé épaules en poids du corps.</div>
-    <div class="ex-tags"><span class="tag teal">3 × 8 reps</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Pieds surélevés sur une chaise</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day1-5"><div class="ex-top"><div class="ex-accent" style="background:var(--teal)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 5</div><div class="ex-name">Superman en Y et en W (grand dorsal, rhomboïdes)</div><button class="ex-check-btn" onclick="toggleEx('day1',5)">✓</button></div>
-    <div class="ex-desc">Décubitus ventral. <strong>Série A :</strong> bras en Y (45°), élever bras et jambes simultanément, tenir 2 sec. <strong>Série B :</strong> bras en W (coudes fléchis, omoplates rapprochées). Alterner A et B.</div>
-    <div class="ex-tags"><span class="tag teal">3 × 12 reps (alternant Y et W)</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> La variante W cible davantage les rhomboïdes et trapèzes inférieurs — essentiels pour la posture.</div>
-  </div></div></div>
-    <div class="slabel"><span class="slabel-dot teal"></span>Étirements passifs, 5 min</div>
-  <div class="ex" id="ex-day1-6"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Protocole étirements membres supérieurs</div><button class="ex-check-btn" onclick="toggleEx('day1',6)">✓</button></div>
-    <div class="ex-desc">Pectoraux bras en croix contre mur, coude à 90° (40s × 2), puis triceps coude derrière la tête (30s × 2), puis auto-agrandissement cervical assis (1 min), puis position de l'enfant bras tendus (1 min), puis respiration abdominale (1 min).</div>
-    <div class="ex-tags"><span class="tag teal">5 min</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Étirements')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
-  </div></div></div>
-</div>
-</div>
-
-<!-- J3 -->
-<div class="page" id="page-day2">
-<div class="content" style="--day-color:var(--amber);--day-color-dim:var(--amber-dim)">
-  <div class="day-header">
-    <div class="day-header-top"><div class="day-pill" style="color:var(--amber);border-color:var(--amber);background:var(--amber-dim)">J3</div><div><h2>Gainage & Stabilisation rachidienne</h2><p>Stabilisateurs profonds du tronc. Séance de récupération active — intensité modérée.</p></div></div>
-    <div class="dtags"><span class="dtag">Transverse</span><span class="dtag">Multifides</span><span class="dtag">Obliques</span><span class="dtag">Carré des lombes</span><span class="dtag hl">~40 min, modéré</span></div>
-    <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day2" style="width:0%;background:var(--amber)"></div></div><div class="day-prog-label" id="cnt-day2">0/7</div></div>
-  </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Activation & mobilisation rachidienne, 3 min</div>
-  <div class="pbox amber">Démarre par du travail respiratoire — l'activation du transverse conditionne la qualité de tous les exercices qui suivent.</div>
-  <div class="ex" id="ex-day2-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Respiration diaphragmatique + activation transverse</div><button class="ex-check-btn" onclick="toggleEx('day2',0)">✓</button></div>
-    <div class="ex-desc">Décubitus dorsal, genoux fléchis. Inspirer profondément (ventre se gonfle). À l'expiration, rentrer légèrement le nombril (activation transverse). Maintenir cette légère activation pendant la mobilisation. Respiration (1 min 10), puis chat-vache à quatre pattes (56 s), puis rotations de tronc assis (54 s).</div>
-    <div class="ex-tags"><span class="tag amber">3 min</span><span class="tag blue">Activation transverse à mémoriser pour tous les exercices</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Activation')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-1"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Crunch abdominal lent et contrôlé</div><button class="ex-check-btn" onclick="toggleEx('day2',1)">✓</button></div>
-    <div class="ex-desc">Décubitus dorsal, genoux fléchis, mains croisées sur la poitrine. Décoller les épaules uniquement (30° max de flexion de tronc), tenir 1 sec, descendre en excentrique sur 3 sec. Expirer à la montée.</div>
-    <div class="ex-tags"><span class="tag amber">3 × 12 reps</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Crunch avec rotation — pointer un coude vers le genou opposé</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Ne pas tirer sur la nuque. La force vient des abdominaux uniquement.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-2"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 2</div><div class="ex-name">Portefeuille (V-up)</div><button class="ex-check-btn" onclick="toggleEx('day2',2)">✓</button></div>
-    <div class="ex-desc">Allongé sur le dos, bras tendus derrière la tête, jambes tendues. Lever en même temps les jambes tendues et le buste pour que les mains rejoignent les pieds au-dessus du ventre. Redescendre lentement.</div>
-    <div class="ex-tags"><span class="tag blue">2 × 10 reps</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(60,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:00</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> si trop difficile, plier légèrement les genoux. Expirer en montant.</div>
-    <div class="ex-stop">Arrêt si : douleur lombaire ou cervicale.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-3"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 3</div><div class="ex-name">Dead bug (stabilisation lombaire active)</div><button class="ex-check-btn" onclick="toggleEx('day2',3)">✓</button></div>
-    <div class="ex-desc">Décubitus dorsal, bras tendus au plafond, hanches et genoux à 90°. Transverse activé. Abaisser simultanément bras droit et jambe gauche sans décoller le bas du dos — critère absolu. Alterner. Si le dos se décolle, réduire l'amplitude.</div>
-    <div class="ex-tags"><span class="tag amber">3 × 8–10 reps / côté</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Allonger les leviers (jambe plus tendue)</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(60,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1min</button></div>
-    <div class="ex-stop">Arrêt si : bas du dos se décolle malgré réduction d'amplitude.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-4"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 4</div><div class="ex-name">Superman quadrupédique en gainage</div><button class="ex-check-btn" onclick="toggleEx('day2',4)">✓</button></div>
-    <div class="ex-desc">À quatre pattes, dos plat, transverse activé. Main droite et jambe gauche tendues, tenues ; puis main gauche et jambe droite.</div>
-    <div class="ex-tags"><span class="tag blue">S1 : 30 s / côté</span><span class="tag blue">S2 : 45 s</span><span class="tag blue">S3–S4 : 1 min</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(60,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:00</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> le bassin reste horizontal ; s'il tourne, lever moins haut.</div>
-    <div class="ex-stop">Arrêt si : douleur lombaire.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-5"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 5</div><div class="ex-name">Superman en Y et en W (grand dorsal, rhomboïdes)</div><button class="ex-check-btn" onclick="toggleEx('day2',5)">✓</button></div>
-    <div class="ex-desc">Décubitus ventral. <strong>Série A :</strong> bras en Y (45°), élever bras et jambes simultanément, tenir 2 sec. <strong>Série B :</strong> bras en W (coudes fléchis, omoplates rapprochées). Alterner A et B.</div>
-    <div class="ex-tags"><span class="tag teal">3 × 12 reps (alternant Y et W)</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> La variante W cible davantage les rhomboïdes et trapèzes inférieurs — essentiels pour la posture.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-6"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 6</div><div class="ex-name">Ciseaux et vélo</div><button class="ex-check-btn" onclick="toggleEx('day2',6)">✓</button></div>
-    <div class="ex-desc">Allongé sur le dos, bas du dos plaqué au sol, jambes levées. Alterner toutes les 5 secondes entre ciseaux (jambes tendues, battements haut-bas) et vélo (pédalage), dans l'axe du corps.</div>
-    <div class="ex-tags"><span class="tag blue">S1 : 30 s</span><span class="tag blue">S2 : 45 s</span><span class="tag blue">S3–S4 : 1 min</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(60,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:00</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> plus les jambes sont basses, plus c'est difficile.</div>
-    <div class="ex-stop">Arrêt si : le bas du dos se décolle, douleur lombaire.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-7"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 7</div><div class="ex-name">Gainage antérieur en appui avant-bras (Plank)</div><button class="ex-check-btn" onclick="toggleEx('day2',7)">✓</button></div>
-    <div class="ex-desc">Appui sur avant-bras et orteils. Corps aligné — pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre et continue — ne jamais bloquer l'apnée.</div>
-    <div class="ex-tags"><span class="tag amber">S1–S2 : 30s, S3 : 35s, S4 : 40s</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Plank avec soulèvement alterné d'un bras</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(20,'Plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 20s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos 30s</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Trop dur ? Pendant la séance, le bouton « − Plus facile » passe à la version sur les genoux. L'arrêt = perte d'alignement rachidien, pas la fatigue.</div>
-    <div class="ex-stop">Arrêt si : douleur lombaire ou cervicale.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-8"><div class="ex-top"><div class="ex-accent" style="background:var(--amber)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 8</div><div class="ex-name">Gainage latéral (planche latérale complète)</div><button class="ex-check-btn" onclick="toggleEx('day2',8)">✓</button></div>
-    <div class="ex-desc">Sur le côté, appui sur l'avant-bras (coude sous l'épaule) et sur les pieds, jambes tendues. Corps aligné épaule–hanche–cheville. Lever les hanches jusqu'à alignement. Pas de rotation du bassin. Changer de côté.</div>
-    <div class="ex-tags"><span class="tag amber">S1–S2 : 20s/côté, S3–S4 : 30s/côté</span></div>
-    <div class="ex-variant"><strong>Plus facile :</strong> sur les genoux (bouton « − Plus facile » pendant la séance)</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(20,'Side plank')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 20s</button><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day2-9"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Étirements rachidiens + cohérence cardiaque</div><button class="ex-check-btn" onclick="toggleEx('day2',9)">✓</button></div>
-    <div class="ex-desc">Cobra allongé (30s), puis torsion lombaire décubitus dorsal (40s × 2), puis position de l'enfant bras tendus (1 min), puis <strong>cohérence cardiaque :</strong> inspirer 5s, expirer 5s — répéter pendant 3 min. Bénéfice validé sur la régulation du SNA.</div>
-    <div class="ex-tags"><span class="tag teal">5 min, Régulation neurovégétative</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Cohérence cardiaque')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
-  </div></div></div>
-</div>
-</div>
-
-<!-- J4 -->
-<div class="page" id="page-day3">
-<div class="content" style="--day-color:var(--purple);--day-color-dim:var(--purple-dim)">
-  <div class="day-header">
-    <div class="day-header-top"><div class="day-pill" style="color:var(--purple);border-color:var(--purple);background:var(--purple-dim)">J4</div><div><h2>Fessiers & Ceinture pelvienne</h2><p>Grand fessier, moyen fessier, abducteurs, rotateurs externes — stabilisation frontale genou et bassin.</p></div></div>
-    <div class="dtags"><span class="dtag">Grand fessier</span><span class="dtag">Moyen fessier</span><span class="dtag">Abducteurs</span><span class="dtag">Rotateurs ext.</span><span class="dtag hl">~40 min</span></div>
-    <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day3" style="width:0%;background:var(--purple)"></div></div><div class="day-prog-label" id="cnt-day3">0/7</div></div>
-  </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Activation ceinture pelvienne, 3 min</div>
-  <div class="ex" id="ex-day3-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Activation ceinture pelvienne</div><button class="ex-check-btn" onclick="toggleEx('day3',0)">✓</button></div>
-    <div class="ex-desc">Cercles de hanches debout, amplitude progressive (50 s), puis abduction de hanche alternée en station debout contre mur (15 s × 2), puis leg swings latéraux (15 s × 2), puis rotations de hanche en décubitus dorsal (35 s), puis marche genoux hauts avec élévation exagérée (35 s).</div>
-    <div class="ex-tags"><span class="tag amber">3 min</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Activation')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot purple"></span>Circuit de renforcement, 28 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 15 reps — 30 s entre les exercices — 2 min entre les tours</div>
-  <div class="ex" id="ex-day3-1"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 1</div><div class="ex-name">Squat sumo (adducteurs + grand fessier)</div><button class="ex-check-btn" onclick="toggleEx('day3',1)">✓</button></div>
-    <div class="ex-desc">Pieds très écartés (~150% largeur épaules), orteils à 45°. Flexion en maintenant les genoux dans l'axe des orteils, bassin en légère rétroversion. Remontée par contraction simultanée fessiers et adducteurs.</div>
-    <div class="ex-tags"><span class="tag purple">3 × 15 reps</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Pause 2 sec en bas</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day3-2"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 2</div><div class="ex-name">Extension de hanche à quatre pattes (Donkey kick)</div><button class="ex-check-btn" onclick="toggleEx('day3',2)">✓</button></div>
-    <div class="ex-desc">À quatre pattes, rachis horizontal, genou fléchi à 90°. Élever la cuisse vers le plafond par extension de hanche pure — sans rotation du bassin. Contraction max en position haute. Descente lente 2 sec.</div>
-    <div class="ex-tags"><span class="tag purple">3 × 15 reps / côté</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Jambe tendue (plus grand bras de levier)</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-stop">Arrêt si : douleur lombaire — souvent causée par une extension lombaire compensatoire.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day3-3"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 3</div><div class="ex-name">Pont de hanche bilatéral (Hip bridge)</div><button class="ex-check-btn" onclick="toggleEx('day3',3)">✓</button></div>
-    <div class="ex-desc">Décubitus dorsal, genoux à 90°, pieds à plat. Activer le transverse, décoller le bassin jusqu'à alignement épaules–hanches–genoux. Tenir 2 sec en haut. Descente lente 3 sec.</div>
-    <div class="ex-tags"><span class="tag blue">3 × 15 reps</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Pont unilatéral — une jambe tendue horizontale</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Le bas du dos ne doit pas se cambrer en position haute — réduire la hauteur si c'est le cas.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day3-4"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 4</div><div class="ex-name">Clamshell (abduction–rotation externe de hanche)</div><button class="ex-check-btn" onclick="toggleEx('day3',4)">✓</button></div>
-    <div class="ex-desc">Décubitus latéral, hanches fléchies à 45° et genoux à 90°, pieds joints, bassin perpendiculaire au sol. Ouvrir le genou supérieur vers le plafond sans décoller les pieds — bassin strictement immobile. Tenir 1 sec. Exercice clé prévention du valgus dynamique de genou.</div>
-    <div class="ex-tags"><span class="tag purple">3 × 15 reps / côté</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Pied en l'air (pas d'appui au sol) ou bande élastique</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day3-5"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 5</div><div class="ex-name">Abduction de hanche debout (moyen fessier en charge)</div><button class="ex-check-btn" onclick="toggleEx('day3',5)">✓</button></div>
-    <div class="ex-desc">Debout, appui léger sur un mur. Élever latéralement la jambe tendue à 30–40° sans incliner le tronc. Descente excentrique 3 sec. Travaille aussi le moyen fessier de la jambe d'appui.</div>
-    <div class="ex-tags"><span class="tag purple">3 × 15 reps / côté</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Réduire l'appui progressivement jusqu'à équilibre libre</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> L'inclinaison latérale du tronc est la compensation la plus fréquente — réduire l'amplitude si elle apparaît.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day3-6"><div class="ex-top"><div class="ex-accent" style="background:var(--purple)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">Ex 6</div><div class="ex-name">Pont fessier unilatéral (progression du J1)</div><button class="ex-check-btn" onclick="toggleEx('day3',6)">✓</button></div>
-    <div class="ex-desc">Pont de hanche puis soulever une jambe tendue horizontalement. Toute la poussée provient du fessier de la jambe au sol. Maintenir le bassin horizontal. Tenir 2 sec en haut, descente lente.</div>
-    <div class="ex-tags"><span class="tag purple">3 × 10 reps / côté</span></div>
-    <div class="ex-variant"><strong>Variante S4 :</strong> Bras tendus dans le vide (déstabilisation)</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(30,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 30s</button><button class="timer-trigger-btn" onclick="launchTimer(90,'Repos')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 1:30</button></div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Étirements, 5 min</div>
-  <div class="ex" id="ex-day3-7"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Protocole étirements fessiers, piriforme et iliopsoas</div><button class="ex-check-btn" onclick="toggleEx('day3',7)">✓</button></div>
-    <div class="ex-desc">Figure 4 en décubitus (45s × 2 côtés), puis fente basse au sol pour l'iliopsoas (40s × 2), puis demi-grand écart assis pour les adducteurs (40s), puis respiration abdominale de clôture (1 min).</div>
-    <div class="ex-tags"><span class="tag teal">5 min</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(300,'Étirements')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 5 min</button></div>
-  </div></div></div>
-</div>
-</div>
-
-<!-- J5 -->
-<div class="page" id="page-day4">
-<div class="content" style="--day-color:var(--green);--day-color-dim:var(--green-dim)">
-  <div class="day-header">
-    <div class="day-header-top"><div class="day-pill" style="color:var(--green);border-color:var(--green);background:var(--green-dim)">J5</div><div><h2>Renforcement global fonctionnel</h2><p>Intégration corps entier en enchaînements fonctionnels avec composante cardio-respiratoire modérée.</p></div></div>
-    <div class="dtags"><span class="dtag">Corps entier</span><span class="dtag">Coordination</span><span class="dtag">Cardio modéré</span><span class="dtag">Proprioception</span><span class="dtag hl">~40 min, fin de cycle</span></div>
-    <div class="day-prog-row"><div class="day-prog-track"><div class="day-prog-fill" id="prog-day4" style="width:0%;background:var(--green)"></div></div><div class="day-prog-label" id="cnt-day4">0/7</div></div>
-  </div>
-  <div class="slabel"><span class="slabel-dot amber"></span>Mise en route cardio-respiratoire, 3 min</div>
-  <div class="ex" id="ex-day4-0"><div class="ex-top"><div class="ex-accent warmup"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Échauffement global progressif</div><button class="ex-check-btn" onclick="toggleEx('day4',0)">✓</button></div>
-    <div class="ex-desc">Marche sur place genoux hauts, rythme croissant (45 s), puis jumping jacks à rythme modéré (35 s), puis rotations complètes de bas en haut : chevilles, genoux, hanches, tronc, épaules, nuque (1 min), puis 5 grandes respirations de préparation (40 s).</div>
-    <div class="ex-tags"><span class="tag amber">3 min</span><span class="tag blue">Cible Borg 2 en fin d'échauffement</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(180,'Échauffement')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 3 min</button></div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot green"></span>Circuit fonctionnel, 25 min</div>
-  <div class="pbox"><strong>S1–S2 :</strong> 2 tours, <strong>S3–S4 :</strong> 3 tours — 40s travail / 20s transition — 2 min repos entre les tours. Adapter le rythme librement.</div>
-  <div class="ex" id="ex-day4-1"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">A</div><div class="ex-name">Squat + élévation des membres supérieurs</div><button class="ex-check-btn" onclick="toggleEx('day4',1)">✓</button></div>
-    <div class="ex-desc">Descente en squat, remontée avec élévation coordonnée des deux bras en antéflexion jusqu'à la verticale. Mouvement fluide MI–MS : la montée des bras accompagne la poussée des jambes.</div>
-    <div class="ex-tags"><span class="tag green">40 sec</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Travail')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button><button class="timer-trigger-btn" onclick="launchTimer(120,'Repos inter-tours')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Repos 2min</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day4-2"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">B</div><div class="ex-name">Inchworm + pompes (transition posturale)</div><button class="ex-check-btn" onclick="toggleEx('day4',2)">✓</button></div>
-    <div class="ex-desc">Debout, puis pencher le tronc, puis poser les mains au sol, puis marcher avec les mains jusqu'en position de planche, puis réaliser 2 pompes, puis revenir en marchant sur les mains, puis redressement lent. Travail de transition sol–debout essentiel pour l'autonomie fonctionnelle.</div>
-    <div class="ex-tags"><span class="tag green">40 sec</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Travail')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day4-3"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">C</div><div class="ex-name">Fente latérale alternée avec toucher de sol</div><button class="ex-check-btn" onclick="toggleEx('day4',3)">✓</button></div>
-    <div class="ex-desc">Grand pas latéral, descendre en pliant le genou porteur, toucher le sol avec la main du côté opposé (coordination croisée). Revenir au centre, alterner les côtés. Travail excentrique MI + coordination MS–MI.</div>
-    <div class="ex-tags"><span class="tag green">40 sec</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Travail')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button></div>
-  </div></div></div>
-  <div class="ex" id="ex-day4-4"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">D</div><div class="ex-name">Burpee modifié sans saut (transition sol–debout)</div><button class="ex-check-btn" onclick="toggleEx('day4',4)">✓</button></div>
-    <div class="ex-desc">Descente progressive des mains au sol, puis reculer les pieds en position de planche, puis tenir 2 sec de gainage, puis ramener les pieds vers les mains, puis remontée debout lente et contrôlée. Rythme entièrement personnel — la qualité prime sur la vitesse.</div>
-    <div class="ex-tags"><span class="tag green">40 sec</span><span class="tag red">Exercice le plus exigeant — réduire librement</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Travail')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Simule la capacité à se relever du sol — compétence de vie quotidienne fondamentale.</div>
-  </div></div></div>
-  <div class="ex" id="ex-day4-5"><div class="ex-top"><div class="ex-accent" style="background:var(--green)"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-num-badge">E</div><div class="ex-name">Équilibre unipodal avec perturbations (proprioception)</div><button class="ex-check-btn" onclick="toggleEx('day4',5)">✓</button></div>
-    <div class="ex-desc">Tenir l'équilibre sur un pied, yeux ouverts (20s) puis yeux fermés (20s). Oscillations douces des bras pour créer des déstabilisations contrôlées. Changer de pied. Toujours commencer yeux ouverts sur surface stable.</div>
-    <div class="ex-tags"><span class="tag green">40 sec / côté</span></div>
-    <div class="ex-variant"><strong>Variante S3–S4 :</strong> Surface instable (coussin plié) ou yeux fermés dès S2</div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(40,'Équilibre')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> 40s</button></div>
-    <div class="ex-tip"><strong>Conseil :</strong> Très bénéfique pour la prévention des chutes.</div>
-  </div></div></div>
-  <div class="slabel"><span class="slabel-dot teal"></span>Récupération & relaxation, 8 min</div>
-  <div class="ex" id="ex-day4-6"><div class="ex-top"><div class="ex-accent cool"></div><div class="ex-main">
-    <div class="ex-head"><div class="ex-name">Étirements globaux + Savasana de clôture</div><button class="ex-check-btn" onclick="toggleEx('day4',6)">✓</button></div>
-    <div class="ex-desc">Étirements successifs de l'ensemble du corps (3 min, 30s par groupe). Puis décubitus dorsal — <strong>Savasana :</strong> relâchement progressif de bas en haut (pieds, puis mollets, puis cuisses, puis ventre, puis dos, puis bras, puis épaules, puis visage). Respiration libre. Prendre conscience des sensations positives générées par la séance (5 min).</div>
-    <div class="ex-tags"><span class="tag teal">8 min — clôture du cycle hebdomadaire</span></div>
-    <div class="timer-triggers"><button class="timer-trigger-btn" onclick="launchTimer(480,'Savasana')"><span class="t-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/></svg></span> Timer 8 min</button></div>
-  </div></div></div>
-  <table class="sum-table"><thead><tr><th>Phase</th><th>Durée</th><th>Objectif</th></tr></thead><tbody>
-    <tr><td>Mise en route cardio-respiratoire</td><td><strong>3 min</strong></td><td>Activation globale, Borg 2 cible</td></tr>
-    <tr><td>Circuit fonctionnel (3 tours)</td><td><strong>25 min</strong></td><td>Intégration corps entier, transitions posturales</td></tr>
-    <tr><td>Étirements + Savasana</td><td><strong>8 min</strong></td><td>Récupération, ancrage somatique positif</td></tr>
-  </tbody></table>
 </div>
 </div>
 
@@ -1242,11 +754,11 @@ function renderStreak(){
   document.getElementById('streak-days').innerHTML=['J1','J2','J3','J4','J5'].map(function(d){
     return '<div class="s-day '+(doneSet[d]?'done':'empty')+'">'+d+'</div>';
   }).join('');
-  document.getElementById('stat-seances').textContent=sessions.length;
-  document.getElementById('stat-streak').textContent=n;
+  kfTxt('stat-seances',sessions.length);
+  kfTxt('stat-streak',n);
   var latestSem=sessions.length&&sessions[0].semaine?sessions[0].semaine.replace('Semaine ','S').split(' ')[0]:'S1';
-  document.getElementById('stat-semaine').textContent=window.KineProgress ? "S" + KineProgress.week() : latestSem;
-  if(currentUser) document.getElementById('hero-name').textContent=currentUser.name||'Mon programme';
+  kfTxt('stat-semaine',window.KineProgress ? "S" + KineProgress.week() : latestSem);
+  if(currentUser) kfTxt('hero-name',currentUser.name||'Mon programme');
 }
 
 // ══ BADGES ══
@@ -1393,7 +905,7 @@ function onLogin(){
   document.getElementById("auth-label").textContent=firstName;
   document.getElementById("login-prompt").style.display="none";
   document.getElementById("msg-composer").style.display="block";
-  document.getElementById("hero-name").textContent=u.name||"Mon programme";
+  kfTxt("hero-name",u.name||"Mon programme");
   loadFirebaseFeed();
   loadCommunityStats();
 }
@@ -1407,7 +919,7 @@ function onFbLogout(){
   document.getElementById("auth-label").textContent="Connexion";
   document.getElementById("login-prompt").style.display="block";
   document.getElementById("msg-composer").style.display="none";
-  document.getElementById("hero-name").textContent="Mon programme";
+  kfTxt("hero-name","Mon programme");
 }
 
 function handleAuthClick(){
@@ -1497,6 +1009,7 @@ function fallback(text,cb){
 }
 
 // ══ RENDER ALL ══
+function kfTxt(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
 function renderAll(){
   renderSessions();renderBorgChart();renderWeeklyChart();renderStreak();renderBadges();renderAllDays();
 }
@@ -1831,11 +1344,11 @@ var SEQ_DAYS = {
       { name: "Mobilisation articulaire progressive", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Marche sur place croissante 50 s, flexions chevilles 25 s, leg swings 15 s de chaque côté, rotations genoux 25 s, squats dynamiques faible amplitude 25 s, rotations hanches 25 s.",
         tip: "Étirements dynamiques uniquement — pas de maintien prolongé." },
-      { name: "Squat bilatéral", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 90,
+      { variant: "Variante S4 : Squat pause 2 sec en bas — augmente le temps sous tension", name: "Squat bilatéral", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 90,
         desc: "Pieds à largeur d'épaules, orteils légèrement ouverts. Descente lente jusqu'à 90°, talons au sol, dos neutre. Contraction fessière à la remontée.",
         tip: "Amplitude réduite à 60° si douleur rotulienne.",
         stop: "Arrêt si douleur vive au genou ou douleur lombaire." },
-      { name: "Fentes avant unilatérales", phase: "work", series: 3, repsLabel: "8 répétitions par jambe", restAfter: 90,
+      { variant: "Variante S4 : Fente avec dépôt complet du genou au sol", name: "Fentes avant unilatérales", phase: "work", series: 3, repsLabel: "8 répétitions par jambe", restAfter: 90,
         desc: "Grand pas en avant, toujours avec la même jambe : 8 répétitions jambe droite, puis 8 jambe gauche. Descendre jusqu'à 90° de flexion des deux genoux, genou avant au-dessus du pied, genou arrière proche du sol, buste droit. Poussée sur la jambe avant pour revenir.",
         tip: "Tenir un mur si équilibre précaire.",
         stop: "Arrêt si douleur interne ou externe du genou." },
@@ -1847,9 +1360,9 @@ var SEQ_DAYS = {
         desc: "Allongé sur le dos, talons posés sur l'assise d'une chaise, genoux légèrement fléchis, bras le long du corps. Pousser dans les talons pour décoller le bassin jusqu'à l'alignement épaules, hanches, genoux. Tenir 2 secondes en haut, descente lente 3 secondes. Cible les ischio-jambiers.",
         tip: "Garder les talons appuyés sur la chaise sans pousser avec les orteils ; si crampe à l'arrière de la cuisse, fléchir un peu plus les genoux.",
         stop: "Arrêt si douleur à l'arrière du genou ou douleur lombaire." },
-      { name: "Élévation des talons", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
+      { variant: "Variante S3–S4 : Unilatéral, ou légère flexion de genou pour cibler le soléaire", name: "Élévation des talons", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
         desc: "Debout, pieds parallèles. Montée lente 2 secondes, tenir 1 seconde, descente excentrique 3 secondes. Amplitude maximale." },
-      { name: "Step-up sur marche", phase: "work", series: 3, repsLabel: "10 répétitions par jambe", restAfter: 90,
+      { variant: "Variante S4 : Marche plus haute ou tempo excentrique 4 sec", name: "Step-up sur marche", phase: "work", series: 3, repsLabel: "10 répétitions par jambe", restAfter: 90,
         desc: "Poser un pied sur une marche. Monter en poussant sur ce pied sans s'aider de la jambe libre. Descente contrôlée. Alterner les jambes.",
         stop: "Arrêt si genou en valgus incontrôlé à la montée." },
       { name: "Étirements membres inférieurs", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
@@ -1866,14 +1379,14 @@ var SEQ_DAYS = {
       { name: "Rotation externe d'épaule", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
         desc: "Allongé sur le côté, coude du bras du dessus collé au flanc, fléchi à 90 degrés. Lever l'avant-bras vers le plafond en rotation externe sans décoller le coude. Descente lente 3 secondes. Charge : un haltère de 1 kg ou une bouteille d'eau d'1 litre fait l'affaire.",
         stop: "Arrêt si douleur profonde dans l'épaule." },
-      { name: "Pompes sur genoux", phase: "work", series: 3, repsLabel: "8 à 12 répétitions", restAfter: 90,
+      { variant: "Variante S3–S4 : Pompes complètes sur orteils", name: "Pompes sur genoux", phase: "work", series: 3, repsLabel: "8 à 12 répétitions", restAfter: 90,
         desc: "Mains légèrement plus larges que les épaules, corps aligné. Descente lente 3 secondes, coudes à 45 degrés du tronc. Remontée en 1 seconde.",
         tip: "Version débutant: pompes contre un mur ou plan incliné.",
         stop: "Arrêt si douleur au poignet ou à l'épaule." },
-      { name: "Dips sur chaise", phase: "work", series: 3, repsLabel: "10 répétitions", restAfter: 90,
+      { variant: "Variante S3–S4 : Pieds plus éloignés (augmente la charge)", name: "Dips sur chaise", phase: "work", series: 3, repsLabel: "10 répétitions", restAfter: 90,
         desc: "Mains sur le bord d'une chaise stable, bras tendus. Descendre en fléchissant les coudes jusqu'à 90 degrés maximum. Épaules basses et en arrière.",
         stop: "Arrêt si douleur à l'arrière de l'épaule." },
-      { name: "Pike push-up", phase: "work", series: 3, repsLabel: "8 répétitions", restAfter: 90,
+      { variant: "Variante S4 : Pieds surélevés sur une chaise", name: "Pike push-up", phase: "work", series: 3, repsLabel: "8 répétitions", restAfter: 90,
         desc: "Semaines 1 et 2 : sur les genoux, hanches au-dessus des genoux, mains devant. À partir de la semaine 3 : position en V inversé sur les pieds, fessiers en l'air. Fléchir les coudes pour amener la tête entre les mains puis remonter. Travaille les deltoïdes comme un développé épaules." },
       { name: "Superman en Y et en W", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 90,
         desc: "Décubitus ventral. Série A bras en Y à 45 degrés, élever bras et jambes 2 secondes. Série B bras en W coudes fléchis, omoplates rapprochées. Alterner A et B.",
@@ -1889,14 +1402,14 @@ var SEQ_DAYS = {
       { name: "Activation transverse et mobilisation", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Respiration diaphragmatique avec activation du transverse au niveau du nombril. Respiration 1 min 10. Chat-vache à quatre pattes 56 s. Rotations de tronc assis 54 s.",
         tip: "Mémorisez cette activation du transverse, vous l'utiliserez sur tous les exercices suivants." },
-      { name: "Crunch abdominal contrôlé", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 60,
+      { variant: "Variante S3–S4 : Crunch avec rotation — pointer un coude vers le genou opposé", name: "Crunch abdominal contrôlé", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 60,
         desc: "Décubitus dorsal, mains croisées sur la poitrine. Décoller les épaules à 30 degrés maximum, tenir 1 seconde, descente excentrique 3 secondes. Expirer à la montée.",
         tip: "Ne pas tirer sur la nuque." },
       { name: "Portefeuille (V-up)", phase: "work", series: 2, repsLabel: "10 répétitions", restAfter: 60,
         desc: "Allongé sur le dos, bras tendus derrière la tête, jambes tendues. Lever en même temps les jambes tendues et le buste pour que les mains viennent rejoindre les pieds au-dessus du ventre, comme un portefeuille qui se ferme. Redescendre lentement sans claquer au sol.",
         tip: "Si c'est trop difficile, plier légèrement les genoux. Expirer en montant.",
         stop: "Arrêt si douleur lombaire ou cervicale." },
-      { name: "Dead bug", phase: "work", series: 3, repsLabel: "8 à 10 répétitions par côté", restAfter: 60,
+      { variant: "Variante S3–S4 : Allonger les leviers (jambe plus tendue)", name: "Dead bug", phase: "work", series: 3, repsLabel: "8 à 10 répétitions par côté", restAfter: 60,
         desc: "Décubitus dorsal, bras tendus au plafond, hanches et genoux à 90 degrés. Abaisser simultanément le bras droit et la jambe gauche sans décoller le bas du dos. Alterner.",
         stop: "Critère absolu: le bas du dos ne doit pas décoller." },
       { name: "Superman quadrupédique en gainage", phase: "work", series: 2, repsLabel: "30 secondes par côté", restAfter: 60,
@@ -1910,10 +1423,10 @@ var SEQ_DAYS = {
         desc: "Allongé sur le dos, bas du dos plaqué au sol, bras le long du corps, jambes levées. Alterner toutes les 5 secondes entre les ciseaux (battements jambes tendues de haut en bas) et le vélo (pédalage), dans l'axe du corps. 30 s en semaine 1, 45 s en semaine 2, 1 min à partir de la semaine 3.",
         tip: "Plus les jambes sont basses, plus c'est difficile : remonter les jambes si le dos se décolle.",
         stop: "Arrêt si le bas du dos se décolle ou si douleur lombaire." },
-      { name: "Plank — gainage avant-bras", phase: "work", series: 3, repsLabel: "30 à 45 secondes", restAfter: 60,
+      { variant: "Variante S4 : Plank avec soulèvement alterné d'un bras", name: "Plank — gainage avant-bras", phase: "work", series: 3, repsLabel: "30 à 45 secondes", restAfter: 60,
         desc: "Appui sur avant-bras et orteils. Corps parfaitement aligné, pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre.",
         stop: "Arrêt à la perte d'alignement ou si douleur lombaire." },
-      { name: "Planche latérale complète", phase: "work", series: 3, repsLabel: "20 à 30 secondes par côté", restAfter: 60,
+      { variant: "Plus facile : sur les genoux (bouton « − Plus facile » pendant la séance)", name: "Planche latérale complète", phase: "work", series: 3, repsLabel: "20 à 30 secondes par côté", restAfter: 60,
         desc: "Sur le côté, appui sur l'avant-bras (coude sous l'épaule) et sur les pieds, jambes tendues. Montez les hanches jusqu'à aligner épaule, hanche et cheville, et tenez. Changez de côté.",
         stop: "Arrêt si douleur à l'épaule d'appui ou douleur lombaire." },
       { name: "Étirements rachidiens et cohérence cardiaque", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
@@ -1926,20 +1439,20 @@ var SEQ_DAYS = {
     exercises: [
       { name: "Activation ceinture pelvienne", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Cercles de hanches 50 s, abduction alternée contre mur 15 s de chaque côté, leg swings latéraux 15 s de chaque côté, rotations hanche décubitus 35 s, marche genoux hauts 35 s." },
-      { name: "Squat sumo", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
+      { variant: "Variante S3–S4 : Pause 2 sec en bas", name: "Squat sumo", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
         desc: "Pieds très écartés à 150 pour cent de la largeur des épaules, orteils à 45 degrés. Flexion genoux dans l'axe des orteils. Remontée par contraction fessiers et adducteurs." },
-      { name: "Donkey kick", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
+      { variant: "Variante S4 : Jambe tendue (plus grand bras de levier)", name: "Donkey kick", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
         desc: "À quatre pattes, rachis horizontal. Élever la cuisse vers le plafond par extension de hanche pure sans rotation du bassin. Contraction maximale en position haute. Descente lente 2 secondes.",
         stop: "Arrêt si douleur lombaire." },
-      { name: "Pont de hanche", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
+      { variant: "Variante S3–S4 : Pont unilatéral — une jambe tendue horizontale", name: "Pont de hanche", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
         desc: "Décubitus dorsal, genoux à 90°, pieds à plat. Activer le transverse, décoller le bassin jusqu'à alignement épaules hanches genoux. Tenir 2 secondes en haut, descente lente 3 secondes.",
         tip: "Le bas du dos ne doit pas se cambrer en position haute." },
-      { name: "Clamshell", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
+      { variant: "Variante S4 : Pied en l'air (pas d'appui au sol) ou bande élastique", name: "Clamshell", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
         desc: "Décubitus latéral, hanches fléchies à 45 degrés et genoux à 90 degrés, pieds joints. Ouvrir le genou supérieur vers le plafond comme une coquille. Bassin strictement immobile. Tenir 1 seconde. Exercice clé contre le valgus de genou." },
-      { name: "Abduction hanche debout", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
+      { variant: "Variante S3–S4 : Réduire l'appui progressivement jusqu'à équilibre libre", name: "Abduction hanche debout", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
         desc: "Debout, appui léger sur un mur. Élever latéralement la jambe tendue à 30 à 40 degrés sans incliner le tronc. Descente excentrique 3 secondes.",
         tip: "L'inclinaison latérale du tronc est la compensation la plus fréquente." },
-      { name: "Pont fessier unilatéral", phase: "work", series: 3, repsLabel: "10 répétitions par côté", restAfter: 90,
+      { variant: "Variante S4 : Bras tendus dans le vide (déstabilisation)", name: "Pont fessier unilatéral", phase: "work", series: 3, repsLabel: "10 répétitions par côté", restAfter: 90,
         desc: "Pont de hanche puis soulever une jambe tendue horizontalement. Toute la poussée vient du fessier de la jambe au sol. Maintenir le bassin horizontal. Tenir 2 secondes en haut." },
       { name: "Étirements fessiers et iliopsoas", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
         desc: "Figure 4 décubitus 45 secondes de chaque côté, fente basse iliopsoas 40 secondes, demi-grand écart adducteurs 40 secondes, respiration abdominale 1 minute." }
@@ -1962,7 +1475,7 @@ var SEQ_DAYS = {
       { name: "Burpee modifié sans saut", phase: "work", series: 3, repsLabel: "40 secondes", restAfter: 120,
         desc: "Mains au sol, reculer en position planche, tenir 2 secondes de gainage, ramener les pieds, remontée lente. Rythme personnel, qualité prime sur vitesse.",
         tip: "Simule la capacité à se relever du sol, compétence fondamentale." },
-      { name: "Équilibre unipodal", phase: "work", series: 3, repsLabel: "40 secondes par côté", restAfter: 120,
+      { variant: "Variante S3–S4 : Surface instable (coussin plié) ou yeux fermés dès S2", name: "Équilibre unipodal", phase: "work", series: 3, repsLabel: "40 secondes par côté", restAfter: 120,
         desc: "Tenir sur un pied, yeux ouverts 20 secondes puis yeux fermés 20 secondes. Oscillations douces des bras pour créer des déstabilisations controlées.",
         tip: "Très bénéfique pour la prévention des chutes." },
       { name: "Étirements globaux et Savasana", phase: "cool", series: 1, repsLabel: "8 minutes", restAfter: 0,

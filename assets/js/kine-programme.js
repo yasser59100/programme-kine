@@ -133,7 +133,7 @@
         txt += side;
         if (LV && LV.tempo(ex.name)) txt += ", pause 2 s";
       }
-      var card = document.querySelector("#ex-" + dayId + "-" + idx + " .ex-variant"), vm = card && card.textContent.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
+      var vm = ex.variant && ex.variant.match(/S(\d)(?:\s*[–-]\s*S(\d))?/);
       if (vm && w >= +vm[1]) txt += " + variante";
       if (ex.name === "Pike push-up") txt += w <= 2 ? ", genoux" : ", pieds";
       return "<div class='pg-w" + (w === cur ? " cur" : "") + "'><b>S" + w + "</b>" + esc(txt) + "</div>";
@@ -156,8 +156,7 @@
       "<div class='su-card'><b>L'effort ressenti, sur 5</b><div class='pg-effs'>" + eff + "</div><div class='kf-sub'>Visez 2 à 3. Si vous êtes souvent à 4 ou 5, l'appli garde le même volume.</div></div>" +
       "<div class='pg-duo'><div class='pg-ok'><b>Courbatures : normal</b>Diffuses, dans les muscles, 24 à 72 h après, diminuent en bougeant.</div>" +
       "<div class='pg-bad'><b>Signal d'alarme : stop</b>Douleur vive, dans une articulation, pendant l'effort, qui augmente.</div></div>" +
-      "<div class='kf-phase' style='color:var(--text2)'>En savoir plus</div><div id='pg-more-slot'></div></div>";
-    var more = $("prog-more"); if (more) $("pg-more-slot").appendChild(more);
+      "</div>";
     el.classList.add("open"); el.scrollTop = 0;
   }
 
@@ -170,6 +169,8 @@
       if (more && content && more.parentNode !== content) content.appendChild(more);
     }
   };
+  // Un seul écran de séance : « Commencer » sur l'accueil ouvre la même fiche que l'onglet Exercices
+  window.openPreview = function (dayId) { if (typeof SEQ_DAYS !== "undefined" && SEQ_DAYS[dayId]) openDay(dayId); };
   // Les liens « Voir les explications » ouvrent désormais la séance (et la fiche de l'exercice)
   window.openExplain = function (dayId, idx) {
     openDay(dayId);

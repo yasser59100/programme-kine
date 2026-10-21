@@ -92,7 +92,7 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
   // masqués par défaut : un patient ne voit aucun programme ciblé
   expect(await page.evaluate(() => KineTheme.available())).toEqual([]);
   // le kiné en rend un visible (programme publié), le patient le choisit
-  await page.evaluate(() => { KineOfficiel.apply({ v: 1, ex: {}, days: {}, themes: { coureur: true } }); KineTheme.choose("coureur"); });
+  await page.evaluate(() => { localStorage.setItem("kf-mode-seen", JSON.stringify({ coureur: 1, cheville: 1 })); KineOfficiel.apply({ v: 1, ex: {}, days: {}, themes: { coureur: true } }); KineTheme.choose("coureur", true); });
   expect(await page.evaluate(() => Object.keys(SEQ_DAYS))).toEqual(["c0", "c1"]);
   expect(await page.evaluate(() => SEQ_DAYS.c1.exercises.map(e => e.name))).toContain("Petits sauts sur place");
   await page.evaluate(() => showPage("guide")); await page.waitForTimeout(900);
