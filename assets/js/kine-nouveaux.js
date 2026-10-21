@@ -137,7 +137,7 @@
   });
 
   /* ════════ 5. PIED ════════ */
-  var FOOT_CAM = { yaw: 1.2, dist: 3.5, ty: 0.55, pitch: 0.28, tz: -0.08 };
+  var FOOT_CAM = { yaw: 1.2, dist: 3.8, ty: 0.72, pitch: 0.24, tz: -0.08 };
   var SEAT_FEET = merge(SEAT, THIGHS, { spine: [10, 0, 0], head: -14 });
   reg("Pied court", {
     noIso: true, sides: "blocks", sideWord: "pied", labelSwap: true, camFlip: true, camera: FOOT_CAM, props: ["chair"], start: "flat", thumb: "arch",
