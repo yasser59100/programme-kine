@@ -170,19 +170,25 @@
   });
 
   /* ════════ 6. HANCHE ════════ */
-  // Planche Copenhague : appui avant-bras, face interne du pied du dessus posée sur la chaise, jambe tendue ; la jambe du dessous reste libre
-  reg("Planche Copenhague", {
-    sides: "blocks", snapSideChange: true, timed: { byWeek: [15, 20, 20, 25] }, camera: { yaw: 0.05, pitch: 0.25, dist: 3.9, ty: 0.35, tx: -0.3 },
-    props: ["bench"], bench: { x: -0.95, z: 0 }, start: "rest", thumb: "hold",
-    poses: {
-      rest: { pelvis: { p: [0, 0.221, 0], r: [0, 0, -82] }, spine: [0, 0, 0], head: 0,
-              L: { ang: [0, 0, 0, 5, 0] }, R: { foot: { at: [-0.92, 0.47, 0.02], yaw: 0, pole: [0, 0.2, 1] } },
-              LA: { hand: { at: [0.514, 0.047, 0.26], pole: [0.2, -1, -0.3] } }, RA: { ang: [0, 8, 0, 30] } },
-      hold: { pelvis: { p: [0, 0.42, 0], r: [0, 0, -74] }, spine: [0, 0, 0], head: 0,
-              L: { ang: [0, 0, 0, 12, 0] }, R: { foot: { at: [-0.92, 0.47, 0.02], yaw: 0, pole: [0, 0.2, 1] } },
-              LA: { hand: { at: [0.56, 0.047, 0.26], pole: [0.2, -1, -0.3] } }, RA: { ang: [0, 8, 0, 30] } }
-    }
-  });
+  // Planche Copenhague : couché sur le côté, appui avant-bras ; la jambe du dessus est tendue, posée sur la chaise
+  // par la malléole interne (version longue) ou par l'intérieur du genou (version courte, plus facile).
+  // Version dynamique : la hanche descend toucher le sol, puis remonte à l'horizontale.
+  var COP_ARM = { LA: { hand: { at: [0.55, 0.047, 0.28], pole: [0.2, -1, -0.3] } }, RA: { ang: [0, 8, 0, 30] } };
+  var cop = function (py, rz, abd, kneeL, abdL) { return merge({ pelvis: { p: [0, py, 0], r: [0, 0, rz] }, spine: [0, 0, 0], head: 0, L: { ang: [0, abdL || 0, 0, kneeL, 0] }, R: { ang: [0, abd, 0, 0, 0] } }, COP_ARM); };
+  var COP_CAM = { yaw: 0.05, pitch: 0.25, dist: 3.9, ty: 0.35, tx: -0.3 };
+  var copDef = function (benchX, up, down, dyn) {
+    var d = { sides: "blocks", snapSideChange: true, noIso: true, camera: COP_CAM, props: ["bench"], bench: { x: benchX, z: 0 }, start: dyn ? "up" : "down", thumb: "up",
+      poses: { up: up, down: down } };
+    if (dyn) d.steps = [step("down", 1.5, "La hanche descend au sol", "La hanche descend vers le sol", "down"), step("down", 0.4, "Elle effleure le sol", null, "hold"), step("up", 1.2, "On remonte à l'horizontale", "On remonte", "up")];
+    else { d.poses.hold = up; d.poses.rest = down; d.start = "rest"; d.thumb = "hold"; }
+    return d;
+  };
+  var COP_FOOT_UP = cop(0.43, -74, 14, 10), COP_FOOT_DN = cop(0.2, -58, 46, 10, -24);
+  var COP_KNEE_UP = cop(0.44, -74, 12, 10), COP_KNEE_DN = cop(0.21, -59, 60, 10, -24);
+  reg("Planche Copenhague", merge(copDef(-0.89, COP_FOOT_UP, COP_FOOT_DN, false), { timed: { byWeek: [15, 20, 20, 25] } }));
+  reg("Planche Copenhague genou", merge(copDef(-0.45, COP_KNEE_UP, COP_KNEE_DN, false), { timed: { byWeek: [20, 25, 25, 30] } }));
+  reg("Copenhague dynamique", copDef(-0.89, COP_FOOT_UP, COP_FOOT_DN, true));
+  reg("Copenhague dynamique genou", copDef(-0.45, COP_KNEE_UP, COP_KNEE_DN, true));
 
   /* ════════ 7. DOS ════════ */
   var PRONE = { pelvis: { p: [0, 0.12, 0], r: [90, 0, 0] }, spine: [0, 0, 0], head: -12, L: { ang: [0, 4, 0, 0, -60] }, R: { ang: [0, 4, 0, 0, -60] } };
@@ -285,9 +291,21 @@
       cue: "Le talon reste posé, c'est l'avant du pied qui tourne vers l'intérieur.", err: "La jambe ne tourne pas : seul le pied bouge.",
       tip: "Plus dur : élastique plus tendu, ou retour en 3 secondes.", stop: "Arrêt si douleur vive à l'intérieur de la cheville." },
     { name: "Planche Copenhague", group: "hanche", color: 3, kit: ["une chaise ou un banc"], repsLabel: "15 secondes par côté",
-      desc: "Couché sur le côté, appui sur l'avant-bras, coude sous l'épaule. Pose la face interne du pied du dessus sur l'assise de la chaise, jambe tendue. Monte le bassin jusqu'à aligner épaule, hanche et pied, la jambe du dessous reste libre sous la chaise. Tiens, puis repose-toi.",
+      desc: "Couché sur le côté, appui sur l'avant-bras, coude sous l'épaule. Pose la jambe du dessus tendue sur l'assise de la chaise, appuyée par la malléole interne (l'os à l'intérieur de la cheville). Monte le bassin jusqu'à aligner épaule, hanche et cheville ; la jambe du dessous reste libre sous la chaise. Tiens, puis repose-toi.",
       cue: "Le corps reste aligné, c'est l'intérieur de la cuisse du dessus qui porte.", err: "Le bassin ne tombe pas et ne part pas en arrière.",
-      tip: "Très efficace pour les adducteurs (sports de ballon). Plus facile : le genou sur la chaise au lieu du pied, le bras de levier est plus court.", stop: "Arrêt si douleur à l'aine ou à l'intérieur du genou." },
+      tip: "Très efficace pour les adducteurs (sports de ballon). Plus facile : « Planche Copenhague genou », appui à l'intérieur du genou. Une serviette pliée sous la cheville rend l'appui plus confortable.", stop: "Arrêt si douleur à l'aine ou à l'intérieur du genou." },
+    { name: "Planche Copenhague genou", group: "hanche", color: 2, kit: ["une chaise ou un banc"], repsLabel: "20 secondes par côté",
+      desc: "Couché sur le côté, appui sur l'avant-bras, coude sous l'épaule. Pose l'intérieur du genou du dessus sur l'assise de la chaise, jambe tendue. Monte le bassin jusqu'à aligner épaule, hanche et genou ; la jambe du dessous reste libre. Tiens, puis repose-toi.",
+      cue: "Le corps reste aligné, l'intérieur du genou appuie sur la chaise.", err: "Le bassin ne tombe pas et ne part pas en arrière.",
+      tip: "Version courte, plus facile que la Copenhague sur la cheville. Une serviette pliée sous le genou rend l'appui plus confortable.", stop: "Arrêt si douleur à l'aine ou à l'intérieur du genou." },
+    { name: "Copenhague dynamique", group: "hanche", color: 3, kit: ["une chaise ou un banc"], repsLabel: "10 répétitions par côté",
+      desc: "Même position que la planche Copenhague, malléole interne du pied du dessus sur la chaise. Laisse descendre la hanche jusqu'à effleurer le sol, puis remonte le bassin à l'horizontale, épaule, hanche et cheville alignées.",
+      cue: "On descend en contrôle, on remonte jusqu'à l'alignement.", err: "On ne se laisse pas tomber, le bassin ne part pas en arrière.",
+      tip: "Plus facile : « Copenhague dynamique genou ». Plus dur : marque 2 secondes en haut.", stop: "Arrêt si douleur à l'aine ou à l'intérieur du genou." },
+    { name: "Copenhague dynamique genou", group: "hanche", color: 2, kit: ["une chaise ou un banc"], repsLabel: "10 répétitions par côté",
+      desc: "Même position que la planche Copenhague genou, intérieur du genou du dessus sur la chaise. Laisse descendre la hanche jusqu'à effleurer le sol, puis remonte le bassin à l'horizontale, épaule, hanche et genou alignés.",
+      cue: "On descend en contrôle, on remonte jusqu'à l'alignement.", err: "On ne se laisse pas tomber, le bassin ne part pas en arrière.",
+      tip: "Quand c'est facile, passe à la version sur la cheville.", stop: "Arrêt si douleur à l'aine ou à l'intérieur du genou." },
     { name: "Extension en appui sur les mains", group: "dos", color: 1, kit: ["un tapis"], repsLabel: "10 répétitions",
       desc: "Allongé sur le ventre, mains à plat sous les épaules. Pousse sur les bras pour soulever le buste, en laissant le bassin et le bas du dos détendus au sol. Souffle en haut, puis redescends.",
       cue: "Les bras poussent, les fesses et le bas du dos restent relâchés.", err: "Le bassin ne décolle pas du sol.",
@@ -322,6 +340,9 @@
     "Marche sur la pointe des pieds": { s: "Les mollets tiennent le poids du corps en continu, en endurance, pendant que la cheville apprend à rester droite.", e: ["Marcher longtemps sans fatigue des mollets", "Attraper un objet en hauteur", "Courir avec plus de ressort"] },
     "Inversion à l'élastique": { s: "Les muscles qui tournent le pied vers l'intérieur soutiennent la voûte plantaire et la cheville.", e: ["Marcher sur un chemin irrégulier", "Reprendre le sport après une entorse", "Moins de fatigue sous la voûte du pied"] },
     "Planche Copenhague": { s: "Les adducteurs, à l'intérieur de la cuisse, sont souvent blessés dans les sports de ballon. Cette planche les renforce et réduit le risque de douleur à l'aine.", e: ["Faire un grand pas de côté", "Jouer au foot ou au tennis", "Monter à cheval ou à vélo"] },
+    "Planche Copenhague genou": { s: "Les adducteurs, à l'intérieur de la cuisse, travaillent avec un bras de levier plus court : c'est la première étape avant la version sur la cheville.", e: ["Faire un grand pas de côté", "Changer de direction en courant", "Reprendre un sport de ballon"] },
+    "Copenhague dynamique": { s: "Les adducteurs travaillent en freinant puis en soulevant le bassin, comme dans les appuis et les changements de direction du sport.", e: ["Frapper dans un ballon", "Changer de direction rapidement", "Patiner ou skier"] },
+    "Copenhague dynamique genou": { s: "Même travail des adducteurs en mouvement, avec un levier plus court pour commencer en douceur.", e: ["Faire un grand pas de côté", "Changer de direction en courant", "Reprendre un sport de ballon"] },
     "Extension en appui sur les mains": { s: "On cambre doucement le bas du dos, à l'opposé des positions penchées de la journée. Chez beaucoup de personnes, ça soulage une douleur lombaire.", e: ["Se redresser après une longue position assise", "Soulager le dos après le jardinage", "Retrouver de l'aisance pour se pencher en arrière"] },
     "Marche avec une charge d'un seul côté": { s: "Les muscles du côté opposé à la charge empêchent le corps de pencher. C'est un gainage très proche de la vie réelle.", e: ["Porter un sac lourd d'une main", "Porter une valise ou un seau", "Porter un enfant sur une hanche"] },
     "Charnière de hanche, fesses au mur": { s: "On apprend à se pencher en pliant la hanche, dos droit : ce sont les fessiers et l'arrière des cuisses qui travaillent, pas le bas du dos.", e: ["Ramasser un objet au sol", "Sortir un plat du four", "Se pencher au-dessus d'un lavabo"] }
