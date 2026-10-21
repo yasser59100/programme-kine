@@ -183,17 +183,17 @@
     else { d.poses.hold = up; d.poses.rest = down; d.start = "rest"; d.thumb = "hold"; }
     return d;
   };
-  var COP_FOOT_UP = cop(0.43, -74, 14, 90, -12), COP_FOOT_DN = cop(0.2, -58, 46, 90, -24);
-  var COP_KNEE_UP = cop(0.44, -74, 12, 90, -12, 90), COP_KNEE_DN = cop(0.21, -59, 60, 90, -24, 90);
+  var COP_FOOT_UP = cop(0.41, -72, 18, 90, -12), COP_FOOT_DN = cop(0.15, -50, 58, 90, -40);
+  var COP_KNEE_UP = cop(0.47, -69, 14, 90, -12, 90), COP_KNEE_DN = cop(0.2, -54, 65, 90, -36, 90);
   // Copenhague inversée (abducteurs) : la malléole externe du pied du dessous est posée sur la chaise, l'autre jambe repose dessus
   var abdP = function (py, rz, aL) { return merge({ pelvis: { p: [0, py, 0], r: [0, 0, rz] }, spine: [0, 0, 0], head: 0, L: { ang: [0, aL, 0, 0, 0] }, R: { ang: [0, -aL, 0, 0, 0] } }, COP_ARM); };
-  var ABD_UP = abdP(0.42, -73, -28), ABD_DN = abdP(0.26, -63, -47);
+  var ABD_UP = abdP(0.47, -70, -30), ABD_DN = abdP(0.29, -66, -45);
   reg("Copenhague inversée (abducteurs)", merge(copDef(-0.79, ABD_UP, ABD_DN, false), { timed: { byWeek: [15, 20, 20, 25] } }));
   reg("Copenhague inversée dynamique", copDef(-0.79, ABD_UP, ABD_DN, true));
-  reg("Planche Copenhague", merge(copDef(-0.89, COP_FOOT_UP, COP_FOOT_DN, false), { timed: { byWeek: [15, 20, 20, 25] } }));
-  reg("Planche Copenhague genou", merge(copDef(-0.45, COP_KNEE_UP, COP_KNEE_DN, false), { timed: { byWeek: [20, 25, 25, 30] } }));
-  reg("Copenhague dynamique", copDef(-0.89, COP_FOOT_UP, COP_FOOT_DN, true));
-  reg("Copenhague dynamique genou", copDef(-0.45, COP_KNEE_UP, COP_KNEE_DN, true));
+  reg("Planche Copenhague", merge(copDef(-0.885, COP_FOOT_UP, COP_FOOT_DN, false), { timed: { byWeek: [15, 20, 20, 25] } }));
+  reg("Planche Copenhague genou", merge(copDef(-0.46, COP_KNEE_UP, COP_KNEE_DN, false), { timed: { byWeek: [20, 25, 25, 30] } }));
+  reg("Copenhague dynamique", copDef(-0.885, COP_FOOT_UP, COP_FOOT_DN, true));
+  reg("Copenhague dynamique genou", copDef(-0.46, COP_KNEE_UP, COP_KNEE_DN, true));
 
   /* ════════ 7. DOS ════════ */
   var PRONE = { pelvis: { p: [0, 0.12, 0], r: [90, 0, 0] }, spine: [0, 0, 0], head: -12, L: { ang: [0, 4, 0, 0, -60] }, R: { ang: [0, 4, 0, 0, -60] } };
