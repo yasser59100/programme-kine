@@ -166,7 +166,7 @@
     if (!doneToday && !noted && new Date().getHours() >= 9) M.push({ id: "ressenti", gesture: "wave", text: "Tu n'as pas encore donné ton ressenti aujourd'hui. Ça prend 30 secondes !", cta: "ressenti" });
     if (doneToday && noted) M.push({ id: "bravo", gesture: "cheer", text: ss.length + " séance" + (ss.length > 1 ? "s" : "") + " au compteur, continue comme ça !", cta: null });
     if (!doneToday && new Date().getHours() >= 14) M.push({ id: "bouge", gesture: "wave", text: "Pas encore bougé aujourd'hui ? Je te propose une pause de 2 minutes, avec moi.", cta: "bouge" });
-    if (page === "home" && !doneToday) M.push({ id: "savoir", gesture: "point", text: "Tu connais le « Le saviez-vous ? » du jour ? Jette un œil, c'est court.", cta: "savoir" });
+    if (page === "home" && !doneToday) M.push({ id: "savoir", gesture: "point", text: "Tu connais le « Le savais-tu ? » du jour ? Jette un œil, c'est court.", cta: "savoir" });
     var last2 = get("kf-masc-last");
     for (var i = 0; i < M.length; i++) if (last2 !== M[i].id + "|" + today) return M[i];
     return null;
@@ -732,7 +732,7 @@
       });
     });
     if (window.KineSavoir) KineSavoir.tips.forEach(function (t, i) {
-      DOCS.push({ type: "Le saviez-vous", title: t.title, text: t.body, kw: t.theme + " " + (t.statLabel || ""), action: "savoir:" + i, actionLabel: "Voir la fiche" });
+      DOCS.push({ type: "Le savais-tu", title: t.title, text: t.body, kw: t.theme + " " + (t.statLabel || ""), action: "savoir:" + i, actionLabel: "Voir la fiche" });
     });
     DOCS.forEach(function (d) { d.f = [[toks(d.title), 3], [toks(d.kw), 2], [toks(d.text), 1]]; });
     return DOCS;

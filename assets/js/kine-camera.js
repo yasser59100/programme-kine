@@ -29,7 +29,7 @@
     if (!show) { if (tip) tip.remove(); return; }
     if (tip || muted()) return;
     tip = document.createElement("button"); tip.id = "kcam-sndtip"; tip.type = "button"; tip.className = "kcam-sndtip";
-    tip.innerHTML = sndIc(false) + "<span><b>Vous n'entendez pas Yass ?</b>Touchez ici pour activer sa voix. Vérifiez aussi le volume.</span>";
+    tip.innerHTML = sndIc(false) + "<span><b>Tu n'entends pas Yass ?</b>Touche ici pour activer sa voix. Vérifie aussi le volume.</span>";
     tip.onclick = function () { audioUp(); setTimeout(function () { if (audioUp()) { sndTip(false); say("Bien !"); } }, 250); };
     st.appendChild(tip);
   }
@@ -86,43 +86,43 @@
 
   /* ── Les phrases de Yass (voix enregistrées) et les textes à l'écran ── */
   var V = {
-    stand: "Restez debout, immobile, quelques secondes.", far: "Reculez un peu, je dois voir tout votre corps.",
-    side: "Placez-vous de profil, s'il vous plaît.", front: "Placez-vous face à la caméra, s'il vous plaît.",
+    stand: "Reste debout, immobile, quelques secondes.", far: "Recule un peu, je dois voir tout ton corps.",
+    side: "Place-toi de profil, s'il te plaît.", front: "Place-toi face à la caméra, s'il te plaît.",
     good: ["Bien !", "Très bien !", "Parfait !", "Propre !"], shallow: "Un peu plus bas, si ça ne fait pas mal.",
-    end: "Série terminée, bravo ! Regardez votre replay.", target: "Objectif atteint, bravo !",
-    fast: "Descendez plus lentement.", abrupt: "Remontez en contrôlant.", fastUp: "Montez en contrôlant.", hold: "Tenez une seconde en haut.",
+    end: "Série terminée, bravo ! Regarde ton replay.", target: "Objectif atteint, bravo !",
+    fast: "Descends plus lentement.", abrupt: "Remonte en contrôlant.", fastUp: "Monte en contrôlant.", hold: "Tiens une seconde en haut.",
     valgus: "Genoux vers l'extérieur !", shift: "Le poids bien au milieu !", lean: "Poitrine haute !", heel: "Talons au sol !",
-    lean2: "Buste droit !", knee: "Genou dans l'axe du pied !", pelvis: "Bassin bien horizontal !", sway: "Restez bien droit !",
-    low: "Montez les hanches plus haut !", arch: "Ne cambrez pas, serrez les fessiers !",
-    high: "Fesses trop hautes !", sag: "Le bassin s'affaisse, rentrez le ventre !",
-    hands: "Sans les mains, croisez les bras !", partial: "Redressez-vous complètement en haut.", plop: "Asseyez-vous en douceur.",
-    chest: "Descendez la poitrine plus bas.", wallUp: "Descendez un peu, cuisses à l'horizontale.", wallLow: "Remontez un peu, genoux à angle droit.",
+    lean2: "Buste droit !", knee: "Genou dans l'axe du pied !", pelvis: "Bassin bien horizontal !", sway: "Reste bien droit !",
+    low: "Monte les hanches plus haut !", arch: "Ne cambre pas, serre les fessiers !",
+    high: "Fesses trop hautes !", sag: "Le bassin s'affaisse, rentre le ventre !",
+    hands: "Sans les mains, croise les bras !", partial: "Redresse-toi complètement en haut.", plop: "Assieds-toi en douceur.",
+    chest: "Descends la poitrine plus bas.", wallUp: "Descends un peu, cuisses à l'horizontale.", wallLow: "Remonte un peu, genoux à angle droit.",
     att: { valgus: "Attention aux genoux.", shift: "Attention à l'équilibre.", lean: "Attention au buste.", heel: "Attention aux talons.",
            lean2: "Attention au buste.", knee: "Attention au genou.", pelvis: "Attention au bassin.", low: "Attention à la hauteur.", arch: "Attention au dos.",
-           fast: "Descendez plus lentement.", abrupt: "Remontez en contrôlant.", fastUp: "Montez en contrôlant.", hold: "Tenez une seconde en haut.",
-           hands: "Sans les mains.", partial: "Redressez-vous complètement.", plop: "Asseyez-vous en douceur.", sag: "Attention au bassin.", high: "Attention au bassin." }
+           fast: "Descends plus lentement.", abrupt: "Remonte en contrôlant.", fastUp: "Monte en contrôlant.", hold: "Tiens une seconde en haut.",
+           hands: "Sans les mains.", partial: "Redresse-toi complètement.", plop: "Assieds-toi en douceur.", sag: "Attention au bassin.", high: "Attention au bassin." }
   };
   var MSG = {
-    stand: "Tenez-vous debout, immobile.", far: "Reculez un peu : il faut voir tout le corps, de la tête aux pieds.",
-    side: "Placez-vous de profil par rapport au téléphone.", front: "Placez-vous face au téléphone.",
-    good: ["Bien !", "Très bien !", "Parfait, continuez.", "Propre !"], shallow: "Bien. Si c'est sans douleur, vous pouvez descendre un peu plus.",
-    valgus: "Les genoux rentrent vers l'intérieur. Poussez-les vers l'extérieur, dans l'axe des pieds.",
-    shift: "Vous vous décalez sur un côté. Répartissez le poids sur les deux jambes.",
-    lean: "Le buste part trop en avant. Gardez la poitrine plus haute.", heel: "Les talons se décollent. Gardez-les bien au sol.",
-    lean2: "Le buste penche. Gardez-le bien droit, au-dessus du bassin.", knee: "Le genou rentre vers l'intérieur. Gardez-le dans l'axe du pied.",
-    pelvis: "Le bassin penche d'un côté. Gardez-le bien horizontal.", sway: "Le buste penche sur le côté. Restez bien droit.",
-    low: "Les hanches ne montent pas assez. Montez jusqu'à aligner épaules, hanches et genoux.",
-    arch: "Le dos se cambre en haut. Serrez les fessiers plutôt que de creuser le dos.",
-    high: "Les fesses sont trop hautes. Descendez-les jusqu'à faire une ligne droite.",
-    sag: "Le bassin s'affaisse. Rentrez le ventre et serrez les fessiers.",
-    fast: "La descente est trop rapide. Descendez en 2 secondes environ.", abrupt: "La remontée est brusque. Remontez en contrôlant.",
-    fastUp: "La montée est trop rapide. Montez en contrôlant.", hold: "Marquez une petite pause en haut avant de redescendre.",
-    hands: "Vous poussez sur les mains. Croisez les bras sur la poitrine et levez-vous avec les jambes.",
-    partial: "Vous ne vous redressez pas complètement. Tendez les hanches et les genoux en haut.",
-    plop: "Vous vous laissez tomber sur la chaise. Asseyez-vous en douceur, en 2 secondes.",
-    chest: "La poitrine ne descend pas assez. Pliez les coudes un peu plus, si c'est sans douleur.",
-    wallUp: "Vous êtes trop haut. Descendez jusqu'à avoir les cuisses à l'horizontale.",
-    wallLow: "Vous êtes trop bas. Remontez un peu, genoux à angle droit."
+    stand: "Tiens-toi debout, immobile.", far: "Recule un peu : il faut voir tout le corps, de la tête aux pieds.",
+    side: "Place-toi de profil par rapport au téléphone.", front: "Place-toi face au téléphone.",
+    good: ["Bien !", "Très bien !", "Parfait, continue.", "Propre !"], shallow: "Bien. Si c'est sans douleur, tu peux descendre un peu plus.",
+    valgus: "Les genoux rentrent vers l'intérieur. Pousse-les vers l'extérieur, dans l'axe des pieds.",
+    shift: "Tu te décales sur un côté. Répartis le poids sur les deux jambes.",
+    lean: "Le buste part trop en avant. Garde la poitrine plus haute.", heel: "Les talons se décollent. Garde-les bien au sol.",
+    lean2: "Le buste penche. Garde-le bien droit, au-dessus du bassin.", knee: "Le genou rentre vers l'intérieur. Garde-le dans l'axe du pied.",
+    pelvis: "Le bassin penche d'un côté. Garde-le bien horizontal.", sway: "Le buste penche sur le côté. Reste bien droit.",
+    low: "Les hanches ne montent pas assez. Monte jusqu'à aligner épaules, hanches et genoux.",
+    arch: "Le dos se cambre en haut. Serre les fessiers plutôt que de creuser le dos.",
+    high: "Les fesses sont trop hautes. Descends-les jusqu'à faire une ligne droite.",
+    sag: "Le bassin s'affaisse. Rentre le ventre et serre les fessiers.",
+    fast: "La descente est trop rapide. Descends en 2 secondes environ.", abrupt: "La remontée est brusque. Remonte en contrôlant.",
+    fastUp: "La montée est trop rapide. Monte en contrôlant.", hold: "Marque une petite pause en haut avant de redescendre.",
+    hands: "Tu pousses sur les mains. Croise les bras sur la poitrine et lève-toi avec les jambes.",
+    partial: "Tu ne te redresses pas complètement. Tends les hanches et les genoux en haut.",
+    plop: "Tu te laisses tomber sur la chaise. Assieds-toi en douceur, en 2 secondes.",
+    chest: "La poitrine ne descend pas assez. Plie les coudes un peu plus, si c'est sans douleur.",
+    wallUp: "Tu es trop haut. Descends jusqu'à avoir les cuisses à l'horizontale.",
+    wallLow: "Tu es trop bas. Remonte un peu, genoux à angle droit."
   };
   var FIX = { valgus: "genoux qui rentrent", shift: "décalage sur un côté", lean: "buste trop penché", heel: "talons qui se décollent",
               lean2: "buste penché", knee: "genou qui rentre", pelvis: "bassin qui penche", sway: "buste qui penche", low: "hanches pas assez hautes",
@@ -134,34 +134,34 @@
 
   /* ── Les exercices suivis ── */
   var PROF = {
-    squat: { title: "Squat", mode: "reps", views: "both", calib: "stand", go: "C'est bon, je vous vois. Faites vos squats, à votre rythme.", tempo: true,
+    squat: { title: "Squat", mode: "reps", views: "both", calib: "stand", go: "C'est bon, je te vois. Fais tes squats, à ton rythme.", tempo: true,
       steps: ["<strong>De face</strong> : Yass surveille les genoux et l'équilibre.", "<strong>De profil</strong> : le buste, les talons, la profondeur et le rythme."],
       tip: { face: "de profil pour vérifier le buste, les talons et le rythme.", profil: "de face pour vérifier les genoux." } },
-    fente: { title: "Fente avant", mode: "reps", views: "both", calib: "stand", go: "C'est bon, je vous vois. Faites vos fentes, à votre rythme.", tempo: true,
+    fente: { title: "Fente avant", mode: "reps", views: "both", calib: "stand", go: "C'est bon, je te vois. Fais tes fentes, à ton rythme.", tempo: true,
       steps: ["<strong>De profil</strong> : Yass surveille le buste, la profondeur et le rythme.", "<strong>De face</strong> : le genou de devant et le bassin."],
       tip: { face: "de profil pour vérifier le buste et le rythme.", profil: "de face pour vérifier le genou et le bassin." } },
-    pont: { title: "Pont de hanche", mode: "reps", views: "profil", calib: "lie", calibSay: "Allongez-vous sur le dos, genoux pliés, de profil.",
-      go: "C'est bon, je vous vois. Montez les hanches, à votre rythme.", tempo: true,
-      steps: ["Allongez-vous sur le dos, genoux pliés, <strong>de profil</strong> par rapport au téléphone, posé au sol à 2 mètres.", "Yass vérifie la hauteur des hanches, le dos et la pause en haut."],
+    pont: { title: "Pont de hanche", mode: "reps", views: "profil", calib: "lie", calibSay: "Allonge-toi sur le dos, genoux pliés, de profil.",
+      go: "C'est bon, je te vois. Monte les hanches, à ton rythme.", tempo: true,
+      steps: ["Allonge-toi sur le dos, genoux pliés, <strong>de profil</strong> par rapport au téléphone, posé au sol à 2 mètres.", "Yass vérifie la hauteur des hanches, le dos et la pause en haut."],
       tip: {} },
-    unipodal: { title: "Équilibre sur une jambe", mode: "hold", views: "face", calib: "stand", calibSay: "Restez debout, face à la caméra.",
-      go: "Levez un pied, je lance le chrono.", sides: true, target: 30,
+    unipodal: { title: "Équilibre sur une jambe", mode: "hold", views: "face", calib: "stand", calibSay: "Reste debout, face à la caméra.",
+      go: "Lève un pied, je lance le chrono.", sides: true, target: 30,
       steps: ["Debout <strong>face</strong> au téléphone. Le chrono tourne seulement quand un pied est levé.", "Yass surveille le bassin, le genou d'appui et le buste."],
       tip: {} },
-    planche: { title: "Planche", mode: "hold", views: "profil", calib: "none", calibSay: "Mettez-vous en planche, de profil.",
-      go: "C'est parti, tenez la position.", target: 30,
+    planche: { title: "Planche", mode: "hold", views: "profil", calib: "none", calibSay: "Mets-toi en planche, de profil.",
+      go: "C'est parti, tiens la position.", target: 30,
       steps: ["En planche <strong>de profil</strong> par rapport au téléphone, posé au sol à 2 mètres.", "Le chrono ne tourne que si le corps est bien aligné."],
       tip: {} },
-    assis: { title: "Assis-debout de chaise", mode: "reps", views: "profil", calib: "sit", calibSay: "Asseyez-vous sur la chaise, de profil, et restez immobile.",
-      go: "C'est bon, je vous vois. Levez-vous, puis rasseyez-vous, à votre rythme.",
-      steps: ["Chaise <strong>de profil</strong> par rapport au téléphone, bras croisés sur la poitrine.", "Yass compte les relevers, vérifie que vous ne poussez pas sur les mains, que vous vous redressez en entier et que vous vous rasseyez en douceur."],
+    assis: { title: "Assis-debout de chaise", mode: "reps", views: "profil", calib: "sit", calibSay: "Assieds-toi sur la chaise, de profil, et reste immobile.",
+      go: "C'est bon, je te vois. Lève-toi, puis rassieds-toi, à ton rythme.",
+      steps: ["Chaise <strong>de profil</strong> par rapport au téléphone, bras croisés sur la poitrine.", "Yass compte les relevers, vérifie que tu ne pousses pas sur les mains, que tu te redresses en entier et que tu te rassieds en douceur."],
       tip: {} },
-    pompes: { title: "Pompes sur genoux", mode: "reps", views: "profil", calib: "none", calibSay: "Mettez-vous en position, sur les genoux, de profil.",
-      go: "C'est parti, faites vos pompes à votre rythme.",
+    pompes: { title: "Pompes sur genoux", mode: "reps", views: "profil", calib: "none", calibSay: "Mets-toi en position, sur les genoux, de profil.",
+      go: "C'est parti, fais tes pompes à ton rythme.",
       steps: ["Sur les genoux, mains sous les épaules, <strong>de profil</strong> par rapport au téléphone, posé au sol à 2 mètres.", "Yass compte les pompes, vérifie que la poitrine descend assez et que le corps reste bien droit."],
       tip: {} },
-    chaise: { title: "Chaise contre le mur", mode: "hold", views: "profil", calib: "none", calibSay: "Dos au mur, descendez en position, de profil.",
-      go: "C'est parti, tenez la position.", target: 30,
+    chaise: { title: "Chaise contre le mur", mode: "hold", views: "profil", calib: "none", calibSay: "Dos au mur, descends en position, de profil.",
+      go: "C'est parti, tiens la position.", target: 30,
       steps: ["Dos au mur, <strong>de profil</strong> par rapport au téléphone.", "Le chrono ne tourne que si les genoux sont à peu près à angle droit, cuisses à l'horizontale."],
       tip: {} }
   };
@@ -295,7 +295,7 @@
       b.y = b.y * 0.8 + c.hip.y * 0.2; b.leg = b.leg * 0.8 + c.leg * 0.2; b.heelY = b.heelY * 0.8 + c.N.he.y * 0.2; b.toeY = b.toeY * 0.8 + c.N.toe.y * 0.2; b.thigh = b.thigh * 0.8 + dist(c.N.hip, c.N.kn) * 0.2; b.dev = b.dev * 0.8 + above(c.N.hip, c.N.sh, c.N.kn) * 0.2;
     } else { A.still = 0; A.stillT = 0; }
     if (PR.calib === "none" || (A.still >= 3 && now - A.stillT > 1000)) { A.phase = "run"; A.hold.lastT = now; return PR.calib === "none" ? null : { msg: PR.go, voice: PR.go }; }
-    if (!A.calibSaid) { A.calibSaid = 1; return { msg: PR.calib === "lie" ? "Allongez-vous sur le dos, genoux pliés, de profil." : PR.calib === "sit" ? "Asseyez-vous sur la chaise, de profil, bras croisés." : MSG.stand, voice: PR.calibSay || V.stand }; }
+    if (!A.calibSaid) { A.calibSaid = 1; return { msg: PR.calib === "lie" ? "Allonge-toi sur le dos, genoux pliés, de profil." : PR.calib === "sit" ? "Assieds-toi sur la chaise, de profil, bras croisés." : MSG.stand, voice: PR.calibSay || V.stand }; }
     return null;
   }
 
@@ -380,7 +380,7 @@
     }
     var out = null;
     if (inPose) {
-      if (!H.inPose) { H.inPose = true; H.started = true; H.outT = 0; if (!H.saidGo) { H.saidGo = 1; out = { msg: PR === PROF.unipodal ? "Chrono lancé !" : "C'est parti, tenez la position.", voice: PR === PROF.unipodal ? null : PR.go }; } }
+      if (!H.inPose) { H.inPose = true; H.started = true; H.outT = 0; if (!H.saidGo) { H.saidGo = 1; out = { msg: PR === PROF.unipodal ? "Chrono lancé !" : "C'est parti, tiens la position.", voice: PR === PROF.unipodal ? null : PR.go }; } }
       if (aligned) {
         H.t += dt; H.goodT += dt;
         if (side !== "x") H.side[side] += dt;
@@ -395,8 +395,8 @@
       H.outT += dt;
       if (H.outT > 800) {
         H.inPose = false; A.flags = {};
-        if (PR === PROF.unipodal) { H.touch++; out = { msg: "Pied posé. On reprend quand vous voulez.", voice: "Pied posé. On reprend quand vous voulez.", cls: "warn" }; }
-        else out = { msg: "Chrono en pause, replacez-vous.", voice: "Chrono en pause, replacez-vous.", cls: "warn" };
+        if (PR === PROF.unipodal) { H.touch++; out = { msg: "Pied posé. On reprend quand tu veux.", voice: "Pied posé. On reprend quand tu veux.", cls: "warn" }; }
+        else out = { msg: "Chrono en pause, replace-toi.", voice: "Chrono en pause, replace-toi.", cls: "warn" };
       }
     }
     // Objectif de temps
@@ -406,7 +406,7 @@
         if (side !== "x" && H.side[side] >= tgt && !H["ok" + side]) {
           H["ok" + side] = 1; var other = side === "l" ? "r" : "l";
           if (H["ok" + other]) { H.done = true; return { msg: "Objectif atteint, bravo !", voice: V.target, cls: "ok", finish: true }; }
-          return { msg: "Objectif atteint ! Changez de jambe.", voice: "Objectif atteint, bravo ! Changez de jambe.", cls: "ok" };
+          return { msg: "Objectif atteint ! Change de jambe.", voice: "Objectif atteint, bravo ! Change de jambe.", cls: "ok" };
         }
       } else if (H.t >= tgt) { H.done = true; return { msg: "Objectif atteint, bravo !", voice: V.target, cls: "ok", finish: true }; }
     }
@@ -465,14 +465,14 @@
   function uniStep(stand) {
     var raised = stand === "l" ? "droit" : "gauche", leg = stand === "l" ? "gauche" : "droite";
     return { id: "uni" + stand.toUpperCase(), view: "face", kind: "track", dur: UNI_MAX + 9000, title: "Équilibre sur la jambe " + leg,
-      say: "Équilibre. Levez le pied " + raised + " et tenez sur la jambe " + leg + ", vingt secondes si vous pouvez. Restez près d'un appui.",
+      say: "Équilibre. Lève le pied " + raised + " et tiens sur la jambe " + leg + ", vingt secondes si tu peux. Reste près d'un appui.",
       sample: function (c, lm, now) {
         var L = c.L, o = stand === "l" ? "r" : "l", up = (L[stand + "An"].y - L[o + "An"].y) / Math.max(0.05, c.leg) > 0.06;
         // Trendelenburg : la hanche du côté levé descend (> 0) par rapport à celle d'appui
         var drop = deg(Math.atan2(L[o + "Hip"].y - L[stand + "Hip"].y, Math.abs(L.lHip.x - L.rHip.x)));
         return { up: up, x: c.hip.x / c.hipW, drop: up ? drop : null };
       },
-      live: function (S) { var r = longestRun(S); return r ? (Math.min(UNI_MAX, r.b - r.a) / 1000).toFixed(0) + " s" : "levez le pied"; },
+      live: function (S) { var r = longestRun(S); return r ? (Math.min(UNI_MAX, r.b - r.a) / 1000).toFixed(0) + " s" : "lève le pied"; },
       done: function (S, now) { var r = longestRun(S); if (!r) return false; return r.b - r.a >= UNI_MAX || (now - r.b > 600 && r.b - r.a > 1500); },
       reduce: function (S) {
         var r = longestRun(S); if (!r) return null;
@@ -482,7 +482,7 @@
   }
   var BSTEPS = [
     { id: "face", view: "face", kind: "still", title: "Posture de face",
-      say: "Premier repère. Debout, face au téléphone, bras le long du corps, pieds légèrement écartés. Ne bougez plus quelques secondes.",
+      say: "Premier repère. Debout, face au téléphone, bras le long du corps, pieds légèrement écartés. Ne bouge plus quelques secondes.",
       ready: function (c) { return c.kL > 158 && c.kR > 158; },
       sample: function (c, lm) {
         var L = c.L, eL = P(lm, 7), eR = P(lm, 8), e = mid(eL, eR);
@@ -495,14 +495,14 @@
       },
       live: function (s) { return "épaules " + Math.abs(s.sh).toFixed(1) + "°"; } },
     { id: "abd", view: "face", kind: "track", dur: 10000, title: "Abduction des épaules",
-      say: "Levez les deux bras tendus sur les côtés, le plus haut possible au-dessus de la tête, puis redescendez.",
+      say: "Lève les deux bras tendus sur les côtés, le plus haut possible au-dessus de la tête, puis redescends.",
       sample: function (c) { var L = c.L; return { l: angle(L.lHip, L.lSh, L.lEl), r: angle(L.rHip, L.rSh, L.rEl), lean: Math.abs(stilt(c.sh, c.hip)) }; },
       live: function (S) { var s = S[S.length - 1]; return "G " + s.l.toFixed(0) + "° · D " + s.r.toFixed(0) + "°"; },
       done: function (S) { var z = S[S.length - 1]; return maxOf(S, "l") > 140 && maxOf(S, "r") > 140 && z.l < 50 && z.r < 50; },
       reduce: function (S) { return { l: maxOf(S, "l"), r: maxOf(S, "r"), lean: maxOf(S, "lean") }; }, snap: "l" },
     uniStep("l"), uniStep("r"),
     { id: "profil", view: "profil", kind: "still", title: "Posture de profil",
-      say: "Tournez-vous de profil par rapport au téléphone, bras le long du corps. Ne bougez plus.",
+      say: "Tourne-toi de profil par rapport au téléphone, bras le long du corps. Ne bouge plus.",
       ready: function (c) { return c.kNear > 158; },
       sample: function (c, lm) {
         var N = c.N, e = P(lm, EAR[c.near]), f = c.facing;
@@ -521,20 +521,20 @@
       done: function (S) { return reps(S, "k", 125, 155) >= 3; },
       reduce: function (S) { var lo = minOf(S, "k"); return lo == null || lo > 150 ? null : { flex: 180 - lo, n: reps(S, "k", 125, 155) }; }, snap: "-k" },
     { id: "dds", view: "profil", kind: "track", dur: 12000, title: "Distance doigts-sol",
-      say: "Jambes tendues, penchez-vous doucement en avant, bras pendants, comme pour toucher le sol. Allez jusqu'où c'est confortable, puis remontez.",
+      say: "Jambes tendues, penche-toi doucement en avant, bras pendants, comme pour toucher le sol. Va jusqu'où c'est confortable, puis remonte.",
       ready: function (c) { return c.kNear > 155 && tilt(c.N.sh, c.N.hip) < 20; },
       sample: function (c) { var N = c.N; return { trunk: tilt(N.sh, N.hip), gap: floorY(c) - N.wr.y, knee: c.kNear }; },
       live: function (S) { var s = S[S.length - 1]; return "tronc " + s.trunk.toFixed(0) + "°"; },
       done: function (S) { return maxOf(S, "trunk") > 45 && S[S.length - 1].trunk < 20; },
       reduce: function (S) { var g = minOf(S, "gap"), at = S.filter(function (s) { return s.gap === g; })[0]; return { trunk: maxOf(S, "trunk"), gap: g, knee: at ? at.knee : null }; }, snap: "trunk" },
     { id: "flexep", view: "profil", kind: "track", dur: 10000, title: "Flexion des épaules",
-      say: "Toujours de profil. Levez les deux bras tendus devant vous, le plus haut possible au-dessus de la tête, puis redescendez.",
+      say: "Toujours de profil. Lève les deux bras tendus devant toi, le plus haut possible au-dessus de la tête, puis redescends.",
       sample: function (c) { var N = c.N; return { a: angle(N.hip, N.sh, N.el), arch: stilt(N.sh, N.hip) * c.facing }; },
       live: function (S) { return S[S.length - 1].a.toFixed(0) + "°"; },
       done: function (S) { return maxOf(S, "a") > 140 && S[S.length - 1].a < 50; },
       reduce: function (S) { var a = maxOf(S, "a"), at = S.filter(function (s) { return s.a === a; })[0]; return { a: a, arch: at ? -at.arch : null }; }, snap: "a" },
     { id: "sts", view: "profil", kind: "track", dur: 45000, title: "Assis-debout 30 secondes",
-      say: "Dernier test. Asseyez-vous sur une chaise, de profil, bras croisés sur la poitrine. Au top, levez-vous et rasseyez-vous le plus vite possible pendant trente secondes.",
+      say: "Dernier test. Assieds-toi sur une chaise, de profil, bras croisés sur la poitrine. Au top, lève-toi et rassieds-toi le plus vite possible pendant trente secondes.",
       ready: function (c) { return c.kNear < 125 && c.kNear > 60; },
       start: "Top !",
       sample: function (c, lm, now) { return { k: c.kNear }; },
@@ -562,7 +562,7 @@
       var vOk = A.view === st.view;
       if (vOk && (!st.ready || st.ready(c))) {
         if (!B.ok) B.ok = now;
-        if (now - B.ok > 700) { B.ph = "go"; B.t = now; B.S = []; B.best = null; return st.kind === "still" ? { msg: "Ne bougez plus…", cls: "idle" } : { msg: st.start || "C'est parti.", voice: st.start || "C'est parti.", cls: "ok" }; }
+        if (now - B.ok > 700) { B.ph = "go"; B.t = now; B.S = []; B.best = null; return st.kind === "still" ? { msg: "Ne bouge plus…", cls: "idle" } : { msg: st.start || "C'est parti.", voice: st.start || "C'est parti.", cls: "ok" }; }
       } else B.ok = 0;
       if (!vOk && now - (B.vs || 0) > 7000) { B.vs = now; var t = st.view === "profil" ? MSG.side : MSG.front; return { msg: t, voice: V[st.view === "profil" ? "side" : "front"], cls: "warn" }; }
       if (el > 30000) return nextB(now, null);
@@ -672,14 +672,14 @@
     var el = shell(), me = jget("kf-bilan-me", {}), hist = jget("kf-bilan-hist", []), seen = jget("kf-cam-seen", 0);
     el.innerHTML = "<div class='kcam-intro kc2 kb2'><button class='kf-back' onclick='KineCamera.open()' aria-label='Retour'>←</button>" +
       "<section class='kb2-hero'><span class='kc2-tag'>Bilan · indicatif</span><h1>Bilan de mobilité</h1>" +
-        "<p>Yass vous guide à la voix. La caméra mesure, vous suivez votre évolution d'un bilan à l'autre.</p>" +
+        "<p>Yass te guide à la voix. La caméra mesure, tu suis ton évolution d'un bilan à l'autre.</p>" +
         "<div class='kb2-kpis'><div><b>8</b><small>tests</small></div><div><b>4</b><small>minutes</small></div><div><b>0</b><small>image envoyée</small></div></div></section>" +
       "<div class='kb2-tests'>" + BTEST.map(function (t, i) { return "<div class='kb2-t'><span class='kb2-ic'>" + bic(t[0]) + "<i>" + (i + 1) + "</i></span><b>" + t[1] + "</b><small>" + t[2] + "</small></div>"; }).join("") + "</div>" +
       "<h2 class='kc2-h'>Pour des mesures justes</h2>" +
-      "<div class='kb2-me'><label><small>Votre taille</small><span><input id='kb-h' type='number' inputmode='numeric' min='120' max='220' placeholder='170' value='" + (me.h || "") + "'><em>cm</em></span></label>" +
-        "<label><small>Votre âge</small><span><input id='kb-a' type='number' inputmode='numeric' min='10' max='110' placeholder='45' value='" + (me.a || "") + "'><em>ans</em></span></label></div>" +
+      "<div class='kb2-me'><label><small>Ta taille</small><span><input id='kb-h' type='number' inputmode='numeric' min='120' max='220' placeholder='170' value='" + (me.h || "") + "'><em>cm</em></span></label>" +
+        "<label><small>Ton âge</small><span><input id='kb-a' type='number' inputmode='numeric' min='10' max='110' placeholder='45' value='" + (me.a || "") + "'><em>ans</em></span></label></div>" +
       "<p class='kb-small'>La taille convertit la distance doigts-sol en centimètres ; l'âge sert à comparer l'assis-debout aux normes.</p>" +
-      "<div class='kc2-steps kb-prep'><div><b>1</b><span>Téléphone debout, à hauteur de la taille</span></div><div><b>2</b><span>Reculez : tout le corps visible</span></div><div><b>3</b><span>Une chaise pour le dernier test</span></div></div>" +
+      "<div class='kc2-steps kb-prep'><div><b>1</b><span>Téléphone debout, à hauteur de la taille</span></div><div><b>2</b><span>Recule : tout le corps visible</span></div><div><b>3</b><span>Une chaise pour le dernier test</span></div></div>" +
       (seen ? "" : "<p class='kc2-priv'>Au premier lancement, l'outil d'analyse se télécharge (environ 15 Mo, une seule fois).</p>") +
       "<p class='kcam-err' id='kcam-err' role='alert'></p>" +
       "<button class='kc2-go kb-go' id='kcam-go'>Commencer le bilan <span aria-hidden='true'>→</span></button>" +
@@ -747,7 +747,7 @@
     if (d) {
       var hpx = (p && p.hpx) || (f && f.hpx), cm = me.h && hpx ? Math.max(0, d.gap * me.h / hpx - 0.108 * me.h) : null;
       if (cm != null) push("dds", "dds", "Distance doigts-sol", Math.round(cm) + " cm", cm <= 10, cm < 1 ? "Les doigts touchent le sol" : cm <= 10 ? "Bonne souplesse" : cm <= 25 ? "Souplesse moyenne" : "Souplesse limitée",
-        "Distance entre le bout des doigts et le sol, penché en avant jambes tendues. Elle dépend des ischio-jambiers, du bassin et du dos. Estimée à partir de votre taille." + (d.knee != null && d.knee < 165 ? " Vos genoux se sont pliés : la valeur réelle est sans doute un peu plus grande." : ""), cm);
+        "Distance entre le bout des doigts et le sol, penché en avant jambes tendues. Elle dépend des ischio-jambiers, du bassin et du dos. Estimée à partir de ta taille." + (d.knee != null && d.knee < 165 ? " Tes genoux se sont pliés : la valeur réelle est sans doute un peu plus grande." : ""), cm);
       push("dds", "ddsT", "Flexion du tronc", Math.round(d.trunk) + "°", d.trunk >= 70, d.trunk >= 70 ? "Bonne amplitude" : "Amplitude limitée", "Angle maximal entre le buste et la verticale (hanches et dos ensemble).", d.trunk);
     }
     var fe = R.flexep;
@@ -760,8 +760,8 @@
       var a = me.a, ref5 = a >= 80 ? 14.8 : a >= 70 ? 12.6 : a >= 60 ? 11.4 : null, ref30 = a >= 60 ? 12 : 15;
       push("sts", "sts30", "Levers en 30 s", t.n + "", t.n >= ref30, t.n >= ref30 ? "Bonne force des jambes" : "Force des jambes à travailler",
         "Nombre de levers complets en 30 secondes, bras croisés. Repère : au moins " + ref30 + " levers" + (a >= 60 ? " après 60 ans" : "") + ".", t.n);
-      if (t.t5 != null) push("sts", "sts5", "5 levers", n1(t.t5) + " s", ref5 ? t.t5 <= ref5 : t.t5 <= 10, ref5 ? (t.t5 <= ref5 ? "Dans la norme pour votre âge" : "Plus lent que la norme pour votre âge") : (t.t5 <= 10 ? "Rapide" : "À travailler"),
-        "Temps pour se lever 5 fois. Normes (Bohannon) : 11,4 s entre 60 et 69 ans, 12,6 s entre 70 et 79 ans, 14,8 s entre 80 et 89 ans." + (a ? "" : " Indiquez votre âge pour comparer."), t.t5);
+      if (t.t5 != null) push("sts", "sts5", "5 levers", n1(t.t5) + " s", ref5 ? t.t5 <= ref5 : t.t5 <= 10, ref5 ? (t.t5 <= ref5 ? "Dans la norme pour ton âge" : "Plus lent que la norme pour ton âge") : (t.t5 <= 10 ? "Rapide" : "À travailler"),
+        "Temps pour se lever 5 fois. Normes (Bohannon) : 11,4 s entre 60 et 69 ans, 12,6 s entre 70 et 79 ans, 14,8 s entre 80 et 89 ans." + (a ? "" : " Indique ton âge pour comparer."), t.t5);
     }
     return out;
   }
@@ -837,12 +837,12 @@
         "<div class='kb2-grid'>" + tiles(rows, prevIt) + "</div></section>";
     }).join("");
     el.innerHTML = "<div class='kcam-intro kc2 kb2 kb2-res'><button class='kf-back' onclick='KineCamera.close()' aria-label='Fermer'>←</button>" +
-      "<section class='kb2-hero'><span class='kc2-tag'>Indicatif · " + fmtD(saved.d) + "</span><h1>Votre bilan de mobilité</h1>" +
+      "<section class='kb2-hero'><span class='kc2-tag'>Indicatif · " + fmtD(saved.d) + "</span><h1>Ton bilan de mobilité</h1>" +
         "<div class='kb2-score'><div class='kb2-rw'>" + ring(it.length - watch.length, it.length) + "<span><b>" + (it.length - watch.length) + "</b><small>sur " + it.length + "</small></span></div>" +
           "<div class='kb2-sc-t'><b>" + (watch.length ? watch.length + " point" + (watch.length > 1 ? "s" : "") + " à surveiller" : "Tout est dans les repères") + "</b><small>" + it.length + " mesures sur " + SECS.filter(function (s) { return it.some(function (x) { return x.sec === s[0]; }); }).length + " tests" + (prev ? " · comparé au " + fmtD(prev.d) : "") + "</small></div></div>" +
         (hist.length > 1 ? "<div class='kb-hist'>" + hist.map(function (h, i) { return "<button type='button' class='" + (i === idx ? "on" : "") + "' onclick='KineCamera.bilanShow(" + i + ")'>" + fmtD(h.d) + "</button>"; }).join("") + "</div>" : "") + "</section>" +
-      synthHtml(R, me) + "<h2 class='kc2-h kb-det'>Le détail, test par test</h2><p class='kb-small kb2-hint'>Touchez une mesure pour savoir ce qu'elle veut dire.</p>" + body +
-      "<p class='kb-small kb-disc'>Valeurs approchées, calculées à partir de la vidéo : elles servent à suivre votre évolution et ne remplacent pas l'examen de votre kinésithérapeute. En cas de douleur, parlez-en à votre kiné.</p>" +
+      synthHtml(R, me) + "<h2 class='kc2-h kb-det'>Le détail, test par test</h2><p class='kb-small kb2-hint'>Touche une mesure pour savoir ce qu'elle veut dire.</p>" + body +
+      "<p class='kb-small kb-disc'>Valeurs approchées, calculées à partir de la vidéo : elles servent à suivre ton évolution et ne remplacent pas l'examen de ton kinésithérapeute. En cas de douleur, parles-en à ton kiné.</p>" +
       "<button class='kc2-go kb-go' onclick='KineCamera.bilan()'>Refaire un bilan <span aria-hidden='true'>→</span></button><button class='seq-btn-secondary' onclick='KineCamera.close()'>Fermer</button></div>";
     el.scrollTop = 0;
   }
@@ -857,13 +857,13 @@
     if (uL && uL.drop >= 4) trS.push("gauche"); if (uR && uR.drop >= 4) trS.push("droite");
     if (weakS.length || trS.length)
       add(1, "Stabilité du bassin sur une jambe", (weakS.length ? "L'équilibre sur la jambe " + weakS.join(" et la jambe ") + " est plus court que la moyenne. " : "") +
-        (trS.length ? "Le bassin descend du côté levé quand vous êtes en appui sur la jambe " + trS.join(" et la jambe ") + " : les muscles du côté de la hanche (moyen fessier) gagneraient à être renforcés. " : "") +
+        (trS.length ? "Le bassin descend du côté levé quand tu es en appui sur la jambe " + trS.join(" et la jambe ") + " : les muscles du côté de la hanche (moyen fessier) gagneraient à être renforcés. " : "") +
         "C'est l'un des points les plus utiles à travailler pour la marche et la prévention des chutes.",
         trS.length ? ["Clamshell", "Abduction hanche debout", "Marche latérale élastique", "Équilibre unipodal"] : ["Équilibre unipodal", "Tandem talon-pointe", "Abduction hanche debout"]);
     var t = R.sts, a = me.a, ref30 = a >= 60 ? 12 : 15, ref5 = a >= 80 ? 14.8 : a >= 70 ? 12.6 : a >= 60 ? 11.4 : 10, q = R.squat;
     var legs = (t && (t.n < ref30 || (t.t5 != null && t.t5 > ref5))) , deep = q && q.flex < 90;
     if (legs || deep)
-      add(2, "Force et amplitude des jambes", (legs ? "Le test d'assis-debout est en dessous des repères" + (a ? " pour votre âge" : "") + ". " : "") + (deep ? "Le squat reste peu profond. " : "") +
+      add(2, "Force et amplitude des jambes", (legs ? "Le test d'assis-debout est en dessous des repères" + (a ? " pour ton âge" : "") + ". " : "") + (deep ? "Le squat reste peu profond. " : "") +
         "Renforcer les cuisses et les fessiers aide à se lever, monter les escaliers et porter des charges.", ["Assis-debout de chaise", "Chaise contre le mur", "Squat bilatéral", "Pont de hanche"]);
     var ab = R.abd, fe = R.flexep, sh = [];
     if (ab) { if (ab.l < 150) sh.push("gauche"); if (ab.r < 150) sh.push("droite"); }
@@ -877,7 +877,7 @@
         ["Face pull à l'élastique", "Superman en Y et en W", "Écartement de serviette bras tendus", "Pull-apart à l'élastique"]);
     var d = R.dds, hpx = (R.profil && R.profil.hpx) || (R.face && R.face.hpx), cm = d && me.h && hpx ? Math.max(0, d.gap * me.h / hpx - 0.108 * me.h) : null;
     if (d && ((cm != null && cm > 10) || d.trunk < 70))
-      add(5, "Souplesse de l'arrière des jambes et du dos", "En vous penchant jambes tendues, les mains restent " + (cm != null ? "à environ " + Math.round(cm) + " cm du sol" : "assez loin du sol") + ". La souplesse des ischio-jambiers et du bas du dos se travaille bien, en douceur et régulièrement.",
+      add(5, "Souplesse de l'arrière des jambes et du dos", "En te penchant jambes tendues, les mains restent " + (cm != null ? "à environ " + Math.round(cm) + " cm du sol" : "assez loin du sol") + ". La souplesse des ischio-jambiers et du bas du dos se travaille bien, en douceur et régulièrement.",
         ["Good morning au bâton", "Chat-vache", "Inchworm et pompes"]);
     var f = R.face, kn = [];
     if (f) { if (Math.abs(f.kL) >= 6) kn.push("gauche"); if (Math.abs(f.kR) >= 6) kn.push("droit"); }
@@ -892,8 +892,8 @@
   }
   function synthHtml(R, me) {
     var C = synth(R, me);
-    if (!C.length) return "<section class='kb-syn kb-syn-ok'><h2>Ce que montre votre bilan</h2><p>Rien de marquant : les mesures sont dans les repères habituels. Continuez votre programme, et refaites le bilan dans quelques semaines pour suivre votre évolution.</p></section>";
-    return "<section class='kb-syn'><h2>Ce que montre votre bilan</h2><p class='kb-syn-in'>Quelques pistes, à confirmer avec votre kiné :</p>" + C.map(function (c, i) {
+    if (!C.length) return "<section class='kb-syn kb-syn-ok'><h2>Ce que montre ton bilan</h2><p>Rien de marquant : les mesures sont dans les repères habituels. Continue ton programme, et refais le bilan dans quelques semaines pour suivre ton évolution.</p></section>";
+    return "<section class='kb-syn'><h2>Ce que montre ton bilan</h2><p class='kb-syn-in'>Quelques pistes, à confirmer avec ton kiné :</p>" + C.map(function (c, i) {
       return "<div class='kb-syn-c'><b><i>" + (i + 1) + "</i>" + esc(c.t) + "</b><p>" + esc(c.txt) + "</p>" +
         (c.ex.length ? "<div class='kb-syn-ex'>" + c.ex.map(function (n) { return "<button type='button' onclick='KineCamera.bilanEx(" + JSON.stringify(n).replace(/'/g, "&#39;") + ")'><svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>" + esc(n) + "</button>"; }).join("") + "</div>" : "") + "</div>";
     }).join("") + "</section>";
@@ -1008,7 +1008,7 @@
       "<small id='kcam-mode-h'>" + modeHint(m) + "</small></div>";
   }
   function modeHint(m) {
-    return m === "off" ? "La caméra n'apparaît pas pendant les séances. Vous pouvez toujours l'ouvrir d'ici."
+    return m === "off" ? "La caméra n'apparaît pas pendant les séances. Tu peux toujours l'ouvrir d'ici."
       : m === "auto" ? "Pour les exercices compatibles, la caméra s'ouvre d'elle-même au début de chaque série."
       : "Pour les exercices compatibles, un bouton propose de faire la série devant la caméra.";
   }
@@ -1037,15 +1037,15 @@
     var tgt = OPT.target ? (PR.mode === "hold" ? OPT.target + " secondes" + (PR.sides ? " par jambe" : "") : OPT.target + " répétitions") : "";
     el.innerHTML = "<div class='kcam-intro'><button class='kf-back' onclick='KineCamera." + (OPT.session ? "close" : "open") + "()' aria-label='Retour'>←</button>" +
       "<div class='kcam-badge'>Essai</div><div class='kf-h1'>" + esc(PR.title) + " à la caméra</div>" +
-      "<div class='kf-sub'>Yass repère vos articulations, dessine votre silhouette et vous guide à voix haute. " + (PR.mode === "hold" ? "Il chronomètre la tenue." : "Il compte vos répétitions.") +
+      "<div class='kf-sub'>Yass repère tes articulations, dessine ta silhouette et te guide à voix haute. " + (PR.mode === "hold" ? "Il chronomètre la tenue." : "Il compte tes répétitions.") +
         (tgt ? " Objectif : <strong>" + esc(tgt) + "</strong>." : "") + "</div>" +
       "<div class='kcam-steps'>" +
-        "<div><b>1</b><span>Posez le téléphone contre un objet stable" + (PR.calib === "stand" || PR.calib === "sit" || PRID === "chaise" ? ", à hauteur de la taille." : ", au sol ou bas.") + "</span></div>" +
-        "<div><b>2</b><span>Reculez à 2 ou 3 mètres : on doit voir <strong>tout le corps</strong>.</span></div>" +
+        "<div><b>1</b><span>Pose le téléphone contre un objet stable" + (PR.calib === "stand" || PR.calib === "sit" || PRID === "chaise" ? ", à hauteur de la taille." : ", au sol ou bas.") + "</span></div>" +
+        "<div><b>2</b><span>Recule à 2 ou 3 mètres : on doit voir <strong>tout le corps</strong>.</span></div>" +
         PR.steps.map(function (t, i) { return "<div><b>" + (i + 3) + "</b><span>" + t + "</span></div>"; }).join("") +
       "</div>" +
-      "<p class='lx-muted kcam-note'>L'image reste sur votre téléphone : rien n'est envoyé. " + (seen ? "" : "Au premier lancement, l'appli télécharge l'outil d'analyse (environ 15 Mo, une seule fois, le Wi-Fi est conseillé).") + "</p>" +
-      "<p class='lx-muted kcam-note'>C'est une aide, pas un bilan : en cas de douleur, arrêtez et parlez-en à votre kiné.</p>" +
+      "<p class='lx-muted kcam-note'>L'image reste sur ton téléphone : rien n'est envoyé. " + (seen ? "" : "Au premier lancement, l'appli télécharge l'outil d'analyse (environ 15 Mo, une seule fois, le Wi-Fi est conseillé).") + "</p>" +
+      "<p class='lx-muted kcam-note'>C'est une aide, pas un bilan : en cas de douleur, arrête et parles-en à ton kiné.</p>" +
       (OPT.session ? modeHtml() : "") +
       "<p class='kcam-err' id='kcam-err' role='alert'></p>" +
       "<button class='seq-btn-main' id='kcam-go'>Activer la caméra</button></div>";
@@ -1062,10 +1062,10 @@
     navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: facing, width: { ideal: 640 }, height: { ideal: 480 } } }).then(function (stream) {
       run(stream, facing); audioWatch();
       return detector().then(function (det) { jset("kf-cam-seen", 1); if (S) { S.det = det; S.status(PR.calib === "stand" ? "stand" : ""); } })
-        .catch(function () { if (S) S.status("err", "L'outil d'analyse n'a pas pu se charger. Vérifiez votre connexion, puis réessayez."); });
+        .catch(function () { if (S) S.status("err", "L'outil d'analyse n'a pas pu se charger. Vérifie ta connexion, puis réessaie."); });
     }).catch(function (e) {
-      fail(e && e.name === "NotAllowedError" ? "L'accès à la caméra est refusé. Autorisez-le dans les réglages du téléphone (Réglages, puis Safari ou votre navigateur, puis Caméra), puis réessayez."
-           : "La caméra n'a pas pu s'ouvrir. Fermez les autres applis qui l'utilisent, puis réessayez.");
+      fail(e && e.name === "NotAllowedError" ? "L'accès à la caméra est refusé. Autorise-le dans les réglages du téléphone (Réglages, puis Safari ou ton navigateur, puis Caméra), puis réessaie."
+           : "La caméra n'a pas pu s'ouvrir. Ferme les autres applis qui l'utilisent, puis réessaie.");
     });
   }
 
@@ -1088,7 +1088,7 @@
         "<div class='kcam-count'><b id='kcam-reps'>0</b><small>" + lab1 + "</small></div><div class='kcam-count kcam-ok" + (bil ? " kb-meas" : "") + "'><b id='kcam-good'>0</b><small>" + lab2 + "</small></div>" +
         "<button class='kcam-flip kcam-snd' id='kcam-snd' onclick='KineCamera.mute()' aria-label='Couper ou remettre la voix'>" + sndIc(muted()) + "</button>" +
         "<button class='kcam-flip' onclick='KineCamera.flip()' aria-label='Changer de caméra'>⟲</button></div>" +
-      "<div class='kcam-view' id='kcam-view'></div>" + (bil ? "<div class='kb-demo' id='kb-demo' aria-hidden='true'><div class='kb-demo-av'></div><span>Yass vous montre</span></div>" : "") +
+      "<div class='kcam-view' id='kcam-view'></div>" + (bil ? "<div class='kb-demo' id='kb-demo' aria-hidden='true'><div class='kb-demo-av'></div><span>Yass te montre</span></div>" : "") +
       "<div class='kcam-msg' id='kcam-msg' role='status'>Chargement de l'analyse…</div>" +
       (bil ? "<div class='kcam-end kb-end'><button class='seq-btn-secondary' onclick='KineCamera.bilanSkip()'>Passer ce test</button><button class='seq-btn-main' onclick='KineCamera.finish()'>Terminer</button></div>"
            : "<button class='seq-btn-main kcam-end' onclick='KineCamera.finish()'>Terminer</button>") + "</div>";
@@ -1100,15 +1100,15 @@
     resetAnalysis();
     var wake = null; try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e) {}
     S = { stream: stream, facing: facing, det: null, raf: 0, lastT: -1, lost: 0, wake: function () { return wake; },
-          status: function (k, t) { var m = $("kcam-msg"); if (!m) return; m.className = "kcam-msg" + (k === "err" ? " bad" : ""); m.textContent = t || MSG[k] || "Je vous cherche…"; } };
+          status: function (k, t) { var m = $("kcam-msg"); if (!m) return; m.className = "kcam-msg" + (k === "err" ? " bad" : ""); m.textContent = t || MSG[k] || "Je te cherche…"; } };
     var msgUntil = 0;
     function show(t, cls, ms) { var m = $("kcam-msg"); if (!m || !t) return; m.textContent = t; m.className = "kcam-msg " + (cls || ""); msgUntil = performance.now() + (ms || 2500); }
     function idle() {
       var m = $("kcam-msg"); if (!m) return;
-      if (bil) { var bb = A.b, bs = bb && BSTEPS[bb.i]; var tb = !bs ? "Bilan terminé." : bb.ph === "go" ? (bs.kind === "still" ? "Ne bougez plus…" : "Mesure en cours…") : bs.say; if (m.textContent !== tb) { m.textContent = tb; m.className = "kcam-msg idle"; } return; }
-      var t = A.phase === "calib" ? (PR.calib === "lie" ? "Allongez-vous sur le dos, genoux pliés, de profil." : PR.calib === "stand" ? MSG.stand : PR.calibSay)
-            : hold ? (A.hold.inPose ? "Tenez, respirez normalement." : PR === PROF.unipodal ? "Levez un pied pour lancer le chrono." : PR === PROF.chaise ? "Descendez en position, dos au mur, pour lancer le chrono." : "Mettez-vous en planche pour lancer le chrono.")
-            : (A.reps ? "Continuez à votre rythme." : PR.go);
+      if (bil) { var bb = A.b, bs = bb && BSTEPS[bb.i]; var tb = !bs ? "Bilan terminé." : bb.ph === "go" ? (bs.kind === "still" ? "Ne bouge plus…" : "Mesure en cours…") : bs.say; if (m.textContent !== tb) { m.textContent = tb; m.className = "kcam-msg idle"; } return; }
+      var t = A.phase === "calib" ? (PR.calib === "lie" ? "Allonge-toi sur le dos, genoux pliés, de profil." : PR.calib === "stand" ? MSG.stand : PR.calibSay)
+            : hold ? (A.hold.inPose ? "Tiens, respire normalement." : PR === PROF.unipodal ? "Lève un pied pour lancer le chrono." : PR === PROF.chaise ? "Descends en position, dos au mur, pour lancer le chrono." : "Mets-toi en planche pour lancer le chrono.")
+            : (A.reps ? "Continue à ton rythme." : PR.go);
       if (m.textContent !== t) { m.textContent = t; m.className = "kcam-msg idle"; }
     }
     function loop() {
@@ -1224,11 +1224,11 @@
       : "<div><b>" + a.reps + "</b><small>répétitions</small></div><div class='ok'><b>" + a.good + "</b><small>correctes</small></div>";
     var tip = main ? "<p class='kcam-tip'><strong>À travailler :</strong> " + esc(FIX[main]) + (hold ? " (" + counts[main] + " rappel" + (counts[main] > 1 ? "s" : "") + ")" : " (" + counts[main] + " fois sur " + a.reps + ")") + ". " + esc(MSG[main]) + "</p>"
                    : "<p class='kcam-tip ok'><strong>Bravo :</strong> aucun défaut repéré sur cette série.</p>";
-    var more = PR === PROF.unipodal ? "<p class='lx-muted kcam-note'>Pied posé " + H.touch + " fois.</p>" : (PR.tip[a.view] ? "<p class='lx-muted kcam-note'>Analyse " + (a.view === "profil" ? "de profil" : "de face") + ". Essayez aussi " + PR.tip[a.view] + "</p>" : "");
+    var more = PR === PROF.unipodal ? "<p class='lx-muted kcam-note'>Pied posé " + H.touch + " fois.</p>" : (PR.tip[a.view] ? "<p class='lx-muted kcam-note'>Analyse " + (a.view === "profil" ? "de profil" : "de face") + ". Essaie aussi " + PR.tip[a.view] + "</p>" : "");
     el.innerHTML = "<div class='kcam-intro kcam-end-sheet'><div class='kf-h1'>Bilan : " + esc(PR.title.toLowerCase()) + "</div>" +
       "<div class='kcam-big'>" + big + "</div>" + tip + more +
       (REPLAY ? "<button class='seq-btn-main kcam-replay-btn' onclick='KineCamera.replay()'>▶ Revoir ma série</button>" +
-                "<p class='lx-muted kcam-note'>Le replay reste dans votre téléphone et s'efface quand vous fermez.</p>" : "") +
+                "<p class='lx-muted kcam-note'>Le replay reste dans ton téléphone et s'efface quand tu fermes.</p>" : "") +
       (OPT.session ? "<button class='seq-btn-main' onclick='KineCamera.validate()'>Valider la série et continuer</button>" : "") +
       "<button class='seq-btn-secondary' onclick='KineCamera.again()'>Recommencer</button><button class='seq-btn-secondary' onclick='KineCamera.close()'>" + (OPT.session ? "Retour à la séance sans valider" : "Fermer") + "</button></div>";
     el.__sum = el.innerHTML;
@@ -1328,7 +1328,7 @@
     var c = document.createElement("button");
     c.type = "button"; c.className = "kr-libcard kcam-libcard";
     c.innerHTML = "<span class='kcam-ico' aria-hidden='true'><svg viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='4.5' r='2'/><path d='M12 7v6M7 10l5 1 5-1M12 13l-3 6M12 13l3 6'/></svg></span>" +
-      "<span class='kr-lt'><b>Mon mouvement à la caméra <em class='kcam-tag'>essai</em></b><small>Squat, fente, pont, équilibre, planche : Yass suit vos articulations et vous guide</small></span><span aria-hidden='true'>›</span>";
+      "<span class='kr-lt'><b>Mon mouvement à la caméra <em class='kcam-tag'>essai</em></b><small>Squat, fente, pont, équilibre, planche : Yass suit tes articulations et te guide</small></span><span aria-hidden='true'>›</span>";
     c.onclick = function () { open(); };
     after.parentNode.insertBefore(c, after.nextSibling);
   }

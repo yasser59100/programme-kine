@@ -106,7 +106,7 @@
   function historique() {
     var ss = list().filter(function (s) { return !filterPain || (s.douleur >= 1) || (s.douleurs && s.douleurs.length); });
     var chips = "<div class='kf-chips'><button class='" + (!filterPain ? "sel" : "") + "' onclick='KineSuivi.filter(false)'>Toutes</button><button class='" + (filterPain ? "sel" : "") + "' onclick='KineSuivi.filter(true)'>Avec douleur</button></div>";
-    if (!ss.length) return frame("Historique des séances", "", chips + "<div class='kf-note'>" + (filterPain ? "Aucune séance avec douleur. Tant mieux !" : "Aucune séance enregistrée pour l'instant. Terminez une séance guidée : le bilan s'enregistre ici.") + "</div>");
+    if (!ss.length) return frame("Historique des séances", "", chips + "<div class='kf-note'>" + (filterPain ? "Aucune séance avec douleur. Tant mieux !" : "Aucune séance enregistrée pour l'instant. Termine une séance guidée : le bilan s'enregistre ici.") + "</div>");
     var html = chips, lastW = null;
     ss.forEach(function (s) {
       var w = weekOf(s);
@@ -127,7 +127,7 @@
 
   function douleurs() {
     var pp = pains();
-    if (!pp.length) return frame("Douleurs signalées", "Pendant les exercices, avec le bouton « J'ai mal »", "<div class='kf-note'>Aucune douleur signalée. Si une douleur apparaît pendant un exercice, appuyez sur « J'ai mal » : elle sera enregistrée ici.</div>");
+    if (!pp.length) return frame("Douleurs signalées", "Pendant les exercices, avec le bouton « J'ai mal »", "<div class='kf-note'>Aucune douleur signalée. Si une douleur apparaît pendant un exercice, appuie sur « J'ai mal » : elle sera enregistrée ici.</div>");
     var zones = {}; pp.forEach(function (p) { zones[p.zone] = (zones[p.zone] || 0) + 1; });
     var max = Math.max.apply(null, Object.keys(zones).map(function (k) { return zones[k]; }));
     var bars = Object.keys(zones).sort(function (a, b) { return zones[b] - zones[a]; }).map(function (z) {
@@ -139,7 +139,7 @@
     }).join("");
     return frame("Douleurs signalées", "Pendant les exercices, avec le bouton « J'ai mal »",
       "<div class='su-card'><b>Par zone</b>" + bars + "</div><div class='kf-phase' style='color:var(--text2)'>Épisodes</div>" + eps +
-      "<div class='kf-kit'>Une douleur revient au même endroit ? Parlez-en à votre kinésithérapeute avant la prochaine séance.</div>",
+      "<div class='kf-kit'>Une douleur revient au même endroit ? Parles-en à ton kinésithérapeute avant la prochaine séance.</div>",
       "<button class='seq-btn-main' onclick='KineSuivi.open(\"envoyer\")'>Envoyer à mon kiné</button>");
   }
 
@@ -178,11 +178,11 @@
   function envoyer() {
     var name = localStorage.getItem("kf-patient-name") || "";
     var chips = "<div class='kf-chips'><button class='" + (period === "week" ? "sel" : "") + "' onclick='KineSuivi.period(\"week\")'>Cette semaine</button><button class='" + (period === "all" ? "sel" : "") + "' onclick='KineSuivi.period(\"all\")'>Tout le programme</button></div>";
-    var nameField = "<label class='su-label'>Votre prénom et nom<input class='kf-text su-input' id='su-name' value='" + esc(name) + "' placeholder='Pour que votre kiné sache de qui il s'agit' oninput='KineSuivi.name(this.value)'></label>";
-    return frame("Envoyer à mon kiné", "Vous choisissez à qui l'envoyer (SMS, WhatsApp, e-mail…). Rien n'est envoyé automatiquement.",
+    var nameField = "<label class='su-label'>Ton prénom et nom<input class='kf-text su-input' id='su-name' value='" + esc(name) + "' placeholder='Pour que ton kiné sache de qui il s'agit' oninput='KineSuivi.name(this.value)'></label>";
+    return frame("Envoyer à mon kiné", "Tu choisis à qui l'envoyer (SMS, WhatsApp, e-mail…). Rien n'est envoyé automatiquement.",
       (name ? "" : nameField) + chips +
       "<div class='su-card'><div class='su-k' style='color:#6fb0ff'>Aperçu du message</div><pre class='su-pre' id='su-pre'></pre></div>" +
-      (name ? "<label class='su-label'>Votre nom<input class='kf-text su-input' id='su-name' value='" + esc(name) + "' oninput='KineSuivi.name(this.value)'></label>" : "") +
+      (name ? "<label class='su-label'>Ton nom<input class='kf-text su-input' id='su-name' value='" + esc(name) + "' oninput='KineSuivi.name(this.value)'></label>" : "") +
       "<label class='su-label'>Ajouter un mot (facultatif)<textarea class='kf-text' id='su-extra' oninput='KineSuivi.preview()'></textarea></label>",
       "<button class='seq-btn-main' onclick='KineSuivi.share()'>Partager le résumé</button><button class='seq-btn-secondary' onclick='KineSuivi.copy()'>Copier le texte</button>");
   }

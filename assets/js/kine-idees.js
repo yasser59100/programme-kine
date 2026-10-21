@@ -206,7 +206,7 @@
     var g = goals();
     var head = "<h2 class='lx-section'>Mon objectif</h2>";
     if (!g.length) return head +
-      "<div class='ki-goal ki-empty'><p>Qu'aimeriez-vous <strong>refaire au quotidien</strong> grâce au programme ? Choisissez un geste, notez-le de 0 à 10, et voyez-le progresser.</p>" +
+      "<div class='ki-goal ki-empty'><p>Qu'aimerais-tu <strong>refaire au quotidien</strong> grâce au programme ? Choisis un geste, note-le de 0 à 10, et vois-le progresser.</p>" +
       "<button class='lx-cta' onclick='KineIdees.goalEdit()'>Choisir mon objectif</button></div>";
     var rows = g.map(function (x) {
       var s = x.scores || [], f = s[0], l = lastScore(x), d = f && l && s.length > 1 ? l.v - f.v : null;
@@ -256,13 +256,13 @@
     }).join("");
     var canAdd = g.length < 3;
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineIdees._close()' aria-label='Retour'>←</button>" +
-      "<div class='kf-h1'>Mon objectif</div><div class='kf-sub'>Un geste du quotidien que la douleur ou la fatigue vous empêche de faire comme avant.</div>" +
+      "<div class='kf-h1'>Mon objectif</div><div class='kf-sub'>Un geste du quotidien que la douleur ou la fatigue t'empêche de faire comme avant.</div>" +
       (list ? "<div class='kf-phase' style='color:var(--text2)'>Mes objectifs</div>" + list : "") +
       (canAdd ? "<div class='kf-phase' style='color:var(--text2)'>" + (g.length ? "Ajouter un objectif" : "Choisir") + "</div>" +
         "<div class='kf-chips ki-chips'>" + SUGG.map(function (s) { return "<button type='button' onclick='KineIdees._sugg(this)'>" + esc(s) + "</button>"; }).join("") + "</div>" +
-        "<label class='su-label'>Ou écrivez le vôtre<input class='kf-text su-input' id='ki-text' maxlength='70' placeholder='Par exemple : porter mon petit-fils' oninput='KineIdees._chk()'></label>" +
+        "<label class='su-label'>Ou écris le tien<input class='kf-text su-input' id='ki-text' maxlength='70' placeholder='Par exemple : porter mon petit-fils' oninput='KineIdees._chk()'></label>" +
         "<div class='su-label'>Aujourd'hui, j'y arrive à…</div>" + scale("n", null)
-        : "<p class='lx-muted'>Trois objectifs au maximum : retirez-en un pour en ajouter un autre.</p>") +
+        : "<p class='lx-muted'>Trois objectifs au maximum : retires-en un pour en ajouter un autre.</p>") +
       "</div>" +
       (canAdd ? "<div class='kf-sheet-foot'><button class='seq-btn-main' id='ki-ok' disabled onclick='KineIdees._saveNew()'>Enregistrer</button></div>" : "");
     el.classList.add("open"); el.scrollTop = 0;
@@ -287,7 +287,7 @@
     mode = "rate"; draft = {};
     var g = goals(), el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineIdees._close()' aria-label='Retour'>←</button>" +
-      "<div class='kf-h1'>Où en êtes-vous ?</div><div class='kf-sub'>Pour chaque objectif, à quel point y arrivez-vous aujourd'hui ? 0 = impossible, 10 = comme avant.</div>" +
+      "<div class='kf-h1'>Où en es-tu ?</div><div class='kf-sub'>Pour chaque objectif, à quel point y arrives-tu aujourd'hui ? 0 = impossible, 10 = comme avant.</div>" +
       g.map(function (x) {
         var l = lastScore(x);
         return "<div class='ki-rate'><b>" + esc(x.text) + "</b>" + (l ? "<small>Dernière note : " + l.v + "/10 le " + dfr(l.date) + "</small>" : "") + scale(x.id, null) + "</div>";
@@ -305,7 +305,7 @@
     saveGoals(g);
     var best = g.map(function (x) { var s = x.scores; return s.length > 1 ? s[s.length - 1].v - s[0].v : 0; }).reduce(function (a, b) { return Math.max(a, b); }, 0);
     closeSheet();
-    if (best >= 2) say("Bravo ! Deux points de plus, c'est un vrai progrès que vous ressentez au quotidien.");
+    if (best >= 2) say("Bravo ! Deux points de plus, c'est un vrai progrès que tu ressens au quotidien.");
   }
 
   function summaryLines() {
@@ -328,15 +328,15 @@
     { q: "Le repos complet est le meilleur traitement d'une tendinite.", a: false,
       e: "Un tendon douloureux guérit mieux avec une charge adaptée et progressive. Le repos total l'affaiblit.", s: "" },
     { q: "Le système nerveux peut apprendre à moins amplifier la douleur.", a: true,
-      e: "Avec l'exercice progressif, le sommeil et une meilleure compréhension de la douleur, l'alarme se recalibre. C'est un des buts de votre programme.", s: "" },
+      e: "Avec l'exercice progressif, le sommeil et une meilleure compréhension de la douleur, l'alarme se recalibre. C'est un des buts de ton programme.", s: "" },
     { q: "Un matelas très dur est meilleur pour le dos.", a: false,
-      e: "Un matelas moyennement ferme semble plus confortable pour la plupart des personnes qui ont mal au dos. Le meilleur matelas, c'est surtout celui sur lequel vous dormez bien.", s: "Kovacs et al., The Lancet, 2003" },
+      e: "Un matelas moyennement ferme semble plus confortable pour la plupart des personnes qui ont mal au dos. Le meilleur matelas, c'est surtout celui sur lequel tu dors bien.", s: "Kovacs et al., The Lancet, 2003" },
     { q: "On peut se muscler sans aucun matériel.", a: true,
-      e: "Le poids du corps suffit à renforcer les muscles, à condition d'augmenter peu à peu la difficulté. C'est le principe de votre programme.", s: "" },
+      e: "Le poids du corps suffit à renforcer les muscles, à condition d'augmenter peu à peu la difficulté. C'est le principe de ton programme.", s: "" },
     { q: "Une sciatique se soigne presque toujours par une opération.", a: false,
       e: "La plupart des sciatiques s'améliorent sans chirurgie, en quelques semaines à quelques mois. L'opération est réservée à des situations précises.", s: "" },
     { q: "Bouger dans la journée aide à mieux dormir.", a: true,
-      e: "L'activité physique améliore la qualité du sommeil, surtout le sommeil profond. Évitez simplement un effort intense juste avant le coucher.", s: "" },
+      e: "L'activité physique améliore la qualité du sommeil, surtout le sommeil profond. Évite simplement un effort intense juste avant le coucher.", s: "" },
     { q: "Une douleur chronique, c'est dans la tête, donc imaginaire.", a: false,
       e: "La douleur est toujours réelle, même sans lésion visible. Le système nerveux peut devenir trop sensible, et cela se soigne, notamment par le mouvement.", s: "" },
     { q: "Le surpoids augmente la charge sur les genoux.", a: true,
@@ -362,9 +362,9 @@
     { q: "Faire ses exercices devant la télé, ça compte aussi.", a: true,
       e: "Ce qui compte, c'est de les faire, pas l'endroit. Les glisser dans la routine du quotidien aide à tenir sur la durée.", s: "" },
     { q: "Il faut bloquer sa respiration pendant l'effort.", a: false,
-      e: "Bloquer la respiration fait monter la tension artérielle. Expirez pendant l'effort et inspirez au retour.", s: "" },
+      e: "Bloquer la respiration fait monter la tension artérielle. Expire pendant l'effort et inspire au retour.", s: "" },
     { q: "Bien s'hydrater compte aussi pour les muscles.", a: true,
-      e: "Même une petite déshydratation diminue la force et l'endurance. Buvez régulièrement, sans attendre d'avoir soif.", s: "" },
+      e: "Même une petite déshydratation diminue la force et l'endurance. Bois régulièrement, sans attendre d'avoir soif.", s: "" },
     { q: "Après 40 ans, les tendons ne peuvent plus se renforcer.", a: false,
       e: "Les tendons s'adaptent à l'entraînement à tout âge, simplement plus lentement. Il suffit d'augmenter la charge progressivement.", s: "" },
     { q: "Fumer ralentit la cicatrisation des os et des tendons.", a: true,
@@ -376,7 +376,7 @@
     { q: "Un muscle qui tremble pendant l'effort, c'est dangereux.", a: false,
       e: "Les tremblements montrent simplement que le muscle travaille près de sa limite. Sans douleur, c'est normal.", s: "" },
     { q: "Une articulation qui gonfle après l'effort, ce n'est jamais grave.", a: false,
-      e: "Un gonflement qui apparaît ou augmente doit être signalé à votre kiné. Il peut indiquer qu'il faut adapter la charge.", s: "" },
+      e: "Un gonflement qui apparaît ou augmente doit être signalé à ton kiné. Il peut indiquer qu'il faut adapter la charge.", s: "" },
     { q: "Il faut des semelles orthopédiques pour tous les pieds plats.", a: false,
       e: "Beaucoup de pieds plats ne posent aucun problème. Les semelles se discutent seulement en cas de douleur.", s: "" },
     { q: "Se muscler rend forcément très musclé et massif.", a: false,
@@ -400,11 +400,11 @@
     { q: "Avoir des courbatures le lendemain d'une séance, c'est normal.", a: true,
       e: "Elles arrivent un à deux jours après un effort inhabituel et disparaissent en quelques jours. Elles diminuent à mesure que le corps s'habitue.", s: "" },
     { q: "Il faut attendre de ne plus avoir mal du tout pour reprendre le sport.", a: false,
-      e: "Une reprise progressive, avec une gêne légère qui se calme, vaut souvent mieux qu'un repos complet. Votre kiné vous aide à doser l'effort.", s: "" },
+      e: "Une reprise progressive, avec une gêne légère qui se calme, vaut souvent mieux qu'un repos complet. Ton kiné t'aide à doser l'effort.", s: "" },
     { q: "Bien dormir aide les muscles à récupérer.", a: true,
       e: "C'est pendant le sommeil profond que le corps répare les tissus. Sept à neuf heures par nuit, c'est l'idéal pour un adulte.", s: "" },
     { q: "Il existe une posture parfaite à garder toute la journée.", a: false,
-      e: "Aucune posture n'est dangereuse en soi : c'est de rester figé trop longtemps qui fatigue. La meilleure posture, c'est la suivante, alors bougez souvent.", s: "Slater et al., BJSM, 2019" },
+      e: "Aucune posture n'est dangereuse en soi : c'est de rester figé trop longtemps qui fatigue. La meilleure posture, c'est la suivante, alors bouge souvent.", s: "Slater et al., BJSM, 2019" },
     { q: "Le gainage, ça sert seulement à avoir un ventre plat.", a: false,
       e: "Le gainage apprend aux muscles du tronc à protéger la colonne quand on porte, pousse ou se penche. C'est utile pour le dos, pas seulement pour l'apparence.", s: "" },
     { q: "Le mal de dos vient presque toujours d'une vertèbre déplacée.", a: false,
@@ -418,7 +418,7 @@
     { q: "Une IRM qui montre une hernie explique forcément la douleur.", a: false,
       e: "Beaucoup de personnes sans aucune douleur ont des hernies ou de l'usure à l'IRM. Ce sont souvent des signes normaux de l'âge, comme les cheveux gris.", s: "Brinjikji et al., AJNR, 2015" },
     { q: "Respirer lentement peut aider à calmer la douleur.", a: true,
-      e: "Une respiration lente, environ six respirations par minute, apaise le système nerveux. C'est la cohérence cardiaque de vos étirements.", s: "" },
+      e: "Une respiration lente, environ six respirations par minute, apaise le système nerveux. C'est la cohérence cardiaque de tes étirements.", s: "" },
     { q: "Un genou qui craque est forcément un genou abîmé.", a: false,
       e: "Les craquements sont très fréquents, même chez les personnes en bonne santé. Sans douleur ni gonflement, ils ne sont pas inquiétants.", s: "" },
     { q: "Après 70 ans, il est trop tard pour se muscler.", a: false,
@@ -430,7 +430,7 @@
     { q: "Avoir des jambes fortes réduit le risque de chute.", a: true,
       e: "Des cuisses et des mollets forts rattrapent mieux un déséquilibre. Avec des exercices d'équilibre, le renforcement réduit nettement les chutes.", s: "Sherrington et al., Cochrane, 2019" },
     { q: "Si je rate une séance, je dois tout recommencer.", a: false,
-      e: "Une séance manquée ne fait pas perdre vos progrès. Reprenez simplement à la suivante : c'est la régularité sur plusieurs semaines qui compte.", s: "" },
+      e: "Une séance manquée ne fait pas perdre tes progrès. Reprends simplement à la suivante : c'est la régularité sur plusieurs semaines qui compte.", s: "" },
     { q: "Avoir peur de bouger peut entretenir la douleur.", a: true,
       e: "Quand on évite un geste par peur, les muscles s'affaiblissent et le geste devient plus difficile. Le reprendre petit à petit rassure le corps et le cerveau.", s: "" },
     { q: "S'échauffer avant l'effort ne sert pas à grand-chose.", a: false,
@@ -438,7 +438,7 @@
     { q: "Mal dormir peut augmenter la douleur.", a: true,
       e: "Une mauvaise nuit rend le système nerveux plus sensible à la douleur. Prendre soin de son sommeil fait partie du traitement.", s: "Finan et al., J Pain, 2013" },
     { q: "Marcher régulièrement aide à éviter que le mal de dos revienne.", a: true,
-      e: "Une grande étude de 2024 montre qu'un programme de marche progressif réduit nettement les rechutes. Environ 30 minutes, 5 fois par semaine, à votre rythme.", s: "Pocovi et al., The Lancet, 2024" },
+      e: "Une grande étude de 2024 montre qu'un programme de marche progressif réduit nettement les rechutes. Environ 30 minutes, 5 fois par semaine, à ton rythme.", s: "Pocovi et al., The Lancet, 2024" },
     { q: "Avec de l'arthrose, il vaut mieux éviter de bouger.", a: false,
       e: "Le mouvement nourrit le cartilage et les muscles protègent l'articulation. L'exercice est le premier traitement recommandé de l'arthrose.", s: "OARSI, 2019" }
   ];
@@ -513,11 +513,11 @@
       "<button class='kf-back' onclick='KineIdees.vfClose()' aria-label='Fermer'>←</button>" +
       "<div class='ks-tag ki-vf-tag'>" + VF_ICON + "Vrai ou faux · répondu le " + dfr(it.d) + "</div>" +
       "<h2 class='ks-h'>« " + esc(v.q) + " »</h2>" +
-      "<div class='ki-vf-r'><div>" + verdict(v, it.a) + "<small>Votre réponse : " + (it.a ? "vrai" : "faux") + "</small></div></div>" +
+      "<div class='ki-vf-r'><div>" + verdict(v, it.a) + "<small>Ta réponse : " + (it.a ? "vrai" : "faux") + "</small></div></div>" +
       "<p class='ks-p'>" + esc(v.e) + "</p>" +
       (v.s ? "<div class='ks-ref'><span>Source</span><strong>" + esc(v.s) + "</strong></div>" : "") +
       "<button type='button' class='ki-replay' onclick='KineIdees._vfSay(" + it.i + ")'>Écouter Yass</button>" +
-      "<p class='ks-note'>Ces informations générales ne remplacent pas l'avis de votre kinésithérapeute ou de votre médecin.</p>" +
+      "<p class='ks-note'>Ces informations générales ne remplacent pas l'avis de ton kinésithérapeute ou de ton médecin.</p>" +
       "</div><div class='kf-sheet-foot ks-foot'>" +
       "<button class='seq-btn-secondary' onclick='KineIdees.vfList(" + (k - 1) + ")' aria-label='Précédent'>‹</button>" +
       "<span class='ks-count'>" + (k + 1) + " sur " + L.length + "</span>" +

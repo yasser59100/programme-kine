@@ -25,24 +25,24 @@
   function step(n, ic, html) { return "<li><b>" + n + "</b><span>" + html + "</span>" + (ic ? "<i>" + ic + "</i>" : "") + "</li>"; }
 
   function body() {
-    if (prompt) return "<p class='kin-p'>Un appui suffit : KinéForce s'ajoute à côté de vos autres applis.</p><button class='kin-go' id='kin-go'>Installer KinéForce</button>";
-    if (INAPP) return "<p class='kin-p'>Vous êtes dans le navigateur d'une autre appli (Facebook, Instagram…). Ouvrez d'abord ce lien dans " + (IOS ? "<strong>Safari</strong>" : "<strong>Chrome</strong>") + " :</p>" +
-      "<ol class='kin-steps'>" + step(1, IOS ? SHARE : DOTS, "Touchez le menu de cette page") + step(2, null, "Choisissez <strong>« Ouvrir dans " + (IOS ? "Safari" : "le navigateur") + " »</strong>") + "</ol>" + copyBtn();
+    if (prompt) return "<p class='kin-p'>Un appui suffit : KinéForce s'ajoute à côté de tes autres applis.</p><button class='kin-go' id='kin-go'>Installer KinéForce</button>";
+    if (INAPP) return "<p class='kin-p'>Tu es dans le navigateur d'une autre appli (Facebook, Instagram…). Ouvre d'abord ce lien dans " + (IOS ? "<strong>Safari</strong>" : "<strong>Chrome</strong>") + " :</p>" +
+      "<ol class='kin-steps'>" + step(1, IOS ? SHARE : DOTS, "Touche le menu de cette page") + step(2, null, "Choisis <strong>« Ouvrir dans " + (IOS ? "Safari" : "le navigateur") + " »</strong>") + "</ol>" + copyBtn();
     if (IOS && !IOS_OTHER) return "<ol class='kin-steps'>" +
-      step(1, SHARE, "Touchez le bouton <strong>Partager</strong>, " + (/ipad/i.test(ua) || navigator.maxTouchPoints > 1 && !/iphone/i.test(ua) ? "en haut de l'écran" : "en bas de l'écran") + ".") +
-      step(2, PLUS, "Faites défiler, puis touchez <strong>« Sur l'écran d'accueil »</strong>.") +
-      step(3, null, "Touchez <strong>« Ajouter »</strong>, en haut à droite. C'est fait !") + "</ol>" +
+      step(1, SHARE, "Touche le bouton <strong>Partager</strong>, " + (/ipad/i.test(ua) || navigator.maxTouchPoints > 1 && !/iphone/i.test(ua) ? "en haut de l'écran" : "en bas de l'écran") + ".") +
+      step(2, PLUS, "Fais défiler, puis touche <strong>« Sur l'écran d'accueil »</strong>.") +
+      step(3, null, "Touche <strong>« Ajouter »</strong>, en haut à droite. C'est fait !") + "</ol>" +
       "<div class='kin-arrow' aria-hidden='true'>↓</div>";
     if (IOS_OTHER) return "<ol class='kin-steps'>" +
-      step(1, SHARE, "Touchez le bouton <strong>Partager</strong> (en haut à droite, à côté de l'adresse).") +
-      step(2, PLUS, "Touchez <strong>« Sur l'écran d'accueil »</strong>, puis <strong>« Ajouter »</strong>.") + "</ol>" +
-      "<p class='kin-small'>Si vous ne trouvez pas ce choix, ouvrez ce lien dans <strong>Safari</strong>.</p>" + copyBtn();
-    if (SAMSUNG) return "<ol class='kin-steps'>" + step(1, MENU, "Touchez le <strong>menu</strong> ≡, en bas à droite.") +
-      step(2, PLUS, "Touchez <strong>« Ajouter la page à »</strong>, puis <strong>« Écran d'accueil »</strong>.") + step(3, null, "Confirmez avec <strong>« Ajouter »</strong>.") + "</ol>";
-    if (ANDROID && FIREFOX) return "<ol class='kin-steps'>" + step(1, DOTS, "Touchez le <strong>menu</strong> ⋮.") + step(2, PLUS, "Touchez <strong>« Installer »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.") + "</ol>";
-    if (ANDROID) return "<ol class='kin-steps'>" + step(1, DOTS, "Touchez le <strong>menu</strong> ⋮, en haut à droite.") +
-      step(2, PLUS, "Touchez <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.") + step(3, null, "Confirmez avec <strong>« Installer »</strong>.") + "</ol>";
-    return "<p class='kin-p'>Ouvrez cette adresse sur votre téléphone pour installer KinéForce :</p>" + copyBtn();
+      step(1, SHARE, "Touche le bouton <strong>Partager</strong> (en haut à droite, à côté de l'adresse).") +
+      step(2, PLUS, "Touche <strong>« Sur l'écran d'accueil »</strong>, puis <strong>« Ajouter »</strong>.") + "</ol>" +
+      "<p class='kin-small'>Si tu ne trouves pas ce choix, ouvre ce lien dans <strong>Safari</strong>.</p>" + copyBtn();
+    if (SAMSUNG) return "<ol class='kin-steps'>" + step(1, MENU, "Touche le <strong>menu</strong> ≡, en bas à droite.") +
+      step(2, PLUS, "Touche <strong>« Ajouter la page à »</strong>, puis <strong>« Écran d'accueil »</strong>.") + step(3, null, "Confirme avec <strong>« Ajouter »</strong>.") + "</ol>";
+    if (ANDROID && FIREFOX) return "<ol class='kin-steps'>" + step(1, DOTS, "Touche le <strong>menu</strong> ⋮.") + step(2, PLUS, "Touche <strong>« Installer »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.") + "</ol>";
+    if (ANDROID) return "<ol class='kin-steps'>" + step(1, DOTS, "Touche le <strong>menu</strong> ⋮, en haut à droite.") +
+      step(2, PLUS, "Touche <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.") + step(3, null, "Confirme avec <strong>« Installer »</strong>.") + "</ol>";
+    return "<p class='kin-p'>Ouvre cette adresse sur ton téléphone pour installer KinéForce :</p>" + copyBtn();
   }
   function copyBtn() { return "<button class='kin-copy' id='kin-copy'>Copier le lien de l'appli</button>"; }
 
@@ -56,8 +56,8 @@
     var e = el(), seen = +(get("kf-install-seen") || 0);
     e.innerHTML = "<div class='kin-card'>" +
       "<div class='kin-hero'><img src='assets/icons/icon-192.png' alt='' class='kin-icon'><img src='assets/lumiere/yass-salut.webp' alt='' class='kin-yass'></div>" +
-      "<h2 class='kin-h'>Mettez KinéForce sur votre écran d'accueil</h2>" +
-      "<p class='kin-lede'>Elle s'ouvre alors comme une vraie appli, en plein écran, et elle marche même sans internet. Vos rappels et Yass sont toujours là.</p>" +
+      "<h2 class='kin-h'>Mets KinéForce sur ton écran d'accueil</h2>" +
+      "<p class='kin-lede'>Elle s'ouvre alors comme une vraie appli, en plein écran, et elle marche même sans internet. Tes rappels et Yass sont toujours là.</p>" +
       body() +
       "<button class='kin-later' id='kin-later'>Plus tard</button>" +
       (seen >= 2 ? "<button class='kin-never' id='kin-never'>C'est déjà fait, ne plus afficher</button>" : "") +

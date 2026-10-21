@@ -155,8 +155,8 @@ var KineOfficiel = (function () {
   function home() {
     var u = window.fbUser;
     if (!u || !u.isAdmin) {
-      frame("Programme officiel", "Modifier les séances pour tous vos patients demande votre compte Google kiné.",
-        "<div class='kf-note'>Connectez-vous avec le compte administrateur de l'appli. Les patients n'ont pas accès à cet écran.</div>",
+      frame("Programme officiel", "Modifier les séances pour tous tes patients demande ton compte Google kiné.",
+        "<div class='kf-note'>Connecte-toi avec le compte administrateur de l'appli. Les patients n'ont pas accès à cet écran.</div>",
         "<button class='seq-btn-main' onclick='signInWithGoogle && signInWithGoogle()'>Se connecter avec Google</button>");
       return;
     }
@@ -165,7 +165,7 @@ var KineOfficiel = (function () {
       var n = dayNames(d, id).length;
       return "<button class='v2-row' onclick='KineOfficiel.day(\"" + id + "\")'><b>" + esc(ORIG[id].label) + "</b><span>" + n + " exercices ›</span></button>";
     }).join("");
-    frame("Programme officiel", "Vos modifications partent chez tous les patients quand vous publiez." + (data && data.v ? " Dernière publication : " + new Date(data.v).toLocaleDateString("fr-FR") + "." : ""),
+    frame("Programme officiel", "Tes modifications partent chez tous les patients quand tu publies." + (data && data.v ? " Dernière publication : " + new Date(data.v).toLocaleDateString("fr-FR") + "." : ""),
       "<div class='kf-phase' style='color:var(--text2)'>Les 5 séances</div>" + days +
       "<div class='kf-phase' style='color:var(--text2)'>Mes exercices créés</div>" +
       Object.keys(d.custom || {}).map(function (n) {
@@ -174,7 +174,7 @@ var KineOfficiel = (function () {
       }).join("") +
       "<button class='v2-row kc-new' onclick='KineCapture.open()'><b>＋ Créer un exercice en me filmant</b><span>›</span></button>" +
       "<button class='v2-row kc-new' onclick='KineCreateur.open()'><b>＋ Créer un exercice avec les curseurs</b><span>›</span></button>" +
-      (window.KineTheme ? "<div class='kf-phase' style='color:var(--text2)'>Programmes ciblés</div><div class='kf-sub'>Masqués par défaut. Un programme activé est proposé tout de suite à tous vos patients ; désactivé, il disparaît de leur appli.</div>" + KineTheme.adminHtml((data && data.themes) || {}) : "") +
+      (window.KineTheme ? "<div class='kf-phase' style='color:var(--text2)'>Programmes ciblés</div><div class='kf-sub'>Masqués par défaut. Un programme activé est proposé tout de suite à tous tes patients ; désactivé, il disparaît de leur appli.</div>" + KineTheme.adminHtml((data && data.themes) || {}) : "") +
       "<div class='kf-phase' style='color:var(--text2)'>Fiches d'exercices</div>" +
       "<button class='v2-row' onclick='KineOfficiel.lib()'><b>Toutes les fiches de la bibliothèque</b><span>›</span></button>" +
       (changed() ? "<div class='kf-note'>Des modifications ne sont pas encore publiées.</div><button class='kc-kine' onclick='KineOfficiel.discard()'>Annuler les modifications non publiées</button>" : ""),
@@ -189,7 +189,7 @@ var KineOfficiel = (function () {
         "<button aria-label='Descendre' onclick='KineOfficiel.move(\"" + id + "\"," + i + ",1)'" + (i < names.length - 1 ? "" : " disabled") + ">↓</button>" +
         "<button aria-label='Retirer' onclick='KineOfficiel.del(\"" + id + "\"," + i + ")'>✕</button></div>";
     }).join("");
-    frame(ORIG[id].label, "Touchez un exercice pour modifier sa fiche. L'échauffement et les étirements restent en place.",
+    frame(ORIG[id].label, "Touche un exercice pour modifier sa fiche. L'échauffement et les étirements restent en place.",
       rows + "<button class='v2-row kc-new' onclick='KineOfficiel.pick(\"" + id + "\")'><b>＋ Ajouter un exercice</b><span>›</span></button>",
       "<button class='seq-btn-secondary' onclick='KineOfficiel.back()'>Terminé</button>");
   }
@@ -242,7 +242,7 @@ var KineOfficiel = (function () {
   }
   function saveEx(name) {
     var reps = $("ko-reps").value.trim().replace(/\s+/g, " ");
-    if (!LABEL_RE.test(reps)) { $("ko-err-msg").textContent = "Répétitions ou durée : écrivez par exemple « 12 répétitions » ou « 30 secondes par côté »."; return; }
+    if (!LABEL_RE.test(reps)) { $("ko-err-msg").textContent = "Répétitions ou durée : écris par exemple « 12 répétitions » ou « 30 secondes par côté »."; return; }
     var d = draft(), o = {}, base = original(name);
     var v = { repsLabel: reps, desc: $("ko-desc").value.trim(), cue: $("ko-cue").value.trim(), err: $("ko-err").value.trim(),
               tip: $("ko-tip").value.trim(), stop: $("ko-stop").value.trim(), color: +$("ko-col").getAttribute("data-v") };
@@ -257,11 +257,11 @@ var KineOfficiel = (function () {
     var btn = sheet().querySelector(".seq-btn-main"); if (btn) { btn.disabled = true; btn.textContent = "Publication…"; }
     window.fbSetProgramme(d).then(function () {
       jset(CKEY, d); jset(DKEY, null); apply(d); rerender();
-      frame("Programme publié", "C'est déjà chez vos patients : tout de suite si leur appli est ouverte, sinon à la prochaine ouverture.", "<div class='kf-note'>Publié le " + new Date(d.v).toLocaleString("fr-FR") + ".</div>",
+      frame("Programme publié", "C'est déjà chez tes patients : tout de suite si leur appli est ouverte, sinon à la prochaine ouverture.", "<div class='kf-note'>Publié le " + new Date(d.v).toLocaleString("fr-FR") + ".</div>",
         "<button class='seq-btn-secondary' onclick='KineOfficiel.close()'>Fermer</button>");
     }).catch(function (e) {
       if (btn) { btn.disabled = false; btn.textContent = "Publier pour tous les patients"; }
-      alert("La publication a échoué. Vérifiez la connexion et les règles Firebase (document programme/officiel).");
+      alert("La publication a échoué. Vérifie la connexion et les règles Firebase (document programme/officiel).");
     });
   }
 
@@ -286,7 +286,7 @@ var KineOfficiel = (function () {
         var el = sheet(), y = el.scrollTop; home(); el.scrollTop = y;
       }).catch(function () {
         if (input) { input.disabled = false; input.checked = !on; }
-        alert("La mise à jour n'a pas pu être publiée. Vérifiez la connexion, puis réessayez.");
+        alert("La mise à jour n'a pas pu être publiée. Vérifie la connexion, puis réessaie.");
       });
     },
     customDraft: function () { return draft().custom || {}; },

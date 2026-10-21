@@ -57,7 +57,7 @@ var KineProgress = (function () {
 
   function plan() {
     var st = state(), w = st.week;
-    if (w >= 2 && painHold()) return { week: w, series: 2, repsBonus: 0, high: true, pain: true, reason: "Douleur de 5 sur 10 ou plus à plusieurs reprises : on reste à 2 tours, sans variante avancée. Parlez-en à votre kiné.", state: st };
+    if (w >= 2 && painHold()) return { week: w, series: 2, repsBonus: 0, high: true, pain: true, reason: "Douleur de 5 sur 10 ou plus à plusieurs reprises : on reste à 2 tours, sans variante avancée. Parles-en à ton kiné.", state: st };
     var borgs = st.cycle.map(function (s) { return +s.borg; }).filter(function (b) { return b >= 1 && b <= 5; });
     var high = borgs.length >= 2 && borgs[0] >= 4 && borgs[1] >= 4;           // les plus récentes en premier
     var recent = borgs.slice(0, 3), avg = recent.length ? recent.reduce(function (a, b) { return a + b; }, 0) / recent.length : null;
@@ -122,35 +122,35 @@ var seqSkipped = 0;       // exercices passés pendant la séance
 
   // Phrase clé affichée pendant l'exercice (validée par le kiné)
   var CUES = {
-    "Squat bilatéral": "Talons au sol, genoux dans l'axe des pieds, dos neutre. Serrez les fessiers en remontant.",
+    "Squat bilatéral": "Talons au sol, genoux dans l'axe des pieds, dos neutre. Serre les fessiers en remontant.",
     "Fentes avant unilatérales": "Genou avant au-dessus du pied, genou arrière vers le sol, buste droit.",
-    "Chaise contre le mur": "Dos plaqué au mur, genoux au-dessus des chevilles, respirez normalement.",
-    "Pont ischio-jambiers talons sur chaise": "Poussez dans les talons jusqu'à aligner épaules, hanches et genoux.",
-    "Élévation des talons": "Montez le plus haut possible, redescendez lentement.",
-    "Step-up sur marche": "Poussez sur le pied posé sur la marche, sans vous aider de l'autre jambe.",
+    "Chaise contre le mur": "Dos plaqué au mur, genoux au-dessus des chevilles, respire normalement.",
+    "Pont ischio-jambiers talons sur chaise": "Pousse dans les talons jusqu'à aligner épaules, hanches et genoux.",
+    "Élévation des talons": "Monte le plus haut possible, redescends lentement.",
+    "Step-up sur marche": "Pousse sur le pied posé sur la marche, sans t'aider de l'autre jambe.",
     "Rotation externe d'épaule": "Coude collé au flanc, l'avant-bras monte vers le plafond.",
     "Pompes sur genoux": "Corps aligné, coudes à 45° du tronc, descente lente.",
     "Dips sur chaise": "Épaules basses et en arrière, coudes à 90° maximum.",
-    "Pike push-up": "Hanches hautes, amenez la tête entre les mains.",
-    "Superman en Y et en W": "Y : levez bras et jambes. W : rapprochez les omoplates.",
+    "Pike push-up": "Hanches hautes, amène la tête entre les mains.",
+    "Superman en Y et en W": "Y : lève bras et jambes. W : rapproche les omoplates.",
     "Plank — gainage avant-bras": "Corps aligné, ni cambré ni fessiers relevés, respiration libre.",
     "Dead bug": "Le bas du dos reste collé au sol.",
-    "Side plank sur genoux": "Levez les hanches jusqu'à aligner épaule, hanche et genou.",
+    "Side plank sur genoux": "Lève les hanches jusqu'à aligner épaule, hanche et genou.",
     "Gainage frontal sur genoux": "Une ligne droite des épaules aux genoux, le ventre rentré.",
     "Planche latérale complète": "Une ligne droite de la tête aux pieds, hanches bien hautes.",
-    "Crunch abdominal contrôlé": "Épaules décollées à 30°, expirez en montant, sans tirer sur la nuque.",
-    "Bird-dog": "Bassin strictement horizontal ; s'il tourne, réduisez l'amplitude.",
+    "Crunch abdominal contrôlé": "Épaules décollées à 30°, expire en montant, sans tirer sur la nuque.",
+    "Bird-dog": "Bassin strictement horizontal ; s'il tourne, réduis l'amplitude.",
     "Squat sumo": "Genoux dans l'axe des orteils, remontée en serrant fessiers et adducteurs.",
     "Donkey kick": "La cuisse monte vers le plafond, le bassin ne tourne pas.",
-    "Pont de hanche": "Alignez épaules, hanches et genoux, sans cambrer le bas du dos.",
-    "Clamshell": "Pieds joints, ouvrez le genou, bassin immobile.",
+    "Pont de hanche": "Aligne épaules, hanches et genoux, sans cambrer le bas du dos.",
+    "Clamshell": "Pieds joints, ouvre le genou, bassin immobile.",
     "Abduction hanche debout": "Jambe tendue sur le côté, sans pencher le buste.",
-    "Pont fessier unilatéral": "Poussez avec le fessier de la jambe au sol, bassin horizontal.",
-    "Squat + élévation bras": "Remontez en levant les deux bras jusqu'à la verticale.",
-    "Inchworm et pompes": "Marchez avec les mains jusqu'en planche, dos gainé.",
-    "Fente latérale avec toucher sol": "Genou porteur fléchi, touchez le sol avec la main opposée.",
+    "Pont fessier unilatéral": "Pousse avec le fessier de la jambe au sol, bassin horizontal.",
+    "Squat + élévation bras": "Remonte en levant les deux bras jusqu'à la verticale.",
+    "Inchworm et pompes": "Marche avec les mains jusqu'en planche, dos gainé.",
+    "Fente latérale avec toucher sol": "Genou porteur fléchi, touche le sol avec la main opposée.",
     "Burpee modifié sans saut": "La qualité prime sur la vitesse, planche gainée 2 secondes.",
-    "Équilibre unipodal": "Fixez un point devant vous, bougez doucement les bras."
+    "Équilibre unipodal": "Fixe un point devant toi, bouge doucement les bras."
   };
   window.KF_CUES = CUES;
   window.KF = { kitFor: function (d) { return kitFor(d); }, tempoText: function (e) { return tempoText(e); }, get DAY_OF_WEEK() { return dowMap(); }, week: function () { return week(); } };
@@ -163,7 +163,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   var BORG = [null, ["Très facile"], ["Facile"], ["Modéré"], ["Difficile"], ["Épuisant"]];
   // « Trop facile / trop dur » se dit exercice par exercice pendant le repos : pas de doublon ici
   var CHIPS = ["Légère fatigue", "Très motivé", "Manque d'énergie", "Progression ressentie"];
-  var PAIN_WORDS = ["aucune douleur", "très légère", "légère", "légère", "modérée", "modérée, parlez-en à votre kiné", "forte", "forte", "très forte", "très forte", "maximale"];
+  var PAIN_WORDS = ["aucune douleur", "très légère", "légère", "légère", "modérée", "modérée, parles-en à ton kiné", "forte", "forte", "très forte", "très forte", "maximale"];
 
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -235,8 +235,8 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     });
 
     var st = KineProgress.state(), banner = "";
-    if (st.reset) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Reprise en semaine 1.</strong> Plus d'une semaine sans séance : comme prévu par votre programme, on repart du début.</div>";
-    else if (st.cycleDone) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Cycle de 4 semaines terminé.</strong> Parlez-en à votre kinésithérapeute pour la suite.</div>";
+    if (st.reset) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Reprise en semaine 1.</strong> Plus d'une semaine sans séance : comme prévu par ton programme, on repart du début.</div>";
+    else if (st.cycleDone) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Cycle de 4 semaines terminé.</strong> Parles-en à ton kinésithérapeute pour la suite.</div>";
     box.innerHTML = banner +
       "<div class='v2-hello'><span>" + WEEKDAYS[dow] + "</span><strong>Bonjour" + (name ? " " + esc(name) : "") + "</strong></div>" +
       "<div class='v2-week'><div class='v2-week-top'><b>Semaine " + w + " sur 4" + (st.start ? ", jour " + Math.min(28, st.dayInCycle) : "") + "</b><span>" + doneWeek.length + " séance" + (doneWeek.length > 1 ? "s" : "") + " sur " + Object.keys(SEQ_DAYS).length + " faite" + (doneWeek.length > 1 ? "s" : "") + "</span></div>" +
@@ -374,12 +374,12 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   function showTuto(ex, exName, cue, autoN) {
     var g = $("rep-guide"), old = $("kf-tuto"); if (old) old.remove();
     var t = tempoText(ex), side = KineAvatar && KineAvatar.info ? KineAvatar.info(exName, KineProgress.repsLabel(ex), week()) : null;
-    var stop = ex.stop ? ex.stop.replace(/^Arr[êe]t(ez)?(-vous)?\s+si\s*:?\s*/i, "Si ").replace(/\.?$/, ", ou si la douleur atteint 5 sur 10.") : "Si la douleur atteint 5 sur 10, ou si elle augmente d'une série à l'autre.";
+    var stop = ex.stop ? ex.stop.replace(/^Arr[êe]te?z?(-vous|-toi)?\s+si\s*:?\s*/i, "Si ").replace(/\.?$/, ", ou si la douleur atteint 5 sur 10.") : "Si la douleur atteint 5 sur 10, ou si elle augmente d'une série à l'autre.";
     var pts = [
       ["Position et consigne", cue || ex.desc || ""],
-      ["Rythme", (t ? t.charAt(0).toUpperCase() + t.slice(1) : (side && side.mode === "timed" ? "Position tenue, respirez normalement sans bloquer." : "Mouvement lent et contrôlé.")) +
+      ["Rythme", (t ? t.charAt(0).toUpperCase() + t.slice(1) : (side && side.mode === "timed" ? "Position tenue, respire normalement sans bloquer." : "Mouvement lent et contrôlé.")) +
         (side && side.sides ? " Les deux côtés, l'un après l'autre." : "")],
-      ["Arrêtez-vous", stop]
+      ["Arrête si", stop]
     ];
     var box = document.createElement("div");
     box.id = "kf-tuto"; box.className = "kf-tuto"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Tutoriel de l'exercice");
@@ -444,7 +444,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     var box = document.createElement("div");
     box.className = "seq-next";
     if (!ex) {
-      box.innerHTML = "<div><div class='seq-next-k'>Ensuite</div><div class='seq-next-name'>Fin de la séance</div><div class='seq-next-meta'>Votre bilan s'ouvrira juste après.</div></div>";
+      box.innerHTML = "<div><div class='seq-next-k'>Ensuite</div><div class='seq-next-name'>Fin de la séance</div><div class='seq-next-meta'>Ton bilan s'ouvrira juste après.</div></div>";
       body.appendChild(box); return;
     }
     var demo = document.createElement("div"); demo.className = "seq-next-demo";
@@ -492,7 +492,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       ? "<div class='kf-note'>Pendant la séance : " + pains.map(function (x) { return "<strong>" + esc(x.zone.toLowerCase()) + ", " + x.intensite + "/10</strong> (" + esc(x.exercice) + ", " + esc(x.action) + ")"; }).join(" ; ") + "</div>" : "";
 
     sheet.innerHTML = "<div class='kf-sheet-body'>" +
-      "<div><div class='kf-h1'>Votre bilan</div><div class='kf-sub'>" + esc(day.label) + ", Semaine " + week() + "</div></div>" +
+      "<div><div class='kf-h1'>Ton bilan</div><div class='kf-sub'>" + esc(day.label) + ", Semaine " + week() + "</div></div>" +
       "<div class='kf-stats'>" +
         "<div class='kf-stat'><b>" + done + "/" + total + "</b><span>exercices</span></div>" +
         "<div class='kf-stat'><b>" + duration + " min</b><span>durée</span></div>" +
@@ -500,7 +500,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
       "</div>" +
       "<div class='kf-q'>Effort ressenti</div><div class='kf-scale borg' id='kf-borg' style='grid-template-columns:repeat(5,1fr)'>" + borgBtns + "</div><div class='kf-hint' id='kf-borg-hint'></div>" +
       "<div class='kf-q'>Douleur maintenant</div><div class='kf-scale pain' id='kf-pain' style='grid-template-columns:repeat(6,1fr)'>" + painBtns + "</div><div class='kf-hint' id='kf-pain-hint'>0 = aucune douleur, 10 = douleur maximale</div>" + painNote +
-      "<div class='kf-q'>Un mot pour votre kiné ?</div><div class='kf-chips' id='kf-chips'>" + chips + "</div>" +
+      "<div class='kf-q'>Un mot pour ton kiné ?</div><div class='kf-chips' id='kf-chips'>" + chips + "</div>" +
       "<textarea class='kf-text' id='kf-notes' placeholder='Écrire un commentaire (facultatif)'></textarea>" +
       "</div><div class='kf-sheet-foot' id='kf-bilan-foot'>" +
       "<button class='seq-btn-main green' onclick='saveSeqBilan()'>✓ Enregistrer ma séance</button>" +
@@ -546,11 +546,11 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     $("seq-bilan").querySelector(".kf-sheet-body").innerHTML =
       "<div style='text-align:center;padding:40px 0;display:flex;flex-direction:column;gap:10px'>" +
       "<div style='color:var(--green);display:flex;justify-content:center'>" + (window.KFI ? KFI.check : "") + "</div><div class='kf-h1'>Séance enregistrée</div>" +
-      "<div class='kf-sub'>Retrouvez-la dans votre suivi. Pensez à bien vous hydrater.</div></div>";
+      "<div class='kf-sub'>Retrouve-la dans ton suivi. Pense à bien t'hydrater.</div></div>";
     $("kf-bilan-foot").innerHTML = "<button class='seq-btn-main' onclick=\"closeSeqBilan();showPage('home')\">Retour à l'accueil</button>";
   };
   window.discardSeqBilan = function () {
-    if (!confirm("Cette séance ne sera pas enregistrée dans votre suivi, et votre kiné ne la verra pas. Continuer ?")) return;
+    if (!confirm("Cette séance ne sera pas enregistrée dans ton suivi, et ton kiné ne la verra pas. Continuer ?")) return;
     closeSeqBilan();
   };
   window.closeSeqBilan = function () {

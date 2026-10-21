@@ -30,12 +30,12 @@
       var el = sheet(), p = get("kf-pseudo") || suggest();
       el.innerHTML =
         "<div class='kf-sheet-body'>" +
-          "<div class='kf-h1' id='sh-title'>Partager vos séances avec les autres patients ?</div>" +
-          "<div class='kf-sub'>C'est facultatif. Si vous acceptez, vos séances terminées apparaîtront dans la Communauté, visibles par les autres patients du cabinet.</div>" +
-          "<div class='sh-card'><b>Ce qui sera visible</b><ul class='sh-list'><li>votre pseudonyme (pas votre nom)</li><li>la séance faite (J1 à J5) et l'effort ressenti</li><li>les messages que vous choisissez d'écrire</li></ul></div>" +
-          "<div class='sh-card'><b>Ce qui ne sera jamais visible</b><ul class='sh-list'><li>votre nom, votre photo, votre adresse e-mail</li><li>vos douleurs et vos remarques de fin de séance</li></ul></div>" +
-          "<label class='su-label'>Votre pseudonyme<input class='kf-text su-input' id='sh-pseudo' maxlength='24' value='" + esc(p) + "'></label>" +
-          "<div class='kf-sub'>Vous pourrez arrêter le partage et retirer vos publications à tout moment, depuis l'onglet Communauté.</div>" +
+          "<div class='kf-h1' id='sh-title'>Partager tes séances avec les autres patients ?</div>" +
+          "<div class='kf-sub'>C'est facultatif. Si tu acceptes, tes séances terminées apparaîtront dans la Communauté, visibles par les autres patients du cabinet.</div>" +
+          "<div class='sh-card'><b>Ce qui sera visible</b><ul class='sh-list'><li>ton pseudonyme (pas ton nom)</li><li>la séance faite (J1 à J5) et l'effort ressenti</li><li>les messages que tu choisis d'écrire</li></ul></div>" +
+          "<div class='sh-card'><b>Ce qui ne sera jamais visible</b><ul class='sh-list'><li>ton nom, ta photo, ton adresse e-mail</li><li>tes douleurs et tes remarques de fin de séance</li></ul></div>" +
+          "<label class='su-label'>Ton pseudonyme<input class='kf-text su-input' id='sh-pseudo' maxlength='24' value='" + esc(p) + "'></label>" +
+          "<div class='kf-sub'>Tu pourras arrêter le partage et retirer tes publications à tout moment, depuis l'onglet Communauté.</div>" +
         "</div>" +
         "<div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineShare.accept()'>Oui, partager sous ce pseudonyme</button>" +
         "<button class='seq-btn-secondary' onclick='KineShare.refuse()'>Non merci</button></div>";
@@ -52,10 +52,10 @@
     stop: function () { set("kf-share", "no"); renderCard(); },
     removeAll: async function () {
       if (!window.fbDeleteMine) return;
-      if (!confirm("Retirer toutes vos publications de la Communauté ? Cette action est définitive.")) return;
+      if (!confirm("Retirer toutes tes publications de la Communauté ? Cette action est définitive.")) return;
       var btn = document.querySelector(".sh-remove"); if (btn) { btn.disabled = true; btn.textContent = "Suppression…"; }
       try { var n = await window.fbDeleteMine(); alert(n ? n + " publication" + (n > 1 ? "s retirées." : " retirée.") : "Aucune publication à retirer."); }
-      catch (e) { alert("La suppression n'a pas pu se faire. Demandez à votre kinésithérapeute de retirer vos publications."); }
+      catch (e) { alert("La suppression n'a pas pu se faire. Demande à ton kinésithérapeute de retirer tes publications."); }
       renderCard();
     }
   };
@@ -72,10 +72,10 @@
     }
     if (!window.fbUser) { host.innerHTML = ""; return; }
     if (KineShare.allowed()) {
-      host.innerHTML = "<div class='sh-card'><b>Partage activé</b><div class='kf-sub'>Vous apparaissez sous le pseudonyme <strong>" + esc(KineShare.pseudo()) + "</strong>. Seuls la séance et l'effort sont visibles.</div>" +
+      host.innerHTML = "<div class='sh-card'><b>Partage activé</b><div class='kf-sub'>Tu apparais sous le pseudonyme <strong>" + esc(KineShare.pseudo()) + "</strong>. Seuls la séance et l'effort sont visibles.</div>" +
         "<div class='sh-actions'><button onclick='KineShare.ask()'>Changer de pseudonyme</button><button onclick='KineShare.stop()'>Arrêter le partage</button><button class='danger sh-remove' onclick='KineShare.removeAll()'>Retirer mes publications</button></div></div>";
     } else {
-      host.innerHTML = "<div class='sh-card'><b>Partage désactivé</b><div class='kf-sub'>Vos séances ne sont pas publiées. Vous pouvez lire la Communauté et l'activer quand vous voulez.</div>" +
+      host.innerHTML = "<div class='sh-card'><b>Partage désactivé</b><div class='kf-sub'>Tes séances ne sont pas publiées. Tu peux lire la Communauté et l'activer quand tu veux.</div>" +
         "<div class='sh-actions'><button onclick='KineShare.ask()'>Activer le partage</button>" + (get("kf-share") ? "<button class='danger sh-remove' onclick='KineShare.removeAll()'>Retirer mes publications</button>" : "") + "</div></div>";
     }
     var comp = $("msg-composer");

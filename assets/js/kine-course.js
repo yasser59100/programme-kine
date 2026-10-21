@@ -65,14 +65,14 @@ var KineCourse = (function () {
   function close() { var el = $("kco-sheet"); if (el) el.classList.remove("open"); try { if (window.KineLayout) KineLayout.render(); } catch (e) {} }
   function msgLoad(L) {
     var m = Math.round(L.cur.min);
-    if (L.level === "new") return ["kco-n", "On apprend votre rythme", "Notez vos sorties pendant deux semaines : l'appli pourra ensuite vous dire si vous augmentez trop vite."];
+    if (L.level === "new") return ["kco-n", "On apprend ton rythme", "Note tes sorties pendant deux semaines : l'appli pourra ensuite te dire si tu augmentes trop vite."];
     var pct = Math.round((L.ratio - 1) * 100), avg = Math.round(L.avg);
-    if (L.level === "red") return ["kco-r", "Trop, trop vite", m + " min cette semaine contre " + avg + " min en moyenne : +" + pct + " %. C'est la première cause de blessure en course. Levez le pied : gardez plutôt le niveau des semaines précédentes."];
-    if (L.level === "orange") return ["kco-o", "Ça monte", m + " min cette semaine contre " + avg + " min en moyenne (+" + pct + " %). Restez à ce niveau la semaine prochaine avant d'augmenter encore."];
-    return ["kco-g", "Progression tranquille", m + " min cette semaine, pour " + avg + " min en moyenne les 4 semaines d'avant. Vous pouvez continuer ainsi."];
+    if (L.level === "red") return ["kco-r", "Trop, trop vite", m + " min cette semaine contre " + avg + " min en moyenne : +" + pct + " %. C'est la première cause de blessure en course. Lève le pied : garde plutôt le niveau des semaines précédentes."];
+    if (L.level === "orange") return ["kco-o", "Ça monte", m + " min cette semaine contre " + avg + " min en moyenne (+" + pct + " %). Reste à ce niveau la semaine prochaine avant d'augmenter encore."];
+    return ["kco-g", "Progression tranquille", m + " min cette semaine, pour " + avg + " min en moyenne les 4 semaines d'avant. Tu peux continuer ainsi."];
   }
   function msgPain(P) {
-    if (P.level === "red") return ["kco-r", "Douleur à surveiller", (P.worse ? "La douleur était plus forte le lendemain matin. " : "Douleur de " + P.worst + " sur 10 cette semaine" + (P.zone ? " (" + P.zone.toLowerCase() + ")" : "") + ". ") + "Réduisez la durée et l'intensité des sorties, et parlez-en à votre kiné."];
+    if (P.level === "red") return ["kco-r", "Douleur à surveiller", (P.worse ? "La douleur était plus forte le lendemain matin. " : "Douleur de " + P.worst + " sur 10 cette semaine" + (P.zone ? " (" + P.zone.toLowerCase() + ")" : "") + ". ") + "Réduis la durée et l'intensité des sorties, et parles-en à ton kiné."];
     if (P.level === "orange") return ["kco-o", "Douleur modérée", "Douleur de " + P.worst + " sur 10 cette semaine" + (P.zone ? " (" + P.zone.toLowerCase() + ")" : "") + ". C'est acceptable si elle est revenue à la normale le lendemain matin et n'augmente pas d'une sortie à l'autre."];
     return null;
   }
@@ -87,8 +87,8 @@ var KineCourse = (function () {
     var a = runs(), L = load(), P = pain(), q = pending(), ml = msgLoad(L), mp = msgPain(P);
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCourse.close()' aria-label='Retour'>←</button>" +
-      "<div><div class='kf-h1'>Mon journal de course</div><div class='kf-sub'>Notez chaque sortie en 20 secondes. Votre kiné pourra voir avec vous comment la charge évolue.</div></div>" +
-      (q ? "<div class='kco-ask'><b>Et ce matin ?</b><span>Après votre sortie de " + esc(fmtD(q.d)) + " (douleur " + (+q.pain || 0) + " sur 10 pendant), quelle douleur ressentez-vous au réveil ?</span>" +
+      "<div><div class='kf-h1'>Mon journal de course</div><div class='kf-sub'>Note chaque sortie en 20 secondes. Ton kiné pourra voir avec toi comment la charge évolue.</div></div>" +
+      (q ? "<div class='kco-ask'><b>Et ce matin ?</b><span>Après ta sortie de " + esc(fmtD(q.d)) + " (douleur " + (+q.pain || 0) + " sur 10 pendant), quelle douleur ressens-tu au réveil ?</span>" +
         "<div class='kco-scale'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button onclick='KineCourse.next(\"" + q.id + "\"," + v + ")'>" + v + "</button>"; }).join("") + "</div></div>" : "") +
       "<div class='kco-kpi'><div><b>" + Math.round(L.cur.min) + "</b><small>minutes cette semaine</small></div><div><b>" + L.cur.n + "</b><small>sortie" + (L.cur.n > 1 ? "s" : "") + "</small></div>" +
         "<div><b>" + (L.cur.km ? km(L.cur.km) : "—") + "</b><small>km</small></div></div>" +
@@ -102,7 +102,7 @@ var KineCourse = (function () {
           (r.pain != null ? ", douleur " + (+r.pain) + (r.next != null ? " puis " + r.next + " au réveil" : "") : "") + (r.zone ? " (" + esc(r.zone.toLowerCase()) + ")" : "") + "</small></span>" +
           (cls ? "<i class='kco-dot " + cls + "'></i>" : "") + "<button class='kc-mini' aria-label='Supprimer cette sortie' onclick='KineCourse.del(\"" + r.id + "\")'>✕</button></div>";
       }).join("") : "<p class='kf-sub'>Aucune sortie notée pour l'instant.</p>") +
-      "<details class='th-card'><summary>Les repères utilisés</summary><div>La charge est la durée de course de la semaine, comparée à la moyenne des 4 semaines d'avant. Jusqu'à +10 % : vert. De +10 à +30 % : orange. Au-delà : rouge. Ce sont des repères prudents, pas des règles absolues : votre kiné peut les adapter à vous.</div></details>" +
+      "<details class='th-card'><summary>Les repères utilisés</summary><div>La charge est la durée de course de la semaine, comparée à la moyenne des 4 semaines d'avant. Jusqu'à +10 % : vert. De +10 à +30 % : orange. Au-delà : rouge. Ce sont des repères prudents, pas des règles absolues : ton kiné peut les adapter à toi.</div></details>" +
       "</div>";
     el.classList.add("open"); el.scrollTop = 0;
   }
@@ -140,12 +140,12 @@ var KineCourse = (function () {
   function intro() {
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCourse.close()' aria-label='Fermer'>←</button>" +
-      "<div><div class='kf-h1'>Nouveau : votre journal de course</div><div class='kf-sub'>Le mode coureur ajoute un carnet pour suivre vos sorties. C'est ce qui protège le plus des blessures.</div></div>" +
+      "<div><div class='kf-h1'>Nouveau : ton journal de course</div><div class='kf-sub'>Le mode coureur ajoute un carnet pour suivre tes sorties. C'est ce qui protège le plus des blessures.</div></div>" +
       "<div class='kco-intro'>" +
         "<div><b>1</b><span><strong>Après chaque sortie</strong>Durée, effort et douleur éventuelle : 20 secondes.</span></div>" +
-        "<div><b>2</b><span><strong>Le lendemain matin</strong>L'appli vous demande comment va la douleur au réveil.</span></div>" +
-        "<div><b>3</b><span><strong>Elle vous prévient</strong>Si vos minutes de course montent trop vite, ou si la douleur dépasse les repères.</span></div>" +
-      "</div><p class='kf-sub'>Vous le retrouvez sur l'accueil et dans l'onglet Exercices. Tout reste sur votre téléphone.</p></div>" +
+        "<div><b>2</b><span><strong>Le lendemain matin</strong>L'appli te demande comment va la douleur au réveil.</span></div>" +
+        "<div><b>3</b><span><strong>Elle te prévient</strong>Si tes minutes de course montent trop vite, ou si la douleur dépasse les repères.</span></div>" +
+      "</div><p class='kf-sub'>Tu le retrouves sur l'accueil et dans l'onglet Exercices. Tout reste sur ton téléphone.</p></div>" +
       "<div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineCourse.add()'>Noter ma dernière sortie</button><button class='seq-btn-secondary' onclick='KineCourse.close()'>Plus tard</button></div>";
     el.classList.add("open"); el.scrollTop = 0;
   }

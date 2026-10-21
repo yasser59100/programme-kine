@@ -158,7 +158,7 @@
       return "<div class='kf-phase' style='color:var(--text2)'>" + c + "</div>" +
         items.map(function (e) { return "<div class='kx-row'><b>" + esc(e[0]) + "</b><span>" + esc(e[1]) + "</span></div>"; }).join("");
     }).join("");
-    box.innerHTML = html || "<p class='lx-muted'>Aucun mot ne correspond. Vous pouvez poser la question à votre kiné.</p>";
+    box.innerHTML = html || "<p class='lx-muted'>Aucun mot ne correspond. Tu peux poser la question à ton kiné.</p>";
   }
   function filter(v) { q = v; list(); }
   function close() { var el = $("kx-sheet"); if (el) el.classList.remove("open"); }

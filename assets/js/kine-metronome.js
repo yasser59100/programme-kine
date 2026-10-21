@@ -9,8 +9,8 @@
   "use strict";
   var KEY = "kf-guide";
   var MODES = [
-    ["both", "Voix et métronome", "Yass vous guide, un tic doux marque chaque seconde"],
-    ["voice", "Voix seule", "Yass vous guide, sans tic"],
+    ["both", "Voix et métronome", "Yass te guide, un tic doux marque chaque seconde"],
+    ["voice", "Voix seule", "Yass te guide, sans tic"],
     ["metro", "Métronome seul", "Un tic par seconde, Yass ne fait que les annonces"],
     ["mute", "Silencieux", "Aucun son"]
   ];

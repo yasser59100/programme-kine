@@ -100,7 +100,7 @@ window.signInWithGoogle = async function() {
   } catch(e) {
     console.error("Google sign-in error:", e);
     var err = document.getElementById("modal-error");
-    if (err) { err.textContent = "Erreur de connexion Google. Réessayez."; err.style.display = "block"; }
+    if (err) { err.textContent = "Erreur de connexion Google. Réessaie."; err.style.display = "block"; }
   }
 };
 
@@ -312,9 +312,9 @@ window.fbGetStats = async function() {
 <div class="modal-overlay" id="auth-modal">
   <div class="modal">
     <h2 id="modal-title">Connexion</h2>
-    <p id="modal-sub">Accédez à votre suivi et à la communauté</p>
+    <p id="modal-sub">Accède à ton suivi et à la communauté</p>
     <div class="modal-error" id="modal-error"></div>
-    <div class="modal-row" id="modal-name-row" style="display:none"><div class="modal-label">Prénom</div><input type="text" class="modal-input" id="modal-name" placeholder="Votre prénom"></div>
+    <div class="modal-row" id="modal-name-row" style="display:none"><div class="modal-label">Prénom</div><input type="text" class="modal-input" id="modal-name" placeholder="Ton prénom"></div>
     <div class="modal-row"><div class="modal-label">Email</div><input type="email" class="modal-input" id="modal-email" placeholder="vous@email.com"></div>
     <div class="modal-row"><div class="modal-label">Mot de passe</div><input type="password" class="modal-input" id="modal-password" placeholder="••••••••"></div>
     <button onclick="signInWithGoogle()" style="width:100%;padding:11px;border-radius:var(--r-md);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;margin-bottom:12px;transition:all 0.15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border2)'">
@@ -350,19 +350,19 @@ window.fbGetStats = async function() {
     <div class="streak-num" id="streak-num">0</div>
     <div class="streak-info">
       <h4 id="streak-title">Séances cette semaine</h4>
-      <p id="streak-sub">Commencez votre première séance !</p>
+      <p id="streak-sub">Commence ta première séance !</p>
       <div class="streak-days" id="streak-days"></div>
     </div>
   </div>
 
   <div class="chart-card">
     <h4>Évolution de l'effort ressenti (Borg)</h4>
-    <div id="borg-chart"><div class="chart-empty">Les données apparaîtront après vos premières séances enregistrées.</div></div>
+    <div id="borg-chart"><div class="chart-empty">Les données apparaîtront après tes premières séances enregistrées.</div></div>
   </div>
 
   <div class="chart-card">
     <h4>Séances par semaine</h4>
-    <div id="weekly-chart"><div class="chart-empty">Enregistrez au moins 2 semaines pour voir l'évolution.</div></div>
+    <div id="weekly-chart"><div class="chart-empty">Enregistre au moins 2 semaines pour voir l'évolution.</div></div>
   </div>
 
   <div class="sec-title">Mes badges</div>
@@ -479,7 +479,7 @@ window.fbGetStats = async function() {
     </div>
   </div>
 
-  <div class="feedback-box" id="copy-fb"><strong>Copié !</strong> Ouvrez l'app Notes, puis "Mon programme kiné", puis Appui long, puis Coller.</div>
+  <div class="feedback-box" id="copy-fb"><strong>Copié !</strong> Ouvre l'app Notes, puis "Mon programme kiné", puis Appui long, puis Coller.</div>
 
   <div class="sec-title">Historique des séances</div>
   <div id="sessions-list"><p style="font-size:0.76rem;color:var(--text3);font-style:italic">Aucune séance enregistrée pour l'instant.</p></div>
@@ -499,7 +499,7 @@ window.fbGetStats = async function() {
 <div class="content">
   <div class="community-header">
     <h1 class="lx-title">Communauté</h1>
-    <p class="lx-lede">Les séances des patients du cabinet. Motivez-vous ensemble.</p>
+    <p class="lx-lede">Les séances des patients du cabinet. Motivez-vous les uns les autres.</p>
     <div class="community-stats">
       <div class="cs"><div class="cs-val" id="cs-members">—</div><div class="cs-lbl">Membres</div></div>
       <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances totales</div></div>
@@ -509,8 +509,8 @@ window.fbGetStats = async function() {
 
   <div id="login-prompt-wrap">
     <div class="login-prompt" id="login-prompt">
-      <h3>Rejoignez la communauté</h3>
-      <p>Connectez-vous pour partager vos séances, encourager les autres patients et recevoir leurs messages de soutien. Vos données sont privées et sécurisées.</p>
+      <h3>Rejoins la communauté</h3>
+      <p>Connecte-toi pour partager tes séances, encourager les autres patients et recevoir leurs messages de soutien. Tes données sont privées et sécurisées.</p>
       <button class="btn-primary" onclick="signInWithGoogle()" style="display:flex;align-items:center;gap:8px">
   <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
   Continuer avec Google
@@ -520,7 +520,7 @@ window.fbGetStats = async function() {
 
   <div class="msg-composer" id="msg-composer" style="display:none">
     <h3>Partager un message avec la communauté</h3>
-    <textarea class="msg-textarea" id="msg-input" placeholder="Partagez votre ressenti, encouragez les autres patients..." maxlength="300"></textarea>
+    <textarea class="msg-textarea" id="msg-input" placeholder="Partage ton ressenti, encourage les autres patients..." maxlength="300"></textarea>
     <div class="msg-footer">
       <span class="msg-char"><span id="msg-count">0</span>/300</span>
       <button class="btn-primary" onclick="postMessage()">Publier</button>
@@ -673,7 +673,7 @@ function selBorg(n){
 function saveSession(){
   var date=document.getElementById('s-date').value;
   var seance=document.getElementById('s-seance').value;
-  if(!date||!seance){alert('Veuillez renseigner au minimum la date et la séance.');return;}
+  if(!date||!seance){alert('Renseigne au minimum la date et la séance.');return;}
   sessions.unshift({id:Date.now(),date:date,seance:seance,semaine:document.getElementById('s-semaine').value,borg:borgVal,completion:document.getElementById('s-completion').value,notes:document.getElementById('s-notes').value,ts:Date.now()});
   saveSessions();
   document.getElementById('s-seance').value='';
@@ -711,7 +711,7 @@ function renderSessions(){
 function renderBorgChart(){
   var el=document.getElementById('borg-chart');
   var data=sessions.filter(function(s){return s.borg;}).slice(0,12).reverse();
-  if(data.length<2){el.innerHTML='<div class="chart-empty">Enregistrez au moins 2 séances avec un score d\'effort pour voir l\'évolution.</div>';return;}
+  if(data.length<2){el.innerHTML='<div class="chart-empty">Enregistre au moins 2 séances avec un score d\'effort pour voir l\'évolution.</div>';return;}
   var borgC=['','#34d399','#6ee7b7','#fcd34d','#fb923c','#f87171'];
   var bars=data.map(function(s){
     var h=Math.round((s.borg/5)*80);
@@ -726,7 +726,7 @@ function renderBorgChart(){
 }
 function renderWeeklyChart(){
   var el=document.getElementById('weekly-chart');
-  if(sessions.length<3){el.innerHTML='<div class="chart-empty">Enregistrez plus de séances pour voir les tendances.</div>';return;}
+  if(sessions.length<3){el.innerHTML='<div class="chart-empty">Enregistre plus de séances pour voir les tendances.</div>';return;}
   var weeks={};
   sessions.forEach(function(s){
     try{var d=new Date(s.date+'T12:00:00');var mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));var k=mon.toISOString().slice(0,10);weeks[k]=(weeks[k]||0)+1;}catch(e){}
@@ -748,7 +748,7 @@ function renderStreak(){
   var tw=sessions.filter(function(s){try{return new Date(s.date+'T12:00:00')>=mon;}catch(e){return false;}});
   var n=tw.length;
   document.getElementById('streak-num').textContent=n;
-  document.getElementById('streak-sub').textContent=n===0?'Commencez votre première séance !':n<3?'Continuez — objectif 5 séances':n<5?'Bonne progression':'Semaine complète';
+  document.getElementById('streak-sub').textContent=n===0?'Commence ta première séance !':n<3?'Continue — objectif 5 séances':n<5?'Bonne progression':'Semaine complète';
   var doneSet={};
   tw.forEach(function(s){var m=(s.seance||'').match(/J(\d)/);if(m)doneSet['J'+m[1]]=true;});
   document.getElementById('streak-days').innerHTML=['J1','J2','J3','J4','J5'].map(function(d){
@@ -763,7 +763,7 @@ function renderStreak(){
 
 // ══ BADGES ══
 var BADGES=[
-  {id:'first',icon:KFI.award,name:'Première séance',desc:'Enregistrez votre 1ère séance'},
+  {id:'first',icon:KFI.award,name:'Première séance',desc:'Enregistre ton 1ère séance'},
   {id:'streak3',icon:KFI.award,name:'3 séances/sem.',desc:'3 séances dans la même semaine'},
   {id:'alldays',icon:KFI.award,name:'Semaine complète',desc:'J1→J5 en une semaine'},
   {id:'week5',icon:KFI.award,name:'5 séances',desc:'5 séances enregistrées'},
@@ -810,7 +810,7 @@ function toggleLike(btn){
 async function postMessage(){
   var txt=document.getElementById("msg-input").value.trim();
   if(!txt)return;
-  if(!window.fbUser){alert("Connectez-vous pour publier.");return;}
+  if(!window.fbUser){alert("Connecte-toi pour publier.");return;}
   if(window.KineShare && !KineShare.allowed()){ KineShare.ask(function(){ postMessage(); }); return; }
   if(txt.length>300){alert("Message trop long (300 caractères max).");return;}
   var btn = document.querySelector(".msg-composer .btn-primary");
@@ -820,7 +820,7 @@ async function postMessage(){
     document.getElementById("msg-input").value="";
     document.getElementById("msg-count").textContent="0";
   } catch(e) {
-    alert("Erreur lors de la publication. Réessayez.");
+    alert("Erreur lors de la publication. Réessaie.");
     console.error(e);
   } finally {
     if(btn){btn.disabled=false;btn.textContent="Publier";}
@@ -837,7 +837,7 @@ var ADMIN_EMAIL='yasser59100@gmail.com';
 function openAuth(){
   authMode='login';
   document.getElementById('modal-title').textContent='Connexion';
-  document.getElementById('modal-sub').textContent='Accédez à votre suivi et à la communauté';
+  document.getElementById('modal-sub').textContent='Accède à ton suivi et à la communauté';
   document.getElementById('modal-submit').textContent='Se connecter';
   document.getElementById('modal-switch').textContent="Pas encore de compte ? S'inscrire";
   document.getElementById('modal-name-row').style.display='none';
@@ -849,7 +849,7 @@ function toggleAuthMode(){
   authMode=authMode==='login'?'register':'login';
   var isReg=authMode==='register';
   document.getElementById('modal-title').textContent=isReg?'Créer un compte':'Connexion';
-  document.getElementById('modal-sub').textContent=isReg?'Rejoignez la communauté':'Accédez à votre suivi';
+  document.getElementById('modal-sub').textContent=isReg?'Rejoins la communauté':'Accède à ton suivi';
   document.getElementById('modal-submit').textContent=isReg?"S'inscrire":'Se connecter';
   document.getElementById('modal-switch').textContent=isReg?'Déjà un compte ? Se connecter':"Pas encore de compte ? S'inscrire";
   document.getElementById('modal-name-row').style.display=isReg?'block':'none';
@@ -880,7 +880,7 @@ function submitAuth(){
   // Demo mode (localStorage)
   if(authMode==='login'){
     var stored=null;try{stored=JSON.parse(localStorage.getItem('kf-user'));}catch(e){}
-    if(!stored||stored.email!==email){errEl.textContent='Compte introuvable. Créez un compte.';errEl.style.display='block';return;}
+    if(!stored||stored.email!==email){errEl.textContent='Compte introuvable. Crée un compte.';errEl.style.display='block';return;}
     currentUser=stored;
   } else {
     currentUser={uid:Date.now()+'',name:name,email:email,isAdmin:email===ADMIN_EMAIL};
@@ -948,7 +948,7 @@ function loadCommunityStats(){
 function renderFeed(msgs){
   var feed = document.getElementById("community-feed");
   if(!msgs || !msgs.length){
-    feed.innerHTML = "<p class=\"cm-empty\">Aucun message pour l'instant. Soyez le premier !</p>";
+    feed.innerHTML = "<p class=\"cm-empty\">Aucun message pour l'instant. Sois le premier !</p>";
     return;
   }
   var isAdmin = window.fbUser && window.fbUser.isAdmin;
@@ -1030,7 +1030,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <span style="color:#6fb0ff;display:flex"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span>
     <div style="flex:1">
       <div style="font-size:0.82rem;font-weight:700;color:#fff">Installer KinéForce</div>
-      <div style="font-size:0.76rem;color:rgba(255,255,255,0.45)">Accès rapide depuis votre écran d'accueil</div>
+      <div style="font-size:0.76rem;color:rgba(255,255,255,0.45)">Accès rapide depuis ton écran d'accueil</div>
     </div>
     <button onclick="installPWA()" style="background:#3d8ef0;border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:0.75rem;font-weight:700;font-family:var(--font);cursor:pointer">Installer</button>
     <button onclick="dismissInstall()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.1rem;cursor:pointer;padding:4px">✕</button>
@@ -1042,7 +1042,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <span style="color:#34d399;display:flex"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg></span>
     <div style="flex:1">
       <div style="font-size:0.82rem;font-weight:700;color:#fff">Rappels de séance</div>
-      <div style="font-size:0.76rem;color:rgba(255,255,255,0.45)">Recevoir une notification si vous n'avez pas fait de séance depuis 2 jours</div>
+      <div style="font-size:0.76rem;color:rgba(255,255,255,0.45)">Recevoir une notification si tu n'as pas fait de séance depuis 2 jours</div>
     </div>
     <button onclick="requestNotifPermission()" style="background:#34d399;border:none;color:#fff;border-radius:8px;padding:7px 14px;font-size:0.75rem;font-weight:700;font-family:var(--font);cursor:pointer">Activer</button>
     <button onclick="dismissNotif()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.1rem;cursor:pointer;padding:4px">✕</button>
@@ -1090,7 +1090,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <div id="rg-pain" role="dialog" aria-modal="true" aria-labelledby="rg-pain-title">
     <div class="rg-pain-card">
       <div class="rg-pain-head">
-        <h3 id="rg-pain-title">Vous avez mal ?</h3>
+        <h3 id="rg-pain-title">Tu as mal ?</h3>
         <button class="rg-close-btn" onclick="rgClosePain(true)" aria-label="Fermer">✕</button>
       </div>
       <div id="rg-pain-coach"></div>
@@ -1103,7 +1103,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <button type="button" class="rgp-done rgp-edit" onclick="rgPainStep('zone')">Modifier mes réponses</button>
       <div id="rg-pain-advice"></div>
       <div id="rg-pain-actions"></div>
-      <p class="rg-pain-red"><strong>Urgence :</strong> malaise, douleur dans la poitrine ou essoufflement inhabituel : arrêtez tout et appelez le 15.</p>
+      <p class="rg-pain-red"><strong>Urgence :</strong> malaise, douleur dans la poitrine ou essoufflement inhabituel : arrête tout et appelle le 15.</p>
     </div>
   </div>
 </div>
@@ -1221,7 +1221,7 @@ function requestNotifPermission() {
       localStorage.setItem('kf-notif', '1');
       scheduleReminderCheck();
       new Notification('KinéForce', {
-        body: "Rappels activés ! On vous retrouve pour votre prochaine séance.",
+        body: "Rappels activés ! On te retrouve pour ta prochaine séance.",
         icon: 'icon-192.png'
       });
     }
@@ -1240,7 +1240,7 @@ function scheduleReminderCheck() {
   var daysSince = (Date.now() - lastTs) / (1000 * 60 * 60 * 24);
   if (daysSince >= 2 && Notification.permission === 'granted') {
     new Notification('KinéForce', {
-      body: "Ca fait " + Math.floor(daysSince) + " jours sans seance. Votre programme vous attend !",
+      body: "Ca fait " + Math.floor(daysSince) + " jours sans seance. Ton programme t'attend !",
       icon: 'icon-192.png',
       tag: 'reminder'
     });
@@ -1253,27 +1253,27 @@ var obSlides = [
   {
     icon: "wave",
     title: "Bienvenue dans KinéForce",
-    desc: "Votre programme de rééducation post-hospitalisation par Yasser Ladraa, kinésithérapeute. 5 séances, 4 semaines, progressif."
+    desc: "Ton programme de rééducation post-hospitalisation par Yasser Ladraa, kinésithérapeute. 5 séances, 4 semaines, progressif."
   },
   {
     icon: "⏱",
     title: "Le timer de repos",
-    desc: "Sous chaque exercice, appuyez sur un bouton Timer pour lancer le chrono de repos. Le minuteur flottant vibre quand le temps est écoulé."
+    desc: "Sous chaque exercice, appuie sur un bouton Timer pour lancer le chrono de repos. Le minuteur flottant vibre quand le temps est écoulé."
   },
   {
     icon: "✓",
-    title: "Cochez vos exercices",
-    desc: "La case verte en haut à droite de chaque exercice permet de suivre votre avancement en temps réel. La barre de progression se remplit automatiquement."
+    title: "Coche tes exercices",
+    desc: "La case verte en haut à droite de chaque exercice permet de suivre ton avancement en temps réel. La barre de progression se remplit automatiquement."
   },
   {
     icon: "graph",
-    title: "Enregistrez vos séances",
-    desc: "Après chaque séance, allez dans Mon suivi pour noter votre effort ressenti (Borg 1 à 5). Vos graphiques de progression apparaissent dès la 2ème séance."
+    title: "Enregistre tes séances",
+    desc: "Après chaque séance, va dans Mon suivi pour noter ton effort ressenti (Borg 1 à 5). Tes graphiques de progression apparaissent dès la 2ème séance."
   },
   {
     icon: "people",
     title: "La communauté",
-    desc: "Dans l'onglet Communauté, partagez vos séances et encouragez les autres patients du cabinet. Créez un compte pour rejoindre le groupe."
+    desc: "Dans l'onglet Communauté, partage tes séances et encourage les autres patients du cabinet. Crée un compte pour rejoindre le groupe."
   }
 ];
 function showOb() {
@@ -1313,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // L'ancienne présentation en diapositives est remplacée par la visite guidée de la mascotte
   try { localStorage.setItem('kf-onboarded', '1'); } catch (e) {}
   // Sans connexion, le fil ne se charge jamais : on le dit au lieu de laisser « Chargement… »
-  setTimeout(function () { var l = document.getElementById('feed-loading'); if (l) l.textContent = "Les messages n'ont pas pu se charger. Vérifiez votre connexion internet, puis rouvrez l'appli."; }, 12000);
+  setTimeout(function () { var l = document.getElementById('feed-loading'); if (l) l.textContent = "Les messages n'ont pas pu se charger. Vérifie ta connexion internet, puis rouvre l'appli."; }, 12000);
   checkNotifPrompt();
   scheduleReminderCheck();
 });
@@ -1401,7 +1401,7 @@ var SEQ_DAYS = {
     exercises: [
       { name: "Activation transverse et mobilisation", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Respiration diaphragmatique avec activation du transverse au niveau du nombril. Respiration 1 min 10. Chat-vache à quatre pattes 56 s. Rotations de tronc assis 54 s.",
-        tip: "Mémorisez cette activation du transverse, vous l'utiliserez sur tous les exercices suivants." },
+        tip: "Mémorise cette activation du transverse, tu l'utiliseras sur tous les exercices suivants." },
       { variant: "Variante S3–S4 : Crunch avec rotation — pointer un coude vers le genou opposé", name: "Crunch abdominal contrôlé", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 60,
         desc: "Décubitus dorsal, mains croisées sur la poitrine. Décoller les épaules à 30 degrés maximum, tenir 1 seconde, descente excentrique 3 secondes. Expirer à la montée.",
         tip: "Ne pas tirer sur la nuque." },
@@ -1427,7 +1427,7 @@ var SEQ_DAYS = {
         desc: "Appui sur avant-bras et orteils. Corps parfaitement aligné, pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre.",
         stop: "Arrêt à la perte d'alignement ou si douleur lombaire." },
       { variant: "Plus facile : sur les genoux (bouton « − Plus facile » pendant la séance)", name: "Planche latérale complète", phase: "work", series: 3, repsLabel: "20 à 30 secondes par côté", restAfter: 60,
-        desc: "Sur le côté, appui sur l'avant-bras (coude sous l'épaule) et sur les pieds, jambes tendues. Montez les hanches jusqu'à aligner épaule, hanche et cheville, et tenez. Changez de côté.",
+        desc: "Sur le côté, appui sur l'avant-bras (coude sous l'épaule) et sur les pieds, jambes tendues. Monte les hanches jusqu'à aligner épaule, hanche et cheville, et tiens. Change de côté.",
         stop: "Arrêt si douleur à l'épaule d'appui ou douleur lombaire." },
       { name: "Étirements rachidiens et cohérence cardiaque", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
         desc: "Cobra allongé 30 secondes, torsion lombaire 40 secondes de chaque côté, position de l'enfant 1 minute. Cohérence cardiaque: inspirer 5 secondes, expirer 5 secondes pendant 3 minutes." }
@@ -1479,7 +1479,7 @@ var SEQ_DAYS = {
         desc: "Tenir sur un pied, yeux ouverts 20 secondes puis yeux fermés 20 secondes. Oscillations douces des bras pour créer des déstabilisations controlées.",
         tip: "Très bénéfique pour la prévention des chutes." },
       { name: "Étirements globaux et Savasana", phase: "cool", series: 1, repsLabel: "8 minutes", restAfter: 0,
-        desc: "Étirements corps entier 3 minutes, 30 secondes par groupe. Savasana: allongé sur le dos, relâchement progressif de bas en haut. Respiration libre. Prenez conscience des sensations positives de la séance." }
+        desc: "Étirements corps entier 3 minutes, 30 secondes par groupe. Savasana: allongé sur le dos, relâchement progressif de bas en haut. Respiration libre. Prends conscience des sensations positives de la séance." }
     ]
   }
 };
@@ -1711,15 +1711,15 @@ if (window.speechSynthesis && "onvoiceschanged" in window.speechSynthesis) {
 // Banque de phrases : la voix varie ce qu'elle dit, sans répéter deux fois de suite la même
 var KF_LINES = {
   start: ["On y va.", "C'est parti.", "Allez, en piste !", "Prêt ? On attaque.", "Top départ, en douceur.", "On s'y met, tranquillement."],
-  mid: ["Belle exécution.", "C'est propre, continuez comme ça.", "Vous gérez.", "On garde ce rythme, c'est parfait.", "Respirez, ça roule.", "Très bien, le mouvement est contrôlé.", "Vous êtes dans le bon tempo.", "Joli, on continue."],
-  three: ["plus que trois", "encore trois, on lâche rien", "trois dernières, on finit fort", "plus que trois, vous y êtes presque"],
+  mid: ["Belle exécution.", "C'est propre, continue comme ça.", "Tu gères.", "On garde ce rythme, c'est parfait.", "Respire, ça roule.", "Très bien, le mouvement est contrôlé.", "Tu es dans le bon tempo.", "Joli, on continue."],
+  three: ["plus que trois", "encore trois, on lâche rien", "trois dernières, on finit fort", "plus que trois, tu y es presque"],
   last: ["Dernière !", "La dernière, la plus belle.", "Dernière, on termine en beauté.", "Et la dernière !"],
-  isoMid: ["On tient, vous êtes solide.", "Respirez, ne bloquez pas.", "C'est là que le muscle travaille.", "Encore un peu, vous tenez bon.", "Solide comme un roc."],
-  holdMid: ["La moitié, on tient.", "Mi-temps ! Respirez calmement.", "Déjà la moitié, bravo.", "Vous êtes solide, on continue."],
-  holdEnd: ["Plus que dix secondes.", "Dix secondes, on serre les dents.", "Dix dernières secondes, vous y êtes."],
-  serieDone: ["Terminé. Bravo !", "Et voilà, c'est bouclé !", "Terminé, joli travail.", "Fini ! Soufflez un coup.", "Un de plus au compteur, bravo."],
+  isoMid: ["On tient, tu es solide.", "Respire, ne bloque pas.", "C'est là que le muscle travaille.", "Encore un peu, tu tiens bon.", "Solide comme un roc."],
+  holdMid: ["La moitié, on tient.", "Mi-temps ! Respire calmement.", "Déjà la moitié, bravo.", "Tu es solide, on continue."],
+  holdEnd: ["Plus que dix secondes.", "Dix secondes, on serre les dents.", "Dix dernières secondes, tu y es."],
+  serieDone: ["Terminé. Bravo !", "Et voilà, c'est bouclé !", "Terminé, joli travail.", "Fini ! Souffle un coup.", "Un de plus au compteur, bravo."],
   restEnd: ["Allez !", "C'est reparti !", "On y retourne.", "Pause terminée, on repart."],
-  sessionEnd: ["Bravo ! Séance terminée. Prenez une minute pour votre bilan.", "Et c'est fini ! Super séance. Prenez une minute pour votre bilan.", "Séance bouclée, bravo à vous ! Prenez une minute pour votre bilan."]
+  sessionEnd: ["Bravo ! Séance terminée. Prends une minute pour ton bilan.", "Et c'est fini ! Super séance. Prends une minute pour ton bilan.", "Séance bouclée, bravo à toi ! Prends une minute pour ton bilan."]
 };
 var kfLastLine = {};
 // Phrase de la catégorie qui tient dans « budget » secondes (null si aucune)
@@ -2065,7 +2065,7 @@ function renderSeqRest(secs, onDone) {
       "<circle cx='110' cy='110' r='96' fill='none' stroke='var(--surface3)' stroke-width='12'></circle>" +
       "<circle id='seq-t-fg' cx='110' cy='110' r='96' fill='none' stroke='var(--green)' stroke-width='12' stroke-linecap='round' stroke-dasharray='" + C + "' stroke-dashoffset='0' transform='rotate(-90 110 110)'></circle></svg>" +
       "<div class='v2-ring-in'><div class='v2-ring-num' id='seq-t-num'>" + fmt(secs) + "</div><div class='v2-ring-sub' id='seq-t-sub'>sur " + fmt(secs) + "</div></div></div>" +
-    "<div class='v2-rest-msg'>Respirez calmement. Buvez un peu d'eau si besoin.</div>";
+    "<div class='v2-rest-msg'>Respire calmement. Bois un peu d'eau si besoin.</div>";
   body.appendChild(block);
   window.seqRestTitle = null;
   seqRenderRestNext(body);
@@ -2152,7 +2152,7 @@ function seqFinish() {
   finishDiv.innerHTML = [
     
     "<h2>Séance terminée !</h2>",
-    "<p>Bravo ! Vous venez de compléter <strong>" + day.label + "</strong>. Pensez à vous hydrater.</p>",
+    "<p>Bravo ! Tu viens de compléter <strong>" + day.label + "</strong>. Pense à t'hydrater.</p>",
     "<div class='seq-finish-stats'>",
       "<div class='seq-fstat'><div class='seq-fstat-val'>" + day.exercises.length + "</div><div class='seq-fstat-label'>Exercices</div></div>",
       "<div class='seq-fstat'><div class='seq-fstat-val'>" + duration + "min</div><div class='seq-fstat-label'>Durée</div></div>",
@@ -2182,7 +2182,7 @@ function seqFinish() {
   saveExState();
   renderAllDays();
 
-  speak("Bravo ! Séance terminée. Vous avez réalisé tous les exercices. Pensez à vous hydrater.");
+  speak("Bravo ! Séance terminée. Tu as réalisé tous les exercices. Pense à t'hydrater.");
 }
 
 
@@ -2552,12 +2552,12 @@ function rgPainUpdate() {
 
   if (stop) {
     advice.className = "stop";
-    advice.innerHTML = "<strong>Arrêtez cet exercice.</strong> " + (ex && ex.stop ? ex.stop + ". " : "") +
-      "Prévenez votre kinésithérapeute avant la prochaine séance.";
+    advice.innerHTML = "<strong>Arrête cet exercice.</strong> " + (ex && ex.stop ? ex.stop + ". " : "") +
+      "Préviens ton kinésithérapeute avant la prochaine séance.";
     btn("seq-btn-main red", "Arrêter la séance", function() { rgPainAction("séance arrêtée"); });
     btn("seq-btn-secondary", "Passer à l'exercice suivant", function() { rgPainAction("exercice passé"); });
   } else {
-    advice.innerHTML = "<strong>Conseil :</strong> " + (ex && ex.tip ? ex.tip : "Réduisez l'amplitude et ralentissez le mouvement. Si la douleur augmente, arrêtez.");
+    advice.innerHTML = "<strong>Conseil :</strong> " + (ex && ex.tip ? ex.tip : "Réduis l'amplitude et ralentis le mouvement. Si la douleur augmente, arrête.");
     btn("seq-btn-main", "Reprendre en réduisant l'amplitude", function() { rgPainAction("reprise amplitude réduite"); });
     btn("seq-btn-secondary", "Passer à l'exercice suivant", function() { rgPainAction("exercice passé"); });
     btn("seq-btn-secondary", "Arrêter la séance", function() { rgPainAction("séance arrêtée"); });
@@ -2581,7 +2581,7 @@ function rgPainAction(action) {
     if (typeof seqSkipExercise === "function" && document.getElementById("seq-overlay").classList.contains("open")) seqSkipExercise();
   } else {
     if (typeof closeSeq === "function") closeSeq();
-    speak("Séance arrêtée. Pensez à prévenir votre kinésithérapeute.");
+    speak("Séance arrêtée. Pense à prévenir ton kinésithérapeute.");
   }
 }
 
@@ -2746,8 +2746,8 @@ function runTimed(id) {
     if (idx >= sides.length) { finishSerie(); return; }
     var side = sides[idx++];
     if (idx === 2) {
-      setPhaseLabel("Changez de côté", "hold");
-      speak("Changez de côté");
+      setPhaseLabel("Change de côté", "hold");
+      speak("Change de côté");
       startTimingBar(3, "down-color", function() { timedBlock(id, side, inf.seconds, nextSide); });
     } else {
       timedBlock(id, side, inf.seconds, nextSide);
@@ -2794,7 +2794,7 @@ function timedBlock(id, side, seconds, done) {
     })();
   } else {
     // Position tenue
-    if (!cues.length) setPhaseLabel("Tenez" + sideTxt, "hold");
+    if (!cues.length) setPhaseLabel("Tiens" + sideTxt, "hold");
     updateRepImage("hold");
     if (window.KineAvatar) KineAvatar.step({ pose: "hold", side: side, dur: 1 });
     var hs = window.KineAvatar && KineAvatar.holdSay ? KineAvatar.holdSay(rgState.exName, side) : null;
@@ -2935,7 +2935,7 @@ seqSkipExercise = function() {
 function renderFeed(msgs) {
   var feed = document.getElementById("community-feed");
   if (!msgs || !msgs.length) {
-    feed.innerHTML = "<p class='cm-empty'>Aucune activité pour l'instant. Terminez une séance pour apparaître ici !</p>";
+    feed.innerHTML = "<p class='cm-empty'>Aucune activité pour l'instant. Termine une séance pour apparaître ici !</p>";
     return;
   }
 

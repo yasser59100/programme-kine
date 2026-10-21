@@ -206,60 +206,60 @@
      { name, dur (s), move, sides (moitié de chaque côté), cue, aid, breath: [inspiration, expiration] } */
   var R = {
     "Mobilisation articulaire progressive": [
-      { name: "Marche sur place, rythme croissant", dur: 50, move: "march", cue: "Commencez doucement, puis accélérez progressivement." },
-      { name: "Flexions-extensions des chevilles, assis", dur: 25, move: "ankleSeated", cue: "Pointes de pied vers vous, puis vers le sol." },
-      { name: "Leg swings avant / arrière, appui au mur", dur: 30, move: "legSwingFB", sides: true, cue: "Balancez la jambe d'avant en arrière, buste droit." },
+      { name: "Marche sur place, rythme croissant", dur: 50, move: "march", cue: "Commence doucement, puis accélère progressivement." },
+      { name: "Flexions-extensions des chevilles, assis", dur: 25, move: "ankleSeated", cue: "Pointes de pied vers toi, puis vers le sol." },
+      { name: "Leg swings avant / arrière, appui au mur", dur: 30, move: "legSwingFB", sides: true, cue: "Balance la jambe d'avant en arrière, buste droit." },
       { name: "Rotations des genoux, debout", dur: 25, move: "kneeCircles", cue: "Pieds joints, mains sur les genoux, petits cercles." },
       { name: "Squats dynamiques à faible amplitude", dur: 25, move: "miniSquat", cue: "Petite flexion, talons au sol, rythme régulier." },
       { name: "Rotations de hanches", dur: 25, move: "hipCircles", cue: "Mains sur les hanches, grands cercles avec le bassin." }],
     "Étirements membres inférieurs": [
       { name: "Étirement des quadriceps, debout", dur: 80, move: "quadStretch", sides: true, cue: "Talon vers la fesse, genoux serrés, main sur le mur." },
-      { name: "Ischio-jambiers, assis jambe tendue", dur: 80, move: "hamSeated", sides: true, cue: "Dos droit, penchez-vous vers le pied sans forcer." },
+      { name: "Ischio-jambiers, assis jambe tendue", dur: 80, move: "hamSeated", sides: true, cue: "Dos droit, penche-toi vers le pied sans forcer." },
       { name: "Mollets en fente basse contre le mur", dur: 60, move: "calfWall", sides: true, cue: "Jambe arrière tendue, talon au sol." },
-      { name: "Rotation de hanche en figure 4", dur: 60, move: "figure4", sides: true, cue: "Cheville sur le genou opposé, tirez la cuisse vers vous." },
+      { name: "Rotation de hanche en figure 4", dur: 60, move: "figure4", sides: true, cue: "Cheville sur le genou opposé, tire la cuisse vers toi." },
       { name: "Respiration diaphragmatique de clôture", dur: 120, move: "breathSupine", breath: [4, 6], cue: "Le ventre se gonfle à l'inspiration, se vide à l'expiration." }],
     "Mobilisation membres supérieurs": [
       { name: "Pendules des bras en cercles progressifs", dur: 45, move: "pendulum", cue: "Buste penché, bras relâchés : petits cercles qui s'agrandissent." },
-      { name: "Rétropulsion et antépulsion des omoplates", dur: 25, move: "scapula", cue: "Serrez les omoplates vers la colonne, puis écartez-les." },
+      { name: "Rétropulsion et antépulsion des omoplates", dur: 25, move: "scapula", cue: "Serre les omoplates vers la colonne, puis écarte-les." },
       { name: "Rotations dynamiques des épaules", dur: 25, move: "shoulderCircles", cue: "Grands cercles de bras, sans forcer en haut." },
-      { name: "Flexions-extensions des poignets et des coudes", dur: 25, move: "wristElbow", cue: "Pliez et tendez les coudes, puis les poignets." },
+      { name: "Flexions-extensions des poignets et des coudes", dur: 25, move: "wristElbow", cue: "Plie et tends les coudes, puis les poignets." },
       { name: "10 pompes contre le mur, rythme lent", dur: 60, move: "wallPushup", cue: "Corps aligné, descente lente vers le mur." }],
     "Étirements membres supérieurs": [
-      { name: "Pectoraux contre le mur, coude à 90°", dur: 80, move: "pecWall", sides: true, cue: "Avant-bras sur le mur, tournez le buste à l'opposé." },
+      { name: "Pectoraux contre le mur, coude à 90°", dur: 80, move: "pecWall", sides: true, cue: "Avant-bras sur le mur, tourne le buste à l'opposé." },
       { name: "Triceps, coude derrière la tête", dur: 60, move: "triceps", sides: true, cue: "L'autre main pousse doucement le coude." },
-      { name: "Auto-agrandissement cervical, assis", dur: 60, move: "neckElongation", cue: "Grandissez-vous comme si un fil tirait le sommet du crâne." },
+      { name: "Auto-agrandissement cervical, assis", dur: 60, move: "neckElongation", cue: "Grandis-toi comme si un fil tirait le sommet du crâne." },
       { name: "Position de l'enfant, bras tendus", dur: 60, move: "childPose", cue: "Assis sur les talons, front vers le sol, bras loin devant." },
       { name: "Respiration abdominale", dur: 60, move: "breathSupine", breath: [4, 6], cue: "Main sur le ventre : il se gonfle puis se vide." }],
     "Activation transverse et mobilisation": [
-      { name: "Respiration diaphragmatique et activation du transverse", dur: 70, move: "breathTransverse", breath: [4, 6], cue: "Inspirez en gonflant le ventre. À l'expiration, rentrez légèrement le nombril." },
-      { name: "Chat-vache à quatre pattes", dur: 56, move: "catCow", breath: [4, 4], cue: "Inspirez en creusant le bas du dos (bassin basculé vers l'avant, regard devant). Expirez en arrondissant le bas du dos (bassin rentré, tête vers le sol)." },
-      { name: "Rotations du tronc, assis", dur: 54, move: "trunkRotSeated", cue: "Bras croisés, tournez le buste à droite puis à gauche, bassin immobile." }],
+      { name: "Respiration diaphragmatique et activation du transverse", dur: 70, move: "breathTransverse", breath: [4, 6], cue: "Inspire en gonflant le ventre. À l'expiration, rentre légèrement le nombril." },
+      { name: "Chat-vache à quatre pattes", dur: 56, move: "catCow", breath: [4, 4], cue: "Inspire en creusant le bas du dos (bassin basculé vers l'avant, regard devant). Expire en arrondissant le bas du dos (bassin rentré, tête vers le sol)." },
+      { name: "Rotations du tronc, assis", dur: 54, move: "trunkRotSeated", cue: "Bras croisés, tourne le buste à droite puis à gauche, bassin immobile." }],
     "Étirements rachidiens et cohérence cardiaque": [
-      { name: "Cobra allongé", dur: 30, move: "cobra", cue: "Bassin au sol, poussez sur les mains, épaules basses." },
+      { name: "Cobra allongé", dur: 30, move: "cobra", cue: "Bassin au sol, pousse sur les mains, épaules basses." },
       { name: "Torsion lombaire, allongé sur le dos", dur: 80, move: "lumbarTwist", sides: true, cue: "Genoux vers le sol d'un côté, épaules à plat." },
       { name: "Position de l'enfant, bras tendus", dur: 60, move: "childPose", cue: "Assis sur les talons, front vers le sol, bras loin devant." },
-      { name: "Cohérence cardiaque", dur: 180, move: "breathSupine", breath: [5, 5], cue: "Inspirez 5 secondes, expirez 5 secondes, en suivant le cercle." }],
+      { name: "Cohérence cardiaque", dur: 180, move: "breathSupine", breath: [5, 5], cue: "Inspire 5 secondes, expire 5 secondes, en suivant le cercle." }],
     "Activation ceinture pelvienne": [
       { name: "Cercles de hanches, amplitude progressive", dur: 50, move: "hipCircles", cue: "Mains sur les hanches, cercles de plus en plus grands." },
       { name: "Abduction de hanche alternée, contre le mur", dur: 30, move: "abdWall", sides: true, cue: "Jambe tendue sur le côté, buste droit." },
-      { name: "Leg swings latéraux", dur: 30, move: "legSwingLat", sides: true, cue: "Mains au mur, balancez la jambe de côté." },
-      { name: "Rotations de hanche, allongé sur le dos", dur: 35, move: "hipRotSupine", cue: "Genoux fléchis, laissez-les basculer d'un côté puis de l'autre." },
-      { name: "Marche genoux hauts, élévation exagérée", dur: 35, move: "highKnees", cue: "Montez les genoux haut, bras coordonnés." }],
+      { name: "Leg swings latéraux", dur: 30, move: "legSwingLat", sides: true, cue: "Mains au mur, balance la jambe de côté." },
+      { name: "Rotations de hanche, allongé sur le dos", dur: 35, move: "hipRotSupine", cue: "Genoux fléchis, laisse-les basculer d'un côté puis de l'autre." },
+      { name: "Marche genoux hauts, élévation exagérée", dur: 35, move: "highKnees", cue: "Monte les genoux haut, bras coordonnés." }],
     "Étirements fessiers et iliopsoas": [
-      { name: "Figure 4 en décubitus", dur: 90, move: "figure4", sides: true, cue: "Cheville sur le genou opposé, tirez la cuisse vers vous." },
-      { name: "Fente basse au sol pour l'iliopsoas", dur: 80, move: "lowLunge", sides: true, cue: "Genou arrière au sol, avancez le bassin, buste droit." },
-      { name: "Demi-grand écart assis, adducteurs", dur: 40, move: "adductorSeated", cue: "Jambes écartées, dos droit, penchez-vous légèrement." },
+      { name: "Figure 4 en décubitus", dur: 90, move: "figure4", sides: true, cue: "Cheville sur le genou opposé, tire la cuisse vers toi." },
+      { name: "Fente basse au sol pour l'iliopsoas", dur: 80, move: "lowLunge", sides: true, cue: "Genou arrière au sol, avance le bassin, buste droit." },
+      { name: "Demi-grand écart assis, adducteurs", dur: 40, move: "adductorSeated", cue: "Jambes écartées, dos droit, penche-toi légèrement." },
       { name: "Respiration abdominale de clôture", dur: 60, move: "breathSupine", breath: [4, 6], cue: "Le ventre se gonfle à l'inspiration, se vide à l'expiration." }],
     "Échauffement global progressif": [
-      { name: "Marche sur place genoux hauts, rythme croissant", dur: 45, move: "highKnees", cue: "Commencez doucement, puis accélérez." },
-      { name: "Jumping jacks à rythme modéré", dur: 35, move: "jacks", cue: "Écartez pieds et bras ensemble, sans sauter si besoin." },
+      { name: "Marche sur place genoux hauts, rythme croissant", dur: 45, move: "highKnees", cue: "Commence doucement, puis accélère." },
+      { name: "Jumping jacks à rythme modéré", dur: 35, move: "jacks", cue: "Écarte pieds et bras ensemble, sans sauter si besoin." },
       { name: "Rotations des chevilles", dur: 10, move: "ankleCircles", sides: true, cue: "Petits cercles avec le pied." },
       { name: "Rotations des genoux", dur: 10, move: "kneeCircles", cue: "Mains sur les genoux, petits cercles." },
       { name: "Rotations des hanches", dur: 10, move: "hipCircles", cue: "Mains sur les hanches, grands cercles." },
-      { name: "Rotations du tronc", dur: 10, move: "trunkRot", cue: "Tournez le buste d'un côté puis de l'autre." },
+      { name: "Rotations du tronc", dur: 10, move: "trunkRot", cue: "Tourne le buste d'un côté puis de l'autre." },
       { name: "Rotations des épaules", dur: 10, move: "shoulderCircles", cue: "Grands cercles de bras." },
       { name: "Rotations de la nuque", dur: 10, move: "neckRot", cue: "Lentement, sans forcer en arrière." },
-      { name: "5 grandes respirations de préparation", dur: 40, move: "bigBreaths", breath: [4, 4], cue: "Levez les bras en inspirant, descendez-les en expirant." }],
+      { name: "5 grandes respirations de préparation", dur: 40, move: "bigBreaths", breath: [4, 4], cue: "Lève les bras en inspirant, descends-les en expirant." }],
     "Étirements globaux et Savasana": [
       { name: "Étirement des quadriceps", dur: 30, move: "quadStretch", sides: true, cue: "Talon vers la fesse, main sur le mur." },
       { name: "Étirement des ischio-jambiers", dur: 30, move: "hamSeated", sides: true, cue: "Jambe tendue, dos droit." },
@@ -267,8 +267,8 @@
       { name: "Étirement des fessiers (figure 4)", dur: 30, move: "figure4", sides: true, cue: "Cheville sur le genou opposé." },
       { name: "Étirement des pectoraux", dur: 30, move: "pecWall", sides: true, cue: "Avant-bras sur le mur, buste tourné à l'opposé." },
       { name: "Étirement du dos (position de l'enfant)", dur: 30, move: "childPose", cue: "Assis sur les talons, bras loin devant." },
-      { name: "Savasana", dur: 300, move: "savasana", cue: "Allongé, respiration libre. Relâchez chaque partie du corps.",
-        cues: ["Relâchez les pieds", "Relâchez les mollets", "Relâchez les cuisses", "Relâchez le ventre", "Relâchez le dos", "Relâchez les bras", "Relâchez les épaules", "Relâchez le visage", "Prenez conscience des sensations positives de la séance"] }]
+      { name: "Savasana", dur: 300, move: "savasana", cue: "Allongé, respiration libre. Relâche chaque partie du corps.",
+        cues: ["Relâche les pieds", "Relâche les mollets", "Relâche les cuisses", "Relâche le ventre", "Relâche le dos", "Relâche les bras", "Relâche les épaules", "Relâche le visage", "Prends conscience des sensations positives de la séance"] }]
   };
 
   /* ════════ 3. AIDES VISUELLES ════════ */
@@ -286,8 +286,8 @@
            "<rect x='98' y='40' width='44' height='30' rx='12' fill='rgba(61,142,240,.2)' stroke='var(--blue)' stroke-width='2'/>" +
            "<path class='kr-lordose' d='M22 58 C 50 82, 80 80, 110 52' stroke='var(--amber)' stroke-width='6' fill='none' stroke-linecap='round'/>" +
            "<path class='kr-cyphose' d='M22 58 C 50 18, 80 16, 110 52' stroke='var(--amber)' stroke-width='6' fill='none' stroke-linecap='round'/>" +
-           "<text class='kr-lordose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos creux, inspirez</text>" +
-           "<text class='kr-cyphose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos rond, expirez</text></svg>",
+           "<text class='kr-lordose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos creux, inspire</text>" +
+           "<text class='kr-cyphose' x='75' y='104' text-anchor='middle' font-size='12' font-weight='700' fill='var(--text2)'>dos rond, expire</text></svg>",
     ankle: "<svg viewBox='0 0 120 120' width='120' height='120' aria-hidden='true'><rect x='44' y='8' width='16' height='66' rx='8' fill='var(--text2)'/><g class='kr-ankle'><path d='M40 74 L96 74 Q104 74 104 84 L104 88 L40 88 Z' fill='#e8e8e4'/></g><path d='M104 50 A40 40 0 0 1 104 110' stroke='var(--amber)' stroke-width='3' fill='none' stroke-dasharray='5 5'/></svg>"
   };
   var AID_LABEL = { spine: "Bas du dos (vue de profil)", breath: "Respiration", navel: "Nombril rentré à l'expiration", scapula: "Omoplates vers la colonne", grow: "Grandir", wrist: "Poignets", ankle: "Chevilles" };
@@ -333,7 +333,7 @@
     var nx = stepAt(i + 1);
     $("kr-next").textContent = nx ? "Ensuite : " + nx.name + ", " + fmt(nx.dur) : "Dernière étape";
     var still = mv.loop && mv.loop.length === 1;
-    $("kr-label").textContent = st.sides ? "Côté gauche" : (st.breath ? "Inspirez" : (still ? "Tenez la position" : "En mouvement"));
+    $("kr-label").textContent = st.sides ? "Côté gauche" : (st.breath ? "Inspire" : (still ? "Tiens la position" : "En mouvement"));
     var aidKey = mv.aid || (st.breath ? "breath" : null);
     var aid = $("kr-aid");
     aid.innerHTML = aidKey ? AIDS[aidKey] + "<div class='kr-aid-t' id='kr-aid-t'>" + AID_LABEL[aidKey] + "</div>" : "";
@@ -364,14 +364,14 @@
     var tot = 0; for (var j = P.i; j < P.steps.length; j++) tot += j === P.i ? Math.max(0, left) : P.steps[j].dur;
     $("kr-total").textContent = "· reste " + fmt(tot);
     if (st.sides && P.side === "L" && el >= st.dur / 2) {
-      P.side = "R"; $("kr-label").textContent = "Côté droit"; say("Changez de côté"); beep();
+      P.side = "R"; $("kr-label").textContent = "Côté droit"; say("Change de côté"); beep();
       KineAvatar.step({ pose: MOVES[st.move].start, dur: 0.8, side: "R" });
     }
     if (st.breath) { // cycle respiratoire : cercle qui grossit puis se vide
       var cyc = st.breath[0] + st.breath[1], ph = el % cyc, inh = ph < st.breath[0];
       var r = inh ? 26 + 24 * (ph / st.breath[0]) : 50 - 24 * ((ph - st.breath[0]) / st.breath[1]);
       var c = document.querySelector("#kr-aid .kr-pace"); if (c) c.setAttribute("r", r.toFixed(1));
-      var ph2 = inh ? "Inspirez" : "Expirez";
+      var ph2 = inh ? "Inspire" : "Expire";
       if (P.breathPhase !== ph2) {
         P.breathPhase = ph2; $("kr-label").textContent = ph2;
         $("kr-aid").setAttribute("data-phase", inh ? "in" : "out");

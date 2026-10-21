@@ -66,7 +66,7 @@ var KineLumiere = (function () {
         (window.KineLexique ? it("KineLexique.open()", "Les mots du kiné expliqués", "") : "") +
         it("KineLumiere.explainMenu()", "Tu n'as pas compris comment ça marche ?", "Je te réexplique l'appli ou un onglet") +
         it("KineLumiere.settings()", "Réglages", "Coach, son, taille du texte") +
-        (window.KineFiable ? it("KineFiable.open()", "Signaler un souci", "Un bug, un écran bizarre : dites-le-moi") : "") +
+        (window.KineFiable ? it("KineFiable.open()", "Signaler un souci", "Un bug, un écran bizarre : dis-le-moi") : "") +
       "</div>";
   }
   function iso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
@@ -84,7 +84,7 @@ var KineLumiere = (function () {
       (window.KineFiable ? row("KineLumiere.then('KineFiable.open()')", "Signaler un souci", "Un bug, un écran bizarre") : "") +
       (window.KineStats ? row("KineStats.toggle();KineLumiere.settings()", "Statistiques anonymes", "Aident à améliorer l'appli, sans aucun nom", KineStats.label()) : "") +
       (window.KineLegal ? row("KineLumiere.then('KineLegal.open()')", "Santé et confidentialité", "Précautions, données, mentions légales") : "") +
-      row("KineFiable.update()", "Version de l'appli", "Touchez pour vérifier les mises à jour", String(window.KF_VERSION || "").replace("kineforce-v", "n° ") || "…") +
+      row("KineFiable.update()", "Version de l'appli", "Touche pour vérifier les mises à jour", String(window.KF_VERSION || "").replace("kineforce-v", "n° ") || "…") +
       "</div>";
     sheet(h);
   }

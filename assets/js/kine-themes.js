@@ -70,22 +70,22 @@ var KineTheme = (function () {
     if (window.KineBiblio && KineBiblio.extend) KineBiblio.extend([
       { name: "Petits sauts sur place", group: "mollet", color: 2, kit: [], repsLabel: "20 répétitions",
         desc: "Debout, pieds à largeur de hanches. Faites de petits sauts rapides sur l'avant des pieds, genoux presque tendus, comme un ressort. Les talons ne touchent pas le sol. Réception souple et silencieuse.",
-        cue: "Petits rebonds sur l'avant des pieds, comme un ressort.", err: "Ne sautez pas haut : ce sont les chevilles qui travaillent, pas les cuisses.",
+        cue: "Petits rebonds sur l'avant des pieds, comme un ressort.", err: "Ne saute pas haut : ce sont les chevilles qui travaillent, pas les cuisses.",
         tip: "Plus facile : 10 sauts, une pause, puis 10 sauts. Plus dur : en avançant et en reculant.", stop: "Arrêt si douleur aux tibias, au tendon d'Achille ou sous le pied." },
       { name: "Sauts sur une jambe", group: "mollet", color: 3, kit: [], repsLabel: "8 répétitions par jambe",
-        desc: "Sur une jambe, genou légèrement fléchi. Faites un petit saut sur place, réceptionnez-vous sur l'avant du pied, genou souple et dans l'axe du pied, puis stabilisez-vous une seconde avant le suivant.",
+        desc: "Sur une jambe, genou légèrement fléchi. Fais un petit saut sur place, réceptionne-toi sur l'avant du pied, genou souple et dans l'axe du pied, puis stabilise-toi une seconde avant le suivant.",
         cue: "Réception douce, genou dans l'axe du pied.", err: "Le genou ne doit pas partir vers l'intérieur à la réception.",
-        tip: "Commencez près d'un mur pour vous rattraper. Plus dur : petits sauts vers l'avant et l'arrière.", stop: "Arrêt si douleur à la cheville, au genou ou au tendon d'Achille, ou si vous perdez l'équilibre à chaque saut." },
+        tip: "Commence près d'un mur pour te rattraper. Plus dur : petits sauts vers l'avant et l'arrière.", stop: "Arrêt si douleur à la cheville, au genou ou au tendon d'Achille, ou si tu perds l'équilibre à chaque saut." },
       { name: "Fente de cheville au mur", group: "mobilite", color: 1, kit: ["un mur libre"], repsLabel: "10 répétitions par jambe",
-        desc: "Face à un mur, mains posées dessus, un pied devant à environ 10 cm du mur, l'autre derrière. Sans décoller le talon avant, avancez le genou vers le mur jusqu'à le toucher, puis revenez. Si c'est facile, reculez un peu le pied avant.",
+        desc: "Face à un mur, mains posées dessus, un pied devant à environ 10 cm du mur, l'autre derrière. Sans décoller le talon avant, avance le genou vers le mur jusqu'à le toucher, puis reviens. Si c'est facile, recule un peu le pied avant.",
         cue: "Le talon avant reste collé au sol, le genou va vers le mur.", err: "Le talon avant ne doit pas se soulever.",
-        tip: "Notez la distance entre le pied et le mur où le genou touche encore : c'est un bon repère de progrès, à comparer avec l'autre côté.", stop: "Arrêt si douleur vive à l'avant de la cheville." },
+        tip: "Note la distance entre le pied et le mur où le genou touche encore : c'est un bon repère de progrès, à comparer avec l'autre côté.", stop: "Arrêt si douleur vive à l'avant de la cheville." },
       { name: "Éversion à l'élastique", group: "mollet", color: 1, kit: ["un élastique", "une chaise"], repsLabel: "15 répétitions par jambe",
-        desc: "Assis, pied à plat, un élastique autour de l'avant du pied, tenu ou accroché du côté intérieur. Le talon reste au sol : tournez l'avant du pied vers l'extérieur contre l'élastique, puis revenez lentement.",
+        desc: "Assis, pied à plat, un élastique autour de l'avant du pied, tenu ou accroché du côté intérieur. Le talon reste au sol : tourne l'avant du pied vers l'extérieur contre l'élastique, puis reviens lentement.",
         cue: "Le talon reste posé, c'est l'avant du pied qui tourne vers l'extérieur.", err: "La jambe ne tourne pas : seul le pied bouge.",
         tip: "Plus dur : élastique plus tendu, ou retour en 3 secondes.", stop: "Arrêt si douleur vive sur le côté externe de la cheville." },
       { name: "Descente de marche", group: "genou", color: 2, kit: ["une marche"], repsLabel: "8 répétitions par jambe",
-        desc: "Debout sur une marche, sur une jambe, l'autre pied dans le vide sur le côté. Pliez lentement le genou d'appui jusqu'à effleurer le sol avec le talon libre, puis remontez. Le genou reste dans l'axe du pied, le bassin horizontal.",
+        desc: "Debout sur une marche, sur une jambe, l'autre pied dans le vide sur le côté. Plie lentement le genou d'appui jusqu'à effleurer le sol avec le talon libre, puis remonte. Le genou reste dans l'axe du pied, le bassin horizontal.",
         cue: "Le genou reste au-dessus du pied, le bassin horizontal.", err: "Le genou ne doit pas rentrer vers l'intérieur, ni le bassin tomber du côté libre.",
         tip: "Plus facile : une marche plus basse, ou en tenant la rampe. Plus dur : descente en 4 secondes.", stop: "Arrêt si la douleur à l'avant du genou dépasse 3 sur 10." }
     ]);
@@ -111,12 +111,12 @@ var KineTheme = (function () {
                ["Petits sauts sur place", "20 répétitions", "Seulement sans douleur aux tibias ni au tendon d'Achille."], ["Sauts sur une jambe", "8 répétitions par jambe", "À partir de la semaine 3, si les petits sauts passent sans douleur."]] }
       ],
       cards: [
-        { t: "Trop, trop vite", b: "La plupart des blessures de course viennent d'une hausse trop rapide : plus de kilomètres, plus vite, plus de dénivelé, de nouvelles chaussures. Changez <b>un seul paramètre à la fois</b>, et prévoyez une semaine plus légère toutes les 3 ou 4 semaines. Votre journal de course vous prévient si ça monte trop vite." },
-        { t: "La douleur, votre repère", b: "Une petite gêne n'est pas un danger. Ce qui compte : son intensité et le lendemain matin." + PAIN_RULE },
+        { t: "Trop, trop vite", b: "La plupart des blessures de course viennent d'une hausse trop rapide : plus de kilomètres, plus vite, plus de dénivelé, de nouvelles chaussures. Change <b>un seul paramètre à la fois</b>, et prévois une semaine plus légère toutes les 3 ou 4 semaines. Ton journal de course te prévient si ça monte trop vite." },
+        { t: "La douleur, ton repère", b: "Une petite gêne n'est pas un danger. Ce qui compte : son intensité et le lendemain matin." + PAIN_RULE },
         { t: "Pourquoi ces deux séances", b: "Chez des coureurs débutants, deux séances de renforcement des hanches et du tronc par semaine ont réduit d'environ un tiers les blessures de surmenage (essai publié en 2024). Faites-les un jour sans course, ou après une sortie facile, jamais juste avant une sortie intense." },
         { t: "La cadence", b: "Faire des pas un peu plus courts et un peu plus nombreux (5 à 10 % de pas en plus par minute) diminue les contraintes sur le genou et la hanche. À essayer sur des sorties faciles, progressivement." },
-        { t: "Les chaussures", b: "Choisissez avant tout celles qui sont <b>confortables</b> pour vous. Changer de modèle, surtout pour plus léger ou plus plat, se fait progressivement, sur plusieurs semaines." },
-        { t: "Quand consulter", b: "Douleur qui vous fait boiter, douleur précise sur un os qui fait mal quand on appuie dessus, gonflement, douleur la nuit, ou douleur qui dure plus de deux semaines malgré une baisse de l'entraînement." }
+        { t: "Les chaussures", b: "Choisis avant tout celles qui sont <b>confortables</b> pour toi. Changer de modèle, surtout pour plus léger ou plus plat, se fait progressivement, sur plusieurs semaines." },
+        { t: "Quand consulter", b: "Douleur qui te fait boiter, douleur précise sur un os qui fait mal quand on appuie dessus, gonflement, douleur la nuit, ou douleur qui dure plus de deux semaines malgré une baisse de l'entraînement." }
       ],
       runLog: true
     },
@@ -128,7 +128,7 @@ var KineTheme = (function () {
       sessions: [
         { t: "Calmer et activer", f: "Des contractions tenues qui soulagent souvent la douleur, et le réveil des muscles de la hanche.",
           warm: "Mobilisation articulaire progressive", cool: "Étirements membres inférieurs",
-          ex: [["Chaise contre le mur", "30 secondes", "Descendez seulement jusqu'où la douleur reste à 3 sur 10 au maximum."], ["Extension terminale du genou"], ["Relevé de jambe tendue couché"],
+          ex: [["Chaise contre le mur", "30 secondes", "Descends seulement jusqu'où la douleur reste à 3 sur 10 au maximum."], ["Extension terminale du genou"], ["Relevé de jambe tendue couché"],
                ["Clamshell", "15 répétitions par côté"], ["Abduction couché sur le côté"], ["Pont de hanche", "12 répétitions"]] },
         { t: "Renforcer", f: "Quadriceps et fessiers ensemble : c'est l'association qui marche le mieux pour ce genou.",
           warm: "Activation ceinture pelvienne", cool: "Étirements fessiers et iliopsoas",
@@ -141,7 +141,7 @@ var KineTheme = (function () {
       ],
       cards: [
         { t: "Un genou qui se soigne bien", b: "La douleur à l'avant du genou est très fréquente. Elle s'améliore le plus souvent avec des exercices réguliers des cuisses et des hanches, et en adaptant les activités qui chargent beaucoup le genou pendant quelques semaines. Il faut en général 6 à 12 semaines." },
-        { t: "La douleur, votre repère", b: "Pendant les exercices, une douleur faible est acceptée." + PAIN_RULE },
+        { t: "La douleur, ton repère", b: "Pendant les exercices, une douleur faible est acceptée." + PAIN_RULE },
         { t: "Ce qui charge le genou", b: "Descendre les escaliers, s'accroupir profondément, rester longtemps assis genoux pliés, courir en descente, sauter. On ne les supprime pas : on les <b>réduit</b> un temps, puis on les reprend progressivement." },
         { t: "Quand consulter", b: "Genou qui se bloque ou se dérobe, gonflement, douleur après un choc ou une torsion, genou chaud et rouge, ou fièvre." }
       ]
@@ -167,15 +167,15 @@ var KineTheme = (function () {
       ],
       cards: [
         { t: "Le dos est solide", b: "La très grande majorité des douleurs du bas du dos ne viennent pas d'une lésion grave. Elles s'améliorent en quelques semaines, et <b>bouger aide à guérir</b> : rester allongé longtemps ralentit la récupération." },
-        { t: "Avoir mal ne veut pas dire s'abîmer", b: "En reprenant le mouvement, la douleur peut augmenter un peu sans que ce soit dangereux. Restez dans une douleur supportable." + PAIN_RULE },
-        { t: "Au quotidien", b: "Marchez tous les jours, changez souvent de position, reprenez vos activités progressivement. Il n'y a pas de position interdite : c'est rester figé longtemps qui pose problème." },
-        { t: "Consultez sans attendre si", b: "<b>En urgence</b> : perte de contrôle des urines ou des selles, perte de sensibilité entre les cuisses, faiblesse qui s'installe dans une jambe. <b>Rapidement</b> : fièvre, perte de poids inexpliquée, douleur intense la nuit qui ne change pas avec la position, douleur après une chute, antécédent de cancer." }
+        { t: "Avoir mal ne veut pas dire s'abîmer", b: "En reprenant le mouvement, la douleur peut augmenter un peu sans que ce soit dangereux. Reste dans une douleur supportable." + PAIN_RULE },
+        { t: "Au quotidien", b: "Marche tous les jours, change souvent de position, reprends tes activités progressivement. Il n'y a pas de position interdite : c'est rester figé longtemps qui pose problème." },
+        { t: "Consulte sans attendre si", b: "<b>En urgence</b> : perte de contrôle des urines ou des selles, perte de sensibilité entre les cuisses, faiblesse qui s'installe dans une jambe. <b>Rapidement</b> : fièvre, perte de poids inexpliquée, douleur intense la nuit qui ne change pas avec la position, douleur après une chute, antécédent de cancer." }
       ]
     },
     cheville: {
       label: "Cheville après entorse", title: "Programme cheville", code: "E", color: "var(--amber)",
       short: "Entorse de cheville : retrouver équilibre, force et ressort",
-      who: "Après une entorse de cheville, quand vous marchez sans boiter. Aussi pour les chevilles qui « tournent » souvent.",
+      who: "Après une entorse de cheville, quand tu marches sans boiter. Aussi pour les chevilles qui « tournent » souvent.",
       perWeek: 3, days: { 1: 0, 3: 1, 5: 2 },
       sessions: [
         { t: "Mobilité et équilibre", f: "Retrouver l'amplitude de la cheville et la stabilité sur un pied.",
@@ -188,13 +188,13 @@ var KineTheme = (function () {
                ["Unipodal sur coussin"], ["Toucher en étoile unipodal"], ["Step-up sur marche", "10 répétitions par jambe"]] },
         { t: "Retour aux sauts", f: "Réapprendre à la cheville à amortir et à réagir, avant de reprendre le sport.",
           warm: "Échauffement global progressif", cool: "Étirements membres inférieurs",
-          ex: [["Unipodal yeux fermés"], ["Petits sauts sur place", "20 répétitions"], ["Sauts sur une jambe", "8 répétitions par jambe", "Seulement si vous tenez 30 secondes sur un pied et faites 15 élévations de talon sur une jambe sans douleur."],
+          ex: [["Unipodal yeux fermés"], ["Petits sauts sur place", "20 répétitions"], ["Sauts sur une jambe", "8 répétitions par jambe", "Seulement si tu tiens 30 secondes sur un pied et faites 15 élévations de talon sur une jambe sans douleur."],
                ["Skater latéral sans saut"], ["Excentrique mollet sur marche"], ["Fente latérale avec toucher sol"]] }
       ],
       cards: [
         { t: "Pourquoi rééduquer", b: "Après une entorse, l'équilibre et les muscles qui stabilisent la cheville restent affaiblis, même quand la douleur a disparu. C'est ce qui explique les entorses à répétition. Un travail d'équilibre régulier réduit nettement le risque de récidive." },
         { t: "Dans quel ordre", b: "D'abord marcher sans boiter, puis l'équilibre, puis la force, et seulement ensuite les sauts. Avant de sauter : tenir 30 secondes sur un pied et faire 15 élévations de talon sur une jambe, sans douleur." },
-        { t: "La douleur, votre repère", b: PAIN_RULE },
+        { t: "La douleur, ton repère", b: PAIN_RULE },
         { t: "Quand consulter", b: "Impossible de faire quatre pas en appui après l'entorse, douleur quand on appuie sur l'os de la cheville ou sur le bord externe du pied, gonflement important qui ne diminue pas, ou cheville qui continue à se dérober." }
       ]
     }
@@ -225,8 +225,8 @@ var KineTheme = (function () {
   var ICON = {};
   Object.keys(MICONS).forEach(function (k) { ICON[k] = "<svg viewBox='0 0 48 48' fill='currentColor' aria-hidden='true'>" + MICONS[k] + "</svg>"; });
   var MODE = {
-    coureur: { a: "#FF5A36", b: "#E2304F", hi: "Mode coureur activé", sub: "2 séances par semaine et votre journal de course" },
-    genou: { a: "#14B8A6", b: "#0B7F8C", hi: "Programme genou activé", sub: "Calmer, renforcer, puis reprendre vos activités" },
+    coureur: { a: "#FF5A36", b: "#E2304F", hi: "Mode coureur activé", sub: "2 séances par semaine et ton journal de course" },
+    genou: { a: "#14B8A6", b: "#0B7F8C", hi: "Programme genou activé", sub: "Calmer, renforcer, puis reprendre tes activités" },
     dos: { a: "#7C5CFF", b: "#4B2FD6", hi: "Programme dos activé", sub: "Bouger à nouveau, en confiance" },
     cheville: { a: "#F08A1C", b: "#C2410C", hi: "Programme cheville activé", sub: "Équilibre, force, puis retour aux sauts" },
     general: { a: "#5867FF", b: "#3341E0", hi: "Programme général", sub: "Tout le corps, 5 séances par semaine" }
@@ -447,7 +447,7 @@ var KineTheme = (function () {
     el.style.setProperty("--ma", M.a); el.style.setProperty("--mb", M.b);
     el.innerHTML = "<div class='th-fx-lines'><i></i><i></i><i></i><i></i><i></i></div><div class='th-fx-in'><div class='th-fx-ic'>" + (ICON[id] || ICON.general) + "</div>" +
       "<b>" + esc(M.hi) + "</b><span>" + esc(M.sub) + "</span>" +
-      (first ? "<small>Des exercices généraux, à suivre sur les conseils de votre kiné : ils ne remplacent pas une consultation.</small>" : "") + "</div>";
+      (first ? "<small>Des exercices généraux, à suivre sur les conseils de ton kiné : ils ne remplacent pas une consultation.</small>" : "") + "</div>";
     document.body.appendChild(el);
     try { if (navigator.vibrate) navigator.vibrate([12, 40, 18]); } catch (e) {}
     var stop = null, closed = false, done = function () {
@@ -471,7 +471,7 @@ var KineTheme = (function () {
     return el;
   }
   function closeSheet() { var el = $("th-sheet"); if (el) el.classList.remove("open"); }
-  var WARN = "<div class='th-warn'><b>À suivre sur les conseils de votre kiné.</b> Ces programmes sont généraux : ils ne remplacent pas un bilan ni une consultation. En cas de doute, ou si la douleur augmente, demandez-lui.</div>";
+  var WARN = "<div class='th-warn'><b>À suivre sur les conseils de ton kiné.</b> Ces programmes sont généraux : ils ne remplacent pas un bilan ni une consultation. En cas de doute, ou si la douleur augmente, demande-lui.</div>";
   function picker() {
     var cur = active(), list = isAdmin() ? ORDER.slice() : available();
     var row = function (id, T) {
@@ -483,9 +483,9 @@ var KineTheme = (function () {
     };
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineTheme.close()' aria-label='Retour'>←</button>" +
-      "<div><div class='kf-h1'>Choisir mon programme</div><div class='kf-sub'>Le programme choisi remplace vos séances de la semaine. Vous pouvez revenir au programme général à tout moment.</div></div>" +
+      "<div><div class='kf-h1'>Choisir mon programme</div><div class='kf-sub'>Le programme choisi remplace tes séances de la semaine. Tu peux revenir au programme général à tout moment.</div></div>" +
       WARN + row(null, null) + list.map(function (id) { return row(id, THEMES[id]); }).join("") +
-      "<p class='kf-sub'>Changer de programme repart en semaine 1. Vos séances déjà faites restent dans votre suivi.</p></div>";
+      "<p class='kf-sub'>Changer de programme repart en semaine 1. Tes séances déjà faites restent dans ton suivi.</p></div>";
     el.classList.add("open"); el.scrollTop = 0;
   }
   function info(id) {
@@ -533,7 +533,7 @@ var KineTheme = (function () {
     var id = active(); if (!id || !THEMES[id].runLog || !window.KineCourse) return "";
     var q = KineCourse.pending(), L = KineCourse.load();
     return "<button class='th-run" + (q ? " ask" : "") + "' onclick='KineCourse.open()'><span><b>" + (q ? "Et ce matin, la douleur ?" : "Journal de course") + "</b><small>" +
-      (q ? "Notez-la pour votre dernière sortie : c'est le meilleur repère." : Math.round(L.cur.min) + " min de course cette semaine. Touchez pour noter une sortie.") + "</small></span><span aria-hidden='true'>›</span></button>";
+      (q ? "Note-la pour ta dernière sortie : c'est le meilleur repère." : Math.round(L.cur.min) + " min de course cette semaine. Touche pour noter une sortie.") + "</small></span><span aria-hidden='true'>›</span></button>";
   }
   function perWeek() { var id = active(); return id ? THEMES[id].perWeek : 5; }
 

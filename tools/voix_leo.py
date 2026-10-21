@@ -45,7 +45,7 @@ def main():
         k = norm(it["t"])
         if not k or k in seen: continue
         seen.add(k)
-        if k in clips and os.path.exists(DIR + clips[k]["f"]) and not a_refaire(it["t"], clips[k]): continue
+        if k in clips and os.path.exists(DIR + clips[k]["f"]) and not a_refaire(it["t"], clips[k]) and not clips[k].get("a"): continue   # « a » : provisoire (ancienne phrase au vouvoiement)
         todo.append((k, it["t"], it.get("g", "seance")))
     st, sub = call("GET", "/v1/user/subscription")
     say("abonnement", st, sub if st != 200 else {k: sub.get(k) for k in ("tier", "character_count", "character_limit")})

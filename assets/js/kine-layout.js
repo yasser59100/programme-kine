@@ -52,7 +52,7 @@
     if (!ss.length && !todayId) {
       // Nouveau patient un jour sans séance prévue : il peut commencer tout de suite
       target = Object.keys(SEQ_DAYS)[0]; state = "first";
-      kick = "Votre première séance"; cta = "Commencer";
+      kick = "Ta première séance"; cta = "Commencer";
     } else if (todayId && !doneToday) {
       state = "today"; kick = "Séance du jour, semaine " + w + " sur 4"; cta = "Commencer";
     } else if (doneToday) {
@@ -70,8 +70,8 @@
       var dd = new Date(mon0); dd.setDate(mon0.getDate() + i);
       days += "<div class='lu-day" + (!id ? " rest" : "") + (done ? " ok" : "") + (d === dow ? " now" : "") + "'>" + WS[d] + "<b>" + (done ? "✓" : dd.getDate()) + "</b><i>" + (c || "repos") + "</i></div>";
     });
-    var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : comme prévu par votre programme, on reprend en semaine 1.</p>"
-               : st.cycleDone ? "<p class='lx-rule'>Cycle de 4 semaines terminé. Parlez-en à votre kinésithérapeute pour la suite.</p>"
+    var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : comme prévu par ton programme, on reprend en semaine 1.</p>"
+               : st.cycleDone ? "<p class='lx-rule'>Cycle de 4 semaines terminé. Parles-en à ton kinésithérapeute pour la suite.</p>"
                : st.week >= 2 && window.KineProgress && KineProgress.painHold && KineProgress.painHold() ? "<p class='lx-rule red'><b>Douleur de 5 sur 10 ou plus à plusieurs reprises.</b> Par prudence, on reste à 2 tours, sans augmenter la difficulté, jusqu'à ce que la douleur baisse.</p>" : "";
     var others = Object.keys(SEQ_DAYS).filter(function (id) { return id !== target; }).map(function (id) {
       return "<button class='lx-item' onclick=\"openPreview('" + id + "')\"><span class='lx-j'>" + codeOf(id) + "</span><span>" + esc(cap(nameOf(id))) + "</span><span class='lx-t'>" + minutes(id) + " min</span></button>";
@@ -132,7 +132,7 @@
     var since = st.start ? " depuis le " + parse(st.start).getDate() + " " + MO[parse(st.start).getMonth()] : "";
     var summary = cyc.length
       ? "<strong>" + cyc.length + " séance" + (cyc.length > 1 ? "s" : "") + "</strong>" + since + ", dont <strong>" + wk + " cette semaine</strong>." + (pc ? " <span class='lx-hurt'>" + pc + " douleur" + (pc > 1 ? "s" : "") + " signalée" + (pc > 1 ? "s" : "") + ".</span>" : " Aucune douleur signalée.")
-      : "Pas encore de séance. Votre suivi se remplira dès la fin de votre première séance guidée.";
+      : "Pas encore de séance. Ton suivi se remplira dès la fin de ta première séance guidée.";
     var last = pp[0], alert = "";
     if (last) {
       var d = parse(String(last.date).slice(0, 10));
@@ -152,11 +152,11 @@
       var first = (dayMap()[now.getDay()]) || Object.keys(SEQ_DAYS)[0];
       var face = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null;
       welcome = "<div class='su-welcome'>" + (face ? "<img class='su-face' src='" + face + "' alt=''>" : "") +
-        "<h2 class='su-wh'>Votre suivi commence ici</h2>" +
+        "<h2 class='su-wh'>Ton suivi commence ici</h2>" +
         "<ol class='su-steps'>" +
-          "<li><b>1</b><span><strong>Faites votre première séance</strong>Yass vous guide, mouvement par mouvement.</span></li>" +
-          "<li><b>2</b><span><strong>Notez votre ressenti</strong>30 secondes par jour : douleur, sommeil, moral.</span></li>" +
-          "<li><b>3</b><span><strong>Voyez vos progrès</strong>Votre semaine, votre régularité et vos courbes s'affichent ici.</span></li>" +
+          "<li><b>1</b><span><strong>Fais ta première séance</strong>Yass te guide, mouvement par mouvement.</span></li>" +
+          "<li><b>2</b><span><strong>Note ton ressenti</strong>30 secondes par jour : douleur, sommeil, moral.</span></li>" +
+          "<li><b>3</b><span><strong>Vois tes progrès</strong>Ta semaine, ta régularité et tes courbes s'affichent ici.</span></li>" +
         "</ol><button class='lx-cta' onclick=\"openPreview('" + first + "')\">Commencer ma première séance</button></div>";
     }
     var GEAR = "<button class='lu-gear' onclick='KineLumiere.settings()' aria-label='Réglages'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='3'/><path d='M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'/></svg></button>";
@@ -196,7 +196,7 @@
       var d = Math.round(av(pts.slice(-2)) - av(pts.slice(0, 2)));
       third = "<div class='" + (d < 0 ? "good" : d > 0 ? "bad" : "") + "'><b>" + (d > 0 ? "+" + d : d < 0 ? "−" + (-d) : "0") + "</b><small>point" + (Math.abs(d) > 1 ? "s" : "") + " de douleur depuis le début</small></div>";
     } else if (pts.length) third = "<div><b>" + pts[pts.length - 1][1] + "<small style='display:inline;font-size:.9rem'>/10</small></b><small>douleur à la dernière séance</small></div>";
-    else third = "<div><b>—</b><small>douleur, après votre bilan de séance</small></div>";
+    else third = "<div><b>—</b><small>douleur, après ton bilan de séance</small></div>";
     return "<div class='lu-kpi'><div class='d'><b>" + cyc.length + "</b><small>séance" + (cyc.length > 1 ? "s" : "") + " faite" + (cyc.length > 1 ? "s" : "") + "</small></div>" +
       "<div><b>" + wk + "</b><small>cette semaine</small></div>" + third + "</div>";
   }
@@ -220,13 +220,13 @@
     ss.forEach(function (x) { var d = String(x.date).slice(0, 10); days[d] = days[d] || {}; if (days[d].pain == null && x.douleur != null && x.douleur !== "") days[d].pain = +x.douleur; if (x.borg) days[d].borg = +x.borg; });
     var keys = Object.keys(days).sort();
     var head = "<h2 class='lx-section'>Avant / maintenant</h2>";
-    if (!keys.length) return head + "<p class='lx-muted'>Notez votre ressenti et faites vos séances : dans deux semaines, vous verrez ici ce qui a changé.</p>";
+    if (!keys.length) return head + "<p class='lx-muted'>Note ton ressenti et fais tes séances : dans deux semaines, tu verras ici ce qui a changé.</p>";
     var first = keys[0], last7 = iso(addD(new Date(), -6)), first7 = iso(addD(parse(first), 6));
     var A = keys.filter(function (d) { return d <= first7; }), B = keys.filter(function (d) { return d >= last7; });
     var spanDays = Math.round((Date.now() - parse(first).getTime()) / 86400000);
     if (spanDays < 13) {
       var left = 13 - spanDays;
-      return head + "<p class='lx-muted'>Encore " + left + " jour" + (left > 1 ? "s" : "") + " de suivi et vous pourrez comparer votre première semaine avec la semaine en cours.</p>" +
+      return head + "<p class='lx-muted'>Encore " + left + " jour" + (left > 1 ? "s" : "") + " de suivi et tu pourras comparer ta première semaine avec la semaine en cours.</p>" +
         "<div class='ba-wait'><i style='width:" + Math.round(spanDays / 13 * 100) + "%'></i></div>";
     }
     var avg = function (arr, k, f) { var v = arr.map(function (d) { return days[d][k]; }).filter(function (x) { return x != null && x !== ""; }).map(f || Number); return v.length >= 2 ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; };
@@ -237,7 +237,7 @@
       ["Bonnes nuits", avg(A, "sleep", good), avg(B, "sleep", good), "%", 1, 100],
       ["Effort des séances", avg(A, "borg"), avg(B, "borg"), "/5", 0, 1]
     ].filter(function (r) { return r[1] != null && r[2] != null; });
-    if (!rows.length) return head + "<p class='lx-muted'>Pas encore assez de données sur ces deux semaines. Notez votre ressenti quelques jours de plus.</p>";
+    if (!rows.length) return head + "<p class='lx-muted'>Pas encore assez de données sur ces deux semaines. Note ton ressenti quelques jours de plus.</p>";
     var f = function (v, m) { return m === 100 ? Math.round(v * 100) + " %" : (Math.round(v * 10) / 10).toString().replace(".", ","); };
     var html = rows.map(function (r) {
       var d = r[2] - r[1], tol = r[5] === 100 ? 0.1 : 0.3, better = r[4] === 0 ? null : (d * r[4] > tol ? true : d * r[4] < -tol ? false : null);
@@ -247,7 +247,7 @@
         "<div class='ba-bars'><span class='ba-l'>1re sem.</span><i class='ba-bar a' style='width:" + Math.max(4, Math.round(r[1] / max * 100)) + "%'></i><span class='ba-v'>" + f(r[1], r[5]) + (r[5] === 100 ? "" : r[3]) + "</span></div>" +
         "<div class='ba-bars'><span class='ba-l'>7 derniers j.</span><i class='ba-bar b' style='width:" + Math.max(4, Math.round(r[2] / max * 100)) + "%'></i><span class='ba-v'>" + f(r[2], r[5]) + (r[5] === 100 ? "" : r[3]) + "</span></div></div>";
     }).join("");
-    return head + "<p class='lx-muted'>Votre première semaine (à partir du " + parse(first).getDate() + " " + MO[parse(first).getMonth()] + ") comparée aux 7 derniers jours.</p><div class='ba'>" + html + "</div>";
+    return head + "<p class='lx-muted'>Ta première semaine (à partir du " + parse(first).getDate() + " " + MO[parse(first).getMonth()] + ") comparée aux 7 derniers jours.</p><div class='ba'>" + html + "</div>";
   }
   function addD(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); return x; }
 
@@ -274,7 +274,7 @@
         (tag ? "<em>" + esc(tag) + "</em>" : "") + "</span><span class='lu-chev' aria-hidden='true'>›</span></button>";
     }).join("");
     box.innerHTML = (window.KineTheme ? KineTheme.bannerHtml() : "") +
-      "<div class='lu-pslab'><p class='lu-k'>" + (st.start ? "Jour " + day + " sur 28" : "Le programme démarre à votre première séance") + "</p>" +
+      "<div class='lu-pslab'><p class='lu-k'>" + (st.start ? "Jour " + day + " sur 28" : "Le programme démarre à ta première séance") + "</p>" +
         "<h2 class='lu-t'>Semaine " + p.week + " sur 4</h2><p class='lu-m'>" + esc(cur[1]) + "</p>" +
         "<div class='lu-ptrack'>" + [1, 2, 3, 4].map(function (n) {
           var f = n < p.week ? 100 : n > p.week ? 0 : st.start ? Math.max(8, Math.round(((day - 1) % 7 + 1) / 7 * 100)) : 0;
@@ -304,7 +304,7 @@
         "<button class='kc-mini' aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div>";
     }).join("");
     return "<h2 class='lx-section'>Mes séances</h2><div class='lx-list'>" + rows +
-      "<button class='lx-srow' onclick='KineCompose.open()'><span class='lx-j'>＋</span><span class='lx-n'>Créer ma séance<small>Choisissez vos exercices, par couleur de difficulté</small></span></button></div>";
+      "<button class='lx-srow' onclick='KineCompose.open()'><span class='lx-j'>＋</span><span class='lx-n'>Créer ma séance<small>Choisis tes exercices, par couleur de difficulté</small></span></button></div>";
   }
   function libHtml() {
     if (!window.KineBiblio) return "";

@@ -65,7 +65,7 @@
     return "<div class='kr-adh'><div class='kr-adh-t'><span>Régularité sur 14 jours</span><b style='color:" + col + "'>" + a.pct + " %</b></div>" +
       "<div class='kr-prog'><span style='width:" + a.pct + "%;background:" + col + "'></span></div>" +
       "<div class='kr-muted'>" + a.done + " séance" + (a.done > 1 ? "s" : "") + " faite" + (a.done > 1 ? "s" : "") + " sur " + a.planned + " prévue" + (a.planned > 1 ? "s" : "") + "." +
-      (a.pct < 80 ? " Une séance manquée n'est pas grave : reprenez simplement à la prochaine." : "") + "</div></div>";
+      (a.pct < 80 ? " Une séance manquée n'est pas grave : reprends simplement à la prochaine." : "") + "</div></div>";
   }
 
   /* ════════ Ressenti du jour ════════ */
@@ -109,10 +109,10 @@
       "<div class='kr-q'><strong>Douleur en ce moment</strong>" + scale("pain", 0, 10, "pain") + "<div class='kr-ends'><span>Aucune</span><span>La pire imaginable</span></div></div>" +
       "<div class='kr-q' id='kr-zones'" + (draft.pain ? "" : " hidden") + "><strong>Où ?</strong>" + chips("zones", ZONES, true) + "</div>" +
       "<div class='kr-q'><strong>Raideur au réveil</strong>" + seg("stiff", STIFF) + "</div>" +
-      "<div class='kr-q'><strong>Votre nuit</strong>" + seg("sleep", SLEEP, SLEEP_ICONS) + "</div>" +
+      "<div class='kr-q'><strong>Ta nuit</strong>" + seg("sleep", SLEEP, SLEEP_ICONS) + "</div>" +
       "<div class='kr-q'><strong>Moral</strong>" + scale("mood", 1, 5, "mood") + "<div class='kr-ends'><span>Très bas</span><span>Très bon</span></div></div>" +
       "<div class='kr-q'><strong>Autre activité aujourd'hui</strong>" + chips("acts", ACTS, true) + "</div>" +
-      "<label class='kr-q'><strong>Une remarque ?</strong><textarea class='kf-text kr-note' id='kr-note' placeholder='Facultatif, envoyée à votre kiné avec votre suivi'>" + esc(draft.note || "") + "</textarea></label>" +
+      "<label class='kr-q'><strong>Une remarque ?</strong><textarea class='kf-text kr-note' id='kr-note' placeholder='Facultatif, envoyée à ton kiné avec ton suivi'>" + esc(draft.note || "") + "</textarea></label>" +
       "<p class='kr-msg' id='kr-msg' role='status'></p>" +
       "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineCheckin.save()'>Enregistrer</button></div>";
     el.classList.add("open");
@@ -137,7 +137,7 @@
   function doSave() {
     draft.note = ($("kr-note") && $("kr-note").value.trim()) || "";
     if (draft.pain == null && draft.sleep == null && draft.mood == null && draft.stiff == null) {
-      $("kr-msg").textContent = "Indiquez au moins votre douleur, votre nuit ou votre moral.";
+      $("kr-msg").textContent = "Indique au moins ta douleur, ta nuit ou ton moral.";
       return;
     }
     if (!draft.pain) draft.zones = [];
@@ -172,8 +172,8 @@
       if (d === day) h += "<circle cx='" + px.toFixed(1) + "' cy='" + py.toFixed(1) + "' r='10' fill='none' style='stroke:var(--text)' stroke-width='2'/>";
     }
     var nx = nextSession(), centre;
-    if (!started) centre = "<div class='kr-k'>Programme</div><div class='kr-big sm'>À venir</div><div class='kr-s'>28 jours, 4 semaines</div><div class='kr-n'>Il démarre à votre première séance.</div>";
-    else if (st.cycleDone) centre = "<div class='kr-k'>Programme</div><div class='kr-big sm'>Terminé</div><div class='kr-s'>28 jours sur 28</div><div class='kr-n'>Parlez-en à votre kiné pour la suite.</div>";
+    if (!started) centre = "<div class='kr-k'>Programme</div><div class='kr-big sm'>À venir</div><div class='kr-s'>28 jours, 4 semaines</div><div class='kr-n'>Il démarre à ta première séance.</div>";
+    else if (st.cycleDone) centre = "<div class='kr-k'>Programme</div><div class='kr-big sm'>Terminé</div><div class='kr-s'>28 jours sur 28</div><div class='kr-n'>Parles-en à ton kiné pour la suite.</div>";
     else centre = "<div class='kr-k'>Semaine " + st.week + "</div><div class='kr-big'>Jour " + day + "</div><div class='kr-s'>sur 28 jours</div>" + (nx ? "<div class='kr-n'>" + esc(nx) + "</div>" : "");
     return "<div class='kr-ring' role='img' aria-label='" + (started ? "Jour " + day + " sur 28 du programme" : "Programme pas encore commencé") + "'><svg viewBox='0 0 250 250' width='" + size + "' height='" + size + "'>" + h + "</svg><div class='kr-c'>" + centre + "</div></div>" +
       "<div class='kr-legend'><span><i style='background:#4B5BFF'></i>Séance faite</span><span><i style='background:#f87171'></i>Douleur</span><span><i style='background:var(--kr-noted)'></i>Ressenti noté</span></div>";
@@ -219,10 +219,10 @@
     var map = all(), days = Object.keys(map).sort(), withPain = days.filter(function (d) { return map[d].pain != null; });
     if (withPain.length < MIN_DAYS) {
       var left = MIN_DAYS - withPain.length;
-      return "<div class='kr-card'><div class='kr-lab'>" + TREND + "Vos tendances</div>" +
-        "<div class='kr-ins sm'>Notez votre ressenti encore " + left + " jour" + (left > 1 ? "s" : "") + " pour découvrir ce que vos données montrent.</div>" +
+      return "<div class='kr-card'><div class='kr-lab'>" + TREND + "Tes tendances</div>" +
+        "<div class='kr-ins sm'>Note ton ressenti encore " + left + " jour" + (left > 1 ? "s" : "") + " pour découvrir ce que tes données montrent.</div>" +
         "<div class='kr-prog'><span style='width:" + Math.round(withPain.length / MIN_DAYS * 100) + "%'></span></div>" +
-        "<div class='kr-muted'>Par exemple : votre douleur est-elle plus basse les lendemains de séance ? Votre sommeil joue-t-il sur la douleur ?</div></div>";
+        "<div class='kr-muted'>Par exemple : ta douleur est-elle plus basse les lendemains de séance ? Ton sommeil joue-t-il sur la douleur ?</div></div>";
     }
     var recent = withPain.slice(-28), cards = [];
     // 1. Lendemains de séance
@@ -230,13 +230,13 @@
     recent.forEach(function (d) { (sessOn(addDays(d, -1)).length ? after : other).push(+map[d].pain); });
     if (after.length >= 3 && other.length >= 3) {
       var a = avg(after), o = avg(other), diff = o - a;
-      var title = diff >= 1 ? "Votre douleur est plus basse les lendemains de séance."
-        : diff <= -1 ? "Votre douleur est un peu plus haute les lendemains de séance."
-        : "Les séances ne changent pas votre douleur du lendemain.";
-      var note = diff <= -1 ? " Une légère hausse peut être normale au début ; si elle dure ou dépasse 5 sur 10, parlez-en à votre kiné." : "";
-      cards.push("<div class='kr-card'><div class='kr-lab'>" + TREND + "Ce que montrent vos données</div><div class='kr-ins'>" + title + "</div>" +
+      var title = diff >= 1 ? "Ta douleur est plus basse les lendemains de séance."
+        : diff <= -1 ? "Ta douleur est un peu plus haute les lendemains de séance."
+        : "Les séances ne changent pas ta douleur du lendemain.";
+      var note = diff <= -1 ? " Une légère hausse peut être normale au début ; si elle dure ou dépasse 5 sur 10, parles-en à ton kiné." : "";
+      cards.push("<div class='kr-card'><div class='kr-lab'>" + TREND + "Ce que montrent tes données</div><div class='kr-ins'>" + title + "</div>" +
         bars([[a, "après séance", "#4B5BFF"], [o, "autres jours", "#3a4a5e"]]) +
-        "<div class='kr-muted'>Douleur moyenne sur 10, d'après vos " + recent.length + " derniers jours notés." + note + "</div></div>");
+        "<div class='kr-muted'>Douleur moyenne sur 10, d'après tes " + recent.length + " derniers jours notés." + note + "</div></div>");
     }
     // 2. Sommeil et douleur (la nuit notée est celle qui précède)
     var bad = [], good = [];
@@ -244,8 +244,8 @@
     if (bad.length >= 3 && good.length >= 3) {
       var b = avg(bad), g = avg(good), dd = b - g;
       if (Math.abs(dd) >= 1) cards.push("<div class='kr-card'><div class='kr-lab mute'>Sommeil et douleur</div><div class='kr-ins sm'>" +
-        (dd > 0 ? "Après une mauvaise nuit, votre douleur est plus haute de " + fmt1(dd) + " point" + (dd >= 2 ? "s" : "") + " en moyenne."
-                : "Votre douleur ne semble pas dépendre de votre nuit.") + "</div>" +
+        (dd > 0 ? "Après une mauvaise nuit, ta douleur est plus haute de " + fmt1(dd) + " point" + (dd >= 2 ? "s" : "") + " en moyenne."
+                : "Ta douleur ne semble pas dépendre de ta nuit.") + "</div>" +
         bars([[g, "bonne nuit", "#6fb0ff"], [b, "mauvaise nuit", "#3a4a5e"]]) + "</div>");
     }
     // 3. Évolution : 7 derniers jours notés contre les 7 précédents
@@ -253,10 +253,10 @@
       var last7 = withPain.slice(-7).map(function (d) { return +map[d].pain; }), prev7 = withPain.slice(-14, -7).map(function (d) { return +map[d].pain; });
       var e = avg(prev7) - avg(last7);
       if (Math.abs(e) >= 0.8) cards.push("<div class='kr-card'><div class='kr-lab mute'>Évolution</div><div class='kr-ins sm'>" +
-        (e > 0 ? "Votre douleur a baissé de " + fmt1(e) + " point" + (e >= 2 ? "s" : "") + " par rapport à la semaine d'avant."
-               : "Votre douleur a augmenté de " + fmt1(-e) + " point" + (-e >= 2 ? "s" : "") + " par rapport à la semaine d'avant. Si ça continue, parlez-en à votre kiné.") + "</div></div>");
+        (e > 0 ? "Ta douleur a baissé de " + fmt1(e) + " point" + (e >= 2 ? "s" : "") + " par rapport à la semaine d'avant."
+               : "Ta douleur a augmenté de " + fmt1(-e) + " point" + (-e >= 2 ? "s" : "") + " par rapport à la semaine d'avant. Si ça continue, parles-en à ton kiné.") + "</div></div>");
     }
-    if (!cards.length) cards.push("<div class='kr-card'><div class='kr-lab'>" + TREND + "Vos tendances</div><div class='kr-ins sm'>Pas de tendance nette pour l'instant. Continuez à noter votre ressenti, les constats apparaîtront ici.</div></div>");
+    if (!cards.length) cards.push("<div class='kr-card'><div class='kr-lab'>" + TREND + "Tes tendances</div><div class='kr-ins sm'>Pas de tendance nette pour l'instant. Continue à noter ton ressenti, les constats apparaîtront ici.</div></div>");
     return cards.join("");
   }
   var TREND = "<svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 17l6-6 4 4 8-8'/><path d='M15 7h6v6'/></svg>";
@@ -326,7 +326,7 @@
     var el = sheet("kr-chart"); el.setAttribute("aria-label", "Douleur et effort");
     var html = window.KineLayout && KineLayout.chart ? KineLayout.chart(sessList()) : "";
     el.innerHTML = "<div class='kf-sheet-body kr-body'><div class='kr-top'><button class='kf-back' onclick=\"document.getElementById('kr-chart').classList.remove('open')\" aria-label='Fermer'>←</button></div>" +
-      "<h2 class='kr-h'>Douleur et effort</h2><p class='kr-muted'>Vos 6 dernières séances, d'après le bilan de fin de séance.</p><div class='lx-chart'>" + html + "</div></div>";
+      "<h2 class='kr-h'>Douleur et effort</h2><p class='kr-muted'>Tes 6 dernières séances, d'après le bilan de fin de séance.</p><div class='lx-chart'>" + html + "</div></div>";
     el.classList.add("open");
   }
 
@@ -334,7 +334,7 @@
   function homeReminder() {
     if (get(iso())) return "";
     var h = new Date().getHours();
-    return "<button class='kr-remind' onclick='KineCheckin.open()'>" + PLUS + "<span><b>" + (h < 12 ? "Bonjour" : h < 18 ? "Bonne après-midi" : "Bonsoir") + ", comment ça va aujourd'hui ?</b><small>Notez votre ressenti en 30 secondes</small></span></button>";
+    return "<button class='kr-remind' onclick='KineCheckin.open()'>" + PLUS + "<span><b>" + (h < 12 ? "Bonjour" : h < 18 ? "Bonne après-midi" : "Bonsoir") + ", comment ça va aujourd'hui ?</b><small>Note ton ressenti en 30 secondes</small></span></button>";
   }
 
   /* ════════ Résumé pour le kiné ════════ */

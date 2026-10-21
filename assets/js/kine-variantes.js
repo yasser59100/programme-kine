@@ -96,7 +96,7 @@
     var el = document.createElement("div"); el.id = "kv-level";
     el.innerHTML = "<div class='kv-row'>" +
       "<button type='button' class='kv-btn' " + (down ? "" : "disabled") + " data-d='-1' aria-label='Plus facile" + (down ? " : " + esc(down) : "") + "'>−<small>Plus facile</small></button>" +
-      "<div class='kv-mid'><b>Niveau</b>" + (dots ? "<span class='kv-dots' aria-hidden='true'>" + dots + "</span>" : "<span class='kv-n'>à votre mesure</span>") + "</div>" +
+      "<div class='kv-mid'><b>Niveau</b>" + (dots ? "<span class='kv-dots' aria-hidden='true'>" + dots + "</span>" : "<span class='kv-n'>à ta mesure</span>") + "</div>" +
       "<button type='button' class='kv-btn up' data-d='1' aria-label='Plus difficile : " + esc(up) + "'>+<small>Plus difficile</small></button></div>" +
       "<p class='kv-hint' id='kv-hint'>" + (up ? "Trop facile ? + passe à : <strong>" + esc(up) + "</strong>" : "") + "</p>";
     var gb = !neighbor(ex.name, 1) && !adj(ex).down ? gearBlocked(ex.name) : null;

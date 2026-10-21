@@ -7,7 +7,7 @@
   "use strict";
   var KEY = "kf-push", PKEY = "kf-push-key";
   var HOURS = [8, 10, 12, 14, 18, 20];
-  var KINDS = [["both", "Les deux, un jour sur deux"], ["savoir", "Le saviez-vous ?"], ["vf", "Vrai ou faux"]];
+  var KINDS = [["both", "Les deux, un jour sur deux"], ["savoir", "Le savais-tu ?"], ["vf", "Vrai ou faux"]];
   function $(id) { return document.getElementById(id); }
   function jget(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
   function jset(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -41,10 +41,10 @@
   async function enable(hour, kind, silent) {
     var msg = $("kn-msg");
     function say(t) { if (msg) msg.textContent = t; }
-    if (!supported()) { say("Votre téléphone ne permet pas les notifications depuis cette appli."); return false; }
-    if (ios() && !standalone()) { say("Sur iPhone, ajoutez d'abord KinéForce à l'écran d'accueil (bouton Partager, puis « Sur l'écran d'accueil »), puis ouvrez l'appli depuis cette icône."); return false; }
+    if (!supported()) { say("Ton téléphone ne permet pas les notifications depuis cette appli."); return false; }
+    if (ios() && !standalone()) { say("Sur iPhone, ajoute d'abord KinéForce à l'écran d'accueil (bouton Partager, puis « Sur l'écran d'accueil »), puis ouvre l'appli depuis cette icône."); return false; }
     var perm = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
-    if (perm !== "granted") { say("Les notifications sont bloquées. Vous pouvez les autoriser dans les réglages du téléphone, puis réessayer."); return false; }
+    if (perm !== "granted") { say("Les notifications sont bloquées. Tu peux les autoriser dans les réglages du téléphone, puis réessayer."); return false; }
     say("Activation…");
     try {
       var reg = await navigator.serviceWorker.ready, k = key();
@@ -60,7 +60,7 @@
       jset(KEY, { on: true, hour: hour, kind: kind, id: id });
       say(""); return true;
     } catch (e) {
-      say("L'activation n'a pas marché. Vérifiez votre connexion et réessayez.");
+      say("L'activation n'a pas marché. Vérifie ta connexion et réessaie.");
       return false;
     }
   }
@@ -79,13 +79,13 @@
     if (!el) { el = document.createElement("div"); el.id = "kn-sheet"; el.className = "kf-sheet"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Notifications du jour"); document.body.appendChild(el); }
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineNotifs.close()' aria-label='Retour'>←</button>" +
       "<div class='kf-h1'>Notifications du jour</div>" +
-      "<div class='kf-sub'>Une seule notification par jour, à l'heure de votre choix, pour découvrir le « Le saviez-vous ? » ou répondre au « Vrai ou faux » du jour.</div>" +
+      "<div class='kf-sub'>Une seule notification par jour, à l'heure de ton choix, pour découvrir le « Le savais-tu ? » ou répondre au « Vrai ou faux » du jour.</div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Je veux recevoir</div><div class='kf-chips kn-kinds'>" +
         KINDS.map(function (k) { return "<button type='button' data-k='" + k[0] + "' class='" + (k[0] === pick.kind ? "sel" : "") + "'>" + k[1] + "</button>"; }).join("") + "</div>" +
       "<div class='kf-phase' style='color:var(--text2)'>À quelle heure ?</div><div class='kf-chips kn-hours'>" +
         HOURS.map(function (h) { return "<button type='button' data-h='" + h + "' class='" + (h === pick.hour ? "sel" : "") + "'>" + h + " h</button>"; }).join("") + "</div>" +
       "<p class='kn-msg' id='kn-msg' role='status'></p>" +
-      "<p class='lx-muted kn-note'>Aucune donnée de santé n'est envoyée : seulement l'adresse technique de notification de ce téléphone, l'heure et le fuseau horaire. Vous pouvez arrêter à tout moment.</p>" +
+      "<p class='lx-muted kn-note'>Aucune donnée de santé n'est envoyée : seulement l'adresse technique de notification de ce téléphone, l'heure et le fuseau horaire. Tu peux arrêter à tout moment.</p>" +
       "</div><div class='kf-sheet-foot'>" +
         "<button class='seq-btn-main' id='kn-go'>" + (s.on ? "Enregistrer" : "Activer les notifications") + "</button>" +
         (s.on ? "<button class='seq-btn-secondary' id='kn-off'>Désactiver</button>" : "") +

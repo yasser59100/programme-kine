@@ -139,7 +139,7 @@
       return "<div class='pg-w" + (w === cur ? " cur" : "") + "'><b>S" + w + "</b>" + esc(txt) + "</div>";
     }).join("");
     var lvl = window.KineLevel && KineLevel.get(ex.name);
-    return "<div class='pg-weeks'>" + cells + "</div>" + (lvl && (lvl.d || lvl.tempo) ? "<div class='kf-sub'>Vos chiffres, avec les paliers gagnés sur cet exercice.</div>" : "");
+    return "<div class='pg-weeks'>" + cells + "</div>" + (lvl && (lvl.d || lvl.tempo) ? "<div class='kf-sub'>Tes chiffres, avec les paliers gagnés sur cet exercice.</div>" : "");
   }
 
   /* ════════ Écran 4 : comprendre mon programme ════════ */
@@ -153,7 +153,7 @@
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineProgram.close()' aria-label='Retour'>←</button>" +
       "<div class='kf-h1'>Comprendre mon programme</div>" +
       "<div class='su-card'><b>Une progression sur 4 semaines</b><div class='pg-weeks'>" + wk + "</div><div class='kf-sub'>Plus d'une semaine sans séance : on reprend en semaine 1.</div></div>" +
-      "<div class='su-card'><b>L'effort ressenti, sur 5</b><div class='pg-effs'>" + eff + "</div><div class='kf-sub'>Visez 2 à 3. Si vous êtes souvent à 4 ou 5, l'appli garde le même volume.</div></div>" +
+      "<div class='su-card'><b>L'effort ressenti, sur 5</b><div class='pg-effs'>" + eff + "</div><div class='kf-sub'>Vise 2 à 3. Si tu es souvent à 4 ou 5, l'appli garde le même volume.</div></div>" +
       "<div class='pg-duo'><div class='pg-ok'><b>Courbatures : normal</b>Diffuses, dans les muscles, 24 à 72 h après, diminuent en bougeant.</div>" +
       "<div class='pg-bad'><b>Signal d'alarme : stop</b>Douleur vive, dans une articulation, pendant l'effort, qui augmente.</div></div>" +
       "</div>";

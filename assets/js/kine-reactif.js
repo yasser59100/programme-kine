@@ -33,59 +33,59 @@
   // Schémas vus de dessus : P = patient, C = chaise, plots = positions (x, y) dans un cadre 300 × 190
   var EXOS = [
     { id: "fentes", name: "Fentes réactives", level: 3, sides: false,
-      kit: "vos plots et un sol dégagé",
-      place: "Debout, pieds joints. Posez les plots au sol devant vous, en arc de cercle, à un grand pas : un en diagonale à gauche, un droit devant, un en diagonale à droite, et le quatrième sur le côté si vous en avez quatre.",
-      action: "À chaque couleur, faites une fente : avancez le pied vers le plot de cette couleur, touchez-le du pied en pliant les deux genoux, puis poussez pour revenir pieds joints.",
-      cue: "Le genou avant reste dans l'axe du pied. Revenez toujours bien au centre avant la couleur suivante.",
+      kit: "tes plots et un sol dégagé",
+      place: "Debout, pieds joints. Pose les plots au sol devant toi, en arc de cercle, à un grand pas : un en diagonale à gauche, un droit devant, un en diagonale à droite, et le quatrième sur le côté si tu en as quatre.",
+      action: "À chaque couleur, fais une fente : avance le pied vers le plot de cette couleur, touche-le du pied en pliant les deux genoux, puis pousse pour revenir pieds joints.",
+      cue: "Le genou avant reste dans l'axe du pied. Reviens toujours bien au centre avant la couleur suivante.",
       spots: [[80, 62], [150, 35], [220, 62], [250, 120]], feet: "both",
       av: [[0.62, 0.74], [0, 0.98], [-0.62, 0.74], [-1.0, 0.06]] },
     { id: "bulgare", name: "Sauts bulgares réactifs", level: 3, sides: true, sideWord: "jambe",
-      kit: "une chaise stable calée contre un mur, et vos plots",
-      place: "Dos à la chaise, posez le dessus du pied arrière sur l'assise, le pied avant un grand pas devant. Posez les plots au sol autour du pied avant, à 40 ou 50 cm : un à gauche, un devant, un à droite, et un en diagonale si vous en avez quatre.",
-      action: "À chaque couleur, faites un petit saut sur la jambe avant pour atterrir à côté du plot de cette couleur, genou fléchi, puis un petit saut pour revenir au centre. Le pied arrière reste sur la chaise.",
-      cue: "Atterrissez en douceur, genou souple et dans l'axe du pied. Commencez par de tout petits sauts.",
+      kit: "une chaise stable calée contre un mur, et tes plots",
+      place: "Dos à la chaise, pose le dessus du pied arrière sur l'assise, le pied avant un grand pas devant. Pose les plots au sol autour du pied avant, à 40 ou 50 cm : un à gauche, un devant, un à droite, et un en diagonale si tu en as quatre.",
+      action: "À chaque couleur, fais un petit saut sur la jambe avant pour atterrir à côté du plot de cette couleur, genou fléchi, puis un petit saut pour revenir au centre. Le pied arrière reste sur la chaise.",
+      cue: "Atterris en douceur, genou souple et dans l'axe du pied. Commence par de tout petits sauts.",
       spots: [[68, 100], [150, 38], [232, 100], [92, 50]], chair: true, feet: "split",
       av: [[0.42, 0.4], [-0.1, 0.9], [-0.62, 0.4], [0.28, 0.8]] },
     { id: "chasses", name: "Pas chassés réactifs", level: 2, sides: false,
-      kit: "vos plots et environ 3 mètres d'espace sur les côtés",
-      place: "Debout au centre, légèrement fléchi. Posez un plot loin à gauche et un loin à droite (environ 3 pas chassés), puis les autres devant et derrière vous si vous en avez plus.",
-      action: "À chaque couleur, rejoignez le plot en pas chassés, sans croiser les pieds, touchez-le du pied, puis revenez au centre.",
-      cue: "Restez fléchi, le buste face à l'avant, et poussez sur la jambe extérieure.",
+      kit: "tes plots et environ 3 mètres d'espace sur les côtés",
+      place: "Debout au centre, légèrement fléchi. Pose un plot loin à gauche et un loin à droite (environ 3 pas chassés), puis les autres devant et derrière toi si tu en as plus.",
+      action: "À chaque couleur, rejoins le plot en pas chassés, sans croiser les pieds, touche-le du pied, puis reviens au centre.",
+      cue: "Reste fléchi, le buste face à l'avant, et pousse sur la jambe extérieure.",
       spots: [[30, 105], [270, 105], [150, 28], [150, 180]], feet: "both",
       av: [[1.25, 0.05], [-1.25, 0.05], [0, 1.15], [0, -1.0]] },
     { id: "chasses1", name: "Sauts latéraux sur une jambe réactifs", level: 3, sides: true, sideWord: "jambe",
-      kit: "vos plots et environ 2 mètres d'espace autour de vous, sol non glissant",
-      place: "Debout sur une jambe au centre, genou légèrement fléchi. Posez un plot à gauche et un à droite, à environ 70 cm, puis un devant et un derrière si vous en avez quatre.",
-      action: "À chaque couleur, faites un petit saut sur la même jambe pour atterrir à côté du plot de cette couleur, tenez une seconde bien stable, puis revenez au centre en sautant.",
-      cue: "Atterrissez en douceur sur l'avant du pied, genou souple et dans l'axe. Commencez par de petits sauts, et posez l'autre pied si vous perdez l'équilibre.",
+      kit: "tes plots et environ 2 mètres d'espace autour de toi, sol non glissant",
+      place: "Debout sur une jambe au centre, genou légèrement fléchi. Pose un plot à gauche et un à droite, à environ 70 cm, puis un devant et un derrière si tu en as quatre.",
+      action: "À chaque couleur, fais un petit saut sur la même jambe pour atterrir à côté du plot de cette couleur, tiens une seconde bien stable, puis reviens au centre en sautant.",
+      cue: "Atterris en douceur sur l'avant du pied, genou souple et dans l'axe. Commence par de petits sauts, et pose l'autre pied si tu perds l'équilibre.",
       spots: [[50, 100], [250, 100], [150, 32], [150, 172]], feet: "one",
       av: [[0.82, 0.08], [-0.66, 0.08], [0.08, 0.78], [0.08, -0.6]] },
     { id: "squat", name: "Squat réactif", level: 2, sides: false,
-      kit: "vos plots",
-      place: "Debout, pieds largeur d'épaules. Posez les plots au sol devant vous, en arc de cercle, à une longueur de bras : un à gauche, un au centre, un à droite.",
-      action: "À chaque couleur, descendez en squat et touchez le plot de cette couleur avec la main, puis remontez bien droit.",
+      kit: "tes plots",
+      place: "Debout, pieds largeur d'épaules. Pose les plots au sol devant toi, en arc de cercle, à une longueur de bras : un à gauche, un au centre, un à droite.",
+      action: "À chaque couleur, descends en squat et touche le plot de cette couleur avec la main, puis remonte bien droit.",
       cue: "Les fesses reculent, le dos reste plat, les talons restent au sol.",
       spots: [[80, 80], [150, 50], [220, 80], [150, 22]], feet: "both",
       av: [[0.4, 0.5], [0, 0.6], [-0.4, 0.5], [0, 0.78]] },
     { id: "unipodal", name: "Équilibre réactif sur une jambe", level: 2, sides: true, sideWord: "jambe",
-      kit: "vos plots, et un appui stable à portée de main (mur, dossier de chaise)",
-      place: "Debout sur une jambe au centre. Posez les plots au sol autour de vous, à environ 50 cm : un devant, un sur le côté, un en arrière en diagonale.",
-      action: "À chaque couleur, touchez le plot du bout du pied libre, sans poser le pied, puis revenez au centre.",
+      kit: "tes plots, et un appui stable à portée de main (mur, dossier de chaise)",
+      place: "Debout sur une jambe au centre. Pose les plots au sol autour de toi, à environ 50 cm : un devant, un sur le côté, un en arrière en diagonale.",
+      action: "À chaque couleur, touche le plot du bout du pied libre, sans poser le pied, puis reviens au centre.",
       cue: "Le genou d'appui est légèrement fléchi et reste dans l'axe du pied.",
       spots: [[150, 40], [235, 105], [80, 160], [70, 60]], feet: "one",
       av: [[-0.06, 0.62], [-0.6, 0.08], [0.32, -0.42], [0.42, 0.5]] },
     { id: "pas", name: "Pas réactifs", level: 1, sides: false,
-      kit: "vos plots et un peu d'espace",
-      place: "Debout au centre. Posez les plots au sol autour de vous, à un grand pas : un devant, un à gauche, un à droite, un derrière si vous en avez quatre.",
-      action: "À chaque couleur, faites un pas vers le plot, touchez-le du pied, puis revenez au centre.",
-      cue: "Restez léger sur les pieds et revenez toujours au centre.",
+      kit: "tes plots et un peu d'espace",
+      place: "Debout au centre. Pose les plots au sol autour de toi, à un grand pas : un devant, un à gauche, un à droite, un derrière si tu en as quatre.",
+      action: "À chaque couleur, fais un pas vers le plot, touche-le du pied, puis reviens au centre.",
+      cue: "Reste léger sur les pieds et reviens toujours au centre.",
       spots: [[150, 30], [55, 105], [245, 105], [150, 175]], feet: "both",
       av: [[0, 0.9], [0.9, 0.05], [-0.9, 0.05], [0, -0.8]] },
     { id: "assis", name: "Réaction assis", level: 1, sides: false,
-      kit: "une chaise stable sans roulettes et vos plots (ou objets de couleur)",
-      place: "Assis au bord d'une chaise, pieds à plat. Posez les plots au sol autour de vos pieds, à portée : un à gauche, un devant, un à droite, un en diagonale si vous en avez quatre.",
-      action: "À chaque couleur, allez toucher le plot de cette couleur avec le pied, puis reposez le pied au centre.",
-      cue: "Restez bien assis, le dos droit. Pour plus de difficulté, alternez les pieds.",
+      kit: "une chaise stable sans roulettes et tes plots (ou objets de couleur)",
+      place: "Assis au bord d'une chaise, pieds à plat. Pose les plots au sol autour de tes pieds, à portée : un à gauche, un devant, un à droite, un en diagonale si tu en as quatre.",
+      action: "À chaque couleur, va toucher le plot de cette couleur avec le pied, puis repose le pied au centre.",
+      cue: "Reste bien assis, le dos droit. Pour plus de difficulté, alterne les pieds.",
       spots: [[85, 70], [150, 40], [215, 70], [230, 130]], feet: "seat",
       av: [[0.42, 0.36], [0, 0.56], [-0.42, 0.36], [-0.46, -0.02]] }
   ];
@@ -262,15 +262,15 @@
     var ex = exoOf(s.exo), hist = jget("kf-reactif-hist", []), last = hist.filter(function (h) { return h.exo === ex.id; })[0];
     var chip = function (cls, val, cur, txt) { return "<button type='button' class='" + (val === cur ? "sel" : "") + "' onclick='KineReactif._set(\"" + cls + "\"," + JSON.stringify(val) + ")'>" + txt + "</button>"; };
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineReactif.close()' aria-label='Retour'>←</button>" +
-      "<div class='kf-h1'>Exercices réactifs</div><div class='kf-sub'>L'écran s'allume d'une couleur et Yass l'annonce : allez toucher le plot de cette couleur, le plus vite possible, puis revenez.</div>" +
-      (SESS ? "<p class='kr-sesstag'>Dans votre séance" + (SESS.serie ? " : série " + SESS.serie : "") + ". Réglez la série, puis « C'est parti ».</p><div class='kr-exos' style='display:none'>" : "<div class='kr-exos'>") + EXOS.map(function (e) {
+      "<div class='kf-h1'>Exercices réactifs</div><div class='kf-sub'>L'écran s'allume d'une couleur et Yass l'annonce : va toucher le plot de cette couleur, le plus vite possible, puis reviens.</div>" +
+      (SESS ? "<p class='kr-sesstag'>Dans ta séance" + (SESS.serie ? " : série " + SESS.serie : "") + ". Règle la série, puis « C'est parti ».</p><div class='kr-exos' style='display:none'>" : "<div class='kr-exos'>") + EXOS.map(function (e) {
         return "<button type='button' class='kr-exo" + (e.id === ex.id ? " on" : "") + "' onclick='KineReactif._set(\"exo\",\"" + e.id + "\")'><i class='kb-dot c" + e.level + "'></i><b>" + esc(e.name) + "</b><span>" + LVL[e.level][1] + (e.sides ? ", des deux côtés" : "") + "</span></button>";
       }).join("") + "</div>" +
       "<div class='kr-place'>" + (window.KineAvatar && KineAvatar.lib ? "<div class='kr-demo'><div class='kr-stage'></div><span class='kr-tag'></span></div>" : "") + diagram(ex, mine(s)) +
         "<p><strong>Mise en place.</strong> " + esc(ex.place) + "</p><p><strong>À chaque couleur.</strong> " + esc(ex.action) + "</p>" +
         "<p class='kr-cue'>" + esc(ex.cue) + "</p></div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Mes couleurs</div>" +
-      "<p class='lx-muted kr-small'>Touchez les couleurs de vos plots, de 2 à 4. Choisies : " + s.cols.length + ".</p>" +
+      "<p class='lx-muted kr-small'>Touche les couleurs de tes plots, de 2 à 4. Choisies : " + s.cols.length + ".</p>" +
       "<div class='kr-swatch kr-pick'>" + COLS.map(function (c) {
         var on = s.cols.indexOf(c.id) >= 0;
         return "<button type='button' class='" + (on ? "on" : "") + "' aria-pressed='" + on + "' style='background:" + c.hex + ";color:" + c.ink + "' onclick='KineReactif._col(\"" + c.id + "\")'>" + (on ? "✓ " : "") + c.name + "</button>";
@@ -281,7 +281,7 @@
       "<div class='kf-phase' style='color:var(--text2)'>Pièges</div><div class='kf-chips'>" + chip("pieges", false, !!s.pieges, "Non") + chip("pieges", true, !!s.pieges, "Oui") + "</div>" +
       "<p class='lx-muted kr-small'>Avec les pièges, l'écran affiche parfois « Pas le bleu » : il ne faut pas bouger. Ça entraîne l'attention et le contrôle.</p>" +
       (last ? "<p class='lx-muted kr-small'>Dernière fois : " + last.n + " couleurs, rythme " + esc(last.r) + ", le " + esc(last.d) + ".</p>" : "") +
-      "<div class='kf-kit'><strong>Il vous faut :</strong> " + esc(ex.kit) + ". Espace dégagé, sol non glissant. Arrêtez si une douleur atteint 5 sur 10, ou en cas de vertige.</div>" +
+      "<div class='kf-kit'><strong>Il te faut :</strong> " + esc(ex.kit) + ". Espace dégagé, sol non glissant. Arrête si une douleur atteint 5 sur 10, ou en cas de vertige.</div>" +
       "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineReactif.start()'>C'est parti</button></div>";
     el.classList.add("open");
     var dm = el.querySelector(".kr-demo"); if (dm) demo(dm, ex, mine(s));
@@ -344,12 +344,12 @@
     for (var k = 1; k < run.seq.length; k++) if (run.seq[k].trap && run.seq[k - 1].trap) run.seq[k].trap = false;   // jamais deux pièges de suite
     run.i = 0;
     run.sideTxt = run.sides[run.si] ? (run.ex.id === "bulgare" ? cap(run.sides[run.si]) + " devant" : "Sur la " + run.sides[run.si]) : "";
-    paint("#0E141F", "#fff", "Prêt ?", run.sideTxt ? esc(run.sideTxt) + ". " + esc(run.ex.place.split(".")[0]) + "." : "Mettez-vous en place.", "");
-    say(run.si === 0 ? "Mettez-vous en place." : "Changez de jambe.");
+    paint("#0E141F", "#fff", "Prêt ?", run.sideTxt ? esc(run.sideTxt) + ". " + esc(run.ex.place.split(".")[0]) + "." : "Mets-toi en place.", "");
+    say(run.si === 0 ? "Mets-toi en place." : "Change de jambe.");
     var n = 3;
     later(function tick() {
       if (n > 0) { paint("#0E141F", "#fff", String(n), "", ""); say(String(n)); beep(660, 0.12, 0.25); n--; later(tick, 1000); }
-      else { say("Partez !"); beep(990, 0.2, 0.3); later(cue, 600); }
+      else { say("Pars !"); beep(990, 0.2, 0.3); later(cue, 600); }
     }, 3500);
   }
   function cue() {
@@ -357,7 +357,7 @@
     var it = run.seq[run.i], c = run.cols[it.c];
     run.i++; run.calls = (run.calls || 0) + 1;
     if (it.trap) {
-      paint("#0E141F", "#fff", "<span class='kr-trap' style='border-color:" + c.hex + ";color:" + c.hex + "'>" + pasLe(c) + "</span>", "Ne bougez pas", run.i + " / " + run.seq.length);
+      paint("#0E141F", "#fff", "<span class='kr-trap' style='border-color:" + c.hex + ";color:" + c.hex + "'>" + pasLe(c) + "</span>", "Ne bouge pas", run.i + " / " + run.seq.length);
       say(pasLe(c) + " !"); beep(330, 0.12, 0.18);
       later(cue, Math.max(1200, run.every * 0.8));
       return;
@@ -373,8 +373,8 @@
     run.si++;
     if (run.si < run.sides.length) {
       var left = 20;
-      paint("#0E141F", "#fff", "Changez de jambe", "Récupérez quelques secondes, puis placez-vous sur la " + esc(run.sides[run.si]) + ".", "");
-      say("Changez de jambe.");
+      paint("#0E141F", "#fff", "Change de jambe", "Récupère quelques secondes, puis place-toi sur la " + esc(run.sides[run.si]) + ".", "");
+      say("Change de jambe.");
       later(function rest() {
         left--; var sm = screen().querySelector(".kr-small2");
         if (sm) sm.textContent = "On reprend dans " + left + " s, sur la " + run.sides[run.si] + ".";
@@ -393,7 +393,7 @@
       jset("kf-reactif-hist", h.slice(0, 30));
     }
     if (complete) {
-      paint("#0E141F", "#fff", "Bravo !", r.done + " couleurs touchées. Notez si une douleur est apparue, et pensez à boire un peu d'eau.", "");
+      paint("#0E141F", "#fff", "Bravo !", r.done + " couleurs touchées. Note si une douleur est apparue, et pense à boire un peu d'eau.", "");
       say("Série terminée, bravo !"); if (typeof playStartBeep === "function") playStartBeep();
       var el = screen();
       el.querySelector(".kr-btns").innerHTML = SESS ? "<button type='button' onclick='KineReactif.next()'>Continuer la séance</button>"
@@ -425,7 +425,7 @@
     var c = document.createElement("button");
     c.type = "button"; c.className = "kr-libcard";
     c.innerHTML = "<span class='kr-dots' aria-hidden='true'>" + COLS.slice(0, 3).map(function (x) { return "<i style='background:" + x.hex + "'></i>"; }).join("") + "</span>" +
-      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fentes, sauts, pas chassés, squat, équilibre, assis : allez vers le plot de la couleur annoncée</small></span><span aria-hidden='true'>›</span>";
+      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fentes, sauts, pas chassés, squat, équilibre, assis : va vers le plot de la couleur annoncée</small></span><span aria-hidden='true'>›</span>";
     c.onclick = function () { open(); };
     chips.parentNode.insertBefore(c, chips.nextSibling);
   }
@@ -447,7 +447,7 @@
     KineBiblio.extend(EXOS.map(function (e, i) {
       return { name: e.name, group: "reactif", color: e.level, kit: [e.kit], reactif: e.id, thumb: thumb([COLS[i % 4].hex, COLS[(i + 1) % 4].hex, COLS[(i + 2) % 4].hex]),
                repsLabel: "15 couleurs" + (e.sides ? " par " + e.sideWord : ""), desc: e.place + " " + e.action, cue: e.cue,
-               tip: "Avant chaque série, choisissez vos couleurs, le nombre de couleurs, le rythme et les pièges.",
+               tip: "Avant chaque série, choisis tes couleurs, le nombre de couleurs, le rythme et les pièges.",
                stop: "Arrêt si une douleur atteint 5 sur 10, en cas de vertige ou de perte d'équilibre." };
     }));
   }

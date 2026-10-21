@@ -93,7 +93,7 @@
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineFiable.close()' aria-label='Retour'>←</button><h2 class='kfb-h'>Rapports de bugs</h2><p class='kfb-p' id='kfb-st'>Chargement…</p><div id='kfb-list'></div></div>";
     el.classList.add("open");
-    if (typeof window.fbBugs !== "function" || !(window.fbUser && fbUser.isAdmin)) { $("kfb-st").textContent = "Connectez-vous avec votre compte kiné (Communauté, en haut) pour lire les rapports."; return; }
+    if (typeof window.fbBugs !== "function" || !(window.fbUser && fbUser.isAdmin)) { $("kfb-st").textContent = "Connecte-toi avec ton compte kiné (Communauté, en haut) pour lire les rapports."; return; }
     fbBugs().then(function (L) {
       $("kfb-st").textContent = L.length ? L.length + " rapport" + (L.length > 1 ? "s" : "") + ", du plus récent au plus ancien." : "Aucun rapport pour l'instant.";
       $("kfb-list").innerHTML = L.map(function (b) {
@@ -102,7 +102,7 @@
         return "<div class='kfb-item " + b.k + "'><b>" + (b.k === "user" ? "Signalé" : "Erreur") + " · " + dev + (os ? " " + esc(String(os).replace(/_/g, ".")) : "") + " · v" + esc(String(b.v).replace("kineforce-v", "")) + "</b>" +
           "<p>" + esc(b.m) + "</p><small>" + (d ? d.toLocaleString("fr-FR") : "") + " · " + esc(b.pg || "") + "</small></div>";
       }).join("");
-    }).catch(function () { $("kfb-st").textContent = "Lecture impossible : vérifiez la connexion et le compte kiné."; });
+    }).catch(function () { $("kfb-st").textContent = "Lecture impossible : vérifie la connexion et le compte kiné."; });
   }
 
   window.KineFiable = { update: update, admin: admin, open: open, close: close, flush: flush, log: function () { return LOG.slice(); }, _report: report };

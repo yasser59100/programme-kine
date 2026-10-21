@@ -1180,7 +1180,7 @@
     "Équilibre unipodal": {
       // Sur un pied, yeux ouverts 20 s puis yeux fermés 20 s, bras légèrement écartés
       timed: { seconds: 40 }, sides: "blocks", sideWord: "pied", camera: { yaw: 1.0 }, start: "up", thumb: "hold",
-      cues: [{ at: 0, label: "Yeux ouverts", say: "Yeux ouverts" }, { at: 20, label: "Yeux fermés", say: "Fermez les yeux" }],
+      cues: [{ at: 0, label: "Yeux ouverts", say: "Yeux ouverts" }, { at: 20, label: "Yeux fermés", say: "Ferme les yeux" }],
       poses: {
         up:   { pelvis: { p: [0, "auto", 0], r: [0, 0, 0] }, spine: [2, 0, 0], head: 0,
                 R: { foot: { at: [-0.1, 0, 0.12], yaw: 0 } }, L: { ang: [0, 3, 0, 0, 0] }, LA: { ang: [4, 7, 0, 10] }, RA: { ang: [4, 7, 0, 10] } },
@@ -1256,10 +1256,10 @@
     var DROIT = /^(pied|côté|bras) $/.test(word) ? "droit" : "droite", DROIT_C = !word ? "droit" : DROIT;
     if (inf && inf.sides === "blocks" && inf.perSide) {
       side = rep <= inf.perSide ? first : other;
-      if (rep === inf.perSide + 1) announce = "Changez de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (side === "L" ? "gauche" : DROIT_C);
+      if (rep === inf.perSide + 1) announce = "Change de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (side === "L" ? "gauche" : DROIT_C);
     }
     var shown = def && def.labelSwap ? (side === "L" ? "R" : "L") : side; // côté qui travaille
-    if (announce && def && def.labelSwap) announce = "Changez de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : DROIT_C);
+    if (announce && def && def.labelSwap) announce = "Change de côté. " + (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : DROIT_C);
     var sideTxt = inf && inf.sides ? ", " + word + (shown === "L" ? "gauche" : DROIT) : "";
     var sideSay = inf && inf.sides === "blocks" && rep === 1 ? (word ? word.charAt(0).toUpperCase() + word.slice(1) : "Côté ") + (shown === "L" ? "gauche" : DROIT_C) + ". " : "";
     var vIdx = def && def.variantBy === "serie" ? ((inf && inf.serie) || 1) - 1 : rep - 1;
@@ -1281,7 +1281,7 @@
     if (iso && steps.length) {
       var at = def && def.isoAfter != null ? def.isoAfter : 0, ref = steps[at];
       var hold = { pose: ref.pose, dur: iso, kind: "hold", iso: iso, side: side,
-                   say: "Isométrique, on tient " + iso + " secondes", label: "Tenez" };
+                   say: "Isométrique, on tient " + iso + " secondes", label: "Tiens" };
       var nx = steps[at + 1];
       if (nx && nx.kind === "hold" && nx.pose === ref.pose) steps[at + 1] = hold; // remplace le maintien habituel
       else steps.splice(at + 1, 0, hold);

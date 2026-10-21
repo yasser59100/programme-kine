@@ -67,7 +67,7 @@ var KineCompose = (function () {
     var last = jget(EKEY, null);
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCompose.earlyClose()' aria-label='Retour'>←</button>" +
       "<div class='kf-h1'>Accès anticipé au niveau difficile</div>" +
-      "<div class='kf-sub'>Pour ceux qui ont terminé leur rééducation. Répondez honnêtement : les exercices rouges demandent un corps prêt. Si une seule réponse est « non », on continue encore un peu en orange.</div>" +
+      "<div class='kf-sub'>Pour ceux qui ont terminé leur rééducation. Réponds honnêtement : les exercices rouges demandent un corps prêt. Si une seule réponse est « non », on continue encore un peu en orange.</div>" +
       (last && !last.ok ? "<p class='lx-muted'>Dernier essai le " + esc(last.d) + ".</p>" : "") +
       "<div class='kc-eq'>" + EQ.map(function (q, i) {
         return "<div class='kc-eqi' data-k='" + q[0] + "'><p><b>" + (i + 1) + ".</b> " + esc(q[1]) + "</p><div class='kf-chips'>" +
@@ -87,12 +87,12 @@ var KineCompose = (function () {
     jset(EKEY, { ok: !no.length, d: ds, no: no.map(function (q) { return q[0]; }) });
     if (!no.length) {
       jset(UKEY, true);
-      r.innerHTML = "<strong>C'est ouvert !</strong> Les exercices rouges sont disponibles dans « Ma séance » et la bibliothèque. Gardez au plus 2 exercices rouges par séance, et arrêtez si une douleur dépasse 5 sur 10.";
+      r.innerHTML = "<strong>C'est ouvert !</strong> Les exercices rouges sont disponibles dans « Ma séance » et la bibliothèque. Garde au plus 2 exercices rouges par séance, et arrête si une douleur dépasse 5 sur 10.";
       r.className = "kc-eres ok";
       foot.textContent = "Composer ma séance"; foot.disabled = false; foot.onclick = function () { earlyClose(); render(); };
     } else {
       r.innerHTML = "<strong>Pas encore.</strong> " + no.map(function (q) { return esc(q[1].replace(/\.$/, "")); }).join(" ; ") + " : c'est à travailler d'abord. " +
-        "Continuez les exercices orange : le niveau rouge s'ouvre aussi tout seul quand un orange du même groupe devient facile, ou après 2 semaines. Parlez-en à votre kiné au besoin.";
+        "Continue les exercices orange : le niveau rouge s'ouvre aussi tout seul quand un orange du même groupe devient facile, ou après 2 semaines. Parles-en à ton kiné au besoin.";
       r.className = "kc-eres no";
       foot.textContent = "Compris"; foot.onclick = function () { earlyClose(); };
     }
@@ -269,7 +269,7 @@ var KineCompose = (function () {
     gate = true;
     var other = window.fbUser && !window.fbUser.isAdmin;
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCompose.close()' aria-label='Retour'>←</button>" +
-      "<div><div class='kf-h1'>Espace kiné</div><div class='kf-sub'>" + (other ? "Ce compte n'est pas celui du kinésithérapeute. Déconnectez-vous, puis connectez-vous avec le compte kiné." : "Réservé à votre kinésithérapeute. Connectez-vous avec le compte kiné pour continuer.") + "</div></div></div>" +
+      "<div><div class='kf-h1'>Espace kiné</div><div class='kf-sub'>" + (other ? "Ce compte n'est pas celui du kinésithérapeute. Déconnecte-toi, puis connecte-toi avec le compte kiné." : "Réservé à ton kinésithérapeute. Connecte-toi avec le compte kiné pour continuer.") + "</div></div></div>" +
       "<div class='kf-sheet-foot'>" + (other ? "<button class='seq-btn-secondary' onclick='fbSignOut()'>Me déconnecter</button>" : "<button class='seq-btn-main' onclick='signInWithGoogle()'>Se connecter avec Google</button>") + "</div>";
     el.classList.add("open");
   }

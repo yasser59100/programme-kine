@@ -154,7 +154,7 @@ var KineCreateur = (function () {
     var el = sheet();
     var y = el.scrollTop;
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCreateur.close()' aria-label='Retour'>←</button>" +
-      "<div><div class='kf-h1'>" + (origName ? "Modifier l'exercice" : "Créer un exercice") + "</div><div class='kf-sub'>Réglez la position de départ, puis la position d'arrivée. L'avatar bouge en direct.</div></div>" +
+      "<div><div class='kf-h1'>" + (origName ? "Modifier l'exercice" : "Créer un exercice") + "</div><div class='kf-sub'>Règle la position de départ, puis la position d'arrivée. L'avatar bouge en direct.</div></div>" +
       (x.src === "camera" && !origName ? "<div class='kcr-cam'><b>Calculé depuis ta vidéo.</b> Regarde le départ et l'arrivée, corrige si besoin avec les curseurs, puis remplis la fiche.</div>" : "") +
       "<div class='kcr-stage-wrap'><div id='kcr-stage' class='kcr-stage'></div>" +
         "<div class='kcr-tabs'><button class='" + (which === "a" ? "on" : "") + "' onclick='KineCreateur.which(\"a\")'>Départ</button><button class='" + (which === "b" ? "on" : "") + "' onclick='KineCreateur.which(\"b\")'>Arrivée</button>" +
@@ -245,10 +245,10 @@ var KineCreateur = (function () {
   function save() {
     readFiche();
     var f = cur.fiche, msg = $("kcr-msg");
-    if (!f.name) { msg.textContent = "Donnez un nom à l'exercice."; return; }
+    if (!f.name) { msg.textContent = "Donne un nom à l'exercice."; return; }
     if (!/^\d+( à \d+)? (répétitions?|secondes|minutes?)( par (côté|jambe))?$/.test(f.repsLabel)) { msg.textContent = "Répétitions ou durée : par exemple « 12 répétitions » ou « 30 secondes »."; return; }
-    if (cur.sides !== "none" && !/par (côté|jambe)/.test(f.repsLabel)) { msg.textContent = "Pour un exercice d'un côté puis de l'autre, écrivez « … par côté »."; return; }
-    if (cur.mode === "timed") { var n = parseInt(f.repsLabel, 10); if (!/seconde|minute/.test(f.repsLabel)) { msg.textContent = "En mode « Durée », écrivez une durée, par exemple « 30 secondes »."; return; } cur.seconds = /minute/.test(f.repsLabel) ? n * 60 : n; }
+    if (cur.sides !== "none" && !/par (côté|jambe)/.test(f.repsLabel)) { msg.textContent = "Pour un exercice d'un côté puis de l'autre, écris « … par côté »."; return; }
+    if (cur.mode === "timed") { var n = parseInt(f.repsLabel, 10); if (!/seconde|minute/.test(f.repsLabel)) { msg.textContent = "En mode « Durée », écris une durée, par exemple « 30 secondes »."; return; } cur.seconds = /minute/.test(f.repsLabel) ? n * 60 : n; }
     var exists = window.KineBiblio && KineBiblio.find(f.name);
     if (exists && f.name !== origName) { msg.textContent = "Ce nom existe déjà dans la bibliothèque."; return; }
     KineOfficiel.saveCustom(cur, origName);

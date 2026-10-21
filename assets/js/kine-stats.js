@@ -80,7 +80,7 @@
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick=\"document.getElementById('kf-stats').classList.remove('open')\" aria-label='Retour'>←</button>" +
       "<h2 class='kfb-h'>Statistiques</h2><p class='kfb-p' id='kst-st'>Chargement…</p><div id='kst-b'></div></div>";
     el.classList.add("open");
-    if (typeof window.fbStats !== "function" || !(window.fbUser && fbUser.isAdmin)) { $("kst-st").textContent = "Connectez-vous avec votre compte kiné (Communauté, en haut) pour lire les statistiques."; return; }
+    if (typeof window.fbStats !== "function" || !(window.fbUser && fbUser.isAdmin)) { $("kst-st").textContent = "Connecte-toi avec ton compte kiné (Communauté, en haut) pour lire les statistiques."; return; }
     fbStats(30).then(function (docs) {
       var now = Date.now(), wk = now - 7 * 864e5, P7 = {}, P30 = {}, open7 = 0, st = 0, fin = 0, quit = {}, skip = {}, pain = {}, pages = {}, durs = [], devs = {}, inst = {}, cam = 0, comp = 0, rec = {};
       docs.forEach(function (d) {
@@ -121,7 +121,7 @@
         list("Récupération la plus lancée", top(rec)) +
         "<div class='kst-blk'><h3>Téléphones</h3><p class='kst-none'>iPhone " + dv.ios + " · Android " + dv.android + (dv.autre ? " · ordinateur " + dv.autre : "") + " · appli installée chez " + ni + " sur " + n30 + "</p>" +
         "<p class='kst-none'>Caméra ouverte " + cam + " fois · séance composée " + comp + " fois</p></div>";
-    }).catch(function () { $("kst-st").textContent = "Lecture impossible : vérifiez la connexion et le compte kiné."; });
+    }).catch(function () { $("kst-st").textContent = "Lecture impossible : vérifie la connexion et le compte kiné."; });
   }
 
   window.KineStats = {
