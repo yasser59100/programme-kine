@@ -112,7 +112,7 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
   await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
-  const ok = await page.evaluate(() => ["Rentrer le menton", "Pendulaire de Codman", "Spanish squat à l'élastique", "Pied court", "Planche Copenhague", "Copenhague dynamique genou", "Extension en appui sur les mains"]
+  const ok = await page.evaluate(() => ["Rentrer le menton", "Pendulaire de Codman", "Spanish squat à l'élastique", "Pied court", "Planche Copenhague", "Copenhague dynamique genou", "Extension en appui sur les mains", "Reverse Nordic", "Coquillage à l'élastique", "Torsion de serviette", "Se relever du sol", "Regard fixe en tournant la tête"]
     .every(n => KineBiblio.find(n) && KineAvatar.supports(n)));
   expect(ok).toBe(true);
   await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
