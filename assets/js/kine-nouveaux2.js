@@ -250,7 +250,7 @@
   /* ════════ COUDE, POIGNET, MAIN ════════ */
   var TWIST = merge(STAND(0.12, 4), { LA: { ang: [72, 4, 0, 8] }, RA: { ang: [72, 4, 0, 8] } });
   reg("Torsion de serviette", {
-    tool: "towel", noIso: true, camera: { yaw: 0.6, dist: 3.4, ty: 1.15 }, start: "flat", thumb: "twist",
+    tool: "towelRoll", noIso: true, camera: { yaw: 0.6, dist: 3.4, ty: 1.15 }, start: "flat", thumb: "twist",
     poses: { flat: TWIST, twist: merge(TWIST, { LA: { ang: [74, 4, 0, 10] }, RA: { ang: [70, 4, 0, 6] } }) },
     steps: [step("twist", 1.5, "On tord la serviette", "On tord la serviette, poignet en flexion", "up"), step("twist", 0.5, "Bras tendus", null, "hold"), step("flat", 4, "On détord lentement", "On détord lentement, quatre secondes", "down")]
   });

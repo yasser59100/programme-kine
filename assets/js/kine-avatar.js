@@ -1514,7 +1514,7 @@
       cushion: mesh(new T.BoxGeometry(0.42, 0.08, 0.36), M.prop, scene),
       roller: new T.Group(),
       bench: new T.Group(),
-      floorTowel: mesh(new T.BoxGeometry(1, 0.012, 1), new T.MeshStandardMaterial({ color: lin("#8FC1EA"), roughness: 0.95 }), scene)   // serviette posée au sol
+      floorTowel: null   // serviette posée au sol (créée plus bas, avec la texture éponge)
     };
     // Banc de musculation : assise rembourrée à 45 cm, dans l'axe du corps (z) par défaut
     scene.add(props.bench);
@@ -1549,7 +1549,7 @@
     props.wallBack.position.set(0, 1.05, -0.585);
     props.step.position.set(0, 0.09, 0.42);
     props.wall.position.set(0, 1.05, 0.585);
-    for (var k in props) props[k].visible = false;
+    for (var k in props) if (props[k]) props[k].visible = false;
 
     var view = { yaw: 0.6, yawGoal: 0.6 }, drag = null;
     canvas.addEventListener("pointerdown", function (e) { drag = e.clientX; });
@@ -1562,10 +1562,35 @@
       var bm = mesh(new T.CylinderGeometry(0.014, 0.014, 1, 12), bandMat, scene); bm.visible = false; bands.push(bm);
       var kn = mesh(new T.SphereGeometry(0.03, 12, 10), M.prop, scene); kn.visible = false; bandKnots.push(kn);
     }
+    // Serviette : tissu éponge (petites boucles), deux bandes claires près des bouts et une frange
+    var towelTex = function (base, stripe, roll) {
+      var c = document.createElement("canvas"); c.width = 128; c.height = 256; var g = c.getContext("2d");
+      g.fillStyle = base; g.fillRect(0, 0, 128, 256);
+      for (var i = 0; i < 2600; i++) { g.fillStyle = Math.random() < 0.5 ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.07)"; g.fillRect(Math.random() * 128, Math.random() * 256, 2, 2); }
+      if (roll) { g.strokeStyle = "rgba(0,0,0,0.16)"; g.lineWidth = 5; for (var k = -256; k < 256; k += 26) { g.beginPath(); g.moveTo(0, k); g.lineTo(128, k + 128); g.stroke(); } }
+      g.fillStyle = stripe; [26, 38, 218, 230].forEach(function (y) { g.fillRect(0, y, 128, 6); });
+      g.fillStyle = "rgba(255,255,255,0.75)"; for (var x = 2; x < 128; x += 6) { g.fillRect(x, 0, 2, 9); g.fillRect(x, 247, 2, 9); }
+      var t = new T.CanvasTexture(c); t.encoding = T.sRGBEncoding; t.anisotropy = 4; return t;
+    };
+    // Serviette tenue : bande souple, légèrement creusée en son milieu et aux bords roulés
+    var towelGeo = function () {
+      var gq = new T.BoxGeometry(0.22, 1, 0.014, 8, 30, 1), p = gq.attributes.position;
+      for (var i = 0; i < p.count; i++) { var x = p.getX(i), y = p.getY(i); p.setZ(i, p.getZ(i) + 0.035 * Math.sin(Math.PI * (y + 0.5)) + 0.18 * x * x + 0.004 * Math.sin(y * 40)); }
+      gq.computeVertexNormals(); return gq;
+    };
+    props.floorTowel = (function () {
+      var gq = new T.BoxGeometry(1, 0.012, 1, 12, 1, 18), p = gq.attributes.position;
+      for (var i = 0; i < p.count; i++) { var x = p.getX(i), z = p.getZ(i); if (p.getY(i) > 0) p.setY(i, p.getY(i) + 0.004 * Math.sin(x * 23 + z * 9) + 0.003 * Math.sin(z * 31)); }
+      gq.computeVertexNormals();
+      var tx = towelTex("#7FB2E0", "#FFFFFF"); tx.rotation = Math.PI / 2; tx.center.set(0.5, 0.5);
+      return mesh(gq, new T.MeshStandardMaterial({ map: tx, roughness: 1 }), scene);
+    })(); props.floorTowel.visible = false;
+    var towelMat = new T.MeshStandardMaterial({ map: towelTex("#7FB2E0", "#FFFFFF"), roughness: 1, side: T.DoubleSide });
     // Accessoires tenus : bâton (manche à balai), serviette, ballon
     var tools = {
       stick: mesh(new T.CylinderGeometry(0.014, 0.014, 1, 12), M.wood, scene),
-      towel: mesh(new T.BoxGeometry(0.11, 1, 0.012), new T.MeshStandardMaterial({ color: lin("#E9EEF5"), roughness: 0.95 }), scene),
+      towel: mesh(towelGeo(), towelMat, scene),
+      towelRoll: mesh(new T.CylinderGeometry(0.034, 0.034, 1, 16, 1), new T.MeshStandardMaterial({ map: towelTex("#7FB2E0", "#FFFFFF", true), roughness: 1 }), scene),
       ball: mesh(new T.SphereGeometry(0.11, 24, 18), new T.MeshStandardMaterial({ color: lin("#FF6B4A"), roughness: 0.5 }), scene),
       book: mesh(new T.BoxGeometry(0.17, 0.035, 0.23), new T.MeshStandardMaterial({ color: lin("#3D8EF0"), roughness: 0.7 }), scene)
     };
