@@ -180,7 +180,7 @@
      steps: [step("down", 2.5, "On bascule", "On bascule, la jambe recule", "down"), step("up", 1.5, "On remonte", "On pousse dans le talon", "up")]
    },
    "Leg curl serviette au sol": {
-     camera: { yaw: 1.3, pitch: 0.35, dist: 3.8, ty: 0.25, tz: 0.25 }, start: "out", thumb: "in",
+     camera: { yaw: 1.3, pitch: 0.35, dist: 3.8, ty: 0.25, tz: 0.25 }, start: "out", thumb: "in", props: ["floorTowel"], floorTowel: { x: 0, z: 0.86, w: 0.5, l: 0.62 },
      poses: {
        out: merge({ pelvis: { p: [0, 0.3, 0.02], r: [-100, 0, 0] }, spine: [0, 0, 0], head: 15,
          L: { foot: { at: [0.12, 0.02, 1.02], yaw: 0, lift: -70, pole: [0.1, 1, 0] } }, R: { foot: { at: [-0.12, 0.02, 1.02], yaw: 0, lift: -70, pole: [-0.1, 1, 0] } } }, SUPINE_HANDS),
@@ -1513,7 +1513,8 @@
       table: new T.Group(),
       cushion: mesh(new T.BoxGeometry(0.42, 0.08, 0.36), M.prop, scene),
       roller: new T.Group(),
-      bench: new T.Group()
+      bench: new T.Group(),
+      floorTowel: mesh(new T.BoxGeometry(1, 0.012, 1), new T.MeshStandardMaterial({ color: lin("#8FC1EA"), roughness: 0.95 }), scene)   // serviette posée au sol
     };
     // Banc de musculation : assise rembourrée à 45 cm, dans l'axe du corps (z) par défaut
     scene.add(props.bench);
@@ -1824,6 +1825,7 @@
     if (ro) { if (rc) { var rp = rc.p || [0, 0.075, 0]; ro.position.set(rp[0] * (curSideSign || 1), rp[1] == null ? 0.075 : rp[1], rp[2]); ro.rotation.set(0, rc.along === "z" ? Math.PI / 2 : (rc.yaw || 0) * D2R * (curSideSign || 1), 0); } }
     // banc et marche placés par l'exercice (créateur) : { x, z, along: "x" pour un banc en travers }
     var sgn = curSideSign || 1, bc = (d && d.bench) || { x: 0, z: -0.2 }, be = R.props.bench;
+    var ft = (d && d.floorTowel) || { x: 0, z: 0.3 }; if (R.props.floorTowel) { R.props.floorTowel.position.set((ft.x || 0) * sgn, 0.006, ft.z || 0); R.props.floorTowel.scale.set(ft.w || 0.36, 1, ft.l || 0.6); }
     if (be) { be.position.set((bc.x || 0) * sgn, 0, bc.z || 0); be.rotation.set(0, bc.along === "x" ? Math.PI / 2 : 0, 0); }
     var stp = d && d.stepAt; R.props.step.position.set(stp ? (stp.x || 0) * sgn : 0, 0.09, stp ? stp.z || 0 : 0.42); R.props.step.rotation.set(0, stp && stp.along === "z" ? Math.PI / 2 : 0, 0);
   }

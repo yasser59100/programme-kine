@@ -145,9 +145,9 @@
     steps: [step("arch", 2, "La voûte monte", "On raccourcit le pied, la voûte monte", "up"), step("arch", 5, "On tient", "On tient, orteils à plat", "hold"), step("flat", 2, "On relâche", "On relâche", "down")]
   });
   reg("Serviette ramassée avec les orteils", {
-    sides: "blocks", sideWord: "pied", labelSwap: true, camFlip: true, timed: { seconds: 30 }, noIso: true, camera: FOOT_CAM, props: ["chair"], start: "open", thumb: "curl",
+    props: ["chair", "floorTowel"], floorTowel: { x: 0.14, z: 0.32, w: 0.34, l: 0.6 }, sides: "blocks", sideWord: "pied", labelSwap: true, camFlip: true, timed: { seconds: 30 }, noIso: true, camera: FOOT_CAM, start: "open", thumb: "curl",
     poses: { open: SEAT_FEET, curl: merge(SEAT_FEET, { L: { foot: { at: [0.14, 0, 0.12], yaw: 6 } } }) },
-    steps: [step("curl", 0.7, "Les orteils attrapent", null, "up"), step("curl", 0.4, "Les orteils attrapent", null, "hold"), step("open", 0.7, "On relâche, on recommence", null, "down")]
+    steps: [step("curl", 0.7, "Les orteils attrapent", null, "up"), step("curl", 0.4, "Les orteils attrapent", null, "hold"), step("open", 0.7, "On relâche", null, "down")]
   });
   var TOE_BASE = merge(STAND(0.1, 4), { LA: { ang: [10, 12, 0, 30] }, RA: { ang: [10, 12, 0, 30] } });
   reg("Marche sur la pointe des pieds", {
@@ -170,16 +170,16 @@
   });
 
   /* ════════ 6. HANCHE ════════ */
-  // Planche Copenhague, version genou : appui avant-bras, intérieur du genou du dessus sur la chaise, jambe du dessous libre
-  reg("Planche Copenhague genou sur chaise", {
-    sides: "blocks", snapSideChange: true, timed: { byWeek: [15, 20, 20, 25] }, camera: { yaw: 0.05, pitch: 0.25, dist: 3.6, ty: 0.35, tx: -0.2 },
-    props: ["bench"], bench: { x: -0.62, z: 0 }, start: "rest", thumb: "hold",
+  // Planche Copenhague : appui avant-bras, face interne du pied du dessus posée sur la chaise, jambe tendue ; la jambe du dessous reste libre
+  reg("Planche Copenhague", {
+    sides: "blocks", snapSideChange: true, timed: { byWeek: [15, 20, 20, 25] }, camera: { yaw: 0.05, pitch: 0.25, dist: 3.9, ty: 0.35, tx: -0.3 },
+    props: ["bench"], bench: { x: -0.95, z: 0 }, start: "rest", thumb: "hold",
     poses: {
       rest: { pelvis: { p: [0, 0.221, 0], r: [0, 0, -82] }, spine: [0, 0, 0], head: 0,
-              L: { ang: [0, 0, 0, 90, 0] }, R: { foot: { at: [-0.62, 0.47, -0.32], yaw: 0, pole: [0, 1, 0.3] } },
+              L: { ang: [0, 0, 0, 5, 0] }, R: { foot: { at: [-0.92, 0.47, 0.02], yaw: 0, pole: [0, 0.2, 1] } },
               LA: { hand: { at: [0.514, 0.047, 0.26], pole: [0.2, -1, -0.3] } }, RA: { ang: [0, 8, 0, 30] } },
-      hold: { pelvis: { p: [0, 0.4, 0], r: [0, 0, -72] }, spine: [0, 0, 0], head: 0,
-              L: { ang: [0, 0, 0, 60, 0] }, R: { foot: { at: [-0.62, 0.47, -0.32], yaw: 0, pole: [0, 1, 0.3] } },
+      hold: { pelvis: { p: [0, 0.42, 0], r: [0, 0, -74] }, spine: [0, 0, 0], head: 0,
+              L: { ang: [0, 0, 0, 12, 0] }, R: { foot: { at: [-0.92, 0.47, 0.02], yaw: 0, pole: [0, 0.2, 1] } },
               LA: { hand: { at: [0.56, 0.047, 0.26], pole: [0.2, -1, -0.3] } }, RA: { ang: [0, 8, 0, 30] } }
     }
   });
@@ -284,10 +284,10 @@
       desc: "Assis, pied à plat, un élastique autour de l'avant du pied, accroché du côté extérieur. Le talon reste au sol : tourne l'avant du pied vers l'intérieur contre l'élastique, puis reviens lentement.",
       cue: "Le talon reste posé, c'est l'avant du pied qui tourne vers l'intérieur.", err: "La jambe ne tourne pas : seul le pied bouge.",
       tip: "Plus dur : élastique plus tendu, ou retour en 3 secondes.", stop: "Arrêt si douleur vive à l'intérieur de la cheville." },
-    { name: "Planche Copenhague genou sur chaise", group: "hanche", color: 3, kit: ["une chaise ou un banc"], repsLabel: "15 secondes par côté",
-      desc: "Couché sur le côté, appui sur l'avant-bras, coude sous l'épaule. Pose l'intérieur du genou du dessus sur la chaise. Monte le bassin jusqu'à aligner épaule, hanche et genou, la jambe du dessous reste libre. Tiens, puis repose-toi.",
+    { name: "Planche Copenhague", group: "hanche", color: 3, kit: ["une chaise ou un banc"], repsLabel: "15 secondes par côté",
+      desc: "Couché sur le côté, appui sur l'avant-bras, coude sous l'épaule. Pose la face interne du pied du dessus sur l'assise de la chaise, jambe tendue. Monte le bassin jusqu'à aligner épaule, hanche et pied, la jambe du dessous reste libre sous la chaise. Tiens, puis repose-toi.",
       cue: "Le corps reste aligné, c'est l'intérieur de la cuisse du dessus qui porte.", err: "Le bassin ne tombe pas et ne part pas en arrière.",
-      tip: "Très efficace pour les adducteurs (sports de ballon). Plus dur : le pied sur la chaise au lieu du genou.", stop: "Arrêt si douleur à l'aine ou à l'intérieur du genou." },
+      tip: "Très efficace pour les adducteurs (sports de ballon). Plus facile : le genou sur la chaise au lieu du pied, le bras de levier est plus court.", stop: "Arrêt si douleur à l'aine ou à l'intérieur du genou." },
     { name: "Extension en appui sur les mains", group: "dos", color: 1, kit: ["un tapis"], repsLabel: "10 répétitions",
       desc: "Allongé sur le ventre, mains à plat sous les épaules. Pousse sur les bras pour soulever le buste, en laissant le bassin et le bas du dos détendus au sol. Souffle en haut, puis redescends.",
       cue: "Les bras poussent, les fesses et le bas du dos restent relâchés.", err: "Le bassin ne décolle pas du sol.",
@@ -321,7 +321,7 @@
     "Serviette ramassée avec les orteils": { s: "Les muscles des orteils agrippent le sol à chaque pas. Les entretenir améliore l'appui et l'équilibre.", e: ["Garder l'équilibre sur un sol irrégulier", "Marcher pieds nus plus confortablement", "Mieux pousser à chaque pas"] },
     "Marche sur la pointe des pieds": { s: "Les mollets tiennent le poids du corps en continu, en endurance, pendant que la cheville apprend à rester droite.", e: ["Marcher longtemps sans fatigue des mollets", "Attraper un objet en hauteur", "Courir avec plus de ressort"] },
     "Inversion à l'élastique": { s: "Les muscles qui tournent le pied vers l'intérieur soutiennent la voûte plantaire et la cheville.", e: ["Marcher sur un chemin irrégulier", "Reprendre le sport après une entorse", "Moins de fatigue sous la voûte du pied"] },
-    "Planche Copenhague genou sur chaise": { s: "Les adducteurs, à l'intérieur de la cuisse, sont souvent blessés dans les sports de ballon. Cette planche les renforce et réduit le risque de douleur à l'aine.", e: ["Faire un grand pas de côté", "Jouer au foot ou au tennis", "Monter à cheval ou à vélo"] },
+    "Planche Copenhague": { s: "Les adducteurs, à l'intérieur de la cuisse, sont souvent blessés dans les sports de ballon. Cette planche les renforce et réduit le risque de douleur à l'aine.", e: ["Faire un grand pas de côté", "Jouer au foot ou au tennis", "Monter à cheval ou à vélo"] },
     "Extension en appui sur les mains": { s: "On cambre doucement le bas du dos, à l'opposé des positions penchées de la journée. Chez beaucoup de personnes, ça soulage une douleur lombaire.", e: ["Se redresser après une longue position assise", "Soulager le dos après le jardinage", "Retrouver de l'aisance pour se pencher en arrière"] },
     "Marche avec une charge d'un seul côté": { s: "Les muscles du côté opposé à la charge empêchent le corps de pencher. C'est un gainage très proche de la vie réelle.", e: ["Porter un sac lourd d'une main", "Porter une valise ou un seau", "Porter un enfant sur une hanche"] },
     "Charnière de hanche, fesses au mur": { s: "On apprend à se pencher en pliant la hanche, dos droit : ce sont les fessiers et l'arrière des cuisses qui travaillent, pas le bas du dos.", e: ["Ramasser un objet au sol", "Sortir un plat du four", "Se pencher au-dessus d'un lavabo"] }
