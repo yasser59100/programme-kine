@@ -62,8 +62,11 @@ test("exercices : recherche et bibliothèque", async ({ page }, info) => {
 
 test("vrai ou faux", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
   await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
-  const vf = page.locator("#ki-vf"); await vf.scrollIntoViewIfNeeded(); await page.waitForTimeout(2500);
+  // l'accueil peut se redessiner juste après l'ouverture : on réessaie si le bloc a été remplacé
+  for (let i = 0; i < 4; i++) { try { await page.locator("#ki-vf").scrollIntoViewIfNeeded({ timeout: 3000 }); break; } catch (e) { await page.waitForTimeout(500); } }
+  await page.waitForTimeout(2500);
   const card = page.locator(".lq-card");
   if (await card.count()) {
     const b = await card.boundingBox(), vw = page.viewportSize().width;
