@@ -1561,9 +1561,12 @@
     // Machine à cuisses (leg extension, leg curl) : siège et dossier rembourrés, poignées, colonne de charges sur le côté
     props.legMachine = new T.Group(); scene.add(props.legMachine);
     mesh(new T.BoxGeometry(0.5, 0.1, 0.46), M.pad, props.legMachine).position.set(0, 0.42, -0.34);
-    mesh(new T.BoxGeometry(0.5, 0.62, 0.1), M.pad, props.legMachine).position.set(0, 0.8, -0.62);
+    var lmB = mesh(new T.BoxGeometry(0.5, 0.62, 0.1), M.pad, props.legMachine); lmB.position.set(0, 0.82, -0.56); lmB.rotation.x = -0.1;
+    var lmT = new T.Group(); props.legMachine.add(lmT); props.legMachine.userData.thigh = lmT;   // boudin qui bloque les cuisses (leg curl)
+    var lmTr = mesh(new T.CylinderGeometry(0.05, 0.05, 0.5, 16), M.pad, lmT); lmTr.position.set(0, 0.67, -0.06); lmTr.rotation.z = Math.PI / 2;
+    mesh(new T.BoxGeometry(0.04, 0.3, 0.04), M.steel, lmT).position.set(0.3, 0.55, -0.06);
     mesh(new T.BoxGeometry(0.08, 0.38, 0.08), M.iron, props.legMachine).position.set(0, 0.19, -0.36);
-    mesh(new T.BoxGeometry(0.08, 0.7, 0.08), M.iron, props.legMachine).position.set(0, 0.55, -0.7);
+    mesh(new T.BoxGeometry(0.08, 0.7, 0.08), M.iron, props.legMachine).position.set(0, 0.55, -0.64);
     mesh(new T.BoxGeometry(0.62, 0.04, 0.7), M.iron, props.legMachine).position.set(0, 0.02, -0.4);
     mesh(new T.BoxGeometry(0.16, 1.25, 0.3), M.iron, props.legMachine).position.set(-0.52, 0.63, -0.5);
     [-0.3, 0.3].forEach(function (x) { var hd = mesh(new T.CylinderGeometry(0.018, 0.018, 0.22, 10), M.steel, props.legMachine); hd.position.set(x, 0.47, -0.27); hd.rotation.x = Math.PI / 2; });
@@ -1886,6 +1889,10 @@
           sp0.add(an.localToWorld(new T.Vector3(0, -0.105, 0.06))); nr.add(new T.Vector3(0, -1, 0).applyQuaternion(qa));
         });
         sp0.multiplyScalar(1 / feetK.length); nr.normalize();
+        if (bandDef.plateBall) {   // mollets à la presse : le plateau reste perpendiculaire aux jambes, sous l'avant des pieds
+          sp0.set(0, 0, 0); feetK.forEach(function (fk) { sp0.add(R.legs[fk].ankle.localToWorld(new T.Vector3(0, -0.1, 0.13))); }); sp0.multiplyScalar(1 / feetK.length);
+          nr = sp0.clone().sub(w(R.legs.L.hip).add(w(R.legs.R.hip)).multiplyScalar(0.5)).normalize();
+        }
         if (bandDef.plateFoot) {   // une seule jambe : le plateau reste centré sur la machine
           var hm = w(R.legs.L.hip).add(w(R.legs.R.hip)).multiplyScalar(0.5), pq0 = new T.Quaternion(); R.pelvis.getWorldQuaternion(pq0);
           var sx = new T.Vector3(1, 0, 0).applyQuaternion(pq0); sp0.add(sx.multiplyScalar(hm.clone().sub(sp0).dot(sx)));
@@ -1993,6 +2000,7 @@
     var pu = R.props.pulley, pc = d && d.pulley;
     if (pu && pc) { pu.position.set((pc.x || 0) * sgn, 0, pc.z || 0); var wh = pu.userData.wheel; wh.position.set(0, pc.h || 1, 0.09 * (pc.z > 0 ? -1 : 1)); wh.rotation.z = Math.PI / 2; }
     var lpr = R.props.legPress, lc = d && d.legPress; if (lpr && lc) lpr.position.set(0, 0, lc.z || 0);
+    if (R.props.legMachine) R.props.legMachine.userData.thigh.visible = !!(d && d.legMachine && d.legMachine.thigh);
     var sld = R.props.sled, sc = d && d.sled; if (sld) sld.position.set(0, 0, sc ? sc.z || 0 : 0);
     var cst = R.props.camStand, cs = d && d.camStand;
     if (cst && cs) {

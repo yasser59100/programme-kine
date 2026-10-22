@@ -201,7 +201,7 @@ var KineTheme = (function () {
   };
 
   /* ════════ Salle de sport : renforcement général et retour au sport (genou, épaule, dos) ════════
-     Mêmes séances pour 2 ou 3 séances par semaine, au choix du patient (s2 / s3).
+     Trois séances Push, Pull, Legs enchaînées dans l'ordre, 2, 3 ou 4 fois par semaine au choix du patient.
      Exercices avec charge : [nom, répétitions, note, { r: [min, max], rest: secondes, inc: kg, s: séries }].
      Le carnet de charges (kine-salle.js) propose la charge du jour et la fait progresser. */
   var BIG = { r: [6, 10], rest: 150, inc: 2.5 }, MID = { r: [8, 12], rest: 120, inc: 2.5 }, SMALL = { r: [10, 15], rest: 90, inc: 1 }, DB = { r: [8, 12], rest: 120, inc: 1 };
@@ -213,117 +213,101 @@ var KineTheme = (function () {
       { t: "La douleur, ton repère", b: "Note-la après chaque série." + PAIN_RULE }
     ].concat(extra || []);
   };
+  // Exercices de salle les plus utilisés, avec leur fourchette de répétitions et la marche de progression
+  var X = {
+    sq: ["Squat à la barre", "6 à 10 répétitions", null, BIG],
+    rdl: ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }],
+    press: ["Presse à cuisses", "8 à 12 répétitions", null, MID],
+    press1: ["Presse à une jambe", "8 à 12 répétitions par jambe", null, { r: [8, 12], rest: 90, inc: 2.5 }],
+    lext: ["Leg extension", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
+    lextL: ["Leg extension amplitude limitée", "10 à 15 répétitions", "Amplitude complète seulement quand ton kiné l'autorise.", { r: [10, 15], rest: 90, inc: 2.5 }],
+    lcurl: ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
+    hip: ["Hip thrust à la barre", "8 à 12 répétitions", null, MID],
+    lunge: ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB],
+    calf: ["Mollets à la presse", "12 à 20 répétitions", null, { r: [12, 20], rest: 90, inc: 5 }],
+    abd: ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL],
+    add: ["Adduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL],
+    sled: ["Poussée de traîneau", "15 mètres", null, { r: null, rest: 120, inc: 10 }],
+    bench: ["Développé couché aux haltères", "8 à 12 répétitions", null, DB],
+    ohp: ["Développé épaules aux haltères", "8 à 12 répétitions", null, DB],
+    lm: ["Développé landmine à un bras", "8 à 12 répétitions par bras", null, { r: [8, 12], rest: 90, inc: 2.5 }],
+    tri: ["Triceps à la poulie haute", "12 à 15 répétitions", null, SMALL],
+    lat: ["Élévation latérale", "12 à 15 répétitions", null, SMALL],
+    pull: ["Tirage vertical", "8 à 12 répétitions", null, MID],
+    row: ["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID],
+    row1: ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB],
+    face: ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL],
+    sap: ["Tirage bras tendus à la poulie", "12 à 15 répétitions", null, SMALL],
+    curl: ["Curl biceps", "10 à 15 répétitions", null, SMALL],
+    re: ["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL],
+    ri: ["Rotation interne à la poulie", "12 à 15 répétitions par bras", null, SMALL],
+    pallof: ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1 }],
+    farm: ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }],
+    hyp: ["Extension lombaire au banc à 45°", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
+    side: ["Planche latérale complète", "30 secondes par côté"],
+    cop: ["Planche Copenhague genou", "20 secondes par côté"],
+    hop: ["Petits sauts sur place", "20 répétitions", "Seulement si ton kiné a validé la reprise des sauts."],
+    hop1: ["Sauts sur une jambe", "8 répétitions par jambe", "Quand les petits sauts passent sans douleur ni appréhension."],
+    deadbug: ["Dead bug"]
+  };
+  var x = function (k, note) { var e = X[k].slice(); if (note) e[2] = note; return e; };
+  // Push, Pull, Legs : on enchaîne les trois séances dans l'ordre, au rythme choisi (2, 3 ou 4 fois par semaine)
+  var PPL = function (push, pull, legs, f) {
+    return [
+      { t: "Push", sub: "pousser", f: f[0] || "Pectoraux, épaules et triceps : tous les mouvements où l'on pousse.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs", ex: push },
+      { t: "Pull", sub: "tirer", f: f[1] || "Dos, arrière des épaules et biceps : tous les mouvements où l'on tire.", warm: "Mobilisation membres supérieurs", cool: "Étirements rachidiens et cohérence cardiaque", ex: pull },
+      { t: "Legs", sub: "jambes", f: f[2] || "Cuisses, fessiers et mollets.", warm: "Mobilisation articulaire progressive", cool: "Étirements membres inférieurs", ex: legs }
+    ];
+  };
   var GYM = {
     salle: {
-      label: "Salle de sport", pill: "Salle", title: "Programme salle de sport", code: "S", color: "var(--blue)", gym: true,
-      short: "Renforcement de tout le corps avec machines et charges",
-      who: "Pour se renforcer en salle, en fin de rééducation ou pour entretenir sa forme : les grands mouvements de base, avec une charge qui progresse séance après séance.",
-      s3: [
-        { t: "Tout le corps A", f: "Cuisses, poussée et tirage : les mouvements de base.", warm: "Échauffement global progressif", cool: "Étirements membres inférieurs",
-          ex: [["Presse à cuisses", "8 à 12 répétitions", null, MID], ["Développé couché aux haltères", "8 à 12 répétitions", null, DB], ["Tirage vertical", "8 à 12 répétitions", null, MID],
-               ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
-        { t: "Tout le corps B", f: "Squat, tirage horizontal et épaules, avec un gainage porté.", warm: "Échauffement global progressif", cool: "Étirements globaux et Savasana",
-          ex: [["Squat à la barre", "6 à 10 répétitions", null, BIG], ["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID], ["Développé épaules aux haltères", "8 à 12 répétitions", null, DB],
-               ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Mollets à la presse", "12 à 20 répétitions", null, { r: [12, 20], rest: 90, inc: 5 }], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] },
-        { t: "Tout le corps C", f: "Le travail sur une jambe, un bras, et les petits muscles qui protègent les articulations.", warm: "Activation ceinture pelvienne", cool: "Étirements membres supérieurs",
-          ex: [["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB], ["Leg extension", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
-               ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL], ["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Triceps à la poulie haute", "12 à 15 répétitions", null, SMALL], ["Planche latérale complète", "30 secondes par côté"]] }
-      ],
-      s2: [
-        { t: "Tout le corps A", f: "Cuisses, poussée, tirage et gainage.", warm: "Échauffement global progressif", cool: "Étirements membres inférieurs",
-          ex: [["Squat à la barre", "6 à 10 répétitions", null, BIG], ["Développé couché aux haltères", "8 à 12 répétitions", null, DB], ["Tirage vertical", "8 à 12 répétitions", null, MID],
-               ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
-        { t: "Tout le corps B", f: "Charnière de hanche, presse, épaules et travail sur une jambe.", warm: "Activation ceinture pelvienne", cool: "Étirements globaux et Savasana",
-          ex: [["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Presse à cuisses", "8 à 12 répétitions", null, MID], ["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID],
-               ["Développé épaules aux haltères", "8 à 12 répétitions", null, DB], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Triceps à la poulie haute", "12 à 15 répétitions", null, SMALL], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] }
-      ],
+      label: "Renforcement général", pill: "Général", title: "Salle : renforcement général", code: "S", color: "var(--blue)", gym: true,
+      short: "Push, Pull, Legs : tout le corps avec machines et charges",
+      who: "Pour se renforcer en salle, en fin de rééducation ou pour entretenir sa forme : les grands mouvements de base, répartis en trois séances (Push, Pull, Legs), avec une charge qui progresse séance après séance.",
+      sessions: PPL([x("bench"), x("ohp"), x("lm"), x("lat"), x("tri"), x("pallof")],
+                    [x("pull"), x("row"), x("row1"), x("face"), x("sap"), x("curl")],
+                    [x("sq"), x("rdl"), x("press"), x("lcurl"), x("calf"), x("side")], []),
       cards: GYM_CARDS([{ t: "Sécurité en salle", b: "Échauffe-toi toujours, commence chaque exercice par une série légère, utilise les sécurités (butées de la cage, du banc) et demande au coach de la salle de te montrer le réglage des machines la première fois." }])
     },
     sgenou: {
-      label: "Retour au sport genou", pill: "Salle genou", title: "Retour au sport : genou", code: "R", color: "var(--teal)", gym: true,
-      short: "Fin de rééducation du genou : force, contrôle, puis impulsions",
-      who: "En fin de rééducation du genou (ligament croisé, ménisque, rotule), quand ton kiné ou ton chirurgien t'autorise le travail en salle. Le but : retrouver la force de la cuisse et un genou fiable avant de reprendre ton sport.",
-      s3: [
-        { t: "Force des cuisses", f: "Quadriceps et ischio-jambiers : l'écart de force avec l'autre jambe se comble ici.", warm: "Mobilisation articulaire progressive", cool: "Étirements membres inférieurs",
-          ex: [["Presse à cuisses", "8 à 12 répétitions", "Commence à deux jambes, puis à une jambe quand ton kiné te le dit.", MID], ["Leg extension amplitude limitée", "10 à 15 répétitions", "Amplitude complète seulement quand ton kiné l'autorise.", { r: [10, 15], rest: 90, inc: 2.5 }],
-               ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Mollets à la presse", "12 à 20 répétitions", null, { r: [12, 20], rest: 90, inc: 5 }], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
-        { t: "Une jambe, genou dans l'axe", f: "Le contrôle du genou sur une jambe, comme dans les appuis du sport.", warm: "Activation ceinture pelvienne", cool: "Étirements fessiers et iliopsoas",
-          ex: [["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL],
-               ["Descente de marche", "8 répétitions par jambe"], ["Presse à une jambe", "8 à 12 répétitions par jambe", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Adduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL], ["Planche Copenhague genou", "20 secondes par côté"]] },
-        { t: "Force et impulsions", f: "Charger lourd, puis réapprendre à sauter et à atterrir.", warm: "Échauffement global progressif", cool: "Étirements membres inférieurs",
-          ex: [["Squat à la barre", "6 à 10 répétitions", null, BIG], ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Petits sauts sur place", "20 répétitions", "Seulement si ton kiné a validé la reprise des sauts."],
-               ["Sauts sur une jambe", "8 répétitions par jambe", "Quand les petits sauts passent sans douleur ni appréhension."], ["Copenhague dynamique genou", "8 répétitions par côté"], ["Poussée de traîneau", "15 mètres", null, { r: null, rest: 120, inc: 10 }]] }
-      ],
-      s2: [
-        { t: "Force des cuisses", f: "Quadriceps, ischio-jambiers et charnière de hanche.", warm: "Mobilisation articulaire progressive", cool: "Étirements membres inférieurs",
-          ex: [["Presse à cuisses", "8 à 12 répétitions", null, MID], ["Leg extension amplitude limitée", "10 à 15 répétitions", "Amplitude complète seulement quand ton kiné l'autorise.", { r: [10, 15], rest: 90, inc: 2.5 }],
-               ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Mollets à la presse", "12 à 20 répétitions", null, { r: [12, 20], rest: 90, inc: 5 }], ["Planche Copenhague genou", "20 secondes par côté"]] },
-        { t: "Une jambe et impulsions", f: "Contrôle sur une jambe, puis sauts et réceptions.", warm: "Activation ceinture pelvienne", cool: "Étirements fessiers et iliopsoas",
-          ex: [["Squat à la barre", "6 à 10 répétitions", null, BIG], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL],
-               ["Presse à une jambe", "8 à 12 répétitions par jambe", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Petits sauts sur place", "20 répétitions", "Seulement si ton kiné a validé la reprise des sauts."], ["Sauts sur une jambe", "8 répétitions par jambe", "Quand les petits sauts passent sans douleur ni appréhension."]] }
-      ],
+      label: "Retour au sport genou", pill: "Genou", title: "Salle : retour au sport genou", code: "R", color: "var(--teal)", gym: true,
+      short: "Push, Pull, Legs, avec du travail du genou à chaque séance",
+      who: "En fin de rééducation du genou (ligament croisé, ménisque, rotule), quand ton kiné ou ton chirurgien t'autorise le travail en salle. Chaque séance garde deux ou trois exercices pour le genou, et la séance Legs le travaille en entier.",
+      sessions: PPL([x("bench"), x("ohp"), x("pull"), x("lextL"), x("calf"), x("cop")],
+                    [x("row"), x("row1"), x("face"), x("lcurl"), x("rdl"), x("add")],
+                    [x("press"), x("press1"), x("sq", "Seulement si la presse à une jambe passe sans douleur."), x("lunge"), x("abd"), x("sled"), x("hop1")],
+                    ["Le haut du corps, plus le quadriceps et le mollet.", "Le dos et les ischio-jambiers, qui protègent le ligament croisé.", "Force, une jambe à la fois, puis impulsions."]),
       cards: GYM_CARDS([{ t: "Avant de reprendre ton sport", b: "La reprise se décide avec ton kiné et ton chirurgien, à partir de tests : force de la cuisse proche de l'autre côté (souvent plus de 90 %), sauts sur une jambe équivalents, genou sec et sans appréhension. Le calendrier seul ne suffit pas." }])
     },
     sepaule: {
-      label: "Retour au sport épaule", pill: "Salle épaule", title: "Retour au sport : épaule", code: "P", color: "var(--amber)", gym: true,
-      short: "Fin de rééducation de l'épaule : coiffe, omoplates, puis charges",
+      label: "Retour au sport épaule", pill: "Épaule", title: "Salle : retour au sport épaule", code: "P", color: "var(--amber)", gym: true,
+      short: "Push, Pull, Legs, avec la coiffe et les omoplates à chaque séance",
       who: "En fin de rééducation de l'épaule (tendinopathie, luxation, chirurgie de la coiffe ou de stabilisation), quand ton kiné t'autorise le travail en salle.",
-      s3: [
-        { t: "Coiffe et omoplates", f: "Les petits muscles qui centrent l'épaule et stabilisent l'omoplate.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
-          ex: [["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Rotation interne à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL],
-               ["Tirage horizontal à la poulie", "10 à 12 répétitions", null, { r: [10, 12], rest: 90, inc: 2.5 }], ["Élévation en Y", "12 répétitions"], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
-        { t: "Tirer et pousser", f: "Reprendre les grands mouvements, d'abord en amplitude sans douleur.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
-          ex: [["Tirage vertical", "8 à 12 répétitions", null, MID], ["Développé couché aux haltères", "8 à 12 répétitions", "Descends seulement jusqu'où l'épaule reste confortable.", DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB],
-               ["Développé landmine à un bras", "8 à 12 répétitions par bras", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Tirage bras tendus à la poulie", "12 à 15 répétitions", null, SMALL]] },
-        { t: "Au-dessus de la tête", f: "Le bras en haut, là où l'épaule doit être solide pour le sport.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
-          ex: [["Développé épaules aux haltères", "8 à 12 répétitions", "Seulement si lever le bras ne fait plus mal.", DB], ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL],
-               ["Développé landmine à un bras", "8 à 12 répétitions par bras", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Rotation interne à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Planche latérale complète", "30 secondes par côté"]] }
-      ],
-      s2: [
-        { t: "Coiffe et tirage", f: "Centrer l'épaule et renforcer le dos.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
-          ex: [["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Rotation interne à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL],
-               ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Tirage horizontal à la poulie", "10 à 12 répétitions", null, { r: [10, 12], rest: 90, inc: 2.5 }], ["Tirage bras tendus à la poulie", "12 à 15 répétitions", null, SMALL]] },
-        { t: "Pousser et au-dessus de la tête", f: "Reprendre la poussée, puis le bras en haut.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
-          ex: [["Développé couché aux haltères", "8 à 12 répétitions", "Descends seulement jusqu'où l'épaule reste confortable.", DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB], ["Développé épaules aux haltères", "8 à 12 répétitions", "Seulement si lever le bras ne fait plus mal.", DB],
-               ["Développé landmine à un bras", "8 à 12 répétitions par bras", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] }
-      ],
+      sessions: PPL([x("lm"), x("bench", "Descends seulement jusqu'où l'épaule reste confortable."), x("re"), x("tri"), x("ohp", "Seulement si lever le bras ne fait plus mal."), x("pallof")],
+                    [x("row"), x("face"), x("ri"), x("sap"), x("row1"), x("pull")],
+                    [x("press"), x("rdl"), x("lcurl"), x("lunge"), x("farm"), x("re")],
+                    ["Pousser en restant dans une amplitude confortable, la coiffe d'abord.", "Le dos et l'arrière de l'épaule, qui la stabilisent.", "Les jambes, et la marche chargée qui fait travailler les épaules en stabilité."]),
       cards: GYM_CARDS([{ t: "Avant de reprendre ton sport", b: "Surtout pour les sports de lancer, de raquette ou de contact : la reprise se décide avec ton kiné, quand l'épaule est mobile, sans douleur, et que la force en rotation est proche de l'autre côté." }])
     },
     sdos: {
-      label: "Retour au sport dos", pill: "Salle dos", title: "Retour au sport : dos", code: "L", color: "var(--purple)", gym: true,
-      short: "Après une lombalgie : un dos fort, qui porte et qui tourne",
+      label: "Retour au sport dos", pill: "Dos", title: "Salle : retour au sport dos", code: "L", color: "var(--purple)", gym: true,
+      short: "Push, Pull, Legs, avec un tronc qui résiste à chaque séance",
       who: "Après une lombalgie, quand tu bouges à nouveau sans crainte : reprendre les charges en salle pour un dos solide et des hanches puissantes.",
-      s3: [
-        { t: "Charnière de hanche", f: "Se pencher et soulever avec les hanches : le geste qui protège le dos.", warm: "Activation transverse et mobilisation", cool: "Étirements fessiers et iliopsoas",
-          ex: [["Soulevé de terre roumain à la barre", "8 à 10 répétitions", "Commence avec la barre seule pour le geste.", { r: [8, 10], rest: 150, inc: 2.5 }], ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Extension lombaire au banc à 45°", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
-               ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }], ["Dead bug"], ["Planche latérale complète", "30 secondes par côté"]] },
-        { t: "Tirer et porter", f: "Le dos haut et le tronc qui résiste quand on porte.", warm: "Activation transverse et mobilisation", cool: "Étirements rachidiens et cohérence cardiaque",
-          ex: [["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB], ["Tirage vertical", "8 à 12 répétitions", null, MID],
-               ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }], ["Tirage bras tendus à la poulie", "12 à 15 répétitions", null, SMALL], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
-        { t: "Jambes et tronc", f: "Squat et presse, avec un tronc gainé.", warm: "Échauffement global progressif", cool: "Étirements globaux et Savasana",
-          ex: [["Presse à cuisses", "8 à 12 répétitions", "Le bas du dos reste collé au dossier.", MID], ["Squat à la barre", "6 à 10 répétitions", "Seulement si le soulevé de terre roumain passe sans douleur.", BIG], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB],
-               ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL], ["Poussée de traîneau", "15 mètres", null, { r: null, rest: 120, inc: 10 }], ["Gainage frontal sur genoux", "30 secondes"]] }
-      ],
-      s2: [
-        { t: "Charnière et tirage", f: "Soulever avec les hanches, tirer avec le dos.", warm: "Activation transverse et mobilisation", cool: "Étirements fessiers et iliopsoas",
-          ex: [["Soulevé de terre roumain à la barre", "8 à 10 répétitions", "Commence avec la barre seule pour le geste.", { r: [8, 10], rest: 150, inc: 2.5 }], ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID],
-               ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }], ["Extension lombaire au banc à 45°", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Planche latérale complète", "30 secondes par côté"]] },
-        { t: "Jambes, porter et tronc", f: "Presse, fentes et marche chargée, avec un tronc gainé.", warm: "Échauffement global progressif", cool: "Étirements rachidiens et cohérence cardiaque",
-          ex: [["Presse à cuisses", "8 à 12 répétitions", "Le bas du dos reste collé au dossier.", MID], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB],
-               ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }], ["Poussée de traîneau", "15 mètres", null, { r: null, rest: 120, inc: 10 }]] }
-      ],
+      sessions: PPL([x("bench"), x("ohp"), x("tri"), x("pallof"), x("side"), x("deadbug")],
+                    [x("row"), x("row1"), x("pull"), x("face"), x("hyp"), x("farm")],
+                    [x("rdl", "Commence avec la barre seule pour le geste."), x("hip"), x("press", "Le bas du dos reste collé au dossier."), x("lcurl"), x("sled"), x("calf")],
+                    ["Pousser avec un tronc gainé.", "Tirer et porter : le dos haut et le tronc qui résiste.", "La charnière de hanche, le geste qui protège le dos."]),
       cards: GYM_CARDS([{ t: "Le dos est fait pour porter", b: "Soulever des charges n'abîme pas un dos qui s'y prépare progressivement : c'est même l'un des meilleurs moyens d'éviter les rechutes. La technique compte, mais la progression compte encore plus." }])
     }
   };
-  // Fréquence choisie par le patient : 2 ou 3 séances par semaine (même choix pour tous les programmes en salle)
-  function gymFreq() { return get("kf-salle-freq") === "2" ? 2 : 3; }
-  function gymSetup() {
-    var f = gymFreq();
-    Object.keys(GYM).forEach(function (id) {
-      var T = GYM[id]; T.sessions = f === 2 ? T.s2 : T.s3; T.perWeek = f; T.days = f === 2 ? { 2: 0, 5: 1 } : { 1: 0, 3: 1, 5: 2 };
-      THEMES[id] = T;
-    });
-  }
+  var GYM_IDS = ["salle", "sgenou", "sepaule", "sdos"];
+  function isGym(id) { return GYM_IDS.indexOf(id) >= 0; }
+  // Rythme choisi par le patient : 2, 3 ou 4 séances par semaine. Les jours d'entraînement de la semaine (1 = lundi)
+  var GYM_DAYS = { 2: [2, 5], 3: [1, 3, 5], 4: [1, 2, 4, 5] };
+  function gymFreq() { var f = +get("kf-salle-freq"); return f === 2 || f === 4 ? f : 3; }
+  // Fourchette, repos et marche de progression d'un exercice de salle (pour les séances perso et le journal)
+  function gymOpts(name) { for (var k in X) if (X[k][0] === name && X[k][3]) return X[k][3]; return null; }
+  function gymSetup() { var f = gymFreq(); GYM_IDS.forEach(function (id) { var T = GYM[id]; T.perWeek = f; T.days = {}; THEMES[id] = T; }); }
   gymSetup();
   var ORDER = ["coureur", "genou", "dos", "cheville", "salle", "sgenou", "sepaule", "sdos"];
   // Identité de chaque mode : pictogramme (traits), couleurs, phrase d'accueil
@@ -382,6 +366,17 @@ var KineTheme = (function () {
     var id = active(); if (!id) return null;
     var T = THEMES[id], o = {}, k = ids(id);
     if (typeof SEQ_DAYS === "undefined" || !SEQ_DAYS[k[0]]) return null;   // séances pas encore en place
+    if (T.gym) {   // salle : Push, Pull, Legs à la suite, la semaine suivante reprend où on s'est arrêté
+      // la prochaine séance est celle qui suit la dernière faite (Push, puis Pull, puis Legs), quel que soit le jour
+      var f = gymFreq(), slots = GYM_DAYS[f], ss = [], code = T.code, mon = new Date(), now = new Date(), dow = (now.getDay() + 6) % 7;
+      try { ss = typeof sessions !== "undefined" && sessions ? sessions : JSON.parse(get("kf-sessions") || "[]"); } catch (e) {}
+      mon.setDate(now.getDate() - dow); var monIso = mon.getFullYear() + "-" + ("0" + (mon.getMonth() + 1)).slice(-2) + "-" + ("0" + mon.getDate()).slice(-2);
+      var mine = ss.filter(function (x) { return new RegExp("^" + code + "\\d ").test(String(x.seance || "")); });
+      var last = mine[0] ? +String(mine[0].seance).charAt(1) - 1 : -1, before = mine.filter(function (x) { return x.date < monIso; }).length;
+      var lastBefore = (function () { var m = mine.filter(function (x) { return x.date < monIso; })[0]; return m ? +String(m.seance).charAt(1) - 1 : -1; })();
+      slots.forEach(function (d, i) { o[d] = k[(lastBefore + 1 + i) % k.length]; });
+      return o;
+    }
     Object.keys(T.days).forEach(function (d) { o[d] = k[T.days[d]]; });
     return o;
   }
@@ -408,7 +403,7 @@ var KineTheme = (function () {
     var T = THEMES[id], k = ids(id), days = {};
     T.sessions.forEach(function (s, i) {
       var list = [exercise(s.warm)].concat(s.ex.map(function (x) { return exercise(x[0], x[1], x[2], x[3]); }), [exercise(s.cool)]).filter(Boolean);
-      days[k[i]] = { label: T.code + (i + 1) + " — " + s.t, color: T.color, exercises: list, theme: id, focus: s.f };
+      days[k[i]] = { label: T.code + (i + 1) + " — " + s.t + (s.sub ? " (" + s.sub + ")" : ""), color: T.color, exercises: list, theme: id, focus: s.f };
       if (T.gym) { days[k[i]].gym = true; days[k[i]].tours = 3; }
     });
     GENERAL.forEach(function (g) { delete SEQ_DAYS[g]; });   // le programme officiel les remet si le patient revient au général
@@ -620,10 +615,13 @@ var KineTheme = (function () {
         "<small>" + esc(T ? T.short + ". " + T.perWeek + " séances par semaine." : "Tout le corps, 5 séances par semaine.") + "</small>" +
         (T && isAdmin() && !visible(id) ? "<em>Masqué pour les patients</em>" : "") + "</span><span aria-hidden='true'>›</span></button>";
     };
+    var gyms = list.filter(isGym); list = list.filter(function (id) { return !isGym(id); });
+    var gymRow = gyms.length ? "<button class='th-opt" + (isGym(cur) ? " on" : "") + "' onclick='KineTheme.gymPicker()'><span class='th-dot' style='background:#3B82F6'></span><span class='th-opt-t'><b>Salle de sport" + (isGym(cur) ? " · " + esc(THEMES[cur].pill) : "") + "</b>" +
+      "<small>Push, Pull, Legs avec machines et charges. Tu choisis ensuite ton objectif : général, genou, épaule ou dos.</small></span><span aria-hidden='true'>›</span></button>" : "";
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineTheme.close()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>Choisir mon programme</div><div class='kf-sub'>Le programme choisi remplace tes séances de la semaine. Tu peux revenir au programme général à tout moment.</div></div>" +
-      WARN + row(null, null) + list.map(function (id) { return row(id, THEMES[id]); }).join("") +
+      WARN + row(null, null) + list.map(function (id) { return row(id, THEMES[id]); }).join("") + gymRow +
       "<p class='kf-sub'>Changer de programme repart en semaine 1. Tes séances déjà faites restent dans ton suivi.</p></div>";
     el.classList.add("open"); el.scrollTop = 0;
   }
@@ -632,9 +630,9 @@ var KineTheme = (function () {
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineTheme.close()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>" + esc(T.title) + "</div><div class='kf-sub'>" + esc(T.who) + "</div></div>" + WARN +
-      (T.gym ? "<div class='ks-freq'><span>Séances par semaine</span><div><button class='" + (T.perWeek === 2 ? "on" : "") + "' onclick='KineTheme.setFreq(2);KineTheme.info()'>2</button><button class='" + (T.perWeek === 3 ? "on" : "") + "' onclick='KineTheme.setFreq(3);KineTheme.info()'>3</button></div></div>" : "") +
-      "<div class='th-plan'><b>" + T.perWeek + " séances par semaine" + (T.gym ? "" : ", 4 semaines") + "</b>" + T.sessions.map(function (s, i) {
-        return "<div><span>" + T.code + (i + 1) + "</span><p><strong>" + esc(s.t) + "</strong>" + esc(s.f) + "</p></div>"; }).join("") + "</div>" +
+      (T.gym ? freqHtml("KineTheme.info()") : "") +
+      "<div class='th-plan'><b>" + (T.gym ? "Push, Pull, Legs à la suite, " + T.perWeek + " séances par semaine" : T.perWeek + " séances par semaine, 4 semaines") + "</b>" + T.sessions.map(function (s, i) {
+        return "<div><span>" + (T.gym ? s.t.charAt(0) + (s.t === "Pull" ? "u" : "") : T.code + (i + 1)) + "</span><p><strong>" + esc(s.t + (s.sub ? " (" + s.sub + ")" : "")) + "</strong>" + esc(s.f) + "</p></div>"; }).join("") + "</div>" +
       T.cards.map(function (c) { return "<details class='th-card'><summary>" + esc(c.t) + "</summary><div>" + c.b + "</div></details>"; }).join("") +
       (T.runLog && window.KineCourse ? "<button class='lx-cta' onclick='KineTheme.close();KineCourse.open()'>Mon journal de course</button>" : "") +
       (T.gym && window.KineSalle ? "<button class='lx-cta' onclick='KineTheme.close();KineSalle.open()'>Mon carnet de charges</button>" : "") + "</div>";
@@ -648,7 +646,14 @@ var KineTheme = (function () {
       return "<button class='th-pill" + (on ? " on" : "") + "' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick=\"KineTheme.choose(" + (id === "general" ? "null" : "'" + id + "'") + ")\" aria-pressed='" + on + "'>" +
         "<span class='th-pi'>" + ICON[id] + "</span>" + esc(lab) + (id !== "general" && isAdmin() && !visible(id) ? "<em>masqué</em>" : "") + "</button>";
     };
-    return "<div class='th-pills'>" + ["general"].concat(list).map(pill).join("") + "</div>";
+    var gyms = list.filter(isGym), rest = list.filter(function (id) { return !isGym(id); });
+    var gp = "";
+    if (gyms.length) {
+      var on = isGym(cur), M = on ? MODE[cur] : MODE.salle;
+      gp = "<button class='th-pill" + (on ? " on" : "") + "' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick='KineTheme.gymPicker()' aria-pressed='" + on + "'>" +
+        "<span class='th-pi'>" + ICON.salle + "</span>Salle" + (on ? "<em>" + esc(THEMES[cur].pill) + "</em>" : "") + "</button>";
+    }
+    return "<div class='th-pills'>" + ["general"].concat(rest).map(pill).join("") + gp + "</div>";
   }
   function bannerHtml() {
     var cur = active(), list = available();
@@ -667,7 +672,7 @@ var KineTheme = (function () {
   function chipHtml() {
     var cur = active(); if (!cur) return "";
     var M = MODE[cur];
-    return "<button class='th-chip' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick=\"showPage('guide')\"><span class='th-pi'>" + ICON[cur] + "</span>" + esc(THEMES[cur].label) + "</button>";
+    return "<button class='th-chip' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick=\"showPage('guide')\"><span class='th-pi'>" + ICON[cur] + "</span>" + esc(isGym(cur) ? "Salle · " + THEMES[cur].pill : THEMES[cur].label) + "</button>";
   }
   // Accueil, programme coureur : la sortie du jour se note en un geste, et la question du lendemain matin
   function homeHtml() {
@@ -678,9 +683,33 @@ var KineTheme = (function () {
   }
   function perWeek() { var id = active(); return id ? THEMES[id].perWeek : 5; }
   function setFreq(n) {
-    set("kf-salle-freq", n === 2 ? "2" : "3"); gymSetup();
+    set("kf-salle-freq", String(n === 2 || n === 4 ? n : 3)); gymSetup();
     if (window.KineOfficiel && KineOfficiel.reapply) KineOfficiel.reapply(); else apply();
     mark(); rerender();
+  }
+
+  function freqHtml(after) {
+    var f = gymFreq();
+    return "<div class='ks-freq'><span>Séances par semaine</span><div>" + [2, 3, 4].map(function (n) {
+      return "<button class='" + (f === n ? "on" : "") + "' onclick='KineTheme.setFreq(" + n + ");" + after + "'>" + n + "</button>"; }).join("") + "</div></div>";
+  }
+  // Salle de sport : un seul mode, puis l'objectif (général, genou, épaule, dos), le rythme, et les outils de la salle
+  function gymPicker() {
+    var cur = active(), list = GYM_IDS.filter(function (id) { return visible(id) || isAdmin(); });
+    var el = sheet();
+    el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineTheme.close()' aria-label='Retour'>←</button>" +
+      "<div><div class='kf-h1'>Salle de sport</div><div class='kf-sub'>Trois séances qui s'enchaînent : Push (pousser), Pull (tirer), Legs (jambes). Choisis ton objectif, il adapte les exercices de chaque séance.</div></div>" +
+      "<div class='th-gym'>" + list.map(function (id) {
+        var T = THEMES[id], M = MODE[id], on = cur === id;
+        return "<button class='th-gopt" + (on ? " on" : "") + "' style='--ma:" + M.a + ";--mb:" + M.b + "' onclick=\"KineTheme.choose('" + id + "')\"><span class='th-pi'>" + ICON[id] + "</span>" +
+          "<span class='th-opt-t'><b>" + esc(T.pill === "Général" ? "Renforcement général" : T.pill) + (on ? " · en cours" : "") + "</b><small>" + esc(T.short) + "</small>" + (isAdmin() && !visible(id) ? "<em>Masqué pour les patients</em>" : "") + "</span></button>";
+      }).join("") + "</div>" + freqHtml("KineTheme.gymPicker()") +
+      (window.KineSalle ? "<div class='th-gtools'><button onclick='KineTheme.close();KineSalle.log()'><b>Noter une séance</b><small>Sans lancer Yass, directement à la salle</small></button>" +
+        "<button onclick='KineTheme.close();KineSalle.mine()'><b>Mes séances salle</b><small>Crée tes propres séances</small></button>" +
+        "<button onclick='KineTheme.close();KineSalle.open()'><b>Carnet de charges</b><small>Courbes, records, historique</small></button></div>" : "") +
+      (cur && !isGym(cur) || !cur ? "" : "<button class='th-gback' onclick=\"KineTheme.choose(null)\">Revenir au programme général</button>") +
+      WARN + "</div>";
+    el.classList.add("open"); el.scrollTop = 0;
   }
 
   // Interrupteurs dans l'Espace kiné (programme officiel)
@@ -699,6 +728,6 @@ var KineTheme = (function () {
   if (document.readyState === "complete") setTimeout(init, 0); else window.addEventListener("load", function () { setTimeout(init, 0); });
 
   return { THEMES: THEMES, ORDER: ORDER, apply: apply, active: active, schedule: schedule, available: available, choose: choose, picker: picker, info: info,
-           close: closeSheet, bannerHtml: bannerHtml, chipHtml: chipHtml, homeSwitchHtml: homeSwitchHtml, homeHtml: homeHtml, fx: fx, perWeek: perWeek, adminHtml: adminHtml, visible: visible, setFreq: setFreq, gymFreq: gymFreq };
+           close: closeSheet, bannerHtml: bannerHtml, chipHtml: chipHtml, homeSwitchHtml: homeSwitchHtml, homeHtml: homeHtml, fx: fx, perWeek: perWeek, adminHtml: adminHtml, visible: visible, setFreq: setFreq, gymFreq: gymFreq, gymPicker: gymPicker, isGym: isGym, gymOpts: gymOpts, GYM_IDS: GYM_IDS };
 })();
 window.KineTheme = KineTheme;

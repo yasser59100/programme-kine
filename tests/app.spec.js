@@ -118,28 +118,36 @@ test("mode salle de sport : charge, séries et progression", async ({ page }, in
   const r = await page.evaluate(() => {
     KineOfficiel.themes = () => ({ salle: 1, sgenou: 1, sepaule: 1, sdos: 1 });
     const miss = [];
-    ["salle", "sgenou", "sepaule", "sdos"].forEach(id => { const T = KineTheme.THEMES[id]; [T.s2, T.s3].forEach(L => L.forEach(s => s.ex.concat([[s.warm], [s.cool]]).forEach(x => { if (!KineOfficiel.asExercise(x[0])) miss.push(x[0]); }))); });
+    ["salle", "sgenou", "sepaule", "sdos"].forEach(id => { const T = KineTheme.THEMES[id]; T.sessions.forEach(s => s.ex.concat([[s.warm], [s.cool]]).forEach(x => { if (!KineOfficiel.asExercise(x[0])) miss.push(x[0]); })); });
     KineSalleEx.list.forEach(n => { if (!KineAvatar.supports(n) || !KineBiblio.find(n)) miss.push(n); });
     KineTheme.choose("salle", true);
     return { miss, keys: Object.keys(SEQ_DAYS).join(",") };
   });
   expect(r.miss).toEqual([]);
   expect(r.keys).toBe("s0,s1,s2");
-  await page.evaluate(() => { window.speak = () => {}; _launchSeq("s0"); seqSkipExercise(); });
+  await page.evaluate(() => { window.speak = () => {}; _launchSeq("s2"); seqSkipExercise(); });
   await expect(page.locator("#ks-load")).toBeVisible();
-  await page.evaluate(() => KineSalle._start("Presse à cuisses"));
+  await page.evaluate(() => KineSalle._start("Squat à la barre"));
   for (let i = 0; i < 3; i++) {
     await page.evaluate(() => document.querySelector("#seq-actions button").click());
     await expect(page.locator("#ks-set")).toBeVisible();
     if (i === 0) await shot(page, info, "10-salle-serie");
     await page.evaluate(() => seqSkipRest());
   }
-  const plan = await page.evaluate(() => { seqFinish(); return KineSalle.plans()["Presse à cuisses"]; });
+  const plan = await page.evaluate(() => { seqFinish(); return KineSalle.plans()["Squat à la barre"]; });
   expect(plan.kg).toBe(22.5);
   expect(plan.d).toBe(1);
-  await page.evaluate(() => { document.querySelectorAll("#kf-cele").forEach(e => e.remove()); closeSeq(); KineSalle.open("Presse à cuisses"); });
+  await page.evaluate(() => { document.querySelectorAll("#kf-cele").forEach(e => e.remove()); closeSeq(); KineSalle.open("Squat à la barre"); });
   await expect(page.locator("#ks-sheet .ks-hist")).toBeVisible();
   expect(await page.evaluate(() => KineModeFx.STORIES.salle)).toBe("gym");
+  // journal de séance, sans lancer Yass
+  await page.evaluate(() => { KineSalle.close(); KineSalle.log("s1"); KineSalle._jv(0, 0, "kg", "30"); KineSalle._jdone(0, 0); });
+  await expect(page.locator("#ks-log .ks-srow.done")).toHaveCount(1);
+  await expect(page.locator("#ks-rest")).toBeVisible();
+  const saved = await page.evaluate(() => { KineSalle._rest(0); KineSalle._jend(); KineSalle._jsave(); return sessions[0].seance; });
+  expect(saved).toBe("S2 — Pull (tirer)");
+  await page.evaluate(() => { KineSalle._jclose(); KineTheme.gymPicker(); });
+  await expect(page.locator(".th-gopt")).toHaveCount(4);
   await clean(errs);
 });
 

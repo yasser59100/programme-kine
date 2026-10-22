@@ -54,7 +54,7 @@
       target = Object.keys(SEQ_DAYS)[0]; state = "first";
       kick = "Ta première séance"; cta = "Commencer";
     } else if (todayId && !doneToday) {
-      state = "today"; kick = "Séance du jour, semaine " + w + " sur 4"; cta = "Commencer";
+      state = "today"; kick = SEQ_DAYS[todayId] && SEQ_DAYS[todayId].gym ? "Séance du jour en salle" : "Séance du jour, semaine " + w + " sur 4"; cta = "Commencer";
     } else if (doneToday) {
       state = "done"; kick = "Séance faite, bravo !";
       var nx = null; for (var j = 1; j <= 7; j++) { var m = map[(dow + j) % 7]; if (m) { nx = [m, WD[(dow + j) % 7]]; break; } }

@@ -38,7 +38,7 @@
     steps: [step("up", 1.5, "De 90° à 45° seulement", "On monte jusqu'à 45 degrés", "up"), step("up", 1, "On tient", "On tient", "hold"), step("down", 3, "Descente lente", "On redescend lentement", "down")]
   });
   reg("Leg curl assis", {
-    camera: { yaw: 1.3, dist: 3.8, ty: 0.65 }, props: ["legMachine"], lever: true, tool: "padBack", start: "out", thumb: "in",
+    camera: { yaw: 1.3, dist: 3.8, ty: 0.65 }, props: ["legMachine"], legMachine: { thigh: true }, lever: true, tool: "padBack", start: "out", thumb: "in",
     poses: { out: LEGX(10), in: LEGX(95) },
     steps: [step("in", 1.5, "On plie les genoux", "On ramène les talons sous le siège", "up"), step("in", 1, "On tient", "On tient", "hold"), step("out", 3, "Retour lent", "On revient lentement", "down")]
   });
@@ -58,11 +58,15 @@
   (function () {
     var d = from("Hip thrust épaules sur canapé"); if (!d) return;
     d.tool = "barHips"; d.props = ["bench"]; d.bench = { x: 0, z: -0.62, along: "x" }; delete d.chair;
+    var HB = { down: [0.34, 0.08], up: [0.64, 0.03] };   // la barre posée sur les hanches : les mains la tiennent de chaque côté
+    Object.keys(HB).forEach(function (k) { if (!d.poses[k]) return; var y = HB[k][0], z = HB[k][1];
+      d.poses[k].LA = { hand: { at: [0.3, y, z], pole: [1, 0.3, 0] } }; d.poses[k].RA = { hand: { at: [-0.3, y, z], pole: [-1, 0.3, 0] } }; });
     reg("Hip thrust à la barre", d);
   })();
   (function () {
     var d = from("Fente avec charge"); if (!d) return;
     d.loadKind = "dumbbell";
+    Object.keys(d.poses).forEach(function (k) { d.poses[k].LA = { ang: [2, 9, 0, 4] }; d.poses[k].RA = { ang: [2, 9, 0, 4] }; });
     reg("Fentes avec haltères", d);
   })();
   // Abduction à la poulie basse : sangle à la cheville, debout de côté
@@ -79,19 +83,19 @@
   var BENCHP = function (up) {
     var y = up ? 1.12 : 0.74;
     return { pelvis: { p: [0, 0.5, 0.0], r: [-90, 0, 0] }, spine: [0, 0, 0], head: 0,
-      L: { foot: { at: [0.28, 0, 0.62], yaw: 10, pole: [0.3, 1, 0] } }, R: { foot: { at: [-0.28, 0, 0.62], yaw: -10, pole: [-0.3, 1, 0] } },
+      L: { foot: { at: [0.27, 0, 0.5], yaw: 10, pole: [0.3, 1, 0] } }, R: { foot: { at: [-0.27, 0, 0.5], yaw: -10, pole: [-0.3, 1, 0] } },
       LA: { hand: { at: [up ? 0.2 : 0.3, y, -0.48], pole: [1, -0.3, 0.3] } }, RA: { hand: { at: [up ? -0.2 : -0.3, y, -0.48], pole: [-1, -0.3, 0.3] } } };
   };
   reg("Développé couché aux haltères", {
-    load: "both", loadKind: "dumbbell", camera: { yaw: 1.2, pitch: 0.35, dist: 3.8, ty: 0.6, tz: -0.2 }, props: ["bench"], bench: { x: 0, z: -0.3 }, start: "up", thumb: "down",
+    load: "both", loadKind: "dumbbell", camera: { yaw: 1.2, pitch: 0.35, dist: 3.8, ty: 0.6, tz: -0.2 }, props: ["bench"], bench: { x: 0, z: -0.16 }, start: "up", thumb: "down",
     poses: { up: BENCHP(true), down: BENCHP(false) },
     steps: [step("down", 2.5, "Descente contrôlée", "On descend, coudes à 45 degrés du corps", "down"), step("up", 1.5, "On pousse", "On pousse", "up")]
   });
   // Tirage vertical : assis, barre large tenue au-dessus de la tête, câbles vers la poulie haute
   var LAT = function (dn) {
     return merge(SEAT, { spine: [-6, 0, 0], head: dn ? -4 : 6,
-      LA: { hand: { at: [dn ? 0.36 : 0.42, dn ? 1.25 : 1.78, dn ? -0.22 : -0.28], pole: [1, -1, -0.4] } },
-      RA: { hand: { at: [dn ? -0.36 : -0.42, dn ? 1.25 : 1.78, dn ? -0.22 : -0.28], pole: [-1, -1, -0.4] } } });
+      LA: { hand: { at: [dn ? 0.36 : 0.42, dn ? 1.11 : 1.78, dn ? -0.16 : -0.28], pole: [1, -0.6, -1] } },
+      RA: { hand: { at: [dn ? -0.36 : -0.42, dn ? 1.11 : 1.78, dn ? -0.16 : -0.28], pole: [-1, -0.6, -1] } } });
   };
   reg("Tirage vertical", {
     camera: { yaw: 0.85, dist: 4.2, ty: 1.15 }, props: ["latTower"], tool: "latbar", cable: true, bands: [["LH", [0.05, 2.4, -0.3]], ["RH", [-0.05, 2.4, -0.3]]], start: "up", thumb: "down",
@@ -100,11 +104,11 @@
   });
   // Tirage horizontal à la poulie : assis face à la poulie, buste droit
   var ROW = function (pull) {
-    return merge(SEAT, { spine: [0, 0, 0], head: 0, L: { foot: { at: [0.14, 0, 0.34], yaw: 6 } }, R: { foot: { at: [-0.14, 0, 0.34], yaw: -6 } },
-      LA: { hand: { at: [0.12, 0.86, pull ? -0.12 : 0.28], pole: [1, -0.6, -1] } }, RA: { hand: { at: [-0.12, 0.86, pull ? -0.12 : 0.28], pole: [-1, -0.6, -1] } } });
+    return merge(SEAT, { spine: [pull ? -4 : 6, 0, 0], head: 0, L: { foot: { at: [0.14, 0.18, 0.5], yaw: 6, lift: -20 } }, R: { foot: { at: [-0.14, 0.18, 0.5], yaw: -6, lift: -20 } },
+      LA: { hand: { at: [0.1, 0.78, pull ? -0.1 : 0.36], pole: [1, -0.6, -1] } }, RA: { hand: { at: [-0.1, 0.78, pull ? -0.1 : 0.36], pole: [-1, -0.6, -1] } } });
   };
   reg("Tirage horizontal à la poulie", {
-    camera: { yaw: 1.35, dist: 4.2, ty: 0.85, tz: 0.3 }, props: ["bench", "pulley"], bench: { x: 0, z: -0.55 }, pulley: { x: 0, z: 1.05, h: 0.86 }, cable: true, bands: [["LH", [0.0, 0.86, 0.98]], ["RH", [0.0, 0.86, 0.98]]],
+    camera: { yaw: 1.35, dist: 4.2, ty: 0.85, tz: 0.3 }, props: ["bench", "pulley", "step"], bench: { x: 0, z: -0.55 }, stepAt: { x: 0, z: 0.6 }, pulley: { x: 0, z: 1.05, h: 0.78 }, cable: true, bands: [["LH", [0.0, 0.78, 0.97]], ["RH", [0.0, 0.78, 0.97]]],
     start: "out", thumb: "in",
     poses: { out: ROW(false), in: ROW(true) },
     steps: [step("in", 1.5, "On tire, coudes le long du corps", "On tire, coudes le long du corps", "up"), step("in", 0.8, "On serre les omoplates", null, "hold"), step("out", 2.5, "Retour lent", "On revient lentement", "down")]
@@ -116,7 +120,15 @@
   })();
   (function () {
     var d = from("Rowing un bras appui chaise"); if (!d) return;
-    d.loadKind = "dumbbell"; d.props = ["bench"]; d.bench = { x: 0, z: 0.45, along: "x" }; delete d.chair;
+    d.loadKind = "dumbbell"; d.props = ["bench"]; d.bench = { x: 0.17, z: 0.12 }; delete d.chair;
+    d.camera = { yaw: -1.2, dist: 4.0, ty: 0.65, tz: 0.15 };
+    var RW = function (up) {
+      return { pelvis: { p: [0.02, 0.9, -0.12], r: [78, 0, 0] }, spine: [4, 0, 0], head: -12,
+        L: { foot: { at: [0.17, 0.5, -0.52], yaw: 0, lift: -70, pole: [0, 0, 1] } }, R: { foot: { at: [-0.2, 0, 0.0], yaw: -6 } },
+        LA: { hand: { at: [0.17, 0.47, 0.42], pole: [0.6, 0, -1] } },
+        RA: { hand: { at: up ? [-0.21, 0.8, 0.12] : [-0.21, 0.34, 0.38], pole: up ? [-0.3, 1, -0.6] : [-0.3, -0.2, -1] } } };
+    };
+    d.poses = { down: RW(false), up: RW(true) };
     reg("Rowing un bras à l'haltère", d);
   })();
   var pulleyOf = function (n, nn, h) {
@@ -130,6 +142,7 @@
   pulleyOf("Rotation interne à l'élastique", "Rotation interne à la poulie");
   pulleyOf("Face pull à l'élastique", "Face pull à la poulie");
   pulleyOf("Pallof press", "Pallof press à la poulie");
+  (function () { var d = KineAvatar._def("Pallof press à la poulie"); if (d && d.pulley) { d.pulley.x = 1.25; if (d.bands && d.bands[0]) d.bands[0][1] = [1.17, d.bands[0][1][1], d.bands[0][1][2]]; } })();
   (function () {
     var d = from("Marche du fermier sur place"); if (!d) return;
     d.loadKind = "kettlebell";
@@ -139,17 +152,19 @@
 
   /* ════════ LOT 2 : mouvements propres à la salle ════════ */
   // Mollets à la presse : jambes tendues, seul l'avant du pied pousse le plateau
-  var CALF = function (lift) {
-    var b = PRESS(0.05); b.L.foot.lift = lift; b.R.foot.lift = lift; b.L.foot.pole = [0.1, 1, 0.3]; b.R.foot.pole = [-0.1, 1, 0.3]; return b;
+  var CALF = function (lift, push) {
+    var b = PRESS(0.05);
+    ["L", "R"].forEach(function (k) { var f = b[k].foot; f.lift = lift; f.at = [f.at[0], f.at[1] + 0.53 * push, f.at[2] + 0.85 * push]; f.pole = [k === "L" ? 0.1 : -0.1, 1, 0.3]; });
+    return b;
   };
   reg("Mollets à la presse", {
-    camera: { yaw: 1.35, dist: 4.2, ty: 0.65, pitch: 0.2 }, props: ["legPress"], tool: "legPlate", start: "dn", thumb: "up",
-    poses: { dn: CALF(-50), up: CALF(-100) },
+    camera: { yaw: 1.35, dist: 4.2, ty: 0.65, pitch: 0.2 }, props: ["legPress"], tool: "legPlate", plateBall: true, start: "dn", thumb: "up",
+    poses: { dn: CALF(-35, -0.02), up: CALF(-110, 0.06) },
     steps: [step("up", 1.2, "On pousse sur l'avant des pieds", "On pousse avec l'avant des pieds", "up"), step("up", 1, "On tient en haut", "On tient", "hold"), step("dn", 2.5, "Descente lente, talons vers soi", "On redescend lentement", "down")]
   });
   // Presse à une jambe : pied droit au centre du plateau, l'autre posé sur le cadre
   var PRESS1 = function (k) {
-    var b = PRESS(k); b.R.foot.at[0] = -0.04; b.L = { foot: { at: [0.3, 0.32, 0.12], yaw: 10, lift: 0 } }; return b;
+    var b = PRESS(k); b.R.foot.at[0] = -0.04; b.L = { foot: { at: [0.2, 0.31, 0.08], yaw: 12, lift: 0, pole: [0.4, 1, 0.4] } }; return b;
   };
   reg("Presse à une jambe", {
     camera: { yaw: 1.2, dist: 4.2, ty: 0.65, pitch: 0.25 }, props: ["legPress"], tool: "legPlate", plateFoot: "R", start: "up", thumb: "down",
@@ -159,10 +174,10 @@
   // Adduction à la poulie basse : la jambe côté poulie revient vers l'intérieur
   var ADDP = function (abd) {
     return merge(STAND(0.1, 0), { pelvis: { p: [0, 0.925, 0], r: [0, 0, 0] }, L: { ang: [0, 4, 0, 4, 0] }, R: { ang: [abd < 0 ? 6 : 0, abd, 0, 2, 0] },
-      RA: { hand: { at: [-0.6, 1.05, 0.0], pole: [0, -1, 0] } }, spine: [0, 0, 0] });
+      RA: { hand: { at: [-0.5, 1.0, 0.0], pole: [0, -1, 0] } }, spine: [0, 0, 0] });
   };
   reg("Adduction de hanche à la poulie", {
-    camera: { yaw: 0.2, dist: 4.0, ty: 0.75 }, props: ["pulley"], pulley: { x: -0.7, z: 0.0, h: 0.12 }, cable: true, bands: [["RA", [-0.64, 0.12, 0.0]]],
+    camera: { yaw: 0.2, dist: 4.0, ty: 0.75 }, props: ["pulley"], pulley: { x: -0.6, z: 0.0, h: 0.12 }, cable: true, bands: [["RA", [-0.54, 0.12, 0.0]]],
     start: "out", thumb: "in",
     poses: { out: ADDP(26), in: ADDP(-10) },
     steps: [step("in", 1.5, "La jambe passe devant l'autre", "La jambe revient vers l'intérieur", "up"), step("in", 0.8, "On tient", null, "hold"), step("out", 2.5, "Retour lent", "On revient lentement", "down")]
@@ -203,9 +218,9 @@
   // Poussée de traîneau : buste penché, mains sur les montants, petits pas puissants
   var SLED = function (L) {
     var f = L ? 1 : -1;
-    return { pelvis: { p: [0, 0.8, 0], r: [38, 0, 0] }, spine: [12, 0, 0], head: -14,
+    return { pelvis: { p: [0, 0.78, 0], r: [46, 0, 0] }, spine: [14, 0, 0], head: -18,
       L: { foot: { at: [0.12, 0, L ? 0.2 : -0.48], yaw: 2, lift: L ? 0 : 40 } }, R: { foot: { at: [-0.12, 0, L ? -0.48 : 0.2], yaw: -2, lift: L ? 40 : 0 } },
-      LA: { hand: { at: [0.25, 0.98, 0.46], pole: [1, -1, -0.3] } }, RA: { hand: { at: [-0.25, 0.98, 0.46], pole: [-1, -1, -0.3] } } };
+      LA: { hand: { at: [0.26, 0.9, 0.55], pole: [1, -1, -0.3] } }, RA: { hand: { at: [-0.26, 0.9, 0.55], pole: [-1, -1, -0.3] } } };
   };
   reg("Poussée de traîneau", {
     noIso: true, timed: { seconds: 20 }, camera: { yaw: 1.2, dist: 4.4, ty: 0.7 }, props: ["sled"], sled: { z: 0.72 }, start: "a", thumb: "a",
