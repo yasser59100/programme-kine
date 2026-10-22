@@ -2789,3 +2789,60 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 .ks-how div { display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; }
 .ks-how span { grid-row: span 2; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 900; color: #fff; background: linear-gradient(135deg, var(--ma, var(--blue)), var(--mb, var(--blue))); }
 .ks-how small { color: var(--text2); font-size: .85rem; }
+
+/* carnet : liste, détail, saisie */
+.ks-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ks-tiles div { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.ks-tiles b { font-size: 1.35rem; font-weight: 900; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.ks-tiles small { font-size: .74rem; color: var(--text2); line-height: 1.2; }
+.ks-seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface2); overflow-x: auto; scrollbar-width: none; }
+.ks-seg button { flex: 1 0 auto; min-height: 38px; padding: 0 12px; border: 0; border-radius: 10px; background: none; color: var(--text2); font: inherit; font-weight: 800; font-size: .86rem; }
+.ks-seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 2px 8px -4px rgba(0,0,0,.25); }
+.ks-list { display: flex; flex-direction: column; gap: 8px; }
+.ks-row2 { display: grid; grid-template-columns: 1fr auto auto 12px; align-items: center; gap: 10px; text-align: left; width: 100%; padding: 12px 12px 12px 14px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; }
+.ks-row2:active { transform: scale(.99); }
+.ks-r-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ks-r-t b { font-size: .95rem; line-height: 1.2; }
+.ks-r-t small { font-size: .78rem; color: var(--text2); }
+.ks-r-sp .ks-spark { width: 64px; height: 28px; }
+.ks-r-kg { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.05; }
+.ks-r-kg b { font-size: 1.3rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.ks-r-kg small { font-size: .7rem; color: var(--text2); font-weight: 700; }
+.ks-r-kg em { font-style: normal; font-size: .72rem; font-weight: 900; color: var(--green); margin-top: 2px; }
+.ks-row2 > i { font-style: normal; color: var(--text3, var(--text2)); font-size: 1.2rem; }
+.ks-empty ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.ks-chartbox { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 10px 8px 4px; color: var(--ma, var(--blue)); }
+.ks-chart { width: 100%; height: auto; display: block; }
+.ks-chart text { fill: var(--text2); font-size: 10px; font-weight: 700; }
+.ks-chart .ks-grid { stroke: var(--border); stroke-dasharray: 3 4; }
+.ks-chart .ks-line { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.ks-chart circle { fill: var(--surface); stroke: currentColor; stroke-width: 2.2; }
+.ks-chart circle.pr { fill: currentColor; }
+.ks-nochart { color: var(--text2); font-size: .9rem; padding: 18px 10px; text-align: center; }
+.ks-next { display: flex; flex-direction: column; gap: 10px; background: linear-gradient(160deg, color-mix(in srgb, var(--ma, var(--blue)) 14%, var(--surface)), var(--surface)); border: 1px solid color-mix(in srgb, var(--ma, var(--blue)) 30%, var(--border)); border-radius: 18px; padding: 14px 16px; }
+.ks-next p { margin: 4px 0 0; font-size: .88rem; }
+.ks-rec { display: flex; align-items: baseline; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 12px 16px; }
+.ks-rec span { font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text2); }
+.ks-rec b { font-size: 1.1rem; font-weight: 900; } .ks-rec small { margin-left: auto; color: var(--text2); }
+.ks-h3 { margin: 6px 2px 0; font-size: 1rem; font-weight: 900; }
+.ks-hist { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.ks-hrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 10px 14px; border-top: 1px solid var(--border); }
+.ks-hrow:first-child { border-top: 0; }
+.ks-hd { font-weight: 800; font-size: .85rem; min-width: 84px; }
+.ks-hs { display: flex; flex-wrap: wrap; gap: 4px; }
+.ks-hs i { font-style: normal; font-size: .8rem; font-weight: 700; padding: 3px 8px; border-radius: 8px; background: var(--surface2); font-variant-numeric: tabular-nums; }
+.ks-hp { font-size: .72rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; } .ks-hp.o { background: color-mix(in srgb, var(--amber) 18%, transparent); } .ks-hp.r { background: var(--red-dim); color: var(--red); }
+.ks-del { min-height: 44px; border: 0; background: none; color: var(--red); font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.ks-del.sure { text-decoration: none; background: var(--red-dim); border-radius: 12px; }
+.ks-sh { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.ks-pr { flex: none; font-size: .74rem; font-weight: 900; color: #fff; padding: 5px 10px; border-radius: 999px; background: linear-gradient(135deg, var(--ma, var(--blue)), var(--mb, var(--blue))); }
+.ks-rir .ks-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; min-height: 46px; }
+.ks-rir .ks-chip small { font-size: .62rem; font-weight: 700; opacity: .75; }
+.ks-leg { display: flex !important; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.ks-leg i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: -6px; }
+.ks-leg i.g { background: var(--green); } .ks-leg i.o { background: var(--amber); } .ks-leg i.r { background: var(--red); }
+.ks-saved { font-size: .74rem; color: var(--text2); text-align: right; }
+.ks-warm { font-size: .85rem; padding: 8px 12px; border-radius: 12px; background: var(--surface2); } .ks-warm b { margin-right: 6px; }
+#ks-sheet { overflow-y: auto; overscroll-behavior: contain; }
+#ks-sheet .kf-sheet-body { flex: none; padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+#ks-sheet .kf-sheet-body > * { flex-shrink: 0; }

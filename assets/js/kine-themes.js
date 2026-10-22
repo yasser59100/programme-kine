@@ -224,10 +224,10 @@ var KineTheme = (function () {
                ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
         { t: "Tout le corps B", f: "Squat, tirage horizontal et épaules, avec un gainage porté.", warm: "Échauffement global progressif", cool: "Étirements globaux et Savasana",
           ex: [["Squat à la barre", "6 à 10 répétitions", null, BIG], ["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID], ["Développé épaules aux haltères", "8 à 12 répétitions", null, DB],
-               ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] },
+               ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Mollets à la presse", "12 à 20 répétitions", null, { r: [12, 20], rest: 90, inc: 5 }], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] },
         { t: "Tout le corps C", f: "Le travail sur une jambe, un bras, et les petits muscles qui protègent les articulations.", warm: "Activation ceinture pelvienne", cool: "Étirements membres supérieurs",
           ex: [["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB], ["Leg extension", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
-               ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL], ["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Planche latérale complète", "30 secondes par côté"]] }
+               ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL], ["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Triceps à la poulie haute", "12 à 15 répétitions", null, SMALL], ["Planche latérale complète", "30 secondes par côté"]] }
       ],
       s2: [
         { t: "Tout le corps A", f: "Cuisses, poussée, tirage et gainage.", warm: "Échauffement global progressif", cool: "Étirements membres inférieurs",
@@ -235,7 +235,7 @@ var KineTheme = (function () {
                ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
         { t: "Tout le corps B", f: "Charnière de hanche, presse, épaules et travail sur une jambe.", warm: "Activation ceinture pelvienne", cool: "Étirements globaux et Savasana",
           ex: [["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Presse à cuisses", "8 à 12 répétitions", null, MID], ["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID],
-               ["Développé épaules aux haltères", "8 à 12 répétitions", null, DB], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] }
+               ["Développé épaules aux haltères", "8 à 12 répétitions", null, DB], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Triceps à la poulie haute", "12 à 15 répétitions", null, SMALL], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] }
       ],
       cards: GYM_CARDS([{ t: "Sécurité en salle", b: "Échauffe-toi toujours, commence chaque exercice par une série légère, utilise les sécurités (butées de la cage, du banc) et demande au coach de la salle de te montrer le réglage des machines la première fois." }])
     },
@@ -246,21 +246,21 @@ var KineTheme = (function () {
       s3: [
         { t: "Force des cuisses", f: "Quadriceps et ischio-jambiers : l'écart de force avec l'autre jambe se comble ici.", warm: "Mobilisation articulaire progressive", cool: "Étirements membres inférieurs",
           ex: [["Presse à cuisses", "8 à 12 répétitions", "Commence à deux jambes, puis à une jambe quand ton kiné te le dit.", MID], ["Leg extension amplitude limitée", "10 à 15 répétitions", "Amplitude complète seulement quand ton kiné l'autorise.", { r: [10, 15], rest: 90, inc: 2.5 }],
-               ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Élévation des talons unipodale", "12 répétitions par jambe"], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
+               ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Mollets à la presse", "12 à 20 répétitions", null, { r: [12, 20], rest: 90, inc: 5 }], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
         { t: "Une jambe, genou dans l'axe", f: "Le contrôle du genou sur une jambe, comme dans les appuis du sport.", warm: "Activation ceinture pelvienne", cool: "Étirements fessiers et iliopsoas",
           ex: [["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL],
-               ["Descente de marche", "8 répétitions par jambe"], ["Leg extension amplitude limitée", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Planche Copenhague genou", "20 secondes par côté"]] },
+               ["Descente de marche", "8 répétitions par jambe"], ["Presse à une jambe", "8 à 12 répétitions par jambe", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Adduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL], ["Planche Copenhague genou", "20 secondes par côté"]] },
         { t: "Force et impulsions", f: "Charger lourd, puis réapprendre à sauter et à atterrir.", warm: "Échauffement global progressif", cool: "Étirements membres inférieurs",
           ex: [["Squat à la barre", "6 à 10 répétitions", null, BIG], ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Petits sauts sur place", "20 répétitions", "Seulement si ton kiné a validé la reprise des sauts."],
-               ["Sauts sur une jambe", "8 répétitions par jambe", "Quand les petits sauts passent sans douleur ni appréhension."], ["Copenhague dynamique genou", "8 répétitions par côté"], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] }
+               ["Sauts sur une jambe", "8 répétitions par jambe", "Quand les petits sauts passent sans douleur ni appréhension."], ["Copenhague dynamique genou", "8 répétitions par côté"], ["Poussée de traîneau", "15 mètres", null, { r: null, rest: 120, inc: 10 }]] }
       ],
       s2: [
         { t: "Force des cuisses", f: "Quadriceps, ischio-jambiers et charnière de hanche.", warm: "Mobilisation articulaire progressive", cool: "Étirements membres inférieurs",
           ex: [["Presse à cuisses", "8 à 12 répétitions", null, MID], ["Leg extension amplitude limitée", "10 à 15 répétitions", "Amplitude complète seulement quand ton kiné l'autorise.", { r: [10, 15], rest: 90, inc: 2.5 }],
-               ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Élévation des talons unipodale", "12 répétitions par jambe"], ["Planche Copenhague genou", "20 secondes par côté"]] },
+               ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Soulevé de terre roumain à la barre", "8 à 10 répétitions", null, { r: [8, 10], rest: 150, inc: 2.5 }], ["Mollets à la presse", "12 à 20 répétitions", null, { r: [12, 20], rest: 90, inc: 5 }], ["Planche Copenhague genou", "20 secondes par côté"]] },
         { t: "Une jambe et impulsions", f: "Contrôle sur une jambe, puis sauts et réceptions.", warm: "Activation ceinture pelvienne", cool: "Étirements fessiers et iliopsoas",
           ex: [["Squat à la barre", "6 à 10 répétitions", null, BIG], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Abduction de hanche à la poulie", "12 à 15 répétitions par jambe", null, SMALL],
-               ["Descente de marche", "8 répétitions par jambe"], ["Petits sauts sur place", "20 répétitions", "Seulement si ton kiné a validé la reprise des sauts."], ["Sauts sur une jambe", "8 répétitions par jambe", "Quand les petits sauts passent sans douleur ni appréhension."]] }
+               ["Presse à une jambe", "8 à 12 répétitions par jambe", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Petits sauts sur place", "20 répétitions", "Seulement si ton kiné a validé la reprise des sauts."], ["Sauts sur une jambe", "8 répétitions par jambe", "Quand les petits sauts passent sans douleur ni appréhension."]] }
       ],
       cards: GYM_CARDS([{ t: "Avant de reprendre ton sport", b: "La reprise se décide avec ton kiné et ton chirurgien, à partir de tests : force de la cuisse proche de l'autre côté (souvent plus de 90 %), sauts sur une jambe équivalents, genou sec et sans appréhension. Le calendrier seul ne suffit pas." }])
     },
@@ -274,18 +274,18 @@ var KineTheme = (function () {
                ["Tirage horizontal à la poulie", "10 à 12 répétitions", null, { r: [10, 12], rest: 90, inc: 2.5 }], ["Élévation en Y", "12 répétitions"], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
         { t: "Tirer et pousser", f: "Reprendre les grands mouvements, d'abord en amplitude sans douleur.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
           ex: [["Tirage vertical", "8 à 12 répétitions", null, MID], ["Développé couché aux haltères", "8 à 12 répétitions", "Descends seulement jusqu'où l'épaule reste confortable.", DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB],
-               ["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] },
+               ["Développé landmine à un bras", "8 à 12 répétitions par bras", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Tirage bras tendus à la poulie", "12 à 15 répétitions", null, SMALL]] },
         { t: "Au-dessus de la tête", f: "Le bras en haut, là où l'épaule doit être solide pour le sport.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
           ex: [["Développé épaules aux haltères", "8 à 12 répétitions", "Seulement si lever le bras ne fait plus mal.", DB], ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL],
-               ["Élévation latérale", "12 répétitions"], ["Rotation interne à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Planche latérale complète", "30 secondes par côté"]] }
+               ["Développé landmine à un bras", "8 à 12 répétitions par bras", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Rotation interne à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Planche latérale complète", "30 secondes par côté"]] }
       ],
       s2: [
         { t: "Coiffe et tirage", f: "Centrer l'épaule et renforcer le dos.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
           ex: [["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Rotation interne à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL],
-               ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Tirage horizontal à la poulie", "10 à 12 répétitions", null, { r: [10, 12], rest: 90, inc: 2.5 }], ["Élévation en Y", "12 répétitions"]] },
+               ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Tirage horizontal à la poulie", "10 à 12 répétitions", null, { r: [10, 12], rest: 90, inc: 2.5 }], ["Tirage bras tendus à la poulie", "12 à 15 répétitions", null, SMALL]] },
         { t: "Pousser et au-dessus de la tête", f: "Reprendre la poussée, puis le bras en haut.", warm: "Mobilisation membres supérieurs", cool: "Étirements membres supérieurs",
           ex: [["Développé couché aux haltères", "8 à 12 répétitions", "Descends seulement jusqu'où l'épaule reste confortable.", DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB], ["Développé épaules aux haltères", "8 à 12 répétitions", "Seulement si lever le bras ne fait plus mal.", DB],
-               ["Rotation externe à la poulie", "12 à 15 répétitions par bras", null, SMALL], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] }
+               ["Développé landmine à un bras", "8 à 12 répétitions par bras", null, { r: [8, 12], rest: 90, inc: 2.5 }], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }]] }
       ],
       cards: GYM_CARDS([{ t: "Avant de reprendre ton sport", b: "Surtout pour les sports de lancer, de raquette ou de contact : la reprise se décide avec ton kiné, quand l'épaule est mobile, sans douleur, et que la force en rotation est proche de l'autre côté." }])
     },
@@ -295,22 +295,22 @@ var KineTheme = (function () {
       who: "Après une lombalgie, quand tu bouges à nouveau sans crainte : reprendre les charges en salle pour un dos solide et des hanches puissantes.",
       s3: [
         { t: "Charnière de hanche", f: "Se pencher et soulever avec les hanches : le geste qui protège le dos.", warm: "Activation transverse et mobilisation", cool: "Étirements fessiers et iliopsoas",
-          ex: [["Soulevé de terre roumain à la barre", "8 à 10 répétitions", "Commence avec la barre seule pour le geste.", { r: [8, 10], rest: 150, inc: 2.5 }], ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Leg curl assis", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
+          ex: [["Soulevé de terre roumain à la barre", "8 à 10 répétitions", "Commence avec la barre seule pour le geste.", { r: [8, 10], rest: 150, inc: 2.5 }], ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Extension lombaire au banc à 45°", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }],
                ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }], ["Dead bug"], ["Planche latérale complète", "30 secondes par côté"]] },
         { t: "Tirer et porter", f: "Le dos haut et le tronc qui résiste quand on porte.", warm: "Activation transverse et mobilisation", cool: "Étirements rachidiens et cohérence cardiaque",
           ex: [["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB], ["Tirage vertical", "8 à 12 répétitions", null, MID],
-               ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }], ["Superman bras-jambe opposés"], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
+               ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }], ["Tirage bras tendus à la poulie", "12 à 15 répétitions", null, SMALL], ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }]] },
         { t: "Jambes et tronc", f: "Squat et presse, avec un tronc gainé.", warm: "Échauffement global progressif", cool: "Étirements globaux et Savasana",
           ex: [["Presse à cuisses", "8 à 12 répétitions", "Le bas du dos reste collé au dossier.", MID], ["Squat à la barre", "6 à 10 répétitions", "Seulement si le soulevé de terre roumain passe sans douleur.", BIG], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB],
-               ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL], ["Gainage frontal sur genoux", "30 secondes"]] }
+               ["Face pull à la poulie", "12 à 15 répétitions", null, SMALL], ["Poussée de traîneau", "15 mètres", null, { r: null, rest: 120, inc: 10 }], ["Gainage frontal sur genoux", "30 secondes"]] }
       ],
       s2: [
         { t: "Charnière et tirage", f: "Soulever avec les hanches, tirer avec le dos.", warm: "Activation transverse et mobilisation", cool: "Étirements fessiers et iliopsoas",
           ex: [["Soulevé de terre roumain à la barre", "8 à 10 répétitions", "Commence avec la barre seule pour le geste.", { r: [8, 10], rest: 150, inc: 2.5 }], ["Hip thrust à la barre", "8 à 12 répétitions", null, MID], ["Tirage horizontal à la poulie", "8 à 12 répétitions", null, MID],
-               ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }], ["Dead bug"], ["Planche latérale complète", "30 secondes par côté"]] },
+               ["Pallof press à la poulie", "10 répétitions par côté", null, { r: [10, 12], rest: 60, inc: 1, s: 2 }], ["Extension lombaire au banc à 45°", "10 à 15 répétitions", null, { r: [10, 15], rest: 90, inc: 2.5 }], ["Planche latérale complète", "30 secondes par côté"]] },
         { t: "Jambes, porter et tronc", f: "Presse, fentes et marche chargée, avec un tronc gainé.", warm: "Échauffement global progressif", cool: "Étirements rachidiens et cohérence cardiaque",
           ex: [["Presse à cuisses", "8 à 12 répétitions", "Le bas du dos reste collé au dossier.", MID], ["Fentes avec haltères", "8 à 12 répétitions par jambe", null, DB], ["Rowing un bras à l'haltère", "8 à 12 répétitions par bras", null, DB],
-               ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }], ["Superman bras-jambe opposés"]] }
+               ["Tirage vertical", "8 à 12 répétitions", null, MID], ["Marche du fermier lourde", "30 mètres", null, { r: null, rest: 90, inc: 2 }], ["Poussée de traîneau", "15 mètres", null, { r: null, rest: 120, inc: 10 }]] }
       ],
       cards: GYM_CARDS([{ t: "Le dos est fait pour porter", b: "Soulever des charges n'abîme pas un dos qui s'y prépare progressivement : c'est même l'un des meilleurs moyens d'éviter les rechutes. La technique compte, mais la progression compte encore plus." }])
     }

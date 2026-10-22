@@ -137,6 +137,9 @@ test("mode salle de sport : charge, séries et progression", async ({ page }, in
   const plan = await page.evaluate(() => { seqFinish(); return KineSalle.plans()["Presse à cuisses"]; });
   expect(plan.kg).toBe(22.5);
   expect(plan.d).toBe(1);
+  await page.evaluate(() => { document.querySelectorAll("#kf-cele").forEach(e => e.remove()); closeSeq(); KineSalle.open("Presse à cuisses"); });
+  await expect(page.locator("#ks-sheet .ks-hist")).toBeVisible();
+  expect(await page.evaluate(() => KineModeFx.STORIES.salle)).toBe("gym");
   await clean(errs);
 });
 

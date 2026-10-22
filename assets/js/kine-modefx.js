@@ -15,8 +15,83 @@ var KineModeFx = (function () {
     cheville: [["marche", 900, -0.25, 0.36, 0.75], ["entorse", 650, 0.36, 0.43, null], ["tient", 1250, 0.43, 0.43, null], ["cloche", 650, 0.43, 0.72, 0.5], ["marche", 650, 0.72, 1.3, 0.75]]
   };
 
+
+  /* ── Mode salle : Yass arrive, soulève la barre du sol jusqu'au-dessus de la tête, la repose et repart ──
+     La barre est dessinée ici (disques vus de profil), à la place des mains de chaque image (LEV.b). */
+  var LEV = {"n": 16, "b": [[0.533, 0.761], [0.534, 0.746], [0.536, 0.701], [0.537, 0.633], [0.536, 0.574], [0.536, 0.543], [0.536, 0.534], [0.541, 0.535], [0.553, 0.462], [0.561, 0.356], [0.564, 0.321], [0.559, 0.3], [0.546, 0.235], [0.526, 0.139], [0.512, 0.08], [0.506, 0.077]]};
+  ["salle", "sgenou", "sepaule", "sdos"].forEach(function (k) { STORIES[k] = "gym"; });
+  function playGym(el, id, M) {
+    var cv = document.createElement("canvas"), y = document.createElement("div");
+    cv.className = "th-fire"; y.className = "th-runner"; el.insertBefore(y, el.firstChild); el.insertBefore(cv, y.nextSibling);
+    ["marche", "levee"].forEach(function (n) { var im = new Image(); im.src = DIR + n + ".webp"; });
+    var W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1), c = cv.getContext("2d");
+    cv.width = W * dpr; cv.height = H * dpr; c.scale(dpr, dpr);
+    var S = Math.min(260, W * 0.66), y0 = H * 0.5 - S * 0.62, t0 = performance.now(), P = [], raf = 0, alive = true, cur = "";
+    y.style.width = y.style.height = S + "px"; y.style.top = y0 + "px"; y.style.animation = "none";
+    var barX = W * 0.5, xL = barX - LEV.b[0][0] * S, ground = y0 + S * 0.904, R = S * 0.1;
+    // [image, durée, x de départ, x d'arrivée (gauche de l'image), images (de, à) ou cadence]
+    var ST = [["marche", 800, -S, xL, 0.75], ["levee", 1300, xL, xL, [0, 15]], ["levee", 850, xL, xL, [15, 15]], ["levee", 650, xL, xL, [15, 0]], ["marche", 750, xL, W + S * 0.3, 0.75]];
+    var total = 0; ST.forEach(function (s) { total += s[1]; });
+    var burst = false, dust = false;
+    function seg(ms) { var acc = 0; for (var i = 0; i < ST.length; i++) { if (ms < acc + ST[i][1] || i === ST.length - 1) return [i, Math.min(1, (ms - acc) / ST[i][1])]; acc += ST[i][1]; } }
+    function plate(x, yy, a) {   // barre vue de bout : grand disque, bord de la couleur du mode, moyeu acier
+      c.globalAlpha = a;
+      var g = c.createRadialGradient(x - R * 0.3, yy - R * 0.3, R * 0.1, x, yy, R); g.addColorStop(0, "#3A404B"); g.addColorStop(1, "#15181D");
+      c.fillStyle = g; c.beginPath(); c.arc(x, yy, R, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = M.a; c.lineWidth = 3; c.beginPath(); c.arc(x, yy, R - 1.5, 0, Math.PI * 2); c.stroke();
+      c.strokeStyle = "rgba(255,255,255,.12)"; c.lineWidth = 1.5; c.beginPath(); c.arc(x, yy, R * 0.66, 0, Math.PI * 2); c.stroke();
+      c.fillStyle = "#C9D1DA"; c.beginPath(); c.arc(x, yy, R * 0.2, 0, Math.PI * 2); c.fill();
+      c.globalAlpha = 1;
+    }
+    function frame(now) {
+      if (!alive) return;
+      var ms = Math.max(0, now - t0), sg = seg(ms), i = sg[0], k = sg[1], s = ST[i];
+      if (cur !== s[0]) { cur = s[0]; var n = s[0] === "levee" ? LEV.n : 12; y.style.backgroundImage = "url(" + DIR + s[0] + ".webp)"; y.style.backgroundSize = (n * 100) + "% 100%"; }
+      var x = lerp(s[2], s[3], i === 0 || i === 4 ? k : ease(k)), fr = 0, bx = barX, by = ground - R, fade = 1;
+      if (s[0] === "marche") { fr = Math.floor(ms / 1000 / s[4] * 12) % 12; y.style.backgroundPosition = (fr / 11 * 100) + "% 0"; if (i === 4) fade = Math.max(0, 1 - k * 1.6); }
+      else {
+        var fl = lerp(s[4][0], s[4][1], ease(k)); fr = Math.round(fl);
+        y.style.backgroundPosition = (fr / (LEV.n - 1) * 100) + "% 0";
+        var b = LEV.b[fr], off = 0.045 * Math.max(0, 1 - fl / 5);
+        bx = x + b[0] * S; by = Math.min(ground - R, y0 + (b[1] + off) * S);
+        if (i === 2) { var tr = Math.sin(now / 28) * 1.6; x += tr * 0.4; bx += tr; }
+      }
+      y.style.transform = "translateX(" + x + "px)";
+      c.clearRect(0, 0, W, H);
+      if (i === 2 && !burst) {   // bras tendus : onde de choc, rayons et étincelles
+        burst = true;
+        for (var q = 0; q < 36; q++) { var an = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 5; P.push({ x: bx, y: by, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp - 1, g: 0.08, r: 2 + Math.random() * 3, l: 1, d: 0.02, c: Math.random() < 0.6 ? M.a : "#FFFFFF" }); }
+        try { if (navigator.vibrate) navigator.vibrate([10, 30, 40]); } catch (e) {}
+      }
+      if (i === 2) {
+        var e = k, rr = R + e * S * 0.9;
+        c.strokeStyle = M.a; c.globalAlpha = Math.max(0, 0.8 - e); c.lineWidth = 4; c.beginPath(); c.arc(bx, by, rr, 0, Math.PI * 2); c.stroke();
+        c.globalAlpha = Math.max(0, 0.5 - e * 0.5); c.lineWidth = 3; c.lineCap = "round";
+        for (var ry = 0; ry < 12; ry++) { var a2 = ry * Math.PI / 6 + 0.2; c.beginPath(); c.moveTo(bx + Math.cos(a2) * (R + 8 + e * 20), by + Math.sin(a2) * (R + 8 + e * 20)); c.lineTo(bx + Math.cos(a2) * (R + 26 + e * 46), by + Math.sin(a2) * (R + 26 + e * 46)); c.stroke(); }
+        c.globalAlpha = Math.min(1, e * 4) * (1 - Math.max(0, (e - 0.75) / 0.25));
+        c.font = "900 " + Math.round(S * 0.13) + "px system-ui, -apple-system, sans-serif"; c.textAlign = "center"; c.fillStyle = "#FFFFFF";
+        c.shadowColor = M.a; c.shadowBlur = 18; c.fillText("+2,5 kg", bx + S * 0.42, by - 8 - e * 26); c.shadowBlur = 0; c.globalAlpha = 1;
+        var gl = c.createRadialGradient(bx, by, 0, bx, by, R * 2.6); gl.addColorStop(0, "rgba(255,255,255,.35)"); gl.addColorStop(1, "rgba(255,255,255,0)"); c.fillStyle = gl; c.beginPath(); c.arc(bx, by, R * 2.6, 0, Math.PI * 2); c.fill();
+      }
+      if (i === 3 && k > 0.92 && !dust) {   // la barre se pose : un peu de poussière
+        dust = true;
+        for (var dq = 0; dq < 18; dq++) P.push({ x: bx + (Math.random() - 0.5) * R * 2, y: ground - 2, vx: (Math.random() - 0.5) * 3, vy: -Math.random() * 1.6, g: 0.03, r: 3 + Math.random() * 4, l: 0.7, d: 0.025, c: "rgba(200,205,215,.8)" });
+      }
+      plate(bx, by, fade);
+      for (var j = P.length - 1; j >= 0; j--) {
+        var p = P[j]; p.x += p.vx; p.y += p.vy; p.vy += p.g; p.l -= p.d;
+        if (p.l <= 0 || p.y > H) { P.splice(j, 1); continue; }
+        c.globalAlpha = Math.max(0, p.l); c.fillStyle = p.c; c.beginPath(); c.arc(p.x, p.y, p.r, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1;
+      }
+      if (ms < total + 500) raf = requestAnimationFrame(frame); else { cv.remove(); y.remove(); }
+      if (ms > total) y.style.display = "none";
+    }
+    raf = requestAnimationFrame(frame);
+    return { stop: function () { alive = false; cancelAnimationFrame(raf); }, lead: total };
+  }
   function play(el, id, M) {
     var story = STORIES[id]; if (!story) return null;
+    if (story === "gym") return playGym(el, id, M);
     var cv = document.createElement("canvas"), y = document.createElement("div");
     cv.className = "th-fire"; y.className = "th-runner"; el.insertBefore(y, el.firstChild); el.insertBefore(cv, y.nextSibling);   // dessins par-dessus Yass (burette, bande)
     story.forEach(function (s) { var im = new Image(); im.src = DIR + s[0] + ".webp"; });

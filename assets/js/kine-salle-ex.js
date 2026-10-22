@@ -136,6 +136,105 @@
     reg("Marche du fermier lourde", d);
   })();
 
+
+  /* ════════ LOT 2 : mouvements propres à la salle ════════ */
+  // Mollets à la presse : jambes tendues, seul l'avant du pied pousse le plateau
+  var CALF = function (lift) {
+    var b = PRESS(0.05); b.L.foot.lift = lift; b.R.foot.lift = lift; b.L.foot.pole = [0.1, 1, 0.3]; b.R.foot.pole = [-0.1, 1, 0.3]; return b;
+  };
+  reg("Mollets à la presse", {
+    camera: { yaw: 1.35, dist: 4.2, ty: 0.65, pitch: 0.2 }, props: ["legPress"], tool: "legPlate", start: "dn", thumb: "up",
+    poses: { dn: CALF(-50), up: CALF(-100) },
+    steps: [step("up", 1.2, "On pousse sur l'avant des pieds", "On pousse avec l'avant des pieds", "up"), step("up", 1, "On tient en haut", "On tient", "hold"), step("dn", 2.5, "Descente lente, talons vers soi", "On redescend lentement", "down")]
+  });
+  // Presse à une jambe : pied droit au centre du plateau, l'autre posé sur le cadre
+  var PRESS1 = function (k) {
+    var b = PRESS(k); b.R.foot.at[0] = -0.04; b.L = { foot: { at: [0.3, 0.32, 0.12], yaw: 10, lift: 0 } }; return b;
+  };
+  reg("Presse à une jambe", {
+    camera: { yaw: 1.2, dist: 4.2, ty: 0.65, pitch: 0.25 }, props: ["legPress"], tool: "legPlate", plateFoot: "R", start: "up", thumb: "down",
+    poses: { up: PRESS1(0), down: PRESS1(0.9) },
+    steps: [step("down", 2.5, "Descente contrôlée, genou dans l'axe", "On descend, genou dans l'axe du pied", "down"), step("up", 1.5, "On pousse", "On pousse", "up")]
+  });
+  // Adduction à la poulie basse : la jambe côté poulie revient vers l'intérieur
+  var ADDP = function (abd) {
+    return merge(STAND(0.1, 0), { pelvis: { p: [0, 0.925, 0], r: [0, 0, 0] }, L: { ang: [0, 4, 0, 4, 0] }, R: { ang: [abd < 0 ? 6 : 0, abd, 0, 2, 0] },
+      RA: { hand: { at: [-0.6, 1.05, 0.0], pole: [0, -1, 0] } }, spine: [0, 0, 0] });
+  };
+  reg("Adduction de hanche à la poulie", {
+    camera: { yaw: 0.2, dist: 4.0, ty: 0.75 }, props: ["pulley"], pulley: { x: -0.7, z: 0.0, h: 0.12 }, cable: true, bands: [["RA", [-0.64, 0.12, 0.0]]],
+    start: "out", thumb: "in",
+    poses: { out: ADDP(26), in: ADDP(-10) },
+    steps: [step("in", 1.5, "La jambe passe devant l'autre", "La jambe revient vers l'intérieur", "up"), step("in", 0.8, "On tient", null, "hold"), step("out", 2.5, "Retour lent", "On revient lentement", "down")]
+  });
+  // Kickback fessier à la poulie : face à la poulie, la jambe part en arrière
+  var KICK = function (ext) {
+    return { pelvis: { p: [0, 0.93, 0], r: [14, 0, 0] }, spine: [8, 0, 0], head: -6,
+      L: { foot: { at: [0.1, 0, 0.1], yaw: 4 } }, R: { ang: [ext, 3, 0, ext < 0 ? 8 : 30, 0] },
+      LA: { hand: { at: [0.1, 1.08, 0.5], pole: [1, -0.4, -0.5] } }, RA: { hand: { at: [-0.1, 1.08, 0.5], pole: [-1, -0.4, -0.5] } } };
+  };
+  reg("Kickback fessier à la poulie", {
+    camera: { yaw: 1.4, dist: 4.0, ty: 0.75 }, props: ["pulley"], pulley: { x: 0, z: 0.62, h: 0.12 }, cable: true, bands: [["RA", [0, 0.12, 0.56]]],
+    start: "fwd", thumb: "back",
+    poses: { fwd: KICK(12), back: KICK(-28) },
+    steps: [step("back", 1.5, "La jambe part en arrière, fessier serré", "La jambe part en arrière, on serre le fessier", "up"), step("back", 0.8, "On tient", null, "hold"), step("fwd", 2.2, "Retour lent", "On revient lentement", "down")]
+  });
+  // Extension lombaire au banc à 45° : le buste descend en pliant les hanches, puis remonte dans l'alignement des jambes
+  var HYP = function (down) {
+    return merge({ pelvis: { p: [0, 0.76, 0.1], r: [down ? 100 : 45, 0, 0] }, spine: [down ? 18 : 0, 0, 0], head: down ? 10 : 0,
+      L: { foot: { at: [0.12, 0.13, -0.5], yaw: 4, lift: 45 } }, R: { foot: { at: [-0.12, 0.13, -0.5], yaw: -4, lift: 45 } } }, lib.CROSS);
+  };
+  reg("Extension lombaire au banc à 45°", {
+    camera: { yaw: 1.4, dist: 4.0, ty: 0.7 }, props: ["hyperBench"], start: "up", thumb: "down",
+    poses: { up: HYP(false), down: HYP(true) },
+    steps: [step("down", 2.2, "Le buste descend, dos neutre", "Le buste descend, le dos reste droit", "down"), step("up", 1.5, "On remonte avec les fessiers", "On remonte jusqu'à l'alignement", "up"), step("up", 0.8, "Aligné, sans cambrer", null, "hold")]
+  });
+  // Développé landmine à un bras : barre ancrée au sol devant, poussée vers l'avant et le haut
+  var LMP = function (up) {
+    return { pelvis: { p: [0, 0.9, 0], r: [4, 0, 0] }, spine: [8, 0, 0], head: 0,
+      L: { foot: { at: [0.13, 0, 0.28], yaw: 4 } }, R: { foot: { at: [-0.13, 0, -0.22], yaw: -6, lift: 20 } },
+      LA: { ang: [10, 12, 0, 20] }, RA: { hand: { at: up ? [-0.06, 1.66, 0.62] : [-0.14, 1.36, 0.16], pole: up ? [-1, -0.3, -0.3] : [-0.6, -1, 0.3] } } };
+  };
+  reg("Développé landmine à un bras", {
+    camera: { yaw: 0.95, dist: 4.4, ty: 0.9, tz: 0.5 }, tool: "landmine", landmine: [0, 0.03, 1.8], start: "down", thumb: "up",
+    poses: { down: LMP(false), up: LMP(true) },
+    steps: [step("up", 1.5, "On pousse vers l'avant et le haut", "On pousse vers l'avant", "up"), step("down", 2.2, "Retour à l'épaule", "On revient à l'épaule", "down")]
+  });
+  // Poussée de traîneau : buste penché, mains sur les montants, petits pas puissants
+  var SLED = function (L) {
+    var f = L ? 1 : -1;
+    return { pelvis: { p: [0, 0.8, 0], r: [38, 0, 0] }, spine: [12, 0, 0], head: -14,
+      L: { foot: { at: [0.12, 0, L ? 0.2 : -0.48], yaw: 2, lift: L ? 0 : 40 } }, R: { foot: { at: [-0.12, 0, L ? -0.48 : 0.2], yaw: -2, lift: L ? 40 : 0 } },
+      LA: { hand: { at: [0.25, 0.98, 0.46], pole: [1, -1, -0.3] } }, RA: { hand: { at: [-0.25, 0.98, 0.46], pole: [-1, -1, -0.3] } } };
+  };
+  reg("Poussée de traîneau", {
+    noIso: true, timed: { seconds: 20 }, camera: { yaw: 1.2, dist: 4.4, ty: 0.7 }, props: ["sled"], sled: { z: 0.72 }, start: "a", thumb: "a",
+    poses: { a: SLED(true), b: SLED(false) },
+    steps: [step("b", 0.55, "On pousse, petits pas puissants", null, "up"), step("a", 0.55, "Buste gainé, dos droit", null, "up")]
+  });
+  // Triceps à la poulie haute : coudes collés au corps, on tend les avant-bras
+  var PUSHD = function (ext) {
+    return merge(STAND(0.12, 4), { pelvis: { p: [0, "auto", 0], r: [6, 0, 0] }, spine: [6, 0, 0],
+      LA: { hand: { at: ext ? [0.12, 0.84, 0.22] : [0.1, 1.16, 0.3], pole: [0.4, -0.2, -1] } }, RA: { hand: { at: ext ? [-0.12, 0.84, 0.22] : [-0.1, 1.16, 0.3], pole: [-0.4, -0.2, -1] } } });
+  };
+  reg("Triceps à la poulie haute", {
+    camera: { yaw: 1.0, dist: 4.0, ty: 1.0 }, props: ["pulley"], pulley: { x: 0, z: 0.55, h: 2.05 }, cable: true, bands: [["LH", [0, 2.05, 0.47]], ["RH", [0, 2.05, 0.47]]],
+    start: "bent", thumb: "ext",
+    poses: { bent: PUSHD(false), ext: PUSHD(true) },
+    steps: [step("ext", 1.2, "On tend les bras, coudes fixes", "On tend, les coudes ne bougent pas", "up"), step("ext", 0.6, "On serre", null, "hold"), step("bent", 2, "Retour lent", "On remonte lentement", "down")]
+  });
+  // Tirage bras tendus à la poulie haute : le grand dorsal ramène les bras tendus vers les cuisses
+  var SAP = function (dn) {
+    return merge(STAND(0.14, 4), { pelvis: { p: [0, "auto", -0.05], r: [22, 0, 0] }, spine: [6, 0, 0], head: -6,
+      LA: { hand: { at: dn ? [0.2, 0.86, 0.32] : [0.2, 1.62, 0.66], pole: [1, 0, -0.4] } }, RA: { hand: { at: dn ? [-0.2, 0.86, 0.32] : [-0.2, 1.62, 0.66], pole: [-1, 0, -0.4] } } });
+  };
+  reg("Tirage bras tendus à la poulie", {
+    camera: { yaw: 1.3, dist: 4.3, ty: 1.0 }, props: ["pulley"], pulley: { x: 0, z: 0.95, h: 2.1 }, cable: true, tool: "latbar", bands: [["LH", [0.04, 2.1, 0.87]], ["RH", [-0.04, 2.1, 0.87]]],
+    start: "up", thumb: "dn",
+    poses: { up: SAP(false), dn: SAP(true) },
+    steps: [step("dn", 1.5, "Bras tendus jusqu'aux cuisses", "On ramène les bras tendus vers les cuisses", "up"), step("dn", 0.6, "On serre", null, "hold"), step("up", 2.2, "Remontée lente", "On remonte lentement", "down")]
+  });
+
   /* ════════ FICHES ════════ */
   var E = function (name, color, kit, reps, desc, cue, err, tip, stop) { return { name: name, group: "salle", color: color, kit: kit, repsLabel: reps, desc: desc, cue: cue, err: err, tip: tip, stop: stop, gym: true }; };
   var F = [
@@ -211,6 +310,42 @@
       "De côté par rapport à la poulie à hauteur de poitrine, poignée contre le sternum. Pousse la poignée droit devant toi sans laisser le buste tourner, tiens 2 secondes, puis ramène.",
       "Le buste ne tourne pas, les bras partent droit devant.", "On ne se penche pas vers la poulie.",
       "Gainage anti-rotation : excellent pour le dos.", "Arrêt si douleur au bas du dos."),
+    E("Mollets à la presse", 1, ["presse à cuisses"], "3 séries de 15",
+      "Assis dans la presse, jambes presque tendues, seulement l'avant des pieds sur le bas du plateau, talons dans le vide. Pousse avec l'avant des pieds le plus loin possible, tiens 1 seconde, puis laisse revenir lentement les talons vers toi.",
+      "Les genoux restent légèrement déverrouillés, seule la cheville bouge.", "On ne plie pas les genoux pour pousser.",
+      "Descente en 3 secondes : excellent pour le tendon d'Achille, selon l'avis de ton kiné.", "Arrêt si douleur au tendon d'Achille ou sous le pied."),
+    E("Presse à une jambe", 2, ["presse à cuisses"], "3 séries de 10 par jambe",
+      "Comme la presse à cuisses, mais un seul pied au centre du plateau, l'autre posé à côté. Descends en contrôle, genou dans l'axe du pied, puis pousse. Change de jambe.",
+      "Le genou reste dans l'axe du pied, le bassin reste plaqué.", "Le genou ne rentre pas vers l'intérieur et les fesses ne décollent pas.",
+      "Commence par la jambe la plus faible et fais autant de répétitions avec l'autre : c'est un bon repère de l'écart entre les deux.", "Arrêt si douleur dans le genou ou la hanche."),
+    E("Adduction de hanche à la poulie", 1, ["poulie basse", "sangle de cheville"], "3 séries de 12 par jambe",
+      "De côté, la poulie du côté de la jambe qui travaille, sangle à la cheville, une main sur le montant. Ramène la jambe vers l'intérieur jusqu'à passer devant l'autre, puis laisse-la revenir lentement.",
+      "Le bassin reste face à l'avant, le buste droit.", "On ne tourne pas le bassin pour aller plus loin.",
+      "Les adducteurs protègent l'aine : utile au football, au tennis et dans tous les sports de pivot.", "Arrêt si douleur dans l'aine."),
+    E("Kickback fessier à la poulie", 1, ["poulie basse", "sangle de cheville"], "3 séries de 12 par jambe",
+      "Face à la poulie, sangle à la cheville, mains sur le montant, buste légèrement penché. Pousse la jambe en arrière en serrant le fessier, sans cambrer, puis reviens lentement.",
+      "C'est la fesse qui pousse, le bas du dos reste immobile.", "On ne cambre pas pour monter la jambe plus haut.",
+      "Petite amplitude bien contrôlée plutôt qu'un grand balancement.", "Arrêt si douleur au bas du dos ou à la hanche."),
+    E("Extension lombaire au banc à 45°", 2, ["banc à lombaires à 45°"], "3 séries de 12",
+      "Hanches sur l'appui, pieds calés, bras croisés sur la poitrine. Descends le buste en pliant les hanches, dos neutre, puis remonte jusqu'à être aligné avec les jambes, pas plus haut.",
+      "On remonte jusqu'à l'alignement, en serrant les fessiers.", "On ne cambre pas en haut.",
+      "Plus dur : un disque contre la poitrine. Excellent pour un dos qui porte.", "Arrêt si douleur dans le bas du dos ou dans une jambe."),
+    E("Développé landmine à un bras", 2, ["barre ancrée au sol (landmine)", "un disque"], "3 séries de 10 par bras",
+      "Debout, un pied devant, le bout de la barre dans une main à hauteur d'épaule. Pousse la barre vers l'avant et le haut jusqu'à tendre le bras, puis reviens à l'épaule en contrôle.",
+      "Le buste reste gainé, l'omoplate accompagne le bras.", "On ne se penche pas en arrière pour pousser.",
+      "Souvent mieux toléré que le développé au-dessus de la tête : une bonne étape de retour au sport pour l'épaule.", "Arrêt si douleur dans l'épaule."),
+    E("Poussée de traîneau", 2, ["traîneau", "disques"], "4 fois 15 mètres",
+      "Mains sur les montants, buste penché et gainé, bras presque tendus. Pousse le traîneau à petits pas puissants, en appui sur l'avant des pieds, sans arrondir le dos.",
+      "Petits pas rapides, on pousse avec les jambes.", "Le dos ne s'arrondit pas et les bras ne plient pas.",
+      "Pas de phase de freinage : très bien toléré par les genoux, idéal pour le retour au sport.", "Arrêt si douleur au genou ou au dos."),
+    E("Triceps à la poulie haute", 1, ["poulie haute", "corde ou barre"], "3 séries de 12",
+      "Face à la poulie, coudes collés au corps et pliés. Tends les avant-bras vers le bas jusqu'aux cuisses, tiens une seconde, puis remonte lentement jusqu'à 90°.",
+      "Les coudes ne bougent pas, seuls les avant-bras descendent.", "On ne s'aide pas du buste.",
+      "Avec la corde, écarte les mains en bas.", "Arrêt si douleur au coude."),
+    E("Tirage bras tendus à la poulie", 1, ["poulie haute", "barre droite"], "3 séries de 12",
+      "Face à la poulie haute, buste un peu penché, bras tendus devant toi. Ramène la barre vers les cuisses en gardant les bras tendus, serre, puis remonte lentement.",
+      "Les bras restent tendus, les épaules basses.", "On ne plie pas les coudes pour tirer.",
+      "Travaille le grand dorsal sans charger l'épaule au-dessus de la tête : utile en rééducation de l'épaule.", "Arrêt si douleur dans l'épaule."),
     E("Marche du fermier lourde", 2, ["deux haltères ou kettlebells lourds"], "3 fois 30 mètres",
       "Un poids lourd dans chaque main, bras le long du corps. Marche droit, épaules basses, buste gainé, à pas normaux.",
       "Épaules basses, buste droit.", "On ne se penche pas d'un côté.",

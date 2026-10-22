@@ -84,7 +84,8 @@ var KineSalle = (function () {
       "<div class='ks-kg'><b>" + fmt(P.kg) + "</b><span>kg" + (u ? " " + u : "") + "</span>" +
       (P.d > 0 ? "<em class='up'>+" + fmt(P.step || inc) + "</em>" : P.d < 0 ? "<em class='dn'>baissée</em>" : "") + "</div>" +
       (P.why ? "<div class='ks-why'>" + esc(P.why) + "</div>" : P.src === "kine" ? "<div class='ks-why'>Charge fixée avec ton kiné.</div>" : "") +
-      "<div class='ks-target'>" + esc(target) + "</div>" + (lastTxt ? "<div class='ks-last'>" + esc(lastTxt) + "</div>" : "") + "</div>" + demoBtn(ex.name);
+      "<div class='ks-target'>" + esc(target) + "</div>" + (lastTxt ? "<div class='ks-last'>" + esc(lastTxt) + "</div>" : "") +
+      (P.kg >= (inc >= 2 ? 20 : 8) && rg ? "<div class='ks-warm'><b>Échauffement</b>10 répétitions à " + fmt(round(P.kg * 0.5, inc >= 2 ? 2.5 : 1)) + " kg, puis 5 à " + fmt(round(P.kg * 0.75, inc >= 2 ? 2.5 : 1)) + " kg.</div>" : "") + "</div>" + demoBtn(ex.name);
   }
   function start(name) {
     var o = $("ks-start"), v = o ? parseFloat(String(o.textContent).replace(",", ".")) : 0, P = plans();
@@ -105,18 +106,26 @@ var KineSalle = (function () {
   }
   function setCard(p) {
     var c = draft(), s = (c.ex[p.name] || [])[p.set - 1] || {}, u = unit(p.name), rg = p.rg;
-    return "<div class='ks-set' id='ks-set'><div class='ks-k'>Série " + p.set + " sur " + p.of + " · note-la</div><div class='ks-n'>" + esc(p.name) + "</div>" +
-      "<div class='ks-grid'><div><label>Charge" + (u ? " (" + u + ")" : "") + "</label><div class='ks-row'>" + stepper("ks-kg", s.kg, p.inc >= 2 ? 2.5 : 1, "_kg") + "<span class='ks-u'>kg</span></div></div>" +
-      (rg ? "<div><label>Répétitions</label><div class='ks-row'>" + stepper("ks-reps", s.reps, 1, "_reps") + "</div></div>" : "") + "</div>" +
-      "<label>Répétitions en réserve <small>combien tu aurais encore pu en faire proprement</small></label>" + chips("rir", 5, s.rir == null ? 2 : s.rir, ["0", "1", "2", "3", "4+"]) +
-      "<label>Douleur pendant la série <small>sur 10</small></label>" + chips("pain", 11, s.pain || 0) +
-      "<div class='ks-warn' id='ks-warn'" + ((s.pain || 0) >= 6 ? "" : " hidden") + "><b>Douleur forte.</b> Arrête cet exercice pour aujourd'hui et parles-en à ton kiné. La charge sera baissée la prochaine fois.</div></div>";
+    var RIR = ["0<small>à fond</small>", "1", "2<small>idéal</small>", "3", "4+<small>facile</small>"];
+    return "<div class='ks-set' id='ks-set'><div class='ks-sh'><div><div class='ks-k'>Série " + p.set + " sur " + p.of + " terminée</div><div class='ks-n'>" + esc(p.name) + "</div></div>" +
+      "<span class='ks-pr' id='ks-pr'" + (isPR(p.name, s) ? "" : " hidden") + ">Nouveau record</span></div>" +
+      "<div class='ks-grid'><div><label>Charge" + (u ? " " + u : "") + "</label><div class='ks-row'>" + stepper("ks-kg", s.kg, p.inc >= 2 ? 2.5 : 1, "_kg") + "<span class='ks-u'>kg</span></div></div>" +
+      (rg ? "<div><label>Répétitions faites</label><div class='ks-row'>" + stepper("ks-reps", s.reps, 1, "_reps") + "</div></div>" : "") + "</div>" +
+      "<label>Tu en aurais fait combien de plus ?</label>" + chips("rir", 5, s.rir == null ? 2 : s.rir, RIR) +
+      "<label>Douleur pendant la série <small class='ks-leg'><i class='g'></i>0 à 3 ça va <i class='o'></i>4 à 5 on surveille <i class='r'></i>6 et plus on arrête</small></label>" + chips("pain", 11, s.pain || 0) +
+      "<div class='ks-warn' id='ks-warn'" + ((s.pain || 0) >= 6 ? "" : " hidden") + "><b>Douleur forte.</b> Arrête cet exercice pour aujourd'hui et parles-en à ton kiné. La charge sera baissée la prochaine fois.</div>" +
+      "<div class='ks-saved'>Enregistré automatiquement</div></div>";
+  }
+  function isPR(name, s) {
+    if (!s || !(+s.kg > 0)) return false;
+    var r = record(logs()[name]); return !!r && e1rm(s) > e1rm(r.s) + 0.01;
   }
   function saveSet(patch) {
     if (!pending) return;
     var c = draft(), L = c.ex[pending.name] = c.ex[pending.name] || [], s = L[pending.set - 1] = L[pending.set - 1] || {};
     for (var k in patch) s[k] = patch[k];
     jset(CUR, c);
+    var b = $("ks-pr"); if (b) b.hidden = !isPR(pending.name, s);
   }
   function setVal(kind, v, el) {
     if (el) { var box = el.parentNode; Array.prototype.forEach.call(box.children, function (b) { b.classList.toggle("on", b === el); }); }
@@ -153,13 +162,43 @@ var KineSalle = (function () {
   }
 
   /* ════════ Le carnet ════════ */
+  // Repères : meilleure série, charge maximale estimée (formule d'Epley), tonnage
+  function best(sets) { var b = 0; (sets || []).forEach(function (x) { if (x && +x.kg > b) b = +x.kg; }); return b; }
+  function e1rm(x) { var kg = +x.kg || 0, r = +x.reps || 0; return r ? kg * (1 + Math.min(r, 15) / 30) : kg; }
+  function top(sets) { var t = null; (sets || []).forEach(function (x) { if (x && (!t || e1rm(x) > e1rm(t))) t = x; }); return t; }
+  function tonnage(sets) { return (sets || []).reduce(function (a, x) { return a + (x ? (+x.kg || 0) * (+x.reps || 1) : 0); }, 0); }
+  function record(h) { var r = null; (h || []).forEach(function (e) { var t = top(e.sets); if (t && (!r || e1rm(t) > e1rm(r.s))) r = { s: t, d: e.d }; }); return r; }
+  var MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."], JOURS = ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."];
+  function dlabel(d, withDay) { var x = new Date(d + "T12:00:00"); return (withDay ? JOURS[x.getDay()] + " " : "") + x.getDate() + " " + MOIS[x.getMonth()]; }
+  var ZONE = function (n) {
+    if (/presse|leg |squat|fente|hip thrust|soulevé|abduction|adduction|kickback|mollet|traîneau|leg$/i.test(n)) return "bas";
+    if (/pallof|lombaire|fermier|planche|gainage/i.test(n)) return "tronc";
+    return "haut";
+  };
+  var ZL = { "": "Tout", bas: "Jambes", haut: "Haut du corps", tronc: "Tronc" }, zf = "", detail = null;
   function spark(list) {
-    var v = list.map(function (e) { var s = e.sets.filter(Boolean); return s.length ? Math.max.apply(null, s.map(function (x) { return +x.kg || 0; })) : 0; }).slice(-12);
-    if (v.length < 2) return "";
+    var v = list.map(function (e) { return best(e.sets); }).slice(-12);
+    if (v.length < 2) return "<svg class='ks-spark' viewBox='0 0 140 40' aria-hidden='true'></svg>";
     var W = 140, H = 40, mn = Math.min.apply(null, v), mx = Math.max.apply(null, v), r = mx - mn || 1;
     var pts = v.map(function (y, i) { return [Math.round(i / (v.length - 1) * (W - 8) + 4), Math.round(H - 6 - (y - mn) / r * (H - 12))]; });
     return "<svg class='ks-spark' viewBox='0 0 " + W + " " + H + "' aria-hidden='true'><polyline points='" + pts.map(function (p) { return p.join(","); }).join(" ") + "'/>" +
       "<circle cx='" + pts[pts.length - 1][0] + "' cy='" + pts[pts.length - 1][1] + "' r='3.2'/></svg>";
+  }
+  // Grande courbe d'un exercice : charge de la meilleure série à chaque séance, records marqués
+  function chart(h) {
+    var v = h.slice(-16), n = v.length; if (n < 2) return "<div class='ks-nochart'>La courbe apparaît après ta deuxième séance sur cet exercice.</div>";
+    var W = 330, H = 170, l = 34, r = 12, t = 14, b = 26, ys = v.map(function (e) { return best(e.sets); });
+    var mn = Math.min.apply(null, ys), mx = Math.max.apply(null, ys); if (mx === mn) { mx += 2.5; mn = Math.max(0, mn - 2.5); }
+    var X = function (i) { return l + i / (n - 1) * (W - l - r); }, Yp = function (y) { return t + (1 - (y - mn) / (mx - mn)) * (H - t - b); };
+    var pr = -1, run = 0; ys.forEach(function (y, i) { if (y > run) { run = y; pr = i; } });
+    var area = "M" + X(0) + "," + (H - b) + " " + ys.map(function (y, i) { return "L" + X(i).toFixed(1) + "," + Yp(y).toFixed(1); }).join(" ") + " L" + X(n - 1) + "," + (H - b) + "Z";
+    var line = ys.map(function (y, i) { return (i ? "L" : "M") + X(i).toFixed(1) + "," + Yp(y).toFixed(1); }).join(" ");
+    return "<svg class='ks-chart' viewBox='0 0 " + W + " " + H + "' role='img' aria-label='Évolution de la charge'>" +
+      "<defs><linearGradient id='ksg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='currentColor' stop-opacity='.28'/><stop offset='1' stop-color='currentColor' stop-opacity='0'/></linearGradient></defs>" +
+      [mn, round((mn + mx) / 2, 0.5), mx].map(function (g) { return "<line x1='" + l + "' x2='" + (W - r) + "' y1='" + Yp(g) + "' y2='" + Yp(g) + "' class='ks-grid'/><text x='" + (l - 6) + "' y='" + (Yp(g) + 4) + "' text-anchor='end'>" + fmt(g) + "</text>"; }).join("") +
+      "<path d='" + area + "' fill='url(#ksg)'/><path d='" + line + "' class='ks-line'/>" +
+      ys.map(function (y, i) { return "<circle cx='" + X(i) + "' cy='" + Yp(y) + "' r='" + (i === pr ? 5.5 : 3.5) + "' class='" + (i === pr ? "pr" : "") + "'/>"; }).join("") +
+      "<text x='" + l + "' y='" + (H - 6) + "'>" + dlabel(v[0].d) + "</text><text x='" + (W - r) + "' y='" + (H - 6) + "' text-anchor='end'>" + dlabel(v[n - 1].d) + "</text></svg>";
   }
   function names() {
     var L = logs(), P = plans(), all = {};
@@ -171,26 +210,63 @@ var KineSalle = (function () {
     if (!el) { el = document.createElement("div"); el.id = "ks-sheet"; el.className = "kf-sheet"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Carnet de charges"); document.body.appendChild(el); }
     return el;
   }
-  function open() {
-    var L = logs(), P = plans(), list = names(), f = window.KineTheme && KineTheme.gymFreq ? KineTheme.gymFreq() : 3;
-    var rows = list.map(function (n) {
-      var h = L[n] || [], last = h[h.length - 1], p = P[n], u = unit(n), id = "ks-e" + Math.abs(hash(n));
-      return "<div class='ks-card'><div class='ks-ch'><b>" + esc(n) + "</b>" + spark(h) + "</div>" +
-        "<div class='ks-cb'><span>Prochaine séance</span><div class='ks-row'>" + stepper(id, p ? p.kg : 0, /haltère|fermier/i.test(n) ? 1 : 2.5, "_plan") + "<span class='ks-u'>kg" + (u ? " " + u : "") + "</span></div></div>" +
-        (p && p.why ? "<div class='ks-why'>" + esc(p.why) + "</div>" : "") +
-        (last ? "<div class='ks-last'>" + esc(last.d.split("-").reverse().slice(0, 2).join("/")) + " : " + last.sets.filter(Boolean).map(function (s) { return fmt(s.kg) + " kg" + (s.reps ? " × " + s.reps : ""); }).join(" · ") + "</div>" : "") +
-        "<input type='hidden' data-name='" + esc(n) + "' id='" + id + "-n'></div>";
+  function weekStart() { var d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function open(name) {
+    detail = typeof name === "string" ? name : null;
+    if (detail) return openDetail(detail);
+    var L = logs(), P = plans(), list = names(), f = window.KineTheme && KineTheme.gymFreq ? KineTheme.gymFreq() : 3, mon = weekStart(), sess = {}, wk = 0, prs = 0;
+    list.forEach(function (n) {
+      var run = 0; (L[n] || []).forEach(function (e) { sess[e.d] = 1; if (e.d >= mon) wk += tonnage(e.sets); var b = best(e.sets); if (run && b > run) prs++; run = Math.max(run, b); });
+    });
+    var nS = Object.keys(sess).length;
+    var shown = list.filter(function (n) { return !zf || ZONE(n) === zf; });
+    var rows = shown.map(function (n) {
+      var h = L[n] || [], p = P[n], u = unit(n), first = h.length ? best(h[0].sets) : null, now = p ? p.kg : first, gain = first != null && now != null ? now - first : 0, rec = record(h);
+      return "<button class='ks-row2' onclick='KineSalle.open(" + q(n) + ")'><span class='ks-r-t'><b>" + esc(n) + "</b>" +
+        "<small>" + (rec ? "Record : " + fmt(rec.s.kg) + " kg" + (rec.s.reps ? " × " + rec.s.reps : "") : "Pas encore de série notée") + "</small></span>" +
+        "<span class='ks-r-sp'>" + spark(h) + "</span>" +
+        "<span class='ks-r-kg'><b>" + fmt(now) + "</b><small>kg" + (u ? " " + u.replace("par ", "/ ") : "") + "</small>" + (gain > 0 ? "<em>+" + fmt(gain) + "</em>" : "") + "</span><i aria-hidden='true'>›</i></button>";
     }).join("");
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineSalle.close()' aria-label='Retour'>←</button>" +
-      "<div><div class='kf-h1'>Carnet de charges</div><div class='kf-sub'>Tes charges en salle, séance après séance. La charge de la prochaine séance se règle toute seule, et tu peux la corriger avec ton kiné.</div></div>" +
+      "<div><div class='kf-h1'>Carnet de charges</div><div class='kf-sub'>Touche un exercice pour voir ta courbe, tes records et corriger la charge avec ton kiné.</div></div>" +
+      "<div class='ks-tiles'><div><b>" + nS + "</b><small>séance" + (nS > 1 ? "s" : "") + " notée" + (nS > 1 ? "s" : "") + "</small></div>" +
+        "<div><b>" + (wk >= 1000 ? fmt(Math.round(wk / 100) / 10) + " t" : Math.round(wk) + " kg") + "</b><small>soulevés cette semaine</small></div>" +
+        "<div><b>" + prs + "</b><small>record" + (prs > 1 ? "s" : "") + " battu" + (prs > 1 ? "s" : "") + "</small></div></div>" +
       "<div class='ks-freq'><span>Séances en salle par semaine</span><div><button class='" + (f === 2 ? "on" : "") + "' onclick='KineSalle._freq(2)'>2</button><button class='" + (f === 3 ? "on" : "") + "' onclick='KineSalle._freq(3)'>3</button></div></div>" +
-      (rows || "<div class='ks-empty'>Ton carnet se remplit pendant tes séances en salle : la charge de départ se note une fois, avec ton kiné, puis chaque série en quelques touchers pendant le repos.</div>") +
+      (list.length ? "<div class='ks-seg' role='tablist'>" + Object.keys(ZL).map(function (k) { return "<button role='tab' aria-selected='" + (zf === k) + "' class='" + (zf === k ? "on" : "") + "' onclick='KineSalle._zone(\"" + k + "\")'>" + ZL[k] + "</button>"; }).join("") + "</div>" : "") +
+      (rows ? "<div class='ks-list'>" + rows + "</div>" : list.length ? "<div class='ks-empty'>Rien dans cette catégorie pour l'instant.</div>" :
+        "<div class='ks-empty'><b>Ton carnet se remplit tout seul pendant tes séances en salle.</b><ol><li>Au début de chaque exercice, note une fois la charge fixée avec ton kiné.</li><li>Pendant le repos, deux touchers suffisent : charge et répétitions.</li><li>À la fin, la charge de la prochaine séance est prête.</li></ol></div>") +
+      "</div>";
+    el.classList.add("open"); el.scrollTop = 0;
+  }
+  function openDetail(n) {
+    var L = logs(), P = plans(), h = L[n] || [], p = P[n], u = unit(n), id = "ks-e" + Math.abs(hash(n)), rec = record(h), first = h.length ? best(h[0].sets) : null;
+    var now = p ? p.kg : first, gain = first != null && now != null ? now - first : null, est = rec ? e1rm(rec.s) : 0;
+    var hist = h.slice().reverse().map(function (e) {
+      var pain = Math.max.apply(null, e.sets.filter(Boolean).map(function (x) { return +x.pain || 0; }).concat([0]));
+      return "<div class='ks-hrow'><span class='ks-hd'>" + dlabel(e.d, true) + "</span><span class='ks-hs'>" + e.sets.filter(Boolean).map(function (x) {
+        return "<i>" + fmt(x.kg) + (x.reps ? " × " + x.reps : " kg") + "</i>"; }).join("") + "</span>" +
+        (pain >= 4 ? "<span class='ks-hp " + (pain >= 6 ? "r" : "o") + "'>douleur " + pain + "</span>" : "") + "</div>";
+    }).join("");
+    var el = sheet();
+    el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineSalle.open(null)' aria-label='Retour au carnet'>←</button>" +
+      "<div><div class='kf-h1'>" + esc(n) + "</div><div class='kf-sub'>" + (h.length ? h.length + " séance" + (h.length > 1 ? "s" : "") + " depuis le " + dlabel(h[0].d) : "Pas encore de série notée") + "</div></div>" +
+      "<div class='ks-chartbox'>" + chart(h) + "</div>" +
+      "<div class='ks-tiles'><div><b>" + fmt(first) + "</b><small>kg au départ</small></div><div><b>" + (gain != null ? (gain > 0 ? "+" : "") + fmt(gain) : "–") + "</b><small>kg gagnés</small></div>" +
+        "<div><b>" + (est ? fmt(Math.round(est * 2) / 2) : "–") + "</b><small>max estimé sur 1 répétition</small></div></div>" +
+      "<div class='ks-next'><div><span class='ks-k'>Prochaine séance</span>" + (p && p.why ? "<p>" + esc(p.why) + "</p>" : "<p>Ajuste-la avec ton kiné si besoin.</p>") + "</div>" +
+        "<div class='ks-row'>" + stepper(id, now || 0, /haltère|fermier/i.test(n) ? 1 : 2.5, "_plan") + "<span class='ks-u'>kg" + (u ? " " + u : "") + "</span></div>" +
+        "<input type='hidden' data-name='" + esc(n) + "' id='" + id + "-n'></div>" +
+      (rec ? "<div class='ks-rec'><span>Record</span><b>" + fmt(rec.s.kg) + " kg" + (rec.s.reps ? " × " + rec.s.reps : "") + "</b><small>" + dlabel(rec.d) + "</small></div>" : "") +
+      (hist ? "<h3 class='ks-h3'>Historique</h3><div class='ks-hist'>" + hist + "</div>" : "") +
+      (window.KineBiblio ? "<button class='ks-demo' onclick='KineBiblio.demo(" + q(n) + ")'>Revoir le mouvement avec Yass</button>" : "") +
+      (h.length ? "<button class='ks-del' id='ks-del' onclick='KineSalle._del(" + q(n) + ",this)'>Effacer l'historique de cet exercice</button>" : "") +
       "</div>";
     el.classList.add("open"); el.scrollTop = 0;
   }
   function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; }
-  function close() { var el = $("ks-sheet"); if (el) el.classList.remove("open"); }
+  function close() { detail = null; var el = $("ks-sheet"); if (el) el.classList.remove("open"); }
 
   // Onglet Programme en mode salle : la charge qui progresse remplace les 4 semaines
   function progHtml() {
@@ -213,8 +289,13 @@ var KineSalle = (function () {
     _bump: bump, _start: start, _set: setVal,
     _kg: function (id, v) { saveSet({ kg: v }); },
     _reps: function (id, v) { saveSet({ reps: v }); },
-    _plan: function (id, v) { var n = $(id + "-n"); if (!n) return; var P = plans(), k = n.getAttribute("data-name"); P[k] = { kg: v, src: "kine", d: 0, why: "Charge corrigée à la main." }; jset(PLAN, P); },
-    _freq: function (n) { if (window.KineTheme && KineTheme.setFreq) KineTheme.setFreq(n); open(); }
+    _plan: function (id, v) { var n = $(id + "-n"); if (!n) return; var P = plans(), k = n.getAttribute("data-name"); P[k] = { kg: v, src: "kine", d: 0, why: "Charge réglée à la main, avec ton kiné." }; jset(PLAN, P); },
+    _freq: function (n) { if (window.KineTheme && KineTheme.setFreq) KineTheme.setFreq(n); open(null); },
+    _zone: function (z) { zf = z; open(null); },
+    _del: function (n, b) {   // deux touchers : on confirme sur le bouton lui-même
+      if (!b.classList.contains("sure")) { b.classList.add("sure"); b.textContent = "Touche encore pour effacer"; return; }
+      var L = logs(), P = plans(); delete L[n]; delete P[n]; jset(LOG, L); jset(PLAN, P); open(null);
+    }
   };
 
   /* ════════ Branchements sur le lecteur de séance ════════ */
