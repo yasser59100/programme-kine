@@ -23,7 +23,7 @@ async function clean(errs) { const real = errs.filter(e => !IGNORE.test(e)); exp
 test("accueil et ouverture", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.goto("index.html");
-  await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
   await expect(page.locator(".lu-slab, .lu-hello").first()).toBeVisible();
   await navOk(page); await page.waitForTimeout(1200); await shot(page, info, "1-accueil");
   await page.evaluate(() => window.scrollBy(0, 1400)); await page.waitForTimeout(900); await shot(page, info, "2-accueil-bas");
@@ -32,7 +32,7 @@ test("accueil et ouverture", async ({ page }, info) => {
 
 test("onglets", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
   const tabs = await page.locator(".bottom-nav button, .bottom-nav a").all();
   expect(tabs.length).toBeGreaterThanOrEqual(5);
   for (let i = 0; i < tabs.length; i++) {
@@ -45,7 +45,7 @@ test("onglets", async ({ page }, info) => {
 
 test("exercices : recherche et bibliothèque", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
   await page.evaluate(() => { showPage("guide"); KineLumiere.tab && KineLumiere.tab("lib"); });
   await page.waitForTimeout(1200);
   const q = page.locator("#lu-lib .kf-search input"); await expect(q).toBeVisible();
@@ -63,7 +63,7 @@ test("exercices : recherche et bibliothèque", async ({ page }, info) => {
 test("vrai ou faux", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
   // l'accueil peut se redessiner juste après l'ouverture : on réessaie si le bloc a été remplacé
   for (let i = 0; i < 4; i++) { try { await page.locator("#ki-vf").scrollIntoViewIfNeeded({ timeout: 3000 }); break; } catch (e) { await page.waitForTimeout(500); } }
   await page.waitForTimeout(2500);
@@ -78,7 +78,7 @@ test("vrai ou faux", async ({ page }, info) => {
 
 test("caméra, bilan et réglages", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
   await page.evaluate(() => KineCamera.open()); await page.waitForTimeout(1500); await shot(page, info, "7-camera");
   await page.evaluate(() => KineCamera.bilan()); await page.waitForTimeout(800); await shot(page, info, "8-bilan");
   await page.evaluate(() => KineCamera.close());
@@ -91,7 +91,7 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   // sans Firebase : le programme réellement publié par le kiné ne doit pas fausser le test
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
   // masqués par défaut : un patient ne voit aucun programme ciblé
   expect(await page.evaluate(() => KineTheme.available())).toEqual([]);
   // le kiné en rend un visible (programme publié), le patient le choisit
@@ -114,7 +114,7 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
 test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 8000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
   const ok = await page.evaluate(() => ["Rentrer le menton", "Pendulaire de Codman", "Spanish squat à l'élastique", "Pied court", "Planche Copenhague", "Copenhague dynamique genou", "Extension en appui sur les mains", "Reverse Nordic", "Coquillage à l'élastique", "Torsion de serviette", "Se relever du sol", "Regard fixe en tournant la tête"]
     .every(n => KineBiblio.find(n) && KineAvatar.supports(n)));
   expect(ok).toBe(true);

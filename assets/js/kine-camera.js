@@ -1143,6 +1143,8 @@
     }
     var res; try { res = det.detectForVideo(img, ts); } catch (e) { return false; }
     var r0 = res && res.landmarks && res.landmarks[0];
+    // l'image tournée n'est qu'un secours : de temps en temps, on revérifie l'image d'origine et on y revient dès qu'elle marche
+    if (rot) { R.since = (R.since || 0) + 1; if (R.since > 90) { R.since = 0; try { var r1 = det.detectForVideo(src, ts + 0.5); if (r1 && r1.landmarks && r1.landmarks[0]) { R.rotI = R.rots.indexOf(0); return { landmarks: [r1.landmarks[0]] }; } } catch (e) {} } }
     if (r0 && rot) {
       // tête en bas dans l'image tournée : c'est l'autre quart de tour qu'il faut
       if (r0[0].y > (r0[23].y + r0[24].y) / 2 + 0.05 && (r0[0].visibility || 0) > 0.5) { R.flipVotes = (R.flipVotes || 0) + 1; if (R.flipVotes > 8) { R.flipVotes = 0; R.rotI = R.rots.indexOf(-rot); } }
@@ -1154,7 +1156,7 @@
     return { landmarks: r0 ? [r0] : [] };
   }
   /* ── Fiabilité de la prise en direct ── */
-  var ROT_EX = { pont: 1, planche: 1, pompes: 1 };   // exercices au sol : image tournée avant l'analyse
+  var ROT_EX = { pont: 1, planche: 1, pompes: 1 };   // exercices au sol : si personne n'est trouvé dans l'image, on essaie l'image tournée d'un quart de tour
   var CUR_MODEL = "lite", S0model = "lite";
   // Le téléphone tient la cadence avec le modèle léger ? On passe au modèle précis (une fois pour toutes s'il reste rapide)
   function modelTune() {
@@ -1268,7 +1270,7 @@
     var p = v.play(); if (p && p.catch) p.catch(function () {});
     resetAnalysis();
     var wake = null; try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e) {}
-    S = { stream: stream, facing: facing, det: null, raf: 0, lastT: -1, lost: 0, wake: function () { return wake; }, rots: ROT_EX[PRID] ? [1, -1, 0] : [0], rotI: 0, model: CUR_MODEL, v: v,
+    S = { stream: stream, facing: facing, det: null, raf: 0, lastT: -1, lost: 0, wake: function () { return wake; }, rots: ROT_EX[PRID] ? [0, 1, -1] : [0], rotI: 0, model: CUR_MODEL, v: v,
           status: function (k, t) { var m = $("kcam-msg"); if (!m) return; m.className = "kcam-msg" + (k === "err" ? " bad" : ""); m.textContent = t || MSG[k] || "Je te cherche…"; } };
     oriOn();
     var msgUntil = 0;
