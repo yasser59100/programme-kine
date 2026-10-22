@@ -1546,6 +1546,22 @@
       mesh(new T.BoxGeometry(0.035, 0.42, 0.035), M.wood, props.chair).position.set(c[0], 0.2, c[1]);
     });
     mesh(new T.BoxGeometry(0.5, 0.45, 0.035), M.wood, props.chair).position.set(0, 0.67, -0.56);
+    // Téléphone posé pour la caméra (tutoriel d'installation) : sur un tabouret à hauteur de taille, ou au sol calé contre un livre,
+    // avec le champ de vision de la caméra (pyramide transparente) dirigé vers Yass
+    props.camStand = new T.Group(); scene.add(props.camStand);
+    var csStool = new T.Group(); props.camStand.add(csStool);
+    mesh(new T.BoxGeometry(0.34, 0.04, 0.34), M.wood, csStool).position.set(0, 0.8, 0);
+    [[-0.14, -0.14], [0.14, -0.14], [-0.14, 0.14], [0.14, 0.14]].forEach(function (c) { mesh(new T.BoxGeometry(0.035, 0.8, 0.035), M.wood, csStool).position.set(c[0], 0.4, c[1]); });
+    var csBook = mesh(new T.BoxGeometry(0.16, 0.035, 0.22), new T.MeshStandardMaterial({ color: lin("#3D8EF0"), roughness: 0.7 }), props.camStand);
+    var csPhone = new T.Group(); props.camStand.add(csPhone);
+    mesh(new T.BoxGeometry(0.075, 0.15, 0.009), M.iron, csPhone);
+    mesh(new T.PlaneGeometry(0.066, 0.138), new T.MeshBasicMaterial({ color: lin("#4B5BFF") }), csPhone).position.set(0, 0, 0.0047);
+    var csCam = mesh(new T.SphereGeometry(0.006, 10, 8), new T.MeshBasicMaterial({ color: lin("#111111") }), csPhone); csCam.position.set(0, 0.06, 0.0055);
+    var csCone = mesh(new T.ConeGeometry(1, 1, 4, 1, true), new T.MeshBasicMaterial({ color: lin("#19C3A0"), transparent: true, opacity: 0.06, side: T.DoubleSide, depthWrite: false }), props.camStand);
+    csCone.geometry.translate(0, -0.5, 0); csCone.geometry.rotateX(-Math.PI / 2); csCone.geometry.rotateZ(Math.PI / 4); csCone.rotation.order = "YXZ";   // sommet au téléphone, base vers +z
+    csCone.castShadow = false; csCone.receiveShadow = false;
+    csCone.add(new T.LineSegments(new T.EdgesGeometry(csCone.geometry), new T.LineBasicMaterial({ color: lin("#19C3A0"), transparent: true, opacity: 0.75 })));
+    props.camStand.userData = { stool: csStool, book: csBook, phone: csPhone, cone: csCone };
     props.wallBack.position.set(0, 1.05, -0.585);
     props.step.position.set(0, 0.09, 0.42);
     props.wall.position.set(0, 1.05, 0.585);
@@ -1850,6 +1866,19 @@
     if (ro) { if (rc) { var rp = rc.p || [0, 0.075, 0]; ro.position.set(rp[0] * (curSideSign || 1), rp[1] == null ? 0.075 : rp[1], rp[2]); ro.rotation.set(0, rc.along === "z" ? Math.PI / 2 : (rc.yaw || 0) * D2R * (curSideSign || 1), 0); } }
     // banc et marche placés par l'exercice (créateur) : { x, z, along: "x" pour un banc en travers }
     var sgn = curSideSign || 1, bc = (d && d.bench) || { x: 0, z: -0.2 }, be = R.props.bench;
+    var cst = R.props.camStand, cs = d && d.camStand;
+    if (cst && cs) {
+      var u = cst.userData, floor = !!cs.floor, cx = (cs.x || 0) * sgn, cz = cs.z || 0, ph = floor ? 0.1 : 0.9;
+      cst.position.set(cx, 0, cz); u.stool.visible = !floor; u.book.visible = floor;
+      var yaw = Math.atan2(-cx, -cz);   // le téléphone regarde Yass (au centre)
+      u.phone.position.set(0, floor ? 0.075 : ph, 0); u.phone.rotation.set(floor ? -0.12 : 0, yaw, floor ? Math.PI / 2 : 0, "YXZ");   // au sol : téléphone à l'horizontale (paysage)
+      u.book.position.set(-Math.sin(yaw) * 0.06, 0.02, -Math.cos(yaw) * 0.06); u.book.rotation.y = yaw;
+      var dd = Math.hypot(cx, cz) - 0.15, hh = 1.0;   // le champ de vision s'arrête juste derrière Yass
+      u.cone.visible = cs.cone !== false;
+      var aim = floor ? 0.3 : 0.95;
+      u.cone.scale.set(dd * (floor ? 0.62 : 0.4), dd * (floor ? 0.4 : 0.62), dd); u.cone.position.set(0, floor ? 0.08 : ph + 0.05, 0);
+      u.cone.rotation.set(-Math.atan2(aim - (floor ? 0.08 : ph), dd), yaw, 0, "YXZ");
+    }
     var ft = (d && d.floorTowel) || { x: 0, z: 0.3 }; if (R.props.floorTowel) { R.props.floorTowel.position.set((ft.x || 0) * sgn, 0.006, ft.z || 0); R.props.floorTowel.scale.set(ft.w || 0.36, 1, ft.l || 0.6); }
     if (be) { be.position.set((bc.x || 0) * sgn, 0, bc.z || 0); be.rotation.set(0, bc.along === "x" ? Math.PI / 2 : 0, 0); }
     var stp = d && d.stepAt; R.props.step.position.set(stp ? (stp.x || 0) * sgn : 0, 0.09, stp ? stp.z || 0 : 0.42); R.props.step.rotation.set(0, stp && stp.along === "z" ? Math.PI / 2 : 0, 0);

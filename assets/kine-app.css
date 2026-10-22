@@ -2711,3 +2711,21 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 .kf-aid[data-phase="r"] .ka-hd { transform: rotate(35deg); }
 .kf-aid .ka-n { opacity: 0; transition: opacity .3s; }
 .kf-aid[data-phase="n1"] .ka-n1, .kf-aid[data-phase="n2"] .ka-n2, .kf-aid[data-phase="n3"] .ka-n3, .kf-aid[data-phase="n4"] .ka-n4 { opacity: 1; }
+
+/* Vérification de l'installation pendant la caméra */
+.kcam-checks { position: absolute; left: 50%; top: 76px; transform: translateX(-50%); display: none; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 92%; z-index: 4; pointer-events: none; }
+.kcam-checks.on { display: flex; }
+.kcam-checks span { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px 5px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; background: rgba(8,14,23,.62); color: #fff; backdrop-filter: blur(6px); }
+.kcam-checks span::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: #19C3A0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/11px no-repeat; }
+.kcam-checks span.warn::before { background: #F5A524 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round'%3E%3Cpath d='M12 6v7M12 18h.01'/%3E%3C/svg%3E") center/11px no-repeat; }
+/* Installation du téléphone : animation de Yass */
+.kcs-box { margin: 14px 0 6px; border-radius: 20px; background: var(--surface2, rgba(127,127,127,.08)); border: 1px solid var(--border); overflow: hidden; }
+.kcs-h { padding: 12px 14px 0; font-weight: 800; font-size: 0.86rem; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; }
+.kcs-stage { position: relative; height: 230px; }
+.kcs-stage canvas { width: 100% !important; height: 100% !important; display: block; }
+.kcs-dots { display: flex; justify-content: center; gap: 6px; padding: 2px 0 0; }
+.kcs-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--border2); transition: background .3s, transform .3s; }
+.kcs-dots i.on { background: var(--teal, #19C3A0); transform: scale(1.15); }
+.kcs-cap { min-height: 44px; padding: 8px 16px 14px; text-align: center; font-weight: 700; font-size: 0.95rem; line-height: 1.3; color: var(--text); }
+.kcs-cap.in { animation: kcsIn .35s ease-out; }
+@keyframes kcsIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

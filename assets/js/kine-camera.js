@@ -46,19 +46,22 @@
   }
 
   /* ── Chargement du détecteur (une seule fois) ── */
-  var detP = null;
-  function detector() {
-    if (detP) return detP;
-    detP = import(new URL(BASE + "vision_bundle.mjs", location.href).href).then(function (Vb) {
+  // Deux modèles : « lite » (rapide, tous les téléphones) et « full » (plus précis), choisi selon la vitesse mesurée du téléphone
+  var detPs = {};
+  function detector(kind) {
+    kind = kind === "full" ? "full" : "lite";
+    if (detPs[kind]) return detPs[kind];
+    var p = detPs[kind] = import(new URL(BASE + "vision_bundle.mjs", location.href).href).then(function (Vb) {
       return Vb.FilesetResolver.forVisionTasks(new URL(BASE + "wasm", location.href).href).then(function (files) {
-        var opts = function (dlg) { return { baseOptions: { modelAssetPath: new URL(BASE + "pose_landmarker_lite.task", location.href).href, delegate: dlg },
+        var opts = function (dlg) { return { baseOptions: { modelAssetPath: new URL(BASE + "pose_landmarker_" + kind + ".task", location.href).href, delegate: dlg },
                                               runningMode: "VIDEO", numPoses: 1, minPoseDetectionConfidence: 0.5, minPosePresenceConfidence: 0.5, minTrackingConfidence: 0.5 }; };
         return Vb.PoseLandmarker.createFromOptions(files, opts("GPU")).catch(function () { return Vb.PoseLandmarker.createFromOptions(files, opts("CPU")); });
       });
     });
-    detP.catch(function () { detP = null; });
-    return detP;
+    p.catch(function () { delete detPs[kind]; });
+    return p;
   }
+  function modelPref() { var m = jget("kf-cam-model", ""); return m === "full" || m === "lite" ? m : ""; }
 
   /* ── Géométrie ── */
   var asp = 1;   // largeur / hauteur de l'image : les points sont convertis dans un repère non déformé
@@ -185,10 +188,65 @@
           down: false, maxD: 0, minKnee: 180, flags: {}, cued: {}, nf: 0, reps: 0, good: 0, log: [], smooth: null, live: {},
           hold: { t: 0, side: { l: 0, r: 0 }, inPose: false, outT: 0, touch: 0, goodT: 0, said10: { l: 0, r: 0, x: 0 }, lastT: 0, lastCue: {}, done: false, cnt: {} } };
   }
-  function smooth(lm) {
-    if (!A.smooth) { A.smooth = lm.map(function (p) { return { x: p.x, y: p.y, z: p.z, visibility: p.visibility }; }); return A.smooth; }
-    for (var i = 0; i < lm.length; i++) { var s = A.smooth[i], p = lm[i], k = 0.55; s.x += (p.x - s.x) * k; s.y += (p.y - s.y) * k; s.visibility = p.visibility; }
+  // Filtre « One Euro » : lisse fort quand on bouge peu (tremblement), suit vite quand on bouge vraiment (pas de retard)
+  function OneEuro() { this.x = null; this.dx = 0; this.t = 0; }
+  OneEuro.prototype.f = function (v, t, mc, beta) {
+    if (this.x == null) { this.x = v; this.t = t; return v; }
+    var dt = Math.max(0.004, (t - this.t) / 1000); this.t = t;
+    var al = function (c) { var r = 2 * Math.PI * c * dt; return r / (r + 1); };
+    this.dx += al(1) * ((v - this.x) / dt - this.dx);
+    this.x += al(mc + beta * Math.abs(this.dx)) * (v - this.x);
+    return this.x;
+  };
+  var TUNE = { clean: 1, euro: 1, qgate: 1 };   // réglages (banc d'essai)
+  function smooth(lm, now) {
+    now = now == null ? performance.now() : now;
+    if (!TUNE.euro) {
+      if (!A.smooth) { A.smooth = lm.map(function (p) { return { x: p.x, y: p.y, z: p.z, visibility: p.visibility }; }); return A.smooth; }
+      for (var j = 0; j < lm.length; j++) { var sj = A.smooth[j], pj = lm[j]; sj.x += (pj.x - sj.x) * 0.55; sj.y += (pj.y - sj.y) * 0.55; sj.visibility = pj.visibility; }
+      return A.smooth;
+    }
+    if (!A.flt) { A.flt = lm.map(function () { return { x: new OneEuro(), y: new OneEuro() }; }); }
+    A.smooth = lm.map(function (p, i) { return { x: A.flt[i].x.f(p.x, now, 1.2, 5), y: A.flt[i].y.f(p.y, now, 1.2, 5), z: p.z, visibility: p.visibility }; });
     return A.smooth;
+  }
+  /* Nettoyage des points avant le lissage :
+     · gauche et droite inversées par le modèle (fréquent de profil) : on garde l'attribution la plus cohérente avec l'image précédente ;
+     · saut impossible d'un point mal vu entre deux images : on garde l'ancienne position (au plus 4 images d'affilée). */
+  var SWAP_G = [[[23, 24], [25, 26], [27, 28], [29, 30], [31, 32]], [[11, 12], [13, 14], [15, 16], [17, 18], [19, 20], [21, 22]]];
+  function d2(a, b) { var dx = (a.x - b.x) * asp, dy = a.y - b.y; return dx * dx + dy * dy; }
+  function clean(lm, now) {
+    if (!TUNE.clean) return lm;
+    var out = lm.map(function (p) { return { x: p.x, y: p.y, z: p.z, visibility: p.visibility }; }), prev = A.cl;
+    if (prev && now - (A.clT || 0) < 400) {
+      SWAP_G.forEach(function (G) {
+        var same = 0, sw = 0;
+        G.forEach(function (q) { same += d2(out[q[0]], prev[q[0]]) + d2(out[q[1]], prev[q[1]]); sw += d2(out[q[0]], prev[q[1]]) + d2(out[q[1]], prev[q[0]]); });
+        if (same > 0.002 && sw < same * 0.4) { G.forEach(function (q) { var t = out[q[0]]; out[q[0]] = out[q[1]]; out[q[1]] = t; }); A.swaps = (A.swaps || 0) + 1; }
+      });
+      var sh = { x: (prev[11].x + prev[12].x) / 2, y: (prev[11].y + prev[12].y) / 2 }, hp = { x: (prev[23].x + prev[24].x) / 2, y: (prev[23].y + prev[24].y) / 2 };
+      var T = Math.max(0.06, Math.sqrt(d2(sh, hp))), lim = T * 0.55 * Math.max(1, (now - A.clT) / 33);
+      A.frz = A.frz || [];
+      for (var i = 0; i < out.length; i++) {
+        if (Math.sqrt(d2(out[i], prev[i])) > lim && (out[i].visibility || 0) < 0.9 && (A.frz[i] || 0) < 4) {
+          out[i] = { x: prev[i].x, y: prev[i].y, z: prev[i].z, visibility: (prev[i].visibility || 0) * 0.9 }; A.frz[i] = (A.frz[i] || 0) + 1; A.jumps = (A.jumps || 0) + 1;
+        } else A.frz[i] = 0;
+      }
+    }
+    A.cl = out; A.clT = now;
+    return out;
+  }
+  /* Qualité de l'image en cours : une correction n'est donnée que si les points utiles sont bien vus
+     et (de profil) si la cuisse et la jambe gardent leur longueur ; sinon Yass se tait plutôt que de se tromper. */
+  function quality(c) {
+    var bad = c.nearVis("Kn") < 0.6 || c.nearVis("An") < 0.55 || c.nearVis("Hip") < 0.6;
+    if (A.view === "profil" && A.base && A.base.thigh && A.phase === "run" && PR.calib === "stand") {
+      var th = dist(c.N.hip, c.N.kn), ref = A.base.thigh;
+      if (Math.abs(th - ref) / ref > 0.35) bad = true;
+    }
+    if (!TUNE.qgate) bad = false;
+    A.qBad = bad; A.qN = (A.qN || 0) + 1; if (bad) A.qBadN = (A.qBadN || 0) + 1;
+    return !bad;
   }
   // Tout le corps d'au moins un côté doit être visible (de profil, l'autre côté est caché)
   function visible(lm) {
@@ -222,7 +280,7 @@
     c.facing = c.L.nose.x > c.sh.x ? 1 : -1;   // de profil : sens dans lequel regarde le patient
     return c;
   }
-  function flag(k) { A.flags[k] = (A.flags[k] || 0) + 1; (MARK[k] || []).forEach(function (m) { A.live[m] = 1; }); }
+  function flag(k) { if (A.qBad) return; A.flags[k] = (A.flags[k] || 0) + 1; (MARK[k] || []).forEach(function (m) { A.live[m] = 1; }); }
 
   /* Contrôles image par image, propres à chaque exercice */
   var CHECK = {
@@ -271,7 +329,7 @@
   }
 
   function analyse(lm, now) {
-    var c = context(lm); A.live = {};
+    var c = context(lm); A.live = {}; quality(c);
     if (PR.mode === "bilan") return bilanStep(c, lm, now);
     // Vue imposée par l'exercice
     if (PR.views !== "both" && A.view !== PR.views && A.viewVotes !== 0 && Math.abs(A.viewVotes) > 6) {
@@ -1039,6 +1097,7 @@
       "<div class='kcam-badge'>Essai</div><div class='kf-h1'>" + esc(PR.title) + " à la caméra</div>" +
       "<div class='kf-sub'>Yass repère tes articulations, dessine ta silhouette et te guide à voix haute. " + (PR.mode === "hold" ? "Il chronomètre la tenue." : "Il compte tes répétitions.") +
         (tgt ? " Objectif : <strong>" + esc(tgt) + "</strong>." : "") + "</div>" +
+      (window.KineCamSetup ? KineCamSetup.html() : "") +
       "<div class='kcam-steps'>" +
         "<div><b>1</b><span>Pose le téléphone contre un objet stable" + (PR.calib === "stand" || PR.calib === "sit" || PRID === "chaise" ? ", à hauteur de la taille." : ", au sol ou bas.") + "</span></div>" +
         "<div><b>2</b><span>Recule à 2 ou 3 mètres : on doit voir <strong>tout le corps</strong>.</span></div>" +
@@ -1050,23 +1109,133 @@
       "<p class='kcam-err' id='kcam-err' role='alert'></p>" +
       "<button class='seq-btn-main' id='kcam-go'>Activer la caméra</button></div>";
     $("kcam-go").onclick = start;
+    if (window.KineCamSetup) setTimeout(function () { var b = $("kcs-box"); if (b) KineCamSetup.play(b, pid); }, 60);
   }
 
   function start() {
+    if (window.KineCamSetup) KineCamSetup.stop();
     var err = $("kcam-err"), go = $("kcam-go");
     function fail(t) { if (err) err.textContent = t; if (go) { go.disabled = false; go.textContent = "Réessayer"; } }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { fail("Ce téléphone ne permet pas d'utiliser la caméra depuis l'appli."); return; }
     go.disabled = true; go.textContent = "Préparation…";
     if (typeof getAudioCtx === "function") { try { var c = getAudioCtx(); if (c && c.state === "suspended") c.resume(); } catch (e) {} }
-    var facing = jget("kf-cam-facing", "user");
+    var facing = jget("kf-cam-facing", "user"); askOri();
+    S0model = CUR_MODEL = modelPref() || "lite";
     navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: facing, width: { ideal: 640 }, height: { ideal: 480 } } }).then(function (stream) {
       run(stream, facing); audioWatch();
-      return detector().then(function (det) { jset("kf-cam-seen", 1); if (S) { S.det = det; S.status(PR.calib === "stand" ? "stand" : ""); } })
+      return detector(CUR_MODEL).catch(function () { CUR_MODEL = "lite"; if (S) S.model = "lite"; return detector("lite"); }).then(function (det) { jset("kf-cam-seen", 1); if (S) { S.det = det; S.status(PR.calib === "stand" ? "stand" : ""); } })
         .catch(function () { if (S) S.status("err", "L'outil d'analyse n'a pas pu se charger. Vérifie ta connexion, puis réessaie."); });
     }).catch(function (e) {
       fail(e && e.name === "NotAllowedError" ? "L'accès à la caméra est refusé. Autorise-le dans les réglages du téléphone (Réglages, puis Safari ou ton navigateur, puis Caméra), puis réessaie."
            : "La caméra n'a pas pu s'ouvrir. Ferme les autres applis qui l'utilisent, puis réessaie.");
     });
+  }
+
+  // Détection, avec l'image tournée d'un quart de tour pour les exercices au sol (le modèle reconnaît bien mieux un corps « debout ») ;
+  // R garde l'état : rots (quarts de tour à essayer), rotI, miss, flipVotes, rc (toile de travail). Points rendus dans le repère de l'image d'origine.
+  function detectRot(det, src, vw, vh, ts, R) {
+    var rot = R.rots[R.rotI], img = src;
+    if (rot) {
+      var rc = R.rc || (R.rc = document.createElement("canvas")), rcx = rc.getContext("2d");
+      if (rc.width !== vh || rc.height !== vw) { rc.width = vh; rc.height = vw; }
+      if (rot > 0) rcx.setTransform(0, 1, -1, 0, vh, 0); else rcx.setTransform(0, -1, 1, 0, 0, vw);
+      rcx.drawImage(src, 0, 0); img = rc;
+    }
+    var res; try { res = det.detectForVideo(img, ts); } catch (e) { return false; }
+    var r0 = res && res.landmarks && res.landmarks[0];
+    if (r0 && rot) {
+      // tête en bas dans l'image tournée : c'est l'autre quart de tour qu'il faut
+      if (r0[0].y > (r0[23].y + r0[24].y) / 2 + 0.05 && (r0[0].visibility || 0) > 0.5) { R.flipVotes = (R.flipVotes || 0) + 1; if (R.flipVotes > 8) { R.flipVotes = 0; R.rotI = R.rots.indexOf(-rot); } }
+      else R.flipVotes = 0;
+      r0 = r0.map(function (q) { return rot > 0 ? { x: q.y, y: 1 - q.x, z: q.z, visibility: q.visibility } : { x: 1 - q.y, y: q.x, z: q.z, visibility: q.visibility }; });
+    }
+    if (!r0) { R.miss = (R.miss || 0) + 1; if (R.rots.length > 1 && R.miss > 25) { R.miss = 0; R.rotI = (R.rotI + 1) % R.rots.length; } }
+    else R.miss = 0;
+    return { landmarks: r0 ? [r0] : [] };
+  }
+  /* ── Fiabilité de la prise en direct ── */
+  var ROT_EX = { pont: 1, planche: 1, pompes: 1 };   // exercices au sol : image tournée avant l'analyse
+  var CUR_MODEL = "lite", S0model = "lite";
+  // Le téléphone tient la cadence avec le modèle léger ? On passe au modèle précis (une fois pour toutes s'il reste rapide)
+  function modelTune() {
+    if (!S || S.tuning || (S.nInf || 0) < 40) return;
+    var cn = navigator.connection || {}, slowNet = cn.saveData || /2g|3g/.test(cn.effectiveType || "");
+    if (S.model === "lite" && !modelPref() && !S.triedFull && S.inf < 22 && !slowNet) {
+      S.tuning = 1; S.triedFull = 1;
+      detector("full").then(function (d) { if (!S) return; S.det = d; S.model = CUR_MODEL = "full"; S.nInf = 0; S.inf = null; S.tuning = 0; })
+        .catch(function () { jset("kf-cam-model", "lite"); if (S) S.tuning = 0; });
+    } else if (S.model === "full" && !S.tunedFull) {
+      S.tunedFull = 1;
+      if (S.inf > 45) { jset("kf-cam-model", "lite"); S.tuning = 1; detector("lite").then(function (d) { if (!S) return; S.det = d; S.model = CUR_MODEL = "lite"; S.tuning = 0; }); }
+      else jset("kf-cam-model", "full");
+    }
+  }
+  // Installation vérifiée en direct : lumière, corps entier, distance, téléphone droit
+  var CHK = [["light", "Lumière"], ["body", "Corps entier"], ["dist", "Distance"], ["tilt", "Téléphone droit"]];
+  var CHK_MSG = { dark: "Il fait un peu sombre : allume la lumière ou mets-toi face à une fenêtre.",
+    back: "La lumière est dans ton dos : mets-toi face à la fenêtre, pas devant.",
+    cut: "Une partie de ton corps sort de l'image : recule un peu.",
+    none: "Je ne te vois pas en entier : recule pour que tout ton corps soit dans l'image.",
+    far: "Tu es un peu loin : avance d'un pas.",
+    tilt: "Redresse le téléphone, bien droit." };
+  function lum(cx, x, y, w, h) {
+    var d = cx.getImageData(x, y, Math.max(1, w), Math.max(1, h)).data, t = 0, n = 0;
+    for (var i = 0; i < d.length; i += 4) { t += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++; }
+    return n ? t / n : 128;
+  }
+  function setupCheck(lm, now) {
+    if (!S || !S.v || PR.mode === "bilan" || now - (S.chkT || 0) < 500) return;
+    S.chkT = now;
+    var st = {}, msg = null, v = S.v;
+    try {
+      var c = S.lc || (S.lc = document.createElement("canvas")); c.width = 32; c.height = 24;
+      var cx = c.getContext("2d", { willReadFrequently: true }); cx.drawImage(v, 0, 0, 32, 24);
+      var all = lum(cx, 0, 0, 32, 24), dark = all < 50, back = false;
+      if (lm && !dark) {
+        var xs = [], ys = []; [0, 11, 12, 23, 24, 25, 26, 27, 28].forEach(function (i) { if ((lm[i].visibility || 0) > 0.5) { xs.push(S.facing !== "user" ? 1 - lm[i].x : lm[i].x); ys.push(lm[i].y); } });
+        if (xs.length > 4) {
+          var x0 = Math.max(0, Math.min.apply(null, xs)), x1 = Math.min(1, Math.max.apply(null, xs)), y0 = Math.max(0, Math.min.apply(null, ys)), y1 = Math.min(1, Math.max.apply(null, ys));
+          if (S.facing === "user") { var tx = x0; x0 = 1 - x1; x1 = 1 - tx; }   // l'image capturée n'est pas en miroir
+          var pm = lum(cx, Math.floor(x0 * 32), Math.floor(y0 * 24), Math.ceil((x1 - x0) * 32), Math.ceil((y1 - y0) * 24));
+          back = all - pm > 45;
+        }
+      }
+      st.light = dark || back ? "warn" : "ok"; if (dark) msg = msg || CHK_MSG.dark; else if (back) msg = msg || CHK_MSG.back;
+    } catch (e) {}
+    if (!lm || !visible(lm)) { st.body = "warn"; msg = msg || CHK_MSG.none; }
+    else {
+      var pts = [0, 11, 12, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32].map(function (i) { return lm[i]; }).filter(function (p) { return (p.visibility || 0) > 0.5; });
+      var cut = pts.some(function (p) { return p.x < 0.015 || p.x > 0.985 || p.y < 0.015 || p.y > 0.99; });
+      var minY = Math.min.apply(null, pts.map(function (p) { return p.y; })), maxY = Math.max.apply(null, pts.map(function (p) { return p.y; }));
+      var minX = Math.min.apply(null, pts.map(function (p) { return p.x; })), maxX = Math.max.apply(null, pts.map(function (p) { return p.x; }));
+      var span = Math.max(maxY - minY, (maxX - minX) * asp / Math.max(1, asp) );
+      st.body = cut ? "warn" : "ok"; if (cut) msg = msg || CHK_MSG.cut;
+      st.dist = span < 0.38 ? "warn" : "ok"; if (span < 0.38) msg = msg || CHK_MSG.far;
+    }
+    var o = S.ori;
+    if (o && now - o.t < 3000) {
+      var upright = Math.abs(o.beta - 90) < 18 || Math.abs(Math.abs(o.gamma) - 90) < 18;
+      st.tilt = upright ? "ok" : "warn"; if (!upright) msg = msg || CHK_MSG.tilt;
+    }
+    var box = $("kcam-checks");
+    var show = A.phase === "calib" || S.lost > 0 || !!msg;
+    if (box) {
+      box.classList.toggle("on", show);
+      box.innerHTML = CHK.filter(function (k) { return st[k[0]]; }).map(function (k) { return "<span class='" + st[k[0]] + "'>" + k[1] + "</span>"; }).join("");
+    }
+    S.chkMsg = msg;
+    if (msg && (A.phase === "calib" || S.lost > 6)) {
+      var said = S.chkSaid || (S.chkSaid = {});
+      if (now - (S.chkSayT || 0) > 8000 && (said[msg] || 0) < 3) { S.chkSayT = now; said[msg] = (said[msg] || 0) + 1; say(msg); }
+    }
+  }
+  function oriOn() {
+    if (!S || S.oriH) return;
+    S.oriH = function (e) { if (S && e.beta != null) S.ori = { beta: Math.abs(e.beta), gamma: e.gamma || 0, t: performance.now() }; };
+    window.addEventListener("deviceorientation", S.oriH);
+  }
+  function askOri() {
+    try { if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function" && !jget("kf-ori-asked", 0)) { jset("kf-ori-asked", 1); DeviceOrientationEvent.requestPermission().catch(function () {}); } } catch (e) {}
   }
 
   function fmtT(ms) { var s = Math.floor(ms / 1000); return s + " s"; }
@@ -1088,7 +1257,7 @@
         "<div class='kcam-count'><b id='kcam-reps'>0</b><small>" + lab1 + "</small></div><div class='kcam-count kcam-ok" + (bil ? " kb-meas" : "") + "'><b id='kcam-good'>0</b><small>" + lab2 + "</small></div>" +
         "<button class='kcam-flip kcam-snd' id='kcam-snd' onclick='KineCamera.mute()' aria-label='Couper ou remettre la voix'>" + sndIc(muted()) + "</button>" +
         "<button class='kcam-flip' onclick='KineCamera.flip()' aria-label='Changer de caméra'>⟲</button></div>" +
-      "<div class='kcam-view' id='kcam-view'></div>" + (bil ? "<div class='kb-demo' id='kb-demo' aria-hidden='true'><div class='kb-demo-av'></div><span>Yass te montre</span></div>" : "") +
+      "<div class='kcam-view' id='kcam-view'></div><div class='kcam-checks' id='kcam-checks' aria-hidden='true'></div>" + (bil ? "<div class='kb-demo' id='kb-demo' aria-hidden='true'><div class='kb-demo-av'></div><span>Yass te montre</span></div>" : "") +
       "<div class='kcam-msg' id='kcam-msg' role='status'>Chargement de l'analyse…</div>" +
       (bil ? "<div class='kcam-end kb-end'><button class='seq-btn-secondary' onclick='KineCamera.bilanSkip()'>Passer ce test</button><button class='seq-btn-main' onclick='KineCamera.finish()'>Terminer</button></div>"
            : "<button class='seq-btn-main kcam-end' onclick='KineCamera.finish()'>Terminer</button>") + "</div>";
@@ -1099,8 +1268,9 @@
     var p = v.play(); if (p && p.catch) p.catch(function () {});
     resetAnalysis();
     var wake = null; try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e) {}
-    S = { stream: stream, facing: facing, det: null, raf: 0, lastT: -1, lost: 0, wake: function () { return wake; },
+    S = { stream: stream, facing: facing, det: null, raf: 0, lastT: -1, lost: 0, wake: function () { return wake; }, rots: ROT_EX[PRID] ? [1, -1, 0] : [0], rotI: 0, model: CUR_MODEL, v: v,
           status: function (k, t) { var m = $("kcam-msg"); if (!m) return; m.className = "kcam-msg" + (k === "err" ? " bad" : ""); m.textContent = t || MSG[k] || "Je te cherche…"; } };
+    oriOn();
     var msgUntil = 0;
     function show(t, cls, ms) { var m = $("kcam-msg"); if (!m || !t) return; m.textContent = t; m.className = "kcam-msg " + (cls || ""); msgUntil = performance.now() + (ms || 2500); }
     function idle() {
@@ -1121,21 +1291,25 @@
       if (!S.det || v.readyState < 2 || !v.videoWidth) return;
       if (v.currentTime === S.lastT) return; S.lastT = v.currentTime;
       asp = v.videoWidth / v.videoHeight;
-      var res; try { res = S.det.detectForVideo(v, performance.now()); } catch (e) { return; }
+      var t0 = performance.now(), res = detectRot(S.det, v, v.videoWidth, v.videoHeight, t0, S); if (res === false) return;
+      var inf = performance.now() - t0; S.inf = S.inf == null ? inf : S.inf * 0.9 + inf * 0.1; S.nInf = (S.nInf || 0) + 1;
+      modelTune();
       var box = (function () { var s = Math.min(W / v.videoWidth, H / v.videoHeight), w = v.videoWidth * s, h = v.videoHeight * s; return { x: (W - w) / 2, y: (H - h) / 2, w: w, h: h }; })();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       var lm = res && res.landmarks && res.landmarks[0];
       if (lm && S.facing !== "user") lm = lm.map(function (q) { return { x: 1 - q.x, y: q.y, z: q.z, visibility: q.visibility }; });
       var now = performance.now();
+      if (lm) lm = clean(lm, now);
+      setupCheck(lm, now);
       if (!lm || !visible(lm)) {
-        S.lost++; draw(ctx, lm ? smooth(lm) : null, W, H, box);
+        S.lost++; draw(ctx, lm ? smooth(lm, now) : null, W, H, box);
         if (S.lost > 12 && now > msgUntil) { show(MSG.far, "warn", 1200); if (now - (S.farSaid || 0) > 7000) { S.farSaid = now; say(V.far); } }
         if (A.hold) A.hold.lastT = now;
         if (S.rec) S.rec.frames.push({ t: now - S.rec.t0, lm: null });
         return;
       }
       S.lost = 0;
-      var sm = smooth(lm), out = analyse(sm, now);
+      var sm = smooth(lm, now), out = analyse(sm, now);
       draw(ctx, sm, W, H, box);
       if (bil) { bilanDraw(ctx, sm, box, W); counters(); demoSync(); }
       $("kcam-view").textContent = A.phase === "run" ? (A.view === "profil" ? "Vue de profil" : "Vue de face") : "";
@@ -1173,13 +1347,14 @@
   function stop() {
     if (!S) return;
     cancelAnimationFrame(S.raf);
+    if (S.oriH) { try { window.removeEventListener("deviceorientation", S.oriH); } catch (e) {} }
     if (S.rec && S.rec.mr && S.rec.mr.state !== "inactive") { try { S.rec.mr.stop(); } catch (e) {} }
     try { S.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
     try { var w = S.wake(); if (w) w.release(); } catch (e) {}
     S = null;
   }
   function close() {
-    heroStop(); demoStop(); stop(); if (REPLAY && REPLAY.url) URL.revokeObjectURL(REPLAY.url); REPLAY = null;
+    heroStop(); demoStop(); stop(); if (window.KineCamSetup) KineCamSetup.stop(); if (REPLAY && REPLAY.url) URL.revokeObjectURL(REPLAY.url); REPLAY = null;
     var el = $("kcam-run"); if (el) { el.classList.remove("open"); el.innerHTML = ""; }
     document.body.classList.remove("kf-lock");
     if (window.KineAvatar && KineAvatar.pause) KineAvatar.pause(false);
@@ -1340,7 +1515,8 @@
     again: function () { open(PRID, OPT); }, bilan: function () { open("bilan"); }, bilanSkip: bilanSkip, bilanTap: bilanTap, bilanShow: bilanShow, bilanEx: bilanEx, forExercise: function (n) { return EX_MAP[n] || null; },
     _state: function () { return A; },
     // banc d'essai : alimente le bilan avec des points détectés hors caméra
-    _t: { det: detector, setup: function (ar) { PRID = "bilan"; PR = PROF.bilan; OPT = {}; asp = ar || 1; resetAnalysis(); },
+    _t: { det: detector, detectRot: detectRot, ROT: ROT_EX, tune: function (o) { for (var k in o) TUNE[k] = o[k]; }, setup: function (ar, pid) { PRID = pid || "bilan"; PR = PROF[PRID]; OPT = {}; asp = ar || 1; resetAnalysis(); },
+          step: function (lm, t, raw) { if (!raw) lm = clean(lm, t); var sm = raw ? lm : smooth(lm, t); if (!visible(sm)) return { lost: 1 }; var o = analyse(sm, t); return { out: o, reps: A.reps, good: A.good, phase: A.phase, view: A.view, swaps: A.swaps || 0, jumps: A.jumps || 0, qBad: A.qBadN || 0 }; },
           feed: function (lm, t) { var sm = smooth(lm); if (!visible(sm)) return { lost: 1 }; var o = analyse(sm, t); var b = A.b || {}; return { out: o, i: b.i, ph: b.ph, live: b.live, view: A.view }; },
           result: function () { bilanResult(A.b); }, demo: function (Av) { return demoDefs(Av); } } };
   function init() { watch(); new MutationObserver(watch).observe(document.body, { childList: true }); hookSession(); setTimeout(hookSession, 1600); }
