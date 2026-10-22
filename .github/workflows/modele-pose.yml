@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           mkdir -p assets/pose
-          curl -fsSL -o assets/pose/pose_landmarker_lite.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task
+          curl -fsSL -o assets/pose/pose_landmarker_full.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
           ls -la assets/pose
           git config user.name "Robot KinéForce"; git config user.email "yasser59100@users.noreply.github.com"
-          git add assets/pose && git commit -m "Modèle de détection de posture (MediaPipe, lite)" && git push
+          git add assets/pose && git commit -m "Modèle de détection de posture (MediaPipe, full)" && git push
