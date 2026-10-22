@@ -111,6 +111,35 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
   await clean(errs);
 });
 
+test("mode salle de sport : charge, séries et progression", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  const r = await page.evaluate(() => {
+    KineOfficiel.themes = () => ({ salle: 1, sgenou: 1, sepaule: 1, sdos: 1 });
+    const miss = [];
+    ["salle", "sgenou", "sepaule", "sdos"].forEach(id => { const T = KineTheme.THEMES[id]; [T.s2, T.s3].forEach(L => L.forEach(s => s.ex.concat([[s.warm], [s.cool]]).forEach(x => { if (!KineOfficiel.asExercise(x[0])) miss.push(x[0]); }))); });
+    KineSalleEx.list.forEach(n => { if (!KineAvatar.supports(n) || !KineBiblio.find(n)) miss.push(n); });
+    KineTheme.choose("salle", true);
+    return { miss, keys: Object.keys(SEQ_DAYS).join(",") };
+  });
+  expect(r.miss).toEqual([]);
+  expect(r.keys).toBe("s0,s1,s2");
+  await page.evaluate(() => { window.speak = () => {}; _launchSeq("s0"); seqSkipExercise(); });
+  await expect(page.locator("#ks-load")).toBeVisible();
+  await page.evaluate(() => KineSalle._start("Presse à cuisses"));
+  for (let i = 0; i < 3; i++) {
+    await page.evaluate(() => document.querySelector("#seq-actions button").click());
+    await expect(page.locator("#ks-set")).toBeVisible();
+    if (i === 0) await shot(page, info, "10-salle-serie");
+    await page.evaluate(() => seqSkipRest());
+  }
+  const plan = await page.evaluate(() => { seqFinish(); return KineSalle.plans()["Presse à cuisses"]; });
+  expect(plan.kg).toBe(22.5);
+  expect(plan.d).toBe(1);
+  await clean(errs);
+});
+
 test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());

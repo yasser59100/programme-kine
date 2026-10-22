@@ -1359,7 +1359,7 @@
               eyes: mat(AVATAR.eyes, 0.3), white: mat("#F4F1EC", 0.4), prop: mat("#8FA3B8", 0.7), wall: mat("#C9D4DF", 0.95),
               load: new T.MeshStandardMaterial({ color: lin("#7cc4ff"), roughness: 0.2, transparent: true, opacity: 0.75 }),
               cap: mat("#2b6bd1"), wood: mat("#9a6b43", 0.75), trim: mat(AVATAR.print, 0.8),
-              iron: mat("#2A2E35", 0.5), steel: mat("#B9C2CC", 0.3), pad: mat("#23262C", 0.7) };
+              iron: mat("#2A2E35", 0.5), steel: mat("#B9C2CC", 0.3), pad: mat("#353B45", 0.75) };
     var XB = new T.MeshBasicMaterial({ color: 0xF2FBFF }), XBONES = [];
     var XSKIN = new T.MeshBasicMaterial({ color: 0x6FD3FF, transparent: true, opacity: 0.16, depthWrite: false, side: T.DoubleSide, blending: T.AdditiveBlending });
     function xbone(geo, parent, x, y, z) { var o = new T.Mesh(geo, XB); o.position.set(x || 0, y || 0, z || 0); o.visible = false; parent.add(o); XBONES.push(o); return o; }
@@ -1548,6 +1548,40 @@
     mesh(new T.BoxGeometry(0.5, 0.45, 0.035), M.wood, props.chair).position.set(0, 0.67, -0.56);
     // Téléphone posé pour la caméra (tutoriel d'installation) : sur un tabouret à hauteur de taille, ou au sol calé contre un livre,
     // avec le champ de vision de la caméra (pyramide transparente) dirigé vers Yass
+    // Presse à cuisses inclinée : assise, dossier incliné et rails (le plateau suit les pieds)
+    props.legPress = new T.Group(); scene.add(props.legPress);
+    mesh(new T.BoxGeometry(0.5, 0.08, 0.42), M.pad, props.legPress).position.set(0, 0.36, -0.22);
+    var lpBack = mesh(new T.BoxGeometry(0.5, 0.8, 0.08), M.pad, props.legPress); lpBack.position.set(0, 0.47, -0.62); lpBack.rotation.x = -1.08;
+    mesh(new T.BoxGeometry(0.62, 0.3, 1.0), M.iron, props.legPress).position.set(0, 0.15, -0.35);
+    [-0.36, 0.36].forEach(function (x) {   // rails à 40° le long desquels glisse le plateau
+      var rl = mesh(new T.BoxGeometry(0.05, 0.05, 1.05), M.steel, props.legPress); rl.position.set(x, 0.7, 0.38); rl.rotation.x = -0.62;
+      mesh(new T.BoxGeometry(0.05, 0.32, 0.05), M.iron, props.legPress).position.set(x, 0.16, 0.0);
+      mesh(new T.CylinderGeometry(0.025, 0.025, 0.3, 10), M.steel, props.legPress).position.set(x * 0.85, 0.42, -0.2);
+    });
+    // Machine à cuisses (leg extension, leg curl) : siège et dossier rembourrés, poignées, colonne de charges sur le côté
+    props.legMachine = new T.Group(); scene.add(props.legMachine);
+    mesh(new T.BoxGeometry(0.5, 0.1, 0.46), M.pad, props.legMachine).position.set(0, 0.42, -0.34);
+    mesh(new T.BoxGeometry(0.5, 0.62, 0.1), M.pad, props.legMachine).position.set(0, 0.8, -0.62);
+    mesh(new T.BoxGeometry(0.08, 0.38, 0.08), M.iron, props.legMachine).position.set(0, 0.19, -0.36);
+    mesh(new T.BoxGeometry(0.08, 0.7, 0.08), M.iron, props.legMachine).position.set(0, 0.55, -0.7);
+    mesh(new T.BoxGeometry(0.62, 0.04, 0.7), M.iron, props.legMachine).position.set(0, 0.02, -0.4);
+    mesh(new T.BoxGeometry(0.16, 1.25, 0.3), M.iron, props.legMachine).position.set(-0.52, 0.63, -0.5);
+    [-0.3, 0.3].forEach(function (x) { var hd = mesh(new T.CylinderGeometry(0.018, 0.018, 0.22, 10), M.steel, props.legMachine); hd.position.set(x, 0.47, -0.27); hd.rotation.x = Math.PI / 2; });
+    // Poste de tirage vertical : siège, boudins sur les cuisses, montant et potence avec la poulie haute
+    props.latTower = new T.Group(); scene.add(props.latTower);
+    mesh(new T.BoxGeometry(0.46, 0.1, 0.42), M.pad, props.latTower).position.set(0, 0.42, -0.34);
+    mesh(new T.BoxGeometry(0.08, 0.38, 0.08), M.iron, props.latTower).position.set(0, 0.19, -0.34);
+    mesh(new T.BoxGeometry(0.16, 2.55, 0.16), M.iron, props.latTower).position.set(0, 1.27, -0.78);
+    mesh(new T.BoxGeometry(0.12, 0.1, 0.55), M.iron, props.latTower).position.set(0, 2.5, -0.53);
+    mesh(new T.BoxGeometry(0.7, 0.04, 0.9), M.iron, props.latTower).position.set(0, 0.02, -0.5);
+    var ltw = mesh(new T.CylinderGeometry(0.06, 0.06, 0.04, 16), M.steel, props.latTower); ltw.position.set(0, 2.42, -0.3); ltw.rotation.z = Math.PI / 2;
+    mesh(new T.BoxGeometry(0.05, 0.62, 0.05), M.iron, props.latTower).position.set(0, 0.33, 0.1);
+    var ltk = mesh(new T.CylinderGeometry(0.05, 0.05, 0.5, 16), M.pad, props.latTower); ltk.position.set(0, 0.66, 0.06); ltk.rotation.z = Math.PI / 2;
+    // Colonne de poulie : montant, poulie réglable en hauteur (d.pulley = { x, z, h })
+    props.pulley = new T.Group(); scene.add(props.pulley);
+    mesh(new T.BoxGeometry(0.14, 2.2, 0.14), M.iron, props.pulley).position.set(0, 1.1, 0);
+    mesh(new T.BoxGeometry(0.5, 0.04, 0.5), M.iron, props.pulley).position.set(0, 0.02, 0);
+    props.pulley.userData.wheel = mesh(new T.CylinderGeometry(0.05, 0.05, 0.04, 16), M.steel, props.pulley);
     props.camStand = new T.Group(); scene.add(props.camStand);
     var csStool = new T.Group(); props.camStand.add(csStool);
     mesh(new T.BoxGeometry(0.34, 0.04, 0.34), M.wood, csStool).position.set(0, 0.8, 0);
@@ -1574,6 +1608,7 @@
     window.addEventListener("pointercancel", function () { drag = null; });
 
     var bandMat = new T.MeshStandardMaterial({ color: lin("#f2994a"), roughness: 0.55 }), bands = [], bandKnots = [];
+    var cableMat = new T.MeshStandardMaterial({ color: lin("#9AA3AD"), roughness: 0.35, metalness: 0.5 });
     for (var bi = 0; bi < 2; bi++) {
       var bm = mesh(new T.CylinderGeometry(0.014, 0.014, 1, 12), bandMat, scene); bm.visible = false; bands.push(bm);
       var kn = mesh(new T.SphereGeometry(0.03, 12, 10), M.prop, scene); kn.visible = false; bandKnots.push(kn);
@@ -1608,7 +1643,27 @@
       towel: mesh(towelGeo(), towelMat, scene),
       towelRoll: mesh(new T.CylinderGeometry(0.034, 0.034, 1, 16, 1), new T.MeshStandardMaterial({ map: towelTex("#7FB2E0", "#FFFFFF", true), roughness: 1 }), scene),
       ball: mesh(new T.SphereGeometry(0.11, 24, 18), new T.MeshStandardMaterial({ color: lin("#FF6B4A"), roughness: 0.5 }), scene),
-      book: mesh(new T.BoxGeometry(0.17, 0.035, 0.23), new T.MeshStandardMaterial({ color: lin("#3D8EF0"), roughness: 0.7 }), scene)
+      book: mesh(new T.BoxGeometry(0.17, 0.035, 0.23), new T.MeshStandardMaterial({ color: lin("#3D8EF0"), roughness: 0.7 }), scene),
+      // Salle de sport : barre (avec disques), barre de tirage, plateau de presse, boudins des machines à cuisses
+      barbell: (function () {
+        var g = new T.Group(); scene.add(g);
+        mesh(new T.CylinderGeometry(0.013, 0.013, 1.9, 14), M.steel, g);
+        [-1, 1].forEach(function (sd) {
+          mesh(new T.CylinderGeometry(0.025, 0.025, 0.1, 14), M.steel, g).position.y = sd * 0.62;
+          var p1 = mesh(new T.CylinderGeometry(0.21, 0.21, 0.045, 28), M.iron, g); p1.position.y = sd * 0.7;
+          var p2 = mesh(new T.CylinderGeometry(0.15, 0.15, 0.035, 24), M.pad, g); p2.position.y = sd * 0.75;
+        });
+        return g;
+      })(),
+      latbar: (function () {
+        var g = new T.Group(); scene.add(g);
+        mesh(new T.CylinderGeometry(0.014, 0.014, 1.1, 12), M.steel, g);
+        [-1, 1].forEach(function (sd) { var h = mesh(new T.CylinderGeometry(0.02, 0.02, 0.14, 12), M.pad, g); h.position.y = sd * 0.48; });
+        return g;
+      })(),
+      legPlate: mesh(new T.BoxGeometry(0.62, 0.03, 0.42), M.iron, scene),
+      lever: mesh(new T.CylinderGeometry(0.02, 0.02, 1, 10), M.steel, scene),
+      pad: (function () { var g = new T.Group(); scene.add(g); var c = mesh(new T.CylinderGeometry(0.055, 0.055, 0.44, 18), M.pad, g); c.rotation.z = Math.PI / 2; mesh(new T.CylinderGeometry(0.012, 0.012, 0.5, 8), M.steel, g).rotation.z = Math.PI / 2; return g; })()
     };
     for (var tk in tools) tools[tk].visible = false;
     // Plots de couleur posés au sol (exercices réactifs) : couleur et place données par l'exercice
@@ -1623,7 +1678,7 @@
     var bandLoops = [];
     for (var bl = 0; bl < 4; bl++) { var lp = mesh(new T.TorusGeometry(1, 0.26, 10, 28), bandMat, scene); lp.visible = false; bandLoops.push(lp); }
     return { T: T, canvas: canvas, renderer: renderer, scene: scene, camera: camera, floor: [ground, ring], pelvis: pelvis, spine: spine, shirt: shirt, hem: hem, cones: cones, curveNow: 0, xb: XBONES, xbody: XBODY, xskin: XSKIN,
-             head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops, tools: tools };
+             head: head, legs: legs, arms: arms, props: props, view: view, bands: bands, bandKnots: bandKnots, bandLoops: bandLoops, tools: tools, bandMat: bandMat, cableMat: cableMat };
   }
 
   /* ── Cinématique ── */
@@ -1783,8 +1838,33 @@
       b.visible = true; b.position.copy(kL.add(kR).multiplyScalar(0.5)); b.scale.set(0.8, 0.8, 0.8);
       return;
     }
+    if (tool === "barBack" || tool === "barHips") {   // barre posée sur le haut du dos (squat) ou sur les hanches (hip thrust)
+      var qq = new T.Quaternion(), bb = R.tools.barbell, src = tool === "barBack" ? R.spine : R.pelvis; src.getWorldQuaternion(qq);
+      bb.position.copy(src.localToWorld(tool === "barBack" ? new T.Vector3(0, 0.44, -0.15) : new T.Vector3(0, -0.02, 0.17)));
+      bb.quaternion.copy(qq).multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0, 0, 1), Math.PI / 2));
+      bb.visible = true; return;
+    }
+    if (tool === "legPlate" || tool === "padFront" || tool === "padBack") {
+      var aL = w(R.legs.L.ankle), aR = w(R.legs.R.ankle), kL2 = w(R.legs.L.knee), kR2 = w(R.legs.R.knee);
+      var am = aL.clone().add(aR).multiplyScalar(0.5), km = kL2.clone().add(kR2).multiplyScalar(0.5), sh = am.clone().sub(km).normalize();
+      if (tool === "legPlate") {   // plateau de la presse : sous les pieds, perpendiculaire à la jambe
+        var hm = w(R.legs.L.hip).add(w(R.legs.R.hip)).multiplyScalar(0.5), ld = am.clone().sub(hm).normalize(), lp = R.tools.legPlate;
+        lp.position.copy(am.clone().add(ld.clone().multiplyScalar(0.07))); lp.quaternion.setFromUnitVectors(Y, ld); lp.visible = true; return;
+      }
+      var pq = new T.Quaternion(); R.pelvis.getWorldQuaternion(pq);
+      var fw = new T.Vector3(0, 0, 1).applyQuaternion(pq), side = new T.Vector3(1, 0, 0).applyQuaternion(pq);
+      var nrm = fw.clone().sub(sh.clone().multiplyScalar(fw.dot(sh))).normalize().multiplyScalar(tool === "padFront" ? 1 : -1);
+      var pd = R.tools.pad; pd.position.copy(am.clone().sub(sh.clone().multiplyScalar(0.07)).add(nrm.multiplyScalar(0.075)));
+      pd.quaternion.setFromUnitVectors(new T.Vector3(1, 0, 0), side.normalize()); pd.visible = true;
+      if (bandDef && bandDef.lever) {   // bras de levier de la machine : de l'axe du genou au boudin
+        var pv = km.clone().add(side.clone().multiplyScalar(0.3)), pe = pd.position.clone().add(side.clone().multiplyScalar(0.25)), lv = R.tools.lever, ldir = pe.clone().sub(pv);
+        lv.position.copy(pv.clone().add(pe).multiplyScalar(0.5)); lv.scale.set(1, Math.max(0.05, ldir.length()), 1); lv.quaternion.setFromUnitVectors(Y, ldir.normalize()); lv.visible = true;
+      }
+      return;
+    }
     var A = bandEnd("LH", "L"), B = bandEnd("RH", "L"); A = A.c || A.p; B = B.c || B.p;
     var mid = A.clone().add(B).multiplyScalar(0.5), dir = B.clone().sub(A), len = Math.max(0.01, dir.length());
+    if (tool === "barbell" || tool === "latbar") { var bm = R.tools[tool]; bm.visible = true; bm.position.copy(mid); bm.quaternion.setFromUnitVectors(Y, dir.normalize()); return; }
     var m = R.tools[tool === "ball" ? "ball" : tool]; if (!m) return;
     m.visible = true; m.position.copy(mid);
     if (tool === "ball") { m.scale.set(1, 1, 1); return; }
@@ -1804,10 +1884,13 @@
       var ref = [E[0].c || E[0].p, E[1].c || E[1].p];
       var A = edge(E[0], ref[1]), B = edge(E[1], ref[0]);
       var dir = B.clone().sub(A), len = Math.max(0.01, dir.length());
-      m.position.copy(A.clone().add(B).multiplyScalar(0.5)); m.scale.set(1, len, 1);
+      var cab = !!(bandDef && bandDef.cable);   // poulie : câble fin et sombre, poignée dans la main
+      m.material = cab ? R.cableMat : R.bandMat;
+      m.position.copy(A.clone().add(B).multiplyScalar(0.5)); m.scale.set(cab ? 0.45 : 1, len, cab ? 0.45 : 1);
       m.quaternion.setFromUnitVectors(Y, dir.normalize());
       E.forEach(function (e, k) {
-        if (e.c) { var L0 = loops[k]; L0.visible = true; L0.position.copy(e.c); L0.scale.set(e.r, e.r, e.r); L0.quaternion.setFromUnitVectors(Z, e.axis); }
+        if (e.c && cab) { R.bandKnots[i].visible = true; R.bandKnots[i].position.copy(e.c); }
+        else if (e.c) { var L0 = loops[k]; L0.visible = true; L0.position.copy(e.c); L0.scale.set(e.r, e.r, e.r); L0.quaternion.setFromUnitVectors(Z, e.axis); }
         else { R.bandKnots[i].visible = true; R.bandKnots[i].position.copy(e.p); }
       });
     });
@@ -1866,6 +1949,9 @@
     if (ro) { if (rc) { var rp = rc.p || [0, 0.075, 0]; ro.position.set(rp[0] * (curSideSign || 1), rp[1] == null ? 0.075 : rp[1], rp[2]); ro.rotation.set(0, rc.along === "z" ? Math.PI / 2 : (rc.yaw || 0) * D2R * (curSideSign || 1), 0); } }
     // banc et marche placés par l'exercice (créateur) : { x, z, along: "x" pour un banc en travers }
     var sgn = curSideSign || 1, bc = (d && d.bench) || { x: 0, z: -0.2 }, be = R.props.bench;
+    var pu = R.props.pulley, pc = d && d.pulley;
+    if (pu && pc) { pu.position.set((pc.x || 0) * sgn, 0, pc.z || 0); var wh = pu.userData.wheel; wh.position.set(0, pc.h || 1, 0.09 * (pc.z > 0 ? -1 : 1)); wh.rotation.z = Math.PI / 2; }
+    var lpr = R.props.legPress, lc = d && d.legPress; if (lpr && lc) lpr.position.set(0, 0, lc.z || 0);
     var cst = R.props.camStand, cs = d && d.camStand;
     if (cst && cs) {
       var u = cst.userData, floor = !!cs.floor, cx = (cs.x || 0) * sgn, cz = cs.z || 0, ph = floor ? 0.1 : 0.9;

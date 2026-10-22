@@ -8,10 +8,10 @@
   function list() { try { return typeof sessions !== "undefined" && sessions ? sessions : JSON.parse(localStorage.getItem("kf-sessions") || "[]"); } catch (e) { return []; } }
   function iso(d) { d = d || new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function monday() { var d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return iso(d); }
-  var PER_WEEK = 5;
+  function perWeek() { return window.KineTheme && KineTheme.perWeek ? KineTheme.perWeek() : 5; }   // 5 en général, 2 ou 3 dans les programmes ciblés
 
   function stats() {
-    var ss = list(), mon = monday();
+    var ss = list(), mon = monday(), PER_WEEK = perWeek();
     var week = ss.filter(function (s) { return String(s.date).slice(0, 10) >= mon; }).length + 1;   // + la séance qui vient de finir
     var total = ss.length + 1;
     var w = window.KineProgress ? KineProgress.week() : 1;
@@ -20,7 +20,7 @@
       : week > PER_WEEK ? "Encore une, quelle régularité !"
       : "Séance terminée, bravo !";
     var sub = total === 1 ? "Le plus dur, c'est de commencer. C'est fait."
-      : week === PER_WEEK ? "Les 5 séances de la semaine sont faites. Ton corps va adorer."
+      : week === PER_WEEK ? "Les " + PER_WEEK + " séances de la semaine sont faites. Ton corps va adorer."
       : week > PER_WEEK ? "Tu dépasses l'objectif de la semaine. Pense aussi à récupérer."
       : "Plus que " + (PER_WEEK - week) + " séance" + (PER_WEEK - week > 1 ? "s" : "") + " pour boucler la semaine.";
     return { week: Math.min(week, PER_WEEK), weekRaw: week, total: total, w: w, title: title, sub: sub };
@@ -61,7 +61,7 @@
   }
 
   function show(duration, done) {
-    var st = stats(), day = (window.SEQ_DAYS && SEQ_DAYS[seqCurrentDay]) ? SEQ_DAYS[seqCurrentDay].label.replace(" — ", " · ") : "";
+    var PER_WEEK = perWeek(), st = stats(), day = (window.SEQ_DAYS && SEQ_DAYS[seqCurrentDay]) ? SEQ_DAYS[seqCurrentDay].label.replace(" — ", " · ") : "";
     var el = $("kf-cele");
     if (!el) { el = document.createElement("div"); el.id = "kf-cele"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Séance terminée"); document.body.appendChild(el); }
     var dots = "";

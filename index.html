@@ -1953,7 +1953,7 @@ function renderSeqExercise() {
     return b;
   }
 
-  var guided = ex.phase === "work" && ex.repsLabel && /\d/.test(ex.repsLabel);
+  var guided = ex.phase === "work" && !ex.gym && ex.repsLabel && /\d/.test(ex.repsLabel);
   if (ex.phase === "work" && seqSerieIdx < seqTotalSeries - 1) {
     actions.appendChild(makeBtn("seq-btn-main", guided ? "Commencer le tour " + (seqSerieIdx+1) : "✓ Tour " + (seqSerieIdx+1) + " terminé", seqSeriesDone));
     actions.appendChild(makeBtn("seq-btn-secondary", "Passer cet exercice →", seqSkipExercise));
@@ -2000,7 +2000,7 @@ function seqSeriesDone() {
   } else {
     // More series — show rest
     seqRestNext = { exIdx: seqExIdx, serie: seqSerieIdx + 1 };
-    renderSeqRest(seqCurrentDay === "day4" ? 20 : 30, function() {
+    renderSeqRest(ex.gym ? ex.restAfter : seqCurrentDay === "day4" ? 20 : 30, function() {
       renderSeqExercise();
       playStartBeep();
       seqAutoNext(3);
@@ -2855,7 +2855,7 @@ var _baseSeqSeriesDone = seqSeriesDone;
 var _baseSeqExDone = seqExDone;
 
 function tryLaunchRepGuide(ex, serie, onDone) {
-  if (ex.phase === "work" && ex.repsLabel && ex.repsLabel.match(/\d+/)) {
+  if (ex.phase === "work" && !ex.gym && ex.repsLabel && ex.repsLabel.match(/\d+/)) {
     launchRepGuide(ex.name, window.KineProgress ? KineProgress.repsLabel(ex) : ex.repsLabel, serie, seqTotalSeries, onDone);
     return true;
   }
@@ -2887,7 +2887,7 @@ var ROUND_TRANSITION = 30, ROUND_TOUR_REST = 120;
 var _seqSeriesDoneStd = _baseSeqSeriesDone, _seqExDoneStd = _baseSeqExDone, _seqSkipStd = seqSkipExercise;
 function seqIsCircuitWork() {
   var d = SEQ_DAYS[seqCurrentDay];
-  return !!(d && d.exercises[seqExIdx] && d.exercises[seqExIdx].phase === "work");
+  return !!(d && !d.gym && d.exercises[seqExIdx] && d.exercises[seqExIdx].phase === "work");   // salle de sport : séries classiques, exercice par exercice
 }
 function seqCircuitNext(noRest) {
   var d = SEQ_DAYS[seqCurrentDay], works = [];
@@ -3217,6 +3217,8 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-themes.js" defer></script>
 <script src="assets/js/kine-nouveaux.js" defer></script>
 <script src="assets/js/kine-nouveaux2.js" defer></script>
+<script src="assets/js/kine-salle-ex.js" defer></script>
+<script src="assets/js/kine-salle.js" defer></script>
 <script src="assets/js/kine-modefx.js" defer></script>
 <script src="assets/js/kine-course.js" defer></script>
 <script src="assets/js/kine-harmonie.js" defer></script>

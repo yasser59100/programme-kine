@@ -273,14 +273,15 @@
         "<span class='lu-ses-t'><b>" + esc(cap(nameOf(id))) + "</b><small>" + (d.circuit ? "Circuit" : nEx + " exercices") + " · " + minutes(id) + " min</small>" +
         (tag ? "<em>" + esc(tag) + "</em>" : "") + "</span><span class='lu-chev' aria-hidden='true'>›</span></button>";
     }).join("");
-    box.innerHTML = (window.KineTheme ? KineTheme.bannerHtml() : "") +
-      "<div class='lu-pslab'><p class='lu-k'>" + (st.start ? "Jour " + day + " sur 28" : "Le programme démarre à ta première séance") + "</p>" +
+    var gym = window.KineSalle && Object.keys(SEQ_DAYS).some(function (k) { return SEQ_DAYS[k].gym; });
+    box.innerHTML = (window.KineTheme ? KineTheme.bannerHtml() : "") + (gym ? KineSalle.progHtml() : "") +
+      (gym ? "" : "<div class='lu-pslab'><p class='lu-k'>" + (st.start ? "Jour " + day + " sur 28" : "Le programme démarre à ta première séance") + "</p>" +
         "<h2 class='lu-t'>Semaine " + p.week + " sur 4</h2><p class='lu-m'>" + esc(cur[1]) + "</p>" +
         "<div class='lu-ptrack'>" + [1, 2, 3, 4].map(function (n) {
           var f = n < p.week ? 100 : n > p.week ? 0 : st.start ? Math.max(8, Math.round(((day - 1) % 7 + 1) / 7 * 100)) : 0;
           return "<span><i style='width:" + f + "%'></i></span>"; }).join("") + "</div>" +
         (p.reason ? "<p class='lu-why'>" + esc(p.reason) + "</p>" : "") + "</div>" +
-      "<h2 class='lx-section'>Mes 4 semaines</h2><div class='lu-wks'>" + weeks + "</div>" +
+      "<h2 class='lx-section'>Mes 4 semaines</h2><div class='lu-wks'>" + weeks + "</div>") +
       "<h2 class='lx-section'>Les " + Object.keys(SEQ_DAYS).length + " séances</h2><div class='lu-sess'>" + rows + "</div>" +
       "<div class='lu-pduo'>" +
         (window.KineCompose ? "<button onclick=\"showPage('mes');KineCompose.tab()\"><span class='lu-ic'>＋</span><b>Composer ma séance</b><small>Mes propres exercices</small></button>" : "") +

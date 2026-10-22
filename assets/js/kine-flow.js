@@ -79,6 +79,7 @@ var KineProgress = (function () {
   // « 12 répétitions », puis « 14 répétitions » en S2 ; « 8 à 12 », puis 8 (+2 en S2, sans dépasser 12)
   function repsLabel(ex) {
     var label = String(ex && ex.repsLabel || "");
+    if (ex && ex.gym) return label;   // salle de sport : la fourchette reste entière, c'est la charge qui progresse
     // Exercices en durée : durée de la semaine (ex. chaise 30 s, puis 45 s, puis 1 min, planche 20, puis 40 s)
     if (/seconde/i.test(label) && window.KineAvatar) {
       var inf = KineAvatar.info(ex.name, label, loadWeek());
@@ -169,7 +170,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function week() { return typeof rgWeek === "function" ? rgWeek() : 1; }
   function seriesFor() { return KineProgress.plan().series; }
-  function isGuided(ex) { return ex && ex.phase === "work" && ex.repsLabel && /\d/.test(ex.repsLabel); }
+  function isGuided(ex) { return ex && ex.phase === "work" && !ex.gym && ex.repsLabel && /\d/.test(ex.repsLabel); }
 
   function kitFor(day) {
     var txt = day.exercises.map(function (e) { return [e.name, e.desc, e.tip].join(" "); }).join(" ").toLowerCase();
