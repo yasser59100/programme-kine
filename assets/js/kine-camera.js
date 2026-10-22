@@ -198,7 +198,7 @@
     this.x += al(mc + beta * Math.abs(this.dx)) * (v - this.x);
     return this.x;
   };
-  var TUNE = { clean: 1, euro: 1, qgate: 1 };   // réglages (banc d'essai)
+  var TUNE = { clean: 1, euro: 1, qgate: 1, w3d: 1 };   // réglages (banc d'essai)
   function smooth(lm, now) {
     now = now == null ? performance.now() : now;
     if (!TUNE.euro) {
@@ -218,11 +218,12 @@
   function clean(lm, now) {
     if (!TUNE.clean) return lm;
     var out = lm.map(function (p) { return { x: p.x, y: p.y, z: p.z, visibility: p.visibility }; }), prev = A.cl;
+    A.swapNow = [false, false];
     if (prev && now - (A.clT || 0) < 400) {
-      SWAP_G.forEach(function (G) {
+      SWAP_G.forEach(function (G, gi) {
         var same = 0, sw = 0;
         G.forEach(function (q) { same += d2(out[q[0]], prev[q[0]]) + d2(out[q[1]], prev[q[1]]); sw += d2(out[q[0]], prev[q[1]]) + d2(out[q[1]], prev[q[0]]); });
-        if (same > 0.002 && sw < same * 0.4) { G.forEach(function (q) { var t = out[q[0]]; out[q[0]] = out[q[1]]; out[q[1]] = t; }); A.swaps = (A.swaps || 0) + 1; }
+        if (same > 0.002 && sw < same * 0.4) { G.forEach(function (q) { var t = out[q[0]]; out[q[0]] = out[q[1]]; out[q[1]] = t; }); A.swaps = (A.swaps || 0) + 1; A.swapNow[gi] = true; }
       });
       var sh = { x: (prev[11].x + prev[12].x) / 2, y: (prev[11].y + prev[12].y) / 2 }, hp = { x: (prev[23].x + prev[24].x) / 2, y: (prev[23].y + prev[24].y) / 2 };
       var T = Math.max(0.06, Math.sqrt(d2(sh, hp))), lim = T * 0.55 * Math.max(1, (now - A.clT) / 33);
@@ -235,6 +236,20 @@
     }
     A.cl = out; A.clT = now;
     return out;
+  }
+  /* Points en 3D (en mètres, centrés sur le bassin) : servent aux angles de flexion (genou, coude), justes même si le téléphone
+     n'est pas parfaitement de profil. Mêmes inversions gauche/droite que les points de l'image, puis lissage. */
+  function world(wl, now) {
+    if (!wl || !TUNE.w3d) { A.W = null; return; }
+    var w = wl.map(function (p) { return { x: p.x, y: p.y, z: p.z }; });
+    (A.swapNow || []).forEach(function (on, gi) { if (on) SWAP_G[gi].forEach(function (q) { var t = w[q[0]]; w[q[0]] = w[q[1]]; w[q[1]] = t; }); });
+    if (!A.wflt) A.wflt = w.map(function () { return { x: new OneEuro(), y: new OneEuro(), z: new OneEuro() }; });
+    A.W = w.map(function (p, i) { var f = A.wflt[i]; return { x: f.x.f(p.x, now, 1.2, 8), y: f.y.f(p.y, now, 1.2, 8), z: f.z.f(p.z, now, 1.0, 8) }; });
+  }
+  function angle3(a, b, c) {
+    var u = [a.x - b.x, a.y - b.y, a.z - b.z], v = [c.x - b.x, c.y - b.y, c.z - b.z];
+    var d = u[0] * v[0] + u[1] * v[1] + u[2] * v[2], n = Math.hypot(u[0], u[1], u[2]) * Math.hypot(v[0], v[1], v[2]);
+    return n > 1e-6 ? Math.acos(Math.max(-1, Math.min(1, d / n))) * 180 / Math.PI : 180;
   }
   /* Qualité de l'image en cours : une correction n'est donnée que si les points utiles sont bien vus
      et (de profil) si la cuisse et la jambe gardent leur longueur ; sinon Yass se tait plutôt que de se tromper. */
@@ -269,6 +284,19 @@
     var n = c.near; c.N = { sh: L[n + "Sh"], el: L[n + "El"], wr: L[n + "Wr"], hip: L[n + "Hip"], kn: L[n + "Kn"], an: L[n + "An"], he: L[n + "He"], toe: L[n + "Toe"] };
     c.elbow = angle(c.N.sh, c.N.el, c.N.wr);
     c.kL = angle(L.lHip, L.lKn, L.lAn); c.kR = angle(L.rHip, L.rKn, L.rAn);
+    var W = A.W;
+    if (W) {
+      /* Banc d'essai (genou à 90°) : de profil, l'angle mesuré sur l'image est le plus juste (± 5°) ; dès que le téléphone est de biais,
+         il « déplie » le genou (128° lus à 45°, 157° de presque face) alors que l'angle 3D reste proche (± 10°).
+         Une jambe tendue reste tendue sur l'image sous tous les angles, alors que la 3D la lit un peu pliée.
+         On garde donc l'image de profil ou jambe tendue, et on passe à la 3D quand le téléphone est de biais et le genou plié. */
+      var hx = W[24].x - W[23].x, hz = W[24].z - W[23].z, ob = Math.abs(hx) / Math.max(1e-4, Math.hypot(hx, hz));   // 0 : de profil, 1 : de face
+      var wo = Math.max(0, Math.min(1, (ob - 0.1) / 0.4)); c.oblique = ob;
+      var mix = function (a2, a3) { var w = wo * Math.max(0, Math.min(1, (165 - Math.min(a2, a3)) / 25)); return a2 * (1 - w) + a3 * w; };
+      c.kL = mix(c.kL, angle3(W[23], W[25], W[27])); c.kR = mix(c.kR, angle3(W[24], W[26], W[28]));
+      c.elbow = mix(c.elbow, n === "l" ? angle3(W[11], W[13], W[15]) : angle3(W[12], W[14], W[16]));
+      c.w3d = true;
+    }
     c.kNear = n === "l" ? c.kL : c.kR;
     var shW = Math.abs(L.lSh.x - L.rSh.x), torso = dist(c.sh, c.hip);
     // De face ou de profil : épaules étroites par rapport au tronc → de profil (allongé : le tronc est horizontal, même règle)
@@ -329,7 +357,7 @@
   }
 
   function analyse(lm, now) {
-    var c = context(lm); A.live = {}; quality(c);
+    var c = context(lm); A.live = {}; quality(c); A.lastK = c.kNear;
     if (PR.mode === "bilan") return bilanStep(c, lm, now);
     // Vue imposée par l'exercice
     if (PR.views !== "both" && A.view !== PR.views && A.viewVotes !== 0 && Math.abs(A.viewVotes) > 6) {
@@ -1144,7 +1172,7 @@
     var res; try { res = det.detectForVideo(img, ts); } catch (e) { return false; }
     var r0 = res && res.landmarks && res.landmarks[0];
     // l'image tournée n'est qu'un secours : de temps en temps, on revérifie l'image d'origine et on y revient dès qu'elle marche
-    if (rot) { R.since = (R.since || 0) + 1; if (R.since > 90) { R.since = 0; try { var r1 = det.detectForVideo(src, ts + 0.5); if (r1 && r1.landmarks && r1.landmarks[0]) { R.rotI = R.rots.indexOf(0); return { landmarks: [r1.landmarks[0]] }; } } catch (e) {} } }
+    if (rot) { R.since = (R.since || 0) + 1; if (R.since > 90) { R.since = 0; try { var r1 = det.detectForVideo(src, ts + 0.5); if (r1 && r1.landmarks && r1.landmarks[0]) { R.rotI = R.rots.indexOf(0); return { landmarks: [r1.landmarks[0]], world: r1.worldLandmarks && r1.worldLandmarks[0] }; } } catch (e) {} } }
     if (r0 && rot) {
       // tête en bas dans l'image tournée : c'est l'autre quart de tour qu'il faut
       if (r0[0].y > (r0[23].y + r0[24].y) / 2 + 0.05 && (r0[0].visibility || 0) > 0.5) { R.flipVotes = (R.flipVotes || 0) + 1; if (R.flipVotes > 8) { R.flipVotes = 0; R.rotI = R.rots.indexOf(-rot); } }
@@ -1153,7 +1181,7 @@
     }
     if (!r0) { R.miss = (R.miss || 0) + 1; if (R.rots.length > 1 && R.miss > 25) { R.miss = 0; R.rotI = (R.rotI + 1) % R.rots.length; } }
     else R.miss = 0;
-    return { landmarks: r0 ? [r0] : [] };
+    return { landmarks: r0 ? [r0] : [], world: r0 && res.worldLandmarks ? res.worldLandmarks[0] : null };
   }
   /* ── Fiabilité de la prise en direct ── */
   var ROT_EX = { pont: 1, planche: 1, pompes: 1 };   // exercices au sol : si personne n'est trouvé dans l'image, on essaie l'image tournée d'un quart de tour
@@ -1301,7 +1329,7 @@
       var lm = res && res.landmarks && res.landmarks[0];
       if (lm && S.facing !== "user") lm = lm.map(function (q) { return { x: 1 - q.x, y: q.y, z: q.z, visibility: q.visibility }; });
       var now = performance.now();
-      if (lm) lm = clean(lm, now);
+      if (lm) { lm = clean(lm, now); world(res && res.world, now); }
       setupCheck(lm, now);
       if (!lm || !visible(lm)) {
         S.lost++; draw(ctx, lm ? smooth(lm, now) : null, W, H, box);
@@ -1518,7 +1546,7 @@
     _state: function () { return A; },
     // banc d'essai : alimente le bilan avec des points détectés hors caméra
     _t: { det: detector, detectRot: detectRot, ROT: ROT_EX, tune: function (o) { for (var k in o) TUNE[k] = o[k]; }, setup: function (ar, pid) { PRID = pid || "bilan"; PR = PROF[PRID]; OPT = {}; asp = ar || 1; resetAnalysis(); },
-          step: function (lm, t, raw) { if (!raw) lm = clean(lm, t); var sm = raw ? lm : smooth(lm, t); if (!visible(sm)) return { lost: 1 }; var o = analyse(sm, t); return { out: o, reps: A.reps, good: A.good, phase: A.phase, view: A.view, swaps: A.swaps || 0, jumps: A.jumps || 0, qBad: A.qBadN || 0 }; },
+          step: function (lm, t, raw, wl) { if (!raw) lm = clean(lm, t); world(wl, t); var sm = raw ? lm : smooth(lm, t); if (!visible(sm)) return { lost: 1 }; var o = analyse(sm, t); return { out: o, reps: A.reps, good: A.good, phase: A.phase, view: A.view, kNear: A.lastK, maxD: A.maxD, down: A.down, base: A.base, swaps: A.swaps || 0, jumps: A.jumps || 0, qBad: A.qBadN || 0 }; },
           feed: function (lm, t) { var sm = smooth(lm); if (!visible(sm)) return { lost: 1 }; var o = analyse(sm, t); var b = A.b || {}; return { out: o, i: b.i, ph: b.ph, live: b.live, view: A.view }; },
           result: function () { bilanResult(A.b); }, demo: function (Av) { return demoDefs(Av); } } };
   function init() { watch(); new MutationObserver(watch).observe(document.body, { childList: true }); hookSession(); setTimeout(hookSession, 1600); }
