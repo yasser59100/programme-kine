@@ -1,0 +1,22 @@
+name: Voix de la vidéo
+on:
+  push:
+    branches: [video-voix]
+    paths: [video/texte.txt, video/voix_video.py]
+permissions:
+  contents: write
+jobs:
+  voix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Générer la voix off
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: python3 video/voix_video.py
+      - name: Enregistrer dans la branche
+        if: always()
+        run: |
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add -A video && git commit -q -m "Voix off de la vidéo [skip ci]" && git pull -q --rebase && git push || echo "rien de nouveau"
