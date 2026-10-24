@@ -1,0 +1,622 @@
+{
+  "config": {
+    "configFile": "/home/runner/work/programme-kine/programme-kine/tests/playwright.config.js",
+    "rootDir": "/home/runner/work/programme-kine/programme-kine/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/yasser59100/programme-kine/commit/3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+        "commitHash": "3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+        "buildHref": "https://github.com/yasser59100/programme-kine/actions/runs/40071614355"
+      },
+      "gitCommit": {
+        "shortHash": "3a4dac1",
+        "hash": "3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+        "subject": "Voix off : une seule prise, format standard",
+        "body": "Voix off : une seule prise, format standard\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n",
+        "author": {
+          "name": "Claude pour Yasser",
+          "email": "yasser59100@users.noreply.github.com",
+          "time": 1792824466000
+        },
+        "committer": {
+          "name": "Claude pour Yasser",
+          "email": "yasser59100@users.noreply.github.com",
+          "time": 1792824466000
+        },
+        "branch": "video-voix"
+      },
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "resultats.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/programme-kine/programme-kine/tests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/yasser59100/programme-kine/commit/3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+            "commitHash": "3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+            "buildHref": "https://github.com/yasser59100/programme-kine/actions/runs/40071614355"
+          },
+          "gitCommit": {
+            "shortHash": "3a4dac1",
+            "hash": "3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+            "subject": "Voix off : une seule prise, format standard",
+            "body": "Voix off : une seule prise, format standard\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n",
+            "author": {
+              "name": "Claude pour Yasser",
+              "email": "yasser59100@users.noreply.github.com",
+              "time": 1792824466000
+            },
+            "committer": {
+              "name": "Claude pour Yasser",
+              "email": "yasser59100@users.noreply.github.com",
+              "time": 1792824466000
+            },
+            "branch": "video-voix"
+          },
+          "actualWorkers": 2
+        },
+        "id": "iphone",
+        "name": "iphone",
+        "testDir": "/home/runner/work/programme-kine/programme-kine/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/programme-kine/programme-kine/tests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/yasser59100/programme-kine/commit/3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+            "commitHash": "3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+            "buildHref": "https://github.com/yasser59100/programme-kine/actions/runs/40071614355"
+          },
+          "gitCommit": {
+            "shortHash": "3a4dac1",
+            "hash": "3a4dac1b5c25ff793fb2e3598134a8b413a2dc88",
+            "subject": "Voix off : une seule prise, format standard",
+            "body": "Voix off : une seule prise, format standard\n\nCo-Authored-By: Claude <noreply@anthropic.com>\n",
+            "author": {
+              "name": "Claude pour Yasser",
+              "email": "yasser59100@users.noreply.github.com",
+              "time": 1792824466000
+            },
+            "committer": {
+              "name": "Claude pour Yasser",
+              "email": "yasser59100@users.noreply.github.com",
+              "time": 1792824466000
+            },
+            "branch": "video-voix"
+          },
+          "actualWorkers": 2
+        },
+        "id": "android",
+        "name": "android",
+        "testDir": "/home/runner/work/programme-kine/programme-kine/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.0",
+    "workers": 2,
+    "webServer": {
+      "command": "python3 -m http.server 8080 --directory ..",
+      "url": "http://127.0.0.1:8080/index.html",
+      "reuseExistingServer": true,
+      "stdout": "ignore",
+      "stderr": "ignore"
+    }
+  },
+  "suites": [
+    {
+      "title": "app.spec.js",
+      "file": "app.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "accueil et ouverture",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18248,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:48:46.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 22720,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:48:46.170Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-4c9e8704a5fba4bde1e4",
+          "file": "app.spec.js",
+          "line": 23,
+          "column": 1
+        },
+        {
+          "title": "onglets",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21859,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:49:05.355Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 35884,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:49:09.144Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-4160d606800d6e19264e",
+          "file": "app.spec.js",
+          "line": 33,
+          "column": 1
+        },
+        {
+          "title": "exercices : recherche et bibliothèque",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14187,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:49:27.269Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 38969,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:49:45.088Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-353c20ef0d27f773c120",
+          "file": "app.spec.js",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "vrai ou faux",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11379,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:49:41.486Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 23478,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:50:24.086Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-1e57691840f0f2ddf9db",
+          "file": "app.spec.js",
+          "line": 63,
+          "column": 1
+        },
+        {
+          "title": "caméra, bilan et réglages",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13466,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:49:52.913Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 17905,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:50:47.587Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-31c04c05d24c30012d46",
+          "file": "app.spec.js",
+          "line": 79,
+          "column": 1
+        },
+        {
+          "title": "programmes ciblés et journal de course",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13362,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:50:06.406Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 14931,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:51:05.513Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-9473b335bbf0dae0b796",
+          "file": "app.spec.js",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "mode salle de sport : charge, séries et progression",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10505,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:50:19.797Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 11245,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:51:20.462Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-ef415652a1d001203e41",
+          "file": "app.spec.js",
+          "line": 114,
+          "column": 1
+        },
+        {
+          "title": "nouveaux exercices et schémas animés",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "iphone",
+              "projectName": "iphone",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11469,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:50:30.341Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            },
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "android",
+              "projectName": "android",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 15400,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T06:51:31.734Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a510cc93a867214a2ea0-0b1d15c0585cc2e630fc",
+          "file": "app.spec.js",
+          "line": 154,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T06:48:45.302Z",
+    "duration": 181914.548,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
