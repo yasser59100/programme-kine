@@ -528,6 +528,34 @@ var KineParcours = (function () {
       { id: "tests", t: "Tests positifs", multi: 1, ch: [["lachman", "Lachman"], ["pivotshift", "Pivot shift"], ["valgus", "Douleur ou laxité en valgus à 30°"], ["interligne", "Douleur à la palpation de l'interligne"], ["mcmurray", "McMurray ou Thessaly"], ["tendon", "Palpation douloureuse du tendon rotulien"], ["declive", "Squat déclive douloureux au tendon"], ["crepit", "Crépitements"]] }
     ]
   };
+  /* Description des tests cliniques (appui long dans le guide) */
+  var TESTS = {
+    lachman: { n: "Test de Lachman", how: "Patient sur le dos, genou fléchi à 20-30°. Une main stabilise la cuisse, l'autre tire le haut du tibia vers l'avant. Comparer au côté sain.",
+      pos: "Translation antérieure du tibia plus grande que du côté sain, avec un arrêt mou ou absent.", neg: "Translation symétrique avec un arrêt dur.",
+      val: "Test clinique le plus sensible de la rupture du LCA (sensibilité de l'ordre de 85 %, spécificité de l'ordre de 94 %). Moins fiable sur un genou très gonflé ou douloureux : le refaire à distance.", src: "benj" },
+    pivotshift: { n: "Pivot shift (ressaut rotatoire)", how: "Patient sur le dos, genou en extension. Rotation interne du tibia et contrainte en valgus, puis flexion progressive du genou.",
+      pos: "Ressaut perçu vers 20 à 40° de flexion : le tibia subluxé se réduit.", neg: "Aucun ressaut.",
+      val: "Très spécifique (de l'ordre de 98 %) mais peu sensible chez le patient éveillé (de l'ordre de 24 %) : positif, il confirme presque ; négatif, il n'exclut rien (défense musculaire).", src: "benj" },
+    valgus: { n: "Contrainte en valgus à 30°", how: "Patient sur le dos, genou fléchi à 30°. Une main à la face externe du genou, l'autre pousse la cheville vers l'extérieur. Refaire genou en extension complète.",
+      pos: "Douleur sur le trajet du ligament latéral interne et/ou bâillement interne plus grand que du côté sain.", neg: "Ni douleur ni laxité.",
+      val: "Grade 1 : douleur sans laxité. Grade 2 : laxité avec un arrêt. Grade 3 : laxité sans arrêt net. Laxité aussi en extension complète : penser à une lésion associée (LCA, point d'angle postéro-interne).", src: "logLig" },
+    interligne: { n: "Palpation de l'interligne", how: "Genou fléchi à 90°, palper l'interligne articulaire interne puis externe, d'avant en arrière.",
+      pos: "Douleur qui reproduit la douleur du patient sur l'interligne.", neg: "Palpation indolore.",
+      val: "Assez sensible pour une lésion méniscale mais peu spécifique (arthrose, ligament latéral interne). Utile en association avec l'interrogatoire et les autres tests.", src: "decary" },
+    mcmurray: { n: "McMurray ou Thessaly", how: "McMurray : genou en flexion maximale, rotation du tibia (externe pour le ménisque interne, interne pour l'externe), puis extension progressive. Thessaly : debout sur la jambe atteinte, genou fléchi à 20°, le patient tourne le corps trois fois de chaque côté, mains tenues par le kiné.",
+      pos: "Claquement douloureux, douleur de l'interligne, sensation d'accrochage ou de blocage.", neg: "Ni douleur de l'interligne ni accrochage.",
+      val: "Valeur modeste quand le test est utilisé seul. L'association d'éléments de l'histoire (torsion, accrochages, gonflement retardé) et de plusieurs signes d'examen est plus informative.", src: "decary" },
+    tendon: { n: "Palpation du tendon rotulien", how: "Genou en extension, quadriceps relâché. Palper le tendon rotulien, surtout au bord inférieur de la rotule.",
+      pos: "Douleur localisée qui reproduit la douleur habituelle du patient.", neg: "Palpation indolore.",
+      val: "Sensible mais peu spécifique : la palpation est souvent sensible chez des sportifs sans douleur. À associer à une douleur liée à la charge (sauts, impulsion).", src: "malliaras" },
+    declive: { n: "Squat déclive sur une jambe", how: "Debout sur la jambe atteinte sur un plan incliné à 25°, descendre en squat jusqu'à environ 60° de flexion.",
+      pos: "Douleur localisée au tendon rotulien, sous la pointe de la rotule.", neg: "Pas de douleur au tendon.",
+      val: "Test de charge du tendon. Sert aussi à suivre l'évolution : noter la douleur de 0 à 10 à chaque bilan.", src: "malliaras" },
+    crepit: { n: "Crépitements", how: "Palper le genou pendant la flexion-extension active ou passive.",
+      pos: "Crépitations ou craquements palpables.", neg: "Mouvement fluide, sans crépitation.",
+      val: "Signe d'appoint de l'arthrose, à associer à l'âge, à la douleur liée à l'activité et à la raideur matinale courte. Peu spécifique isolé.", src: "nice" }
+  };
+
   function guide(ans) {
     ans = ans || {};
     var has = function (k, v) { var x = ans[k]; return Array.isArray(x) ? x.indexOf(v) >= 0 : x === v; };
@@ -588,7 +616,7 @@ var KineParcours = (function () {
   }
 
   return {
-    M: M, P: P, ORDER: ORDER, SRC: SRC, ALERTES: ALERTES_GENOU, GUIDE: GUIDE,
+    M: M, P: P, ORDER: ORDER, SRC: SRC, ALERTES: ALERTES_GENOU, GUIDE: GUIDE, TESTS: TESTS,
     get: function (id) { return P[id] || null; },
     list: function () { return ORDER.map(function (id) { return { id: id, nom: P[id].nom }; }); },
     best: best, val: val, lsi: lsi, lastWith: lastWith, firstWith: firstWith, evalObj: evalObj, exos: exos, guide: guide, fmt: fmt, days: days

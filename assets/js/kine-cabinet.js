@@ -412,32 +412,73 @@ var KineCabinet = (function () {
   function inclClose() { window.removeEventListener("deviceorientation", onOri); var el = $("kcb-incl"); if (el) el.classList.remove("open"); I = null; }
 
   /* ════════ Guide d'orientation du genou ════════ */
+  var G_SEC = [["Interrogatoire", ["trauma", "age", "zone", "signes"]], ["Examen clinique", ["tests"]]];
   function guide(forWho) {
     gFor = forWho; gAns = gAns || { alertes: [] };
-    var G = KP.GUIDE, r = KP.guide(gAns);
+    var G = KP.GUIDE, r = KP.guide(gAns), Q = {}; G.q.forEach(function (x) { Q[x.id] = x; });
+    var nAl = gAns.alertes.length;
     var html = top(forWho === "new" ? "KineCabinet.nouveau()" : forWho ? "KineCabinet.fiche(" + q(forWho) + ")" : "KineCabinet.open()", "Guide d'orientation") +
-      "<div><div class='kf-h1 kcb-h1'>Genou sans diagnostic</div><div class='kf-sub'>Coche ce que tu observes. Le guide propose des pistes, classées, avec leurs raisons. C'est une aide au raisonnement, pas un diagnostic.</div></div>" +
-      "<div class='su-card'><b>Signes d'alerte</b>" + G.alertes.map(function (a) { var on = gAns.alertes.indexOf(a.id) >= 0; return "<button class='kcb-obj" + (on ? " warn" : "") + "' onclick='KineCabinet.gA(" + q(a.id) + ")' aria-pressed='" + on + "'><i>" + (on ? "!" : "") + "</i><span>" + esc(a.t) + "</span></button>"; }).join("") + "</div>" +
-      G.q.map(function (x) {
-        return "<div class='su-card'><b>" + esc(x.t) + "</b><div class='kf-chips'>" + x.ch.map(function (c) {
-          var v = gAns[x.id], on = x.multi ? (v || []).indexOf(c[0]) >= 0 : v === c[0];
-          return "<button type='button' class='" + (on ? "sel" : "") + "' onclick='KineCabinet.gQ(" + q(x.id) + "," + q(c[0]) + "," + (x.multi ? 1 : 0) + ")'>" + esc(c[1]) + "</button>"; }).join("") + "</div></div>";
-      }).join("");
-    html += "<div class='kcb-v2h'>Pistes</div>";
+      "<div><div class='kf-h1 kcb-h1'>Genou sans diagnostic</div><div class='kf-sub'>Coche ce que tu observes : le guide classe les pistes et explique pourquoi. Une aide au raisonnement, pas un diagnostic.</div></div>";
+    // 1. alertes
+    html += "<section class='kgd-sec" + (nAl ? " alert" : "") + "'><div class='kgd-h'><i>1</i><b>Signes d'alerte</b><span>" + (nAl ? nAl + " coché" + (nAl > 1 ? "s" : "") : "à écarter d'abord") + "</span></div>" +
+      G.alertes.map(function (a) { var on = gAns.alertes.indexOf(a.id) >= 0; return "<button class='kgd-al" + (on ? " on" : "") + "' onclick='KineCabinet.gA(" + q(a.id) + ")' aria-pressed='" + on + "'><i>" + (on ? "!" : "") + "</i><span>" + esc(a.t) + "</span></button>"; }).join("") + "</section>";
+    // 2 et 3. interrogatoire et examen
+    G_SEC.forEach(function (sec, si) {
+      html += "<section class='kgd-sec'><div class='kgd-h'><i>" + (si + 2) + "</i><b>" + esc(sec[0]) + "</b>" + (sec[1][0] === "tests" ? "<span>appui long : description</span>" : "") + "</div>" +
+        sec[1].map(function (id) {
+          var x = Q[id];
+          return "<div class='kgd-q'><span class='kcb-lab'>" + esc(x.t) + (x.multi ? " <em>plusieurs choix</em>" : "") + "</span><div class='kf-chips kgd-chips'>" + x.ch.map(function (c) {
+            var v = gAns[x.id], on = x.multi ? (v || []).indexOf(c[0]) >= 0 : v === c[0], info = id === "tests" && KP.TESTS[c[0]];
+            return "<button type='button' class='" + (on ? "sel" : "") + (info ? " kgd-t" : "") + "'" + (info ? " data-t='" + c[0] + "'" : "") + " onclick='KineCabinet.gQ(" + q(x.id) + "," + q(c[0]) + "," + (x.multi ? 1 : 0) + ",this)'>" + esc(c[1]) + (info ? "<i aria-hidden='true'>?</i>" : "") + "</button>"; }).join("") + "</div></div>";
+        }).join("") + "</section>";
+    });
+    // pistes
+    html += "<div class='kcb-v2h' id='kgd-res'>Pistes</div>";
     if (r.alertes.length) html += r.alertes.map(function (a) { return "<div class='kcb-alert'><b>" + esc(a.d) + "</b><span>" + esc(a.t) + "</span></div>"; }).join("");
-    if (!r.pistes.length) html += "<div class='kf-note'>Pas assez d'éléments pour une piste. Le parcours « Genou, sans diagnostic précis » permet de commencer en attendant.</div>";
+    if (!r.pistes.length) html += "<div class='kgd-empty'><b>Pas encore de piste</b><span>Renseigne l'interrogatoire et les tests. Sans piste claire, le parcours « Genou, sans diagnostic précis » permet de commencer.</span></div>";
+    var mx = r.pistes.length ? r.pistes[0].score : 1;
     html += r.pistes.map(function (p, i) {
-      return "<div class='su-card kcb-piste'><div class='su-card-h'><b>" + (i + 1) + ". " + esc(p.nom) + "</b><span>" + (i === 0 ? "la plus probable" : "") + "</span></div><div class='kf-sub'>Parce que : " + esc(p.why.join(", ")) + ".</div><div class='kcb-hint'>" + esc(p.note) + "</div>" +
-        (gFor ? "<button class='seq-btn-secondary' onclick='KineCabinet.gUse(" + q(p.parcours) + ")'>Utiliser le parcours « " + esc(KP.P[p.parcours].nom) + " »</button>" : "") + "</div>";
+      return "<div class='kgd-p" + (i === 0 ? " first" : "") + "'><div class='kgd-ph'><i>" + (i + 1) + "</i><div><b>" + esc(p.nom) + "</b><span>" + (i === 0 ? "Piste principale" : "Autre piste") + "</span></div></div>" +
+        "<div class='kgd-bar'><u style='width:" + Math.round(p.score / mx * 100) + "%'></u></div>" +
+        "<div class='kgd-why'>" + p.why.map(function (w) { return "<span>" + esc(w) + "</span>"; }).join("") + "</div>" +
+        "<div class='kgd-note'>" + esc(p.note) + "</div>" +
+        (gFor ? "<button class='" + (i === 0 ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.gUse(" + q(p.parcours) + ")'>Parcours « " + esc(KP.P[p.parcours].nom) + " »</button>" : "") + "</div>";
     }).join("");
     if (gFor) html += "<button class='v2-row' onclick='KineCabinet.gUse(\"genou\")'><b>Parcours genou sans diagnostic précis</b><span>›</span></button>";
-    html += "<details class='kf-acc kcb-acc'><summary>Sources</summary><ul class='kcb-src'>" + ["stiell", "benj", "decary", "nice"].map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul></details>";
+    html += "<details class='kf-acc kcb-acc'><summary>Sources</summary><ul class='kcb-src'>" + ["stiell", "benj", "decary", "nice", "malliaras", "logLig"].map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul></details>";
+    var p0 = r.pistes[0], foot = "<div class='kgd-foot'><div><span>" + (r.alertes.length ? "Signe d'alerte" : p0 ? "Piste principale" : "Pistes") + "</span><b>" + esc(r.alertes.length ? "Avis médical d'abord" : p0 ? p0.nom : "à compléter") + "</b></div>" +
+      "<button class='kcb-cta' onclick='KineCabinet.gGo()'>Voir</button><button class='kcb-link' onclick='KineCabinet.gReset()'>Effacer</button></div>";
     var y = sheet().classList.contains("open") ? sheet().scrollTop : 0;
-    show(html, "<button class='seq-btn-secondary' onclick='KineCabinet.gReset()'>Tout effacer</button>");
+    show(html, foot);
     sheet().scrollTop = y;
+    holdWire();
+  }
+  function gGo() { var el = $("kgd-res"); if (el) sheet().scrollTo({ top: el.offsetTop - 12, behavior: "smooth" }); }
+  // Appui long sur un test : sa description, ce qui le rend positif ou négatif, sa valeur diagnostique
+  var holdT = null, held = false;
+  function holdWire() {
+    [].forEach.call(sheet().querySelectorAll(".kgd-t"), function (b) {
+      var start = function () { held = false; clearTimeout(holdT); holdT = setTimeout(function () { held = true; if (navigator.vibrate) try { navigator.vibrate(12); } catch (e) {} testInfo(b.getAttribute("data-t")); }, 480); };
+      var stop = function () { clearTimeout(holdT); };
+      b.addEventListener("pointerdown", start); b.addEventListener("pointerup", stop); b.addEventListener("pointerleave", stop); b.addEventListener("pointercancel", stop);
+      b.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    });
+  }
+  function testInfo(id) {
+    var t0 = KP.TESTS[id]; if (!t0) return;
+    var t = {}; Object.keys(t0).forEach(function (k) { t[k] = String(t0[k]).replace(/ ([%:;?!])/g, "\u00a0$1"); });
+    var el = $("kcb-tinfo"); if (!el) { el = document.createElement("div"); el.id = "kcb-tinfo"; el.className = "kcb-incl-ov"; el.setAttribute("role", "dialog"); el.onclick = function (e) { if (e.target === el) el.classList.remove("open"); }; document.body.appendChild(el); }
+    el.setAttribute("aria-label", t.n);
+    el.innerHTML = "<div class='kcb-incl-card kgd-info'><div class='kcb-mh'><span class='kgd-in'>" + esc(t.n) + "</span><button class='kf-back' onclick='document.getElementById(\"kcb-tinfo\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" +
+      "<div class='kgd-ib'><b>Comment</b><p>" + esc(t.how) + "</p></div>" +
+      "<div class='kgd-ib pos'><b>Positif si</b><p>" + esc(t.pos) + "</p></div>" +
+      "<div class='kgd-ib neg'><b>Négatif si</b><p>" + esc(t.neg) + "</p></div>" +
+      "<div class='kgd-ib'><b>Ce qu'il vaut</b><p>" + esc(t.val) + "</p></div>" +
+      (t.src && KP.SRC[t.src] ? "<p class='kcb-hint'>" + esc(KP.SRC[t.src]) + "</p>" : "") + "</div>";
+    el.classList.add("open");
   }
   function gA(id) { var a = gAns.alertes, i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); guide(gFor); }
-  function gQ(k, v, multi) { if (multi) { var a = gAns[k] = gAns[k] || [], i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); } else gAns[k] = gAns[k] === v ? null : v; guide(gFor); }
+  function gQ(k, v, multi, btn) { if (held && btn && btn.classList.contains("kgd-t")) { held = false; return; } if (multi) { var a = gAns[k] = gAns[k] || [], i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); } else gAns[k] = gAns[k] === v ? null : v; guide(gFor); }
   function gReset() { gAns = { alertes: [] }; guide(gFor); }
   function gUse(pid) {
     if (gFor === "new") { nouveau(pid); return; }
@@ -452,7 +493,7 @@ var KineCabinet = (function () {
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
     incl: incl, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
-    guide: guide, gA: gA, gQ: gQ, gReset: gReset, gUse: gUse,
+    guide: guide, gA: gA, gQ: gQ, gReset: gReset, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2
   };
 })();

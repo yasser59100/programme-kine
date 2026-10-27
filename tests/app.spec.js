@@ -182,6 +182,12 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await page.evaluate(() => KineCabinet.saveBilan());
   await expect(page.locator("#kcb-sheet .kcb-obj.done")).toHaveCount(2);
   await shot(page, info, "20-cabinet-fiche");
+  // guide : description d'un test (appui long)
+  await page.evaluate(() => { KineCabinet.guide(null); KineCabinet.testInfo("lachman"); });
+  await expect(page.locator("#kcb-tinfo .kgd-ib.pos")).toBeVisible();
+  expect(await page.evaluate(() => Object.keys(KineParcours.TESTS).every(k => KineParcours.GUIDE.q.filter(x => x.id === "tests")[0].ch.some(c => c[0] === k)))).toBe(true);
+  await page.evaluate((pid) => { document.getElementById("kcb-tinfo").classList.remove("open"); KineCabinet.fiche(pid); }, pid);
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
   await page.evaluate(() => { KineCabinet.pick("Pont de hanche"); KineCabinet.pick("Équilibre unipodal"); KineCabinet.sendExos(); });
   await page.waitForTimeout(300);
   // côté patient
