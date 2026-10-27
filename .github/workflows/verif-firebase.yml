@@ -9,23 +9,20 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Tester les regles comme un telephone (sans compte)
+      - name: Tester les nouvelles règles en ligne (téléphone anonyme)
         run: |
-          B="https://firestore.googleapis.com/v1/projects/programme-kine/databases/(default)/documents"
+          K="AIzaSyCI7fwNeTl-2kYNnlpjr0IatLvQbppsUgg"; P="projects/programme-kine/databases/(default)/documents"
+          R=$(curl -s -X POST "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$K" -H "Content-Type: application/json" -d '{"returnSecureToken":true}')
+          TOK=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin).get('idToken',''))"); UID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin).get('localId',''))")
           {
-            echo "== lecture config/push (doit marcher)"; curl -s "$B/config/push" | head -c 300; echo
-            echo "== lecture programme/officiel (doit marcher)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/programme/officiel"
-            echo "== lecture des abonnements push (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/push"
-            echo "== ecriture programme sans compte (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"x":{"stringValue":"test"}}}' "$B/programme/test-verif"
-            echo "== abonnement mal forme (doit etre refuse)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"hour":{"integerValue":"3"}}}' "$B/push/test-verif"
-            echo "== rapport de bug valide (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"auto"},"m":{"stringValue":"TEST de verification, a ignorer"},"ua":{"stringValue":"verif-github"},"v":{"stringValue":"test"}}}' "$B/bugs"
-            echo "== lecture des rapports sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/bugs"
-            echo "== rapport mal forme (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"pirate"},"m":{"stringValue":"x"},"ua":{"stringValue":"x"}}}' "$B/bugs"
-            P="projects/programme-kine/databases/(default)/documents"; R=$(date +%s)
-            echo "== statistiques valides (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"writes":[{"update":{"name":"'"$P"'/stats/verif-'"$R"'","fields":{"s":{"stringValue":"verif"},"v":{"stringValue":"test"},"d":{"stringValue":"autre"},"i":{"booleanValue":false},"e":{"arrayValue":{"values":[{"stringValue":"o|verif|0"}]}}}},"updateTransforms":[{"fieldPath":"t","setToServerValue":"REQUEST_TIME"}],"currentDocument":{"exists":false}}]}' "https://firestore.googleapis.com/v1/$P:commit"
-            echo "== lecture des statistiques sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/stats"
-            echo "== statistiques mal formees (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"s":{"stringValue":"x"},"nom":{"stringValue":"Jean"}}}' "$B/stats"
-            echo "== messages publics contenant un e-mail (doit etre 0)"; curl -s "$B/messages?pageSize=300" | grep -c '"email"' || true
+            echo "== connexion anonyme : $([ -n "$TOK" ] && echo OK || echo ECHEC)"
+            echo "== demande d'accès (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" -d '{"writes":[{"update":{"name":"'"$P"'/demandes/'"$UID"'","fields":{"prenom":{"stringValue":"Test"},"nom":{"stringValue":"Verification"},"msg":{"stringValue":"a ignorer"}}},"updateTransforms":[{"fieldPath":"t","setToServerValue":"REQUEST_TIME"}]}]}' "https://firestore.googleapis.com/v1/$P:commit"
+            echo "== relire sa demande (200)"; curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes/$UID"
+            echo "== lister les demandes (403)"; curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes"
+            echo "== lister les fiches patients (403)"; curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/patients"
+            echo "== effacer sa demande de test (200)"; curl -s -o /dev/null -w "%{http_code}\n" -X DELETE -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes/$UID"
           } > /tmp/verif.txt 2>&1
+          cat /tmp/verif.txt
           git config user.name "github-actions" && git config user.email "actions@github.com"
-          git checkout -q -B diag && cp /tmp/verif.txt tools/verif_firebase.txt && git add tools/verif_firebase.txt && git commit -q -m "Verif [skip ci]" && git push -q -f origin diag
+          git fetch -q origin diag || true
+          git checkout -q -B d2 origin/diag && cp /tmp/verif.txt tools/verif_regles.txt && git add tools/verif_regles.txt && git commit -q -m "Verif [skip ci]" && git push -q origin d2:diag
