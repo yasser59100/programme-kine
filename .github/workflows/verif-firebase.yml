@@ -25,4 +25,4 @@ jobs:
           cat /tmp/verif.txt
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git fetch -q origin diag || true
-          git checkout -q -B d2 origin/diag && cp /tmp/verif.txt tools/verif_regles.txt && git add tools/verif_regles.txt && git commit -q -m "Verif [skip ci]" && git push -q origin d2:diag
+          git checkout -q -B d2 FETCH_HEAD && mkdir -p tools && cp /tmp/verif.txt tools/verif_regles.txt && git add tools/verif_regles.txt && git commit -q -m "Verif [skip ci]" && git push -q origin d2:diag
