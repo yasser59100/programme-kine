@@ -37,7 +37,7 @@ await t("le patient envoie son résumé", assertSucceeds(setDoc(doc(patient, "pa
 await t("résumé avec champ en trop refusé", assertFails(setDoc(doc(patient, "patients/p1/maison/2026-W44"), { w: "2026-W44", n: 3, nom: "Jean", t: serverTimestamp() })));
 await t("un autre téléphone ne lit pas la fiche", assertFails(getDoc(doc(intrus, "patients/p1"))));
 await t("un autre téléphone n'écrit pas de résumé", assertFails(setDoc(doc(intrus, "patients/p1/maison/2026-W44"), { w: "2026-W44", n: 1, t: serverTimestamp() })));
-await t("code déjà utilisé : plus lisible", assertFails(getDoc(doc(intrus, "codes/ABC234")).then(s => { if (!s.exists()) throw new Error("absent"); })));
+await t("code déjà utilisé : supprimé", getDoc(doc(intrus, "codes/ABC234")).then(s => { if (s.exists()) throw new Error("le code existe encore"); }));
 await t("le kiné lit tout", assertSucceeds(getDocs(collection(kine, "patients/p1/maison"))));
 await env.cleanup();
 console.log(ok + " réussis, " + ko + " échoués");
