@@ -4,33 +4,28 @@ on:
 permissions:
   contents: write
 jobs:
-  anonyme:
+  verif:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Tester puis activer la connexion anonyme des patients
-        env:
-          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+      - name: Tester les regles comme un telephone (sans compte)
         run: |
-          K="AIzaSyCI7fwNeTl-2kYNnlpjr0IatLvQbppsUgg"
-          t() { curl -s -X POST "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$K" -H "Content-Type: application/json" -d '{"returnSecureToken":true}' | python3 -c "import sys,json; d=json.load(sys.stdin); print('OK' if 'idToken' in d else 'REFUS '+str(d.get('error',{}).get('message')))"; }
-          { echo "== avant"; t; } > /tmp/out.txt
-          if ! grep -q "^OK" /tmp/out.txt && [ -n "$FIREBASE_SA" ]; then
-            pip -q install google-auth requests >/dev/null 2>&1
-            printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
-            python3 - "$RUNNER_TEMP/sa.json" >> /tmp/out.txt 2>&1 <<'PY'
-          import sys, google.oauth2.service_account as sa, google.auth.transport.requests as tr, requests
-          c = sa.Credentials.from_service_account_file(sys.argv[1], scopes=["https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/firebase"])
-          c.refresh(tr.Request())
-          r = requests.patch("https://identitytoolkit.googleapis.com/admin/v2/projects/programme-kine/config?updateMask=signIn.anonymous.enabled",
-                             headers={"Authorization": "Bearer " + c.token, "Content-Type": "application/json"}, json={"signIn": {"anonymous": {"enabled": True}}})
-          print("== activation", r.status_code, r.text[:300].replace(c.token, "x"))
-          PY
-            rm -f "$RUNNER_TEMP/sa.json"
-            { echo "== apres"; t; } >> /tmp/out.txt
-          fi
-          cat /tmp/out.txt
+          B="https://firestore.googleapis.com/v1/projects/programme-kine/databases/(default)/documents"
+          {
+            echo "== lecture config/push (doit marcher)"; curl -s "$B/config/push" | head -c 300; echo
+            echo "== lecture programme/officiel (doit marcher)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/programme/officiel"
+            echo "== lecture des abonnements push (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/push"
+            echo "== ecriture programme sans compte (doit etre refusee)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"x":{"stringValue":"test"}}}' "$B/programme/test-verif"
+            echo "== abonnement mal forme (doit etre refuse)"; curl -s -o /dev/null -w "%{http_code}\n" -X PATCH -H "Content-Type: application/json" -d '{"fields":{"hour":{"integerValue":"3"}}}' "$B/push/test-verif"
+            echo "== rapport de bug valide (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"auto"},"m":{"stringValue":"TEST de verification, a ignorer"},"ua":{"stringValue":"verif-github"},"v":{"stringValue":"test"}}}' "$B/bugs"
+            echo "== lecture des rapports sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/bugs"
+            echo "== rapport mal forme (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"k":{"stringValue":"pirate"},"m":{"stringValue":"x"},"ua":{"stringValue":"x"}}}' "$B/bugs"
+            P="projects/programme-kine/databases/(default)/documents"; R=$(date +%s)
+            echo "== statistiques valides (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"writes":[{"update":{"name":"'"$P"'/stats/verif-'"$R"'","fields":{"s":{"stringValue":"verif"},"v":{"stringValue":"test"},"d":{"stringValue":"autre"},"i":{"booleanValue":false},"e":{"arrayValue":{"values":[{"stringValue":"o|verif|0"}]}}}},"updateTransforms":[{"fieldPath":"t","setToServerValue":"REQUEST_TIME"}],"currentDocument":{"exists":false}}]}' "https://firestore.googleapis.com/v1/$P:commit"
+            echo "== lecture des statistiques sans compte (doit etre refusee : 403)"; curl -s -o /dev/null -w "%{http_code}\n" "$B/stats"
+            echo "== statistiques mal formees (doit etre refuse : 403)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Content-Type: application/json" -d '{"fields":{"s":{"stringValue":"x"},"nom":{"stringValue":"Jean"}}}' "$B/stats"
+            echo "== messages publics contenant un e-mail (doit etre 0)"; curl -s "$B/messages?pageSize=300" | grep -c '"email"' || true
+          } > /tmp/verif.txt 2>&1
           git config user.name "github-actions" && git config user.email "actions@github.com"
-          git fetch -q origin diag || true
-          git checkout -q -B diag && mkdir -p tools && cp /tmp/out.txt tools/anonyme.txt && git add tools/anonyme.txt && git commit -q -m "Anonyme [skip ci]" && git push -q -f origin diag
+          git checkout -q -B diag && cp /tmp/verif.txt tools/verif_firebase.txt && git add tools/verif_firebase.txt && git commit -q -m "Verif [skip ci]" && git push -q -f origin diag
