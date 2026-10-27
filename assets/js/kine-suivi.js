@@ -68,6 +68,7 @@
     var last = pp[0];
     box.innerHTML =
       "<div class='su-head'><div class='kf-h1'>Mon suivi</div><div class='kf-sub'>Semaine " + st.week + " sur 4" + (st.start ? ", depuis le " + dateFr(st.start, false) : "") + "</div></div>" +
+      "<div id='kms-slot'></div>" +
       "<div class='kf-stats'>" +
         "<div class='kf-stat'><b>" + cycle.length + "</b><span>séance" + (cycle.length > 1 ? "s" : "") + " faite" + (cycle.length > 1 ? "s" : "") + "</span></div>" +
         "<div class='kf-stat'><b>" + week + "/5</b><span>cette semaine</span></div>" +
@@ -79,7 +80,7 @@
         "<div class='su-dec'>" + esc(cap(last.action)) + "</div></div><span aria-hidden='true'>›</span></button>" : "") +
       "<div class='v2-other'>" +
         "<button class='v2-row' onclick='KineSuivi.open(\"historique\")'><b>Historique des séances</b><span>›</span></button>" +
-        "<button class='v2-row' onclick='KineSuivi.open(\"douleurs\")'><b>Douleurs signalées</b><span>›</span></button></div>" +
+        "<button class='v2-row' onclick='KineSuivi.open(\"douleurs\")'><b>Douleurs signalées</b><span>›</span></button>" + (window.KineMonSuivi ? KineMonSuivi.rowHtml() : "") + "</div>" +
       "<button class='today-go su-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer à mon kiné</button>" +
       "<div class='v2-h' style='margin-top:22px'>Mes badges</div>";
     // Les badges existants se placent juste après
@@ -87,6 +88,7 @@
     if (badges && badges.previousElementSibling !== box) { box.parentNode.insertBefore(badges, box.nextSibling); }
     var bt = badges && badges.previousElementSibling && badges.previousElementSibling.classList && badges.previousElementSibling.classList.contains("sec-title") ? badges.previousElementSibling : null;
     if (bt) bt.remove();
+    if (window.KineMonSuivi) KineMonSuivi.slot();
   }
   function cap(t) { t = String(t || ""); return t.charAt(0).toUpperCase() + t.slice(1); }
 

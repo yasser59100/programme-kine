@@ -1,0 +1,28 @@
+// Base en mémoire qui imite fbCab / fbPat (tests du suivi au cabinet, sans Firebase)
+window.__db = { patients: {}, codes: {} };
+(function(){
+  var D = window.__db, n = 0;
+  function id(){ return "p" + (++n) + Math.random().toString(36).slice(2,6); }
+  function full(pid){ var p = D.patients[pid]; if(!p) return null; var o = JSON.parse(JSON.stringify(p.doc)); o.id = pid;
+    o.bilans = Object.keys(p.bilans).map(function(k){ var b = JSON.parse(JSON.stringify(p.bilans[k])); b.id=k; return b; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; });
+    o.seances = Object.keys(p.seances).map(function(k){ var b = JSON.parse(JSON.stringify(p.seances[k])); b.id=k; return b; }).sort(function(a,b){ return a.d < b.d ? 1 : (a.d > b.d ? -1 : (a.id < b.id ? 1 : -1)); });
+    o.maison = Object.keys(p.maison).map(function(k){ return p.maison[k]; }); o.membres = p.membres; o.notes = Object.keys(p.notes).map(function(k){ var x=p.notes[k]; x.id=k; return x; }); return o; }
+  var R = function(v){ return new Promise(function(r){ setTimeout(function(){ r(v); }, 30); }); };
+  window.fbCab = {
+    list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = JSON.parse(JSON.stringify(D.patients[k].doc)); o.id=k; return o; })); },
+    get: function(pid){ return R(full(pid)); },
+    create: function(d){ var k = id(); D.patients[k] = { doc: d, bilans: {}, seances: {}, maison: {}, notes: {}, membres: 0 }; return R(k); },
+    save: function(pid, d){ Object.assign(D.patients[pid].doc, JSON.parse(JSON.stringify(d))); return R(); },
+    bilan: function(pid, bid, d){ bid = bid || id(); D.patients[pid].bilans[bid] = JSON.parse(JSON.stringify(d)); return R(bid); },
+    bilanDel: function(pid, bid){ delete D.patients[pid].bilans[bid]; return R(); },
+    seance: function(pid, d){ var k = id(); D.patients[pid].seances[k] = JSON.parse(JSON.stringify(d)); return R(k); },
+    note: function(pid, sid, d){ D.patients[pid].notes[sid] = d; return R(); },
+    code: function(pid){ var c = "K7M2QX"; D.codes[c] = pid; D.patients[pid].doc.code = c; D.patients[pid].doc.codeExp = new Date(Date.now()+14*864e5).toISOString(); return R(c); },
+    remove: function(pid){ delete D.patients[pid]; return R(); }
+  };
+  window.fbPat = {
+    join: function(c){ var pid = D.codes[c]; if(!pid) return Promise.reject(new Error("code")); D.patients[pid].membres = 1; delete D.codes[c]; return R(pid); },
+    get: function(pid){ var o = full(pid); if (o) { delete o.notes; } return R(o); },
+    home: function(pid, w, d){ d.w = w; D.patients[pid].maison[w] = d; return R(); }
+  };
+})();

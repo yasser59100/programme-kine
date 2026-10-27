@@ -151,6 +151,50 @@ test("mode salle de sport : charge, séries et progression", async ({ page }, in
   await clean(errs);
 });
 
+test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  // contenu : chaque exercice proposé existe dans la bibliothèque, chaque mesure et source existe
+  const miss = await page.evaluate(() => {
+    const m = [];
+    KineParcours.ORDER.forEach(id => { const P = KineParcours.P[id];
+      if (!KineBiblio.find(P.ref)) m.push(id + " ref");
+      P.mes.forEach(x => { if (!KineParcours.M[x]) m.push(id + " " + x); }); P.src.forEach(x => { if (!KineParcours.SRC[x]) m.push(id + " src " + x); });
+      P.etapes.forEach((e, i) => KineParcours.exos(id, i, {}).forEach(n => { if (!KineBiblio.find(n)) m.push(id + " " + n); })); });
+    return m;
+  });
+  expect(miss).toEqual([]);
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-cta")).toBeVisible();
+  await page.evaluate(() => KineCabinet.nouveau());
+  await page.fill("#kcb-alias", "S.B.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.set("date0", "2026-01-10", 1); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.bilan());
+  await page.fill("input[data-m=flex][data-s=a][data-i='0']", "115");
+  await page.fill("input[data-m=ext][data-s=a][data-i='0']", "-2");
+  await page.fill("input[data-m=ext][data-s=s][data-i='0']", "0");
+  await page.evaluate(() => KineCabinet.saveBilan());
+  await expect(page.locator("#kcb-sheet .kcb-obj.done")).toHaveCount(2);
+  await shot(page, info, "20-cabinet-fiche");
+  await page.evaluate(() => { KineCabinet.pick("Pont de hanche"); KineCabinet.pick("Équilibre unipodal"); KineCabinet.sendExos(); });
+  await page.waitForTimeout(300);
+  // côté patient
+  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.fill("#kms-code", "K7M2QX");
+  await page.evaluate(() => KineMonSuivi.doJoin());
+  await expect(page.locator("#kms-sheet .kms-et.now")).toBeVisible();
+  await shot(page, info, "21-cabinet-patient");
+  const custom = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine").map(x => x.ex.length)[0]);
+  expect(custom).toBe(2);
+  await clean(errs);
+});
+
 test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());

@@ -73,5 +73,59 @@ service cloud.firestore {
         && request.resource.data.sub.endpoint is string && request.resource.data.sub.endpoint.matches('https://.*');
       allow delete: if true;
     }
+
+    // ── Suivi au cabinet ──
+    // Le patient (accès anonyme ouvert avec le code du kiné) est « membre » de sa fiche : il la lit, il ne la modifie pas.
+    function isMember(pid) {
+      return request.auth != null && exists(/databases/$(database)/documents/patients/$(pid)/membres/$(request.auth.uid));
+    }
+    // Codes d'accès : lus un par un (jamais listés), créés par le kiné, supprimés par le patient qui vient de les utiliser
+    match /codes/{code} {
+      allow get: if request.auth != null;
+      allow list: if isAdmin();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin() || (request.auth != null && exists(/databases/$(database)/documents/patients/$(resource.data.pid)/membres/$(request.auth.uid)));
+    }
+    match /patients/{pid} {
+      allow read, write: if isAdmin();
+      allow get: if isMember(pid);
+      match /bilans/{id} {
+        allow read, write: if isAdmin();
+        allow read: if isMember(pid);
+      }
+      match /seances/{id} {
+        allow read, write: if isAdmin();
+        allow read: if isMember(pid);
+      }
+      // Notes du kiné : lues seulement par le kiné
+      match /notes/{id} {
+        allow read, write: if isAdmin();
+      }
+      // Résumé des séances faites à la maison : écrit par le téléphone du patient, une fiche par semaine
+      match /maison/{w} {
+        allow read, write: if isAdmin();
+        allow read: if isMember(pid);
+        allow create, update: if isMember(pid)
+          && request.resource.data.keys().hasOnly(['w', 'n', 'dou', 'der', 'eff', 't'])
+          && request.resource.data.w == w && w.size() <= 10
+          && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 50
+          && (!('dou' in request.resource.data) || request.resource.data.dou == null || (request.resource.data.dou is number && request.resource.data.dou >= 0 && request.resource.data.dou <= 10))
+          && (!('eff' in request.resource.data) || request.resource.data.eff == null || (request.resource.data.eff is number && request.resource.data.eff >= 0 && request.resource.data.eff <= 10))
+          && (!('der' in request.resource.data) || (request.resource.data.der is string && request.resource.data.der.size() <= 10))
+          && request.resource.data.t == request.time;
+      }
+      // Rejoindre sa fiche : avec un code valide qui pointe vers cette fiche
+      match /membres/{uid} {
+        allow read, delete: if isAdmin();
+        allow get: if request.auth != null && request.auth.uid == uid;
+        allow create: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['code', 't'])
+          && request.resource.data.code is string && request.resource.data.code.size() <= 12
+          && exists(/databases/$(database)/documents/codes/$(request.resource.data.code))
+          && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.pid == pid
+          && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.exp > request.time
+          && request.resource.data.t == request.time;
+      }
+    }
   }
 }

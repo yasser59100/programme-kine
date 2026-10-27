@@ -54,7 +54,7 @@ html.kf-boot body{visibility:hidden}
 <!-- Firebase SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getCountFromServer, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -162,6 +162,79 @@ window.fbPushKey = async function() {
 };
 window.fbPushSave = async function(id, data) { await setDoc(doc(db, "push", id), data); };
 window.fbPushDelete = async function(id) { await deleteDoc(doc(db, "push", id)); };
+// ── SUIVI AU CABINET ──
+// Côté kiné (compte Google du kiné) : ses patients, identifiés par un pseudonyme, leurs bilans et leurs séances.
+// Côté patient : un accès anonyme séparé (2e instance, sans toucher au compte Google de la Communauté),
+// ouvert avec le code donné par le kiné, en lecture seule sur son propre suivi.
+const CAB = "patients";
+function cabRef(pid) { return doc(db, CAB, pid); }
+function cabRows(snap) { return snap.docs.map(function (x) { var o = x.data(); o.id = x.id; return o; }); }
+function cabNeedKine() { if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("kine"); }
+window.fbCab = {
+  list: async function () { cabNeedKine(); return cabRows(await getDocs(collection(db, CAB))); },
+  get: async function (pid) {
+    cabNeedKine();
+    var p = await getDoc(cabRef(pid)); if (!p.exists()) return null;
+    var o = p.data(); o.id = pid;
+    var r = await Promise.all([
+      getDocs(query(collection(db, CAB, pid, "bilans"), orderBy("d", "desc"), limit(40))),
+      getDocs(query(collection(db, CAB, pid, "seances"), orderBy("d", "desc"), limit(60))),
+      getDocs(query(collection(db, CAB, pid, "maison"), orderBy("w", "desc"), limit(8))),
+      getDocs(collection(db, CAB, pid, "membres")),
+      getDocs(query(collection(db, CAB, pid, "notes"), limit(60)))]);
+    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]);
+    return o;
+  },
+  create: async function (data) { cabNeedKine(); data.kine = window.fbUser.uid; data.cree = serverTimestamp(); var r = await addDoc(collection(db, CAB), data); return r.id; },
+  save: async function (pid, data) { cabNeedKine(); data.maj = serverTimestamp(); await setDoc(cabRef(pid), data, { merge: true }); },
+  bilan: async function (pid, id, data) { cabNeedKine(); if (id) await setDoc(doc(db, CAB, pid, "bilans", id), data); else id = (await addDoc(collection(db, CAB, pid, "bilans"), data)).id; await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return id; },
+  bilanDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "bilans", id)); },
+  seance: async function (pid, data) { cabNeedKine(); var r = await addDoc(collection(db, CAB, pid, "seances"), data); await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return r.id; },
+  // Notes du kiné sur une séance : jamais lues par le patient
+  note: async function (pid, id, data) { cabNeedKine(); await setDoc(doc(db, CAB, pid, "notes", id), data); },
+  seanceDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "seances", id)); },
+  // Code d'accès du patient : 6 caractères sans ambiguïté, valable 14 jours, à usage unique
+  code: async function (pid) {
+    cabNeedKine();
+    var A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", c = "", rnd = new Uint32Array(6); crypto.getRandomValues(rnd);
+    for (var i = 0; i < 6; i++) c += A[rnd[i] % A.length];
+    var exp = new Date(Date.now() + 14 * 864e5);
+    await setDoc(doc(db, "codes", c), { pid: pid, kine: window.fbUser.uid, exp: exp });
+    await setDoc(cabRef(pid), { code: c, codeExp: exp }, { merge: true });
+    return c;
+  },
+  remove: async function (pid) {
+    cabNeedKine();
+    for (const sub of ["bilans", "seances", "maison", "membres", "notes"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
+    var p = await getDoc(cabRef(pid)); if (p.exists() && p.data().code) { try { await deleteDoc(doc(db, "codes", p.data().code)); } catch (e) {} }
+    await deleteDoc(cabRef(pid));
+  }
+};
+const cabApp = initializeApp(firebaseConfig, "cabinet"), cabAuth = getAuth(cabApp), cabDb = getFirestore(cabApp);
+async function cabAnon() { if (cabAuth.currentUser) return cabAuth.currentUser; if (cabAuth.authStateReady) await cabAuth.authStateReady(); if (cabAuth.currentUser) return cabAuth.currentUser; return (await signInAnonymously(cabAuth)).user; }
+window.fbPat = {
+  join: async function (code) {
+    code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+    var u = await cabAnon();
+    var c = await getDoc(doc(cabDb, "codes", code));
+    if (!c.exists()) throw new Error("code");
+    var d = c.data(); if (d.exp && d.exp.toDate && d.exp.toDate() < new Date()) throw new Error("expire");
+    await setDoc(doc(cabDb, CAB, d.pid, "membres", u.uid), { code: code, t: serverTimestamp() });
+    try { await deleteDoc(doc(cabDb, "codes", code)); } catch (e) {}
+    return d.pid;
+  },
+  get: async function (pid) {
+    await cabAnon();
+    var p = await getDoc(doc(cabDb, CAB, pid)); if (!p.exists()) return null;
+    var o = p.data(); o.id = pid;
+    var r = await Promise.all([
+      getDocs(query(collection(cabDb, CAB, pid, "bilans"), orderBy("d", "desc"), limit(40))),
+      getDocs(query(collection(cabDb, CAB, pid, "seances"), orderBy("d", "desc"), limit(60)))]);
+    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]);
+    return o;
+  },
+  home: async function (pid, w, data) { await cabAnon(); data.w = w; data.t = serverTimestamp(); await setDoc(doc(cabDb, CAB, pid, "maison", w), data); }
+};
 window.dispatchEvent(new Event("kf-fb-ready"));
 
 // ── COMPTEUR ANONYME DES SÉANCES TERMINÉES (aucune donnée personnelle : ni compte, ni nom) ──
@@ -3240,5 +3313,8 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-ludique.js" defer></script>
 <script src="assets/js/kine-stats.js" defer></script>
 <script src="assets/js/kine-legal.js" defer></script>
+<script src="assets/js/kine-parcours.js" defer></script>
+<script src="assets/js/kine-cabinet.js" defer></script>
+<script src="assets/js/kine-monsuivi.js" defer></script>
 </body>
 </html>

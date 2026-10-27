@@ -286,6 +286,7 @@ var KineCompose = (function () {
       "<div><div class='kf-h1'>Espace kiné</div><div class='kf-sub'>Connecté avec le compte kiné. Les zones protégées s'appliquent à ce téléphone, pour « Ma séance ».</div></div>" +
       "<div class='su-card'><b>Zones protégées</b><div class='kf-sub'>« Pas de rouge » retire les exercices difficiles du groupe, « Exclu » retire tout le groupe.</div>" + rows + "</div>" +
       "<label class='kc-check'><input type='checkbox' " + (open ? "checked " : "") + "onchange='KineCompose.reds(this.checked)'> Débloquer dès maintenant les exercices difficiles (hors zones protégées)</label>" +
+      (window.KineCabinet ? "<button class='v2-row kcb-entry' onclick='KineCompose.close();KineCabinet.open()'><b>Mes patients : suivi au cabinet</b><span>›</span></button>" : "") +
       "<button class='v2-row' onclick='KineCompose.close();KineOfficiel.open()'><b>Programme officiel (tous les patients)</b><span>›</span></button>" +
       "<button class='v2-row' onclick='KineCompose.close();KineFiable.admin()'><b>Rapports de bugs</b><span>›</span></button>" +
       "<button class='v2-row' onclick='KineCompose.close();KineStats.admin()'><b>Statistiques d'utilisation</b><span>›</span></button>" +
