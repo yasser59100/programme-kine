@@ -3241,3 +3241,28 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 
 .kcb-setk { justify-content: space-between; }
 .kcb-setk span { flex: 1; }
+/* Mon espace : bouton toujours visible, à gauche du bouton son */
+.kf-me { position: fixed; z-index: 600; top: calc(env(safe-area-inset-top, 0px) + 22px); right: 66px; width: 42px; height: 42px; border-radius: 50%; border: none; background: var(--lu-ciel, #E4ECFF); color: var(--lu-ind, #4B5BFF); display: grid; place-items: center; padding: 0; box-shadow: 0 6px 18px rgba(15, 29, 46, .10); -webkit-tap-highlight-color: transparent; }
+.kf-me:active { transform: scale(.92); }
+.kf-me i { position: absolute; top: 1px; right: 1px; width: 11px; height: 11px; border-radius: 50%; border: 2px solid #fff; }
+.kf-me i.ok { background: #19C3A0; }
+.kf-me i.wait { background: #F5A524; }
+html.kf-typing .kf-me { display: none; }
+.lu-top .lu-me { visibility: hidden; }
+.kcb-me { position: static; box-shadow: none; flex-shrink: 0; }
+.khb-h { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-top: 8px; }
+.khb-seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 18px; background: var(--surface3); }
+.khb-seg button { min-height: 46px; border-radius: 14px; border: none; background: transparent; font: 700 .95rem var(--font); color: var(--text2); }
+.khb-seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 4px 12px -6px rgba(15, 29, 46, .35); }
+.khb-acc { flex-direction: row !important; align-items: center; gap: 12px !important; }
+.khb-acc > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.khb-acc b { font-size: .95rem; }
+.khb-acc span { font-size: .8rem; color: var(--text2); line-height: 1.35; }
+.kms-join-wrap { margin: 14px 0 8px; }
+#kf-hub { z-index: 4100; }
+.kms-joincard { border-radius: 22px; padding: 16px; background: #E4ECFF; display: flex; flex-direction: column; gap: 6px; margin: 2px 0 8px; }
+.kms-joincard > b { font: 800 1.08rem var(--lu-head); color: #1E2AB0; }
+.kms-joincard > span { font-size: .86rem; line-height: 1.4; color: #2A3550; }
+.kms-joincard > div { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.kms-joincard button { flex: 1 1 130px; min-height: 46px; border-radius: 24px; border: 1px solid rgba(51, 65, 224, .25); background: #fff; color: #1E2AB0; font: 700 .9rem var(--font); }
+.kms-joincard button.kms-jc-main { background: var(--lu-ink, #0F1D2E); border-color: var(--lu-ink, #0F1D2E); color: #fff; }

@@ -56,7 +56,7 @@ var KineCabinet = (function () {
     var kineRole = window.KineRole && KineRole.role() === "kine";
     var d = new Date(), J = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"], MO = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
     return "<div class='kcb-head'><div><div class='kf-sub'>" + (sub || J[d.getDay()] + " " + d.getDate() + " " + MO[d.getMonth()]) + "</div><div class='kf-h1 kcb-h1'>" + esc(title) + "</div></div>" +
-      (kineRole ? "<button class='kcb-mode' onclick='KineRole.asPatient()'>Mode patient</button>" : "<button class='kf-back' onclick='KineCabinet.close()' aria-label='Fermer'>×</button>") + "</div>";
+      (window.KineRole ? "<button class='kf-me kcb-me' onclick='KineRole.hub()' aria-label='Mon espace : changer de mode'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21a8 8 0 0 1 16 0'/></svg></button>" : "<button class='kf-back' onclick='KineCabinet.close()' aria-label='Fermer'>×</button>") + "</div>";
   }
   function loading(t) { show(top("KineCabinet.close()", "") + "<div class='kf-note'>" + esc(t || "Chargement…") + "</div>"); }
   function fail(e) { console.error(e); show(top("KineCabinet.close()", "") + "<div class='kf-note'>Connexion impossible pour l'instant. Vérifie Internet, puis réessaie.</div>", "<button class='seq-btn-main' onclick='KineCabinet.open()'>Réessayer</button>"); }

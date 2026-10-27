@@ -94,6 +94,7 @@ var KineMonSuivi = (function () {
     return { v: v, u: u, lab: lab, hist: hist, next: next, prev: hist.length > 1 ? hist[hist.length - 2].v : null, lsi: !!k.lsi };
   }
   function slot() {
+    if (window.KineRole && KineRole.meButton) KineRole.meButton();
     var box = $("suivi-v2"); if (!box) return;
     var el = $("kms-slot"); if (!el) return;
     var s = state();
@@ -120,7 +121,8 @@ var KineMonSuivi = (function () {
       (d.msg && d.msg.t ? "<div class='kms-cmsg'>« " + esc(d.msg.t) + " »</div>" : "") + "</button>";
     refresh(false);
   }
-  function rowHtml() { return "<button class='v2-row' id='kms-join-row' onclick='KineMonSuivi.join()'" + (linked() ? " style='display:none'" : "") + "><b>J'ai un code de mon kiné</b><span>›</span></button>"; }
+  function rowHtml() { return "<div class='kms-joincard' id='kms-join-row'" + (linked() ? " style='display:none'" : "") + "><b>Ton kiné utilise KinéForce ?</b><span>Relie ton appli pour voir tes étapes, tes bilans et la séance qu'il te prépare.</span>" +
+    "<div><button class='kms-jc-main' onclick='KineMonSuivi.join()'>J'ai un code</button>" + (window.KineRole ? "<button onclick='KineRole.demande()'>Demander un accès</button>" : "") + "</div></div>"; }
 
   /* ════════ Écrans ════════ */
   function sheet() {

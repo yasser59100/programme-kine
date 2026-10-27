@@ -57,7 +57,7 @@ var KineRole = (function () {
       "<button class='krl-row dark' onclick='KineRole.code()'><span class='krl-ic'>ABC</span><span class='krl-t'><b>J'ai un code de mon kiné</b><span>6 caractères, donnés au cabinet</span></span>" + NEXT + "</button>" +
       "<button class='krl-row' onclick='KineRole.demande()'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 4h16v12H8l-4 4z'/><path d='M8 9h8M8 12h5'/></svg></span><span class='krl-t'><b>Demander un accès</b><span>Pas de code ? Ton kiné reçoit ta demande</span></span>" + NEXT + "</button>" +
       "<button class='krl-row dash' onclick='KineRole.seul()'><span class='krl-ic grey'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 12h3l3-7 4 14 3-7h5'/></svg></span><span class='krl-t'><b>Je m'entraîne seul</b><span>Programme général : prévention et entretien</span></span>" + NEXT + "</button>" +
-      "<p class='kcb-hint kcb-center'>Tu pourras relier ton kiné plus tard, depuis l'onglet Progrès.</p>");
+      "<p class='kcb-hint kcb-center'>Tu pourras relier ton kiné plus tard, avec le bouton en haut à droite.</p>");
   }
   function home() { close(); if (typeof showPage === "function") showPage("home"); window.scrollTo(0, 0); setTimeout(function () { if (window.KineMascotte && !get("kf-tour-v2")) try { KineMascotte.replay(null, "kf-tour-v2"); } catch (e) {} }, 700); }
   function seul() { set(KEY, "patient"); home(); }
@@ -90,6 +90,7 @@ var KineRole = (function () {
       close(); if (typeof showPage === "function") showPage("suivi");
       if (window.KineSuivi && KineSuivi.render) KineSuivi.render(); else if (window.KineMonSuivi) KineMonSuivi.slot();
       if (window.showToast) showToast("Demande envoyée à ton kiné");
+      meButton();
     }, function () { demande("Connexion impossible pour l'instant. Vérifie Internet, puis réessaie.", d); });
   }
 
@@ -113,7 +114,60 @@ var KineRole = (function () {
   // Passer d'un rôle à l'autre (réglages)
   function asPatient() { set(KEY, "patient"); if (window.KineCabinet) KineCabinet.close(); close(); if (typeof showPage === "function") showPage("home"); }
 
+  /* ════════ Mon espace : le bouton toujours visible en haut à droite ════════
+     Mode patient ou kiné, lien avec son kiné (code, demande, suivi), compte de la Communauté, réglages. */
+  var ME = "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21a8 8 0 0 1 16 0'/></svg>";
+  function cabState() { try { return JSON.parse(get("kf-cab") || "null"); } catch (e) { return null; } }
+  function meButton() {
+    var b = $("kf-me");
+    if (!b) { b = document.createElement("button"); b.id = "kf-me"; b.className = "kf-me"; b.setAttribute("aria-label", "Mon espace"); b.onclick = function () { hub(); }; document.body.appendChild(b); }
+    var c = cabState();
+    b.innerHTML = ME + (c && c.pending ? "<i class='wait'></i>" : c && c.pid ? "<i class='ok'></i>" : "");
+  }
+  function hubSheet() {
+    var el = $("kf-hub");
+    if (!el) { el = document.createElement("div"); el.id = "kf-hub"; el.className = "kf-sheet kcb krl"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Mon espace"); document.body.appendChild(el); }
+    return el;
+  }
+  function hubClose() { var el = $("kf-hub"); if (el) el.classList.remove("open"); meButton(); }
+  function hub() {
+    var r = role() || "patient", c = cabState(), u = window.fbUser, admin = !!(u && u.isAdmin);
+    var seg = "<div class='khb-seg' role='group' aria-label='Mode'>" +
+      "<button class='" + (r !== "kine" ? "on" : "") + "' onclick='KineRole.hubMode(\"patient\")' aria-pressed='" + (r !== "kine") + "'>Patient</button>" +
+      "<button class='" + (r === "kine" ? "on" : "") + "' onclick='KineRole.hubMode(\"kine\")' aria-pressed='" + (r === "kine") + "'>Kiné</button></div>";
+    var kine = "";
+    if (r !== "kine") {
+      if (c && c.pid) {
+        var d = c.d || {}, P = window.KineParcours && KineParcours.get(d.parcours), E = d.etape || 0;
+        kine = "<button class='krl-row dark' onclick='KineRole.hubClose();KineMonSuivi.open()'><span class='krl-ic'>" + (E + 1) + "</span><span class='krl-t'><b>Mon suivi au cabinet</b><span>" + esc(P ? "Étape " + (E + 1) + " sur " + P.etapes.length + " : " + P.etapes[Math.min(E, P.etapes.length - 1)].nom : "Relié à ton kiné") + "</span></span>" + NEXT + "</button>";
+      } else if (c && c.pending) {
+        kine = "<div class='kms-wait'><div class='kms-wh'><i><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></svg></i><div><b>Demande envoyée</b><span>En attente de ton kiné</span></div></div><button class='kcb-link' onclick='KineRole.hubClose();KineMonSuivi.cancelRequest()'>Annuler la demande</button></div>";
+      } else {
+        kine = "<button class='krl-row dark' onclick='KineRole.hubClose();KineMonSuivi.join()'><span class='krl-ic'>ABC</span><span class='krl-t'><b>J'ai un code de mon kiné</b><span>6 caractères, donnés au cabinet</span></span>" + NEXT + "</button>" +
+          "<button class='krl-row' onclick='KineRole.hubClose();KineRole.demande()'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 4h16v12H8l-4 4z'/><path d='M8 9h8M8 12h5'/></svg></span><span class='krl-t'><b>Demander un accès</b><span>Pas de code ? Ton kiné reçoit ta demande</span></span>" + NEXT + "</button>";
+      }
+      kine = "<div class='khb-h'>Mon kiné</div>" + kine;
+    } else {
+      kine = "<div class='khb-h'>Espace kiné</div><button class='krl-row dark' onclick='KineRole.hubClose();KineRole.kine()'><span class='krl-ic'>" + ME + "</span><span class='krl-t'><b>Mes patients</b><span>" + (admin ? "Connecté avec le compte kiné" : "Connexion avec ton compte Google de kiné") + "</span></span>" + NEXT + "</button>";
+    }
+    var acc = "<div class='khb-h'>Compte de la Communauté</div><div class='su-card khb-acc'>" +
+      (u ? "<div><b>" + esc(u.name || "Connecté") + "</b><span>" + (admin ? "Compte kiné" : "Pour publier et encourager dans la Communauté") + "</span></div><button class='kcb-mode' onclick='KineRole.hubClose();fbSignOut()'>Se déconnecter</button>"
+         : "<div><b>Pas connecté</b><span>Le compte Google sert seulement à publier dans la Communauté. Ton suivi n'en a pas besoin.</span></div><button class='kcb-mode' onclick='KineRole.hubClose();signInWithGoogle()'>Se connecter</button>") + "</div>";
+    var more = "<div class='v2-other'>" +
+      (window.KineLumiere ? "<button class='v2-row' onclick='KineRole.hubClose();KineLumiere.settings()'><b>Réglages</b><span>›</span></button>" : "") +
+      (admin ? "<button class='v2-row' onclick='KineRole.hubClose();KineRole.choose()'><b>Revoir l'écran de bienvenue</b><span>›</span></button>" : "") + "</div>";
+    var el = hubSheet();
+    el.innerHTML = "<div class='kf-sheet-body'><div class='kcb-top'><button class='kf-back' onclick='KineRole.hubClose()' aria-label='Fermer'>" + BACK + "</button><span></span><i></i></div>" +
+      "<div><h1 class='kf-h1 kcb-h1'>Mon espace</h1></div><div class='khb-h'>Je suis</div>" + seg + kine + acc + more + "</div>";
+    el.classList.add("open"); el.scrollTop = 0;
+  }
+  function hubMode(m) {
+    if (m === "kine") { hubClose(); kine(); return; }
+    set(KEY, "patient"); if (window.KineCabinet) KineCabinet.close(); hub();
+  }
+
   function init() {
+    meButton();
     var r = role();
     if (!r) { if (isNew()) choose(); else set(KEY, "patient"); return; }
     if (r === "kine") {
@@ -124,5 +178,5 @@ var KineRole = (function () {
   }
   document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 400); });
 
-  return { choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
+  return { hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
 })();

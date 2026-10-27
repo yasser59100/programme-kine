@@ -235,6 +235,19 @@ test("kiné ou patient : premier lancement, demande d'accès et acceptation", as
   await clean(errs);
 });
 
+test("mon espace : bouton toujours visible, code du kiné dans Progrès", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await expect(page.locator("#kf-me")).toBeVisible();
+  await page.evaluate(() => showPage("suivi"));
+  await expect(page.locator("#page-suivi #kms-join-row")).toBeVisible();
+  await page.locator("#kf-me").click();
+  await expect(page.locator("#kf-hub.open .khb-seg button")).toHaveCount(2);
+  await shot(page, info, "23-mon-espace");
+  await clean(errs);
+});
+
 test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());

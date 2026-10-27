@@ -383,7 +383,7 @@
     { sel: "#ki-express", text: "Pas le temps ? La séance express dure une dizaine de minutes.", gesture: "point" },
     { sel: "#bn-guide", text: "Dans Exercices, tu as ton programme sur quatre semaines et la bibliothèque. Fais défiler : je fais chaque exercice dans sa case.", gesture: "point" },
     { sel: "#bn-mes", text: "Au centre, Ma séance : compose ta propre séance avec les exercices que tu veux.", gesture: "point" },
-    { sel: "#bn-suivi", text: "Dans Progrès, tu vois tes chiffres et ton objectif, et tu envoies ton bilan à ton kiné. Les réglages sont dans la petite roue.", gesture: "point" },
+    { sel: "#bn-suivi", text: "Dans Progrès, tu vois tes chiffres et ton objectif, et tu envoies ton bilan à ton kiné. Ton espace et les réglages sont sous le petit bonhomme, en haut à droite.", gesture: "point" },
     { sel: null, text: "Et moi, je reste dans le coin de l'écran : touche ma tête pour une question, la vidéo ou les réglages. Si un exercice fait mal, appuie sur J'ai mal.", gesture: "open" }
   ];
   var TOUR_MAIN = TOUR, TOUR_KEY = "kf-tour-v2";
