@@ -82,6 +82,7 @@ var KineCabinet = (function () {
     var F = rows.map(function (p) { return flags(p); });
     var nPain = F.filter(function (f) { return f.pain; }).length, nDue = F.filter(function (f) { return f.due; }).length;
     var html = head("Mes patients");
+    if (window.KineRole && KineRole.role() !== "kine") html += "<div class='kcb-ok kcb-setk'><span>Ouvrir directement l'espace kiné à chaque lancement sur ce téléphone ?</span><button class='kcb-mode' onclick='KineCabinet.setKine()'>Oui</button></div>";
     if (D.length) html += "<button class='kcb-dem' onclick='KineCabinet.demandes()'><i>" + D.length + "</i><span><b>" + (D.length > 1 ? "Nouvelles demandes d'accès" : "Nouvelle demande d'accès") + "</b><span>" + esc(D.slice(0, 3).map(function (d) { return d.prenom + " " + String(d.nom || "").charAt(0) + "."; }).join(", ")) + "</span></span>" + ICON.next + "</button>";
     html += "<div class='kcb-stats'><div><b>" + rows.length + "</b><span>patient" + (rows.length > 1 ? "s" : "") + " suivi" + (rows.length > 1 ? "s" : "") + "</span></div><div><b>" + nDue + "</b><span>bilan" + (nDue > 1 ? "s" : "") + " à faire</span></div><div class='" + (nPain ? "warn" : "") + "'><b>" + nPain + "</b><span>douleur en hausse</span></div></div>";
     html += "<div class='kcb-filt'>" + [["tous", "Tous"], ["auj", "Bilan aujourd'hui"], ["surv", "À surveiller"]].map(function (f) { return "<button class='" + (filt === f[0] ? "on" : "") + "' onclick='KineCabinet.filter(\"" + f[0] + "\")'>" + f[1] + "</button>"; }).join("") + "</div>";
@@ -98,6 +99,7 @@ var KineCabinet = (function () {
     show(html + "<button class='kcb-fab' onclick='KineCabinet.nouveau()' aria-label='Nouveau patient'>" + ICON.plus + "</button>", null, "list");
   }
   function filter(f) { filt = f; list(); }
+  function setKine() { try { localStorage.setItem("kf-role", "kine"); } catch (e) {} list(); }
 
   /* ════════ Demandes d'accès ════════ */
   function demandes() {
@@ -670,7 +672,7 @@ var KineCabinet = (function () {
   }
 
   return {
-    open: open, close: close, filter: filter, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    open: open, close: close, filter: filter, setKine: setKine, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,

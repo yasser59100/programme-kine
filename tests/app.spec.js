@@ -168,6 +168,9 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
   await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.setKine());
+  expect(await page.evaluate(() => localStorage.getItem("kf-role"))).toBe("kine");
+  await expect(page.locator("#kcb-sheet .kcb-setk")).toHaveCount(0);
   await page.evaluate(() => KineCabinet.nouveau());
   await page.fill("#kcb-alias", "S.B.");
   await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.set("date0", "2026-01-10", 1); KineCabinet.saveForm(null); });
