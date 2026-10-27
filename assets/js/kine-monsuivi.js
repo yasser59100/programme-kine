@@ -22,8 +22,27 @@ var KineMonSuivi = (function () {
 
   /* ════════ Synchronisation ════════ */
   var busy = false;
+  // Demande d'accès en attente : on regarde de temps en temps si le kiné a répondu
+  var asked = 0;
+  function checkRequest(force) {
+    var s = state(); if (!s || !s.pending || !window.fbPat || !fbPat.requestState) return Promise.resolve(s);
+    if (!force && Date.now() - asked < 90000) return Promise.resolve(s);
+    asked = Date.now();
+    return fbPat.requestState().then(function (r) {
+      if (r.pid) { jset(KEY, { pid: r.pid }); try { localStorage.removeItem(PUSHKEY); } catch (e) {} return refresh(true).then(function () { if (window.showToast) showToast("Ton kiné a accepté ta demande"); return state(); }); }
+      if (r.refused) jset(KEY, { refused: true, prenom: s.prenom });
+      else if (r.none) jset(KEY, null);
+      slot(); return state();
+    }, function () { return s; });
+  }
+  function cancelRequest() {
+    if (!confirm("Annuler ta demande d'accès ?")) return;
+    var done = function () { try { localStorage.removeItem(KEY); } catch (e) {} slot(); };
+    if (window.fbPat && fbPat.cancel) fbPat.cancel().then(done, done); else done();
+  }
   function refresh(force) {
-    var s = state(); if (!s || !s.pid || !window.fbPat || busy) return Promise.resolve(s);
+    var s = state(); if (s && s.pending) return checkRequest(force);
+    if (!s || !s.pid || !window.fbPat || busy) return Promise.resolve(s);
     if (!force && s.at && Date.now() - s.at < 5 * 60000) return Promise.resolve(s);
     busy = true;
     return fbPat.get(s.pid).then(function (d) {
@@ -78,6 +97,18 @@ var KineMonSuivi = (function () {
     var box = $("suivi-v2"); if (!box) return;
     var el = $("kms-slot"); if (!el) return;
     var s = state();
+    if (s && s.pending) {
+      var r0 = $("kms-join-row"); if (r0) r0.style.display = "none";
+      el.innerHTML = "<div class='kms-wait'><div class='kms-wh'><i><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></svg></i><div><b>Demande envoyée</b><span>En attente de ton kiné</span></div></div>" +
+        "<p>Dès qu'il l'accepte, ton parcours apparaît ici : tes étapes, tes bilans et la séance qu'il t'a préparée.</p><button class='kcb-link' onclick='KineMonSuivi.cancelRequest()'>Annuler la demande</button></div>";
+      checkRequest(false); return;
+    }
+    if (s && s.refused) {
+      var r1 = $("kms-join-row"); if (r1) r1.style.display = "none";
+      el.innerHTML = "<div class='kms-wait'><div class='kms-wh'><div><b>Demande non acceptée</b><span>Parles-en à ton kiné au prochain rendez-vous</span></div></div>" +
+        "<button class='kcb-link' onclick='KineMonSuivi.join()'>J'ai un code</button><button class='kcb-link' onclick='KineMonSuivi.forget()'>Fermer</button></div>";
+      return;
+    }
     if (!s || !s.pid) { el.innerHTML = ""; var r = $("kms-join-row"); if (r) r.style.display = ""; return; }
     var r2 = $("kms-join-row"); if (r2) r2.style.display = "none";
     if (s.lost) { el.innerHTML = "<button class='kms-card' onclick='KineMonSuivi.join()'><b>Suivi au cabinet</b><span>Ta fiche n'est plus disponible. Demande un nouveau code à ton kiné.</span></button>"; return; }
@@ -103,7 +134,8 @@ var KineMonSuivi = (function () {
     show(back() + "<div><div class='kf-h1 kcb-h1'>Relier mon téléphone à mon kiné</div><div class='kf-sub'>Tape le code à 6 caractères que ton kiné t'a donné. Tu verras tes étapes, tes bilans et ta progression.</div></div>" +
       "<input class='kcb-in kms-code' id='kms-code' maxlength='7' autocomplete='off' autocapitalize='characters' spellcheck='false' placeholder='ABC123' aria-label='Code de ton kiné'>" +
       (err ? "<div class='kcb-alert'><b>" + esc(err) + "</b></div>" : "") +
-      "<p class='kcb-hint'>Ton kiné voit ta fiche et un résumé de tes séances à la maison (nombre de séances, douleur moyenne). Rien d'autre ne quitte ton téléphone.</p>",
+      "<p class='kcb-hint'>Ton kiné voit ta fiche et un résumé de tes séances à la maison (nombre de séances, douleur moyenne). Rien d'autre ne quitte ton téléphone.</p>" +
+      (window.KineRole ? "<button class='v2-row' onclick='KineMonSuivi.close();KineRole.demande()'><b>Pas de code ? Demander un accès</b><span>›</span></button>" : ""),
       "<button class='seq-btn-main' id='kms-go' onclick='KineMonSuivi.doJoin()'>Valider</button>");
     setTimeout(function () { var i = $("kms-code"); if (i) i.focus(); }, 100);
   }
@@ -121,11 +153,14 @@ var KineMonSuivi = (function () {
     });
   }
   function open() { view(); sheet().scrollTop = 0; refresh(true); }
+  var PREV = null;
+  // Aperçu côté kiné : exactement ce que voit le patient, sans rien enregistrer
+  function preview(d) { PREV = d; view(); sheet().scrollTop = 0; }
   function view() {
-    var s = state(); if (!s || !s.d) { join(); return; }
+    var s = PREV ? { d: PREV } : state(); if (!s || !s.d) { join(); return; }
     var d = s.d, P = KP.get(d.parcours); if (!P) { show(back() + "<div class='kf-note'>Ton kiné prépare ton parcours.</div>"); return; }
     var E = Math.min(d.etape || 0, P.etapes.length - 1), m = metric(d), cx = ctx(d), B = d.bilans || [];
-    var html = back() + "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>";
+    var html = back() + (PREV ? "<div class='kms-prev'>Aperçu : ce que voit ton patient</div>" : "") + "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>";
     if (m) {
       var pct = m.lsi ? Math.min(100, m.v) : null;
       html += "<div class='kcb-slab'><div class='kcb-slab-k'><span>" + esc(m.lab) + "</span></div><div class='kms-big'><b>" + KP.fmt(m.v) + m.u + "</b>" +
@@ -158,12 +193,12 @@ var KineMonSuivi = (function () {
     // séance du kiné
     var ex = (d.exos || []).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
     if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<div class='kms-ex'>" + esc(n) + "</div>"; }).join("") +
-      "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button></div>";
+      (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // charge au cabinet
     var ref = d.ref || P.ref, S = (d.seances || []).filter(function (x) { return x.ex === ref && x.kg != null; }).slice().reverse();
     if (S.length > 1 && window.KineCabinet) html += "<div class='su-card'><div class='su-card-h'><b>" + esc(ref) + "</b><span>au cabinet</span></div>" + KineCabinet._bars(S) + "</div>";
     html += "<div class='kms-why'><b>Pourquoi passer au cabinet ?</b><span>Tes exercices ici sont tes devoirs entre deux séances. Au cabinet, ton kiné mesure ta force, corrige ton geste et décide quand tu passes à l'étape suivante.</span></div>" +
-      "<button class='kcb-link' onclick='KineMonSuivi.unlink()'>Délier ce téléphone</button>";
+      (PREV ? "" : "<button class='kcb-link' onclick='KineMonSuivi.unlink()'>Délier ce téléphone</button>");
     var y = sheet().scrollTop; show(html); sheet().scrollTop = y;
   }
   function go() {
@@ -177,7 +212,8 @@ var KineMonSuivi = (function () {
     jset("kf-custom", jget("kf-custom", []).filter(function (x) { return x.id !== "kine"; }));
     close(); slot();
   }
-  function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); }
+  function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; }
+  function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();

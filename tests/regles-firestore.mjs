@@ -39,6 +39,21 @@ await t("un autre téléphone ne lit pas la fiche", assertFails(getDoc(doc(intru
 await t("un autre téléphone n'écrit pas de résumé", assertFails(setDoc(doc(intrus, "patients/p1/maison/2026-W44"), { w: "2026-W44", n: 1, t: serverTimestamp() })));
 await t("code déjà utilisé : supprimé", getDoc(doc(intrus, "codes/ABC234")).then(s => { if (s.exists()) throw new Error("le code existe encore"); }));
 await t("le kiné lit tout", assertSucceeds(getDocs(collection(kine, "patients/p1/maison"))));
+// Demandes d'accès sans code
+await t("le patient envoie sa demande", assertSucceeds(setDoc(doc(patient, "demandes/anonP"), { prenom: "Samir", nom: "Benali", msg: "", t: serverTimestamp() })));
+await t("demande au nom d'un autre refusée", assertFails(setDoc(doc(patient, "demandes/anonX"), { prenom: "A", nom: "B", msg: "", t: serverTimestamp() })));
+await t("demande avec champ en trop refusée", assertFails(setDoc(doc(intrus, "demandes/anonX"), { prenom: "A", nom: "B", msg: "", tel: "06", t: serverTimestamp() })));
+await t("demande sans nom refusée", assertFails(setDoc(doc(intrus, "demandes/anonX"), { prenom: "A", nom: "", msg: "", t: serverTimestamp() })));
+await t("le patient relit sa demande", assertSucceeds(getDoc(doc(patient, "demandes/anonP"))));
+await t("un autre ne lit pas la demande", assertFails(getDoc(doc(intrus, "demandes/anonP"))));
+await t("personne ne liste les demandes", assertFails(getDocs(collection(patient, "demandes"))));
+await t("le kiné liste les demandes", assertSucceeds(getDocs(collection(kine, "demandes"))));
+await t("le kiné relie le patient", assertSucceeds(setDoc(doc(kine, "patients/p3/membres/anonX"), { code: "demande", t: serverTimestamp() })));
+await t("le kiné écrit la réponse", assertSucceeds(setDoc(doc(kine, "liens/anonP"), { pid: "p1", t: serverTimestamp() })));
+await t("le patient lit sa réponse", assertSucceeds(getDoc(doc(patient, "liens/anonP"))));
+await t("un autre ne lit pas la réponse", assertFails(getDoc(doc(intrus, "liens/anonP"))));
+await t("le patient n'écrit pas de réponse", assertFails(setDoc(doc(patient, "liens/anonP"), { pid: "p2" })));
+await t("le patient efface sa réponse", assertSucceeds(deleteDoc(doc(patient, "liens/anonP"))));
 await env.cleanup();
 console.log(ok + " réussis, " + ko + " échoués");
 process.exit(ko ? 1 : 0);

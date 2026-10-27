@@ -1541,7 +1541,7 @@
 
   function sndIc(m) { return "<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M11 5 6 9H3v6h3l5 4z'/>" + (m ? "<path d='m16 9 5 6M21 9l-5 6'/>" : "<path d='M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13'/>") + "</svg>"; }
   function mute() { var m = !muted(); jset("kf-cam-mute", m ? 1 : 0); var b = $("kcam-snd"); if (b) b.innerHTML = sndIc(m); if (!m) say("Bien !"); }
-  window.KineCamera = { setMode: setMode, mode: mode, modeSheet: modeSheet, open: open, close: close, finish: finish, flip: flip, replay: replay, mute: mute, validate: validate,
+  window.KineCamera = { pose: detector, setMode: setMode, mode: mode, modeSheet: modeSheet, open: open, close: close, finish: finish, flip: flip, replay: replay, mute: mute, validate: validate,
     again: function () { open(PRID, OPT); }, bilan: function () { open("bilan"); }, bilanSkip: bilanSkip, bilanTap: bilanTap, bilanShow: bilanShow, bilanEx: bilanEx, forExercise: function (n) { return EX_MAP[n] || null; },
     _state: function () { return A; },
     // banc d'essai : alimente le bilan avec des points détectés hors caméra

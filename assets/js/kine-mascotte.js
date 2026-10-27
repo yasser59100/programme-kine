@@ -286,6 +286,7 @@
   }
   function maybe() {
     if (get("kf-masc-off") === "1" || busy() || mode) return;
+    if (document.querySelector("#kf-role.open, #kcb-sheet.open")) return;   // choix du rôle ou espace kiné à l'écran
     var page = currentPage(); if (!page || shown[page]) return;   // une apparition au plus par page et par ouverture
     if (page === "home" && !get("kf-tour-v2")) { if (tour(0)) shown[page] = true; return; }
     var msg = pickMessage(page); if (!msg) return;

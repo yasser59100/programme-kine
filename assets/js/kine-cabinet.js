@@ -19,7 +19,8 @@ var KineCabinet = (function () {
     plus: "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' aria-hidden='true'><path d='M12 5v14M5 12h14'/></svg>",
     ok: "<svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12l5 5 9-10'/></svg>",
     phone: "<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><rect x='7' y='2' width='10' height='20' rx='2.5'/><path d='M11 18h2'/></svg>",
-    play: "<svg width='14' height='14' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>"
+    play: "<svg width='14' height='14' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>",
+    next: "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' aria-hidden='true'><path d='M9 6l6 6-6 6'/></svg>"
   };
 
   var formPid = null, L = null, C = null, view = "list", bilanEdit = null, sel = null, draft = null, gAns = null, gFor = null;
@@ -29,38 +30,114 @@ var KineCabinet = (function () {
     if (!el) { el = document.createElement("div"); el.id = "kcb-sheet"; el.className = "kf-sheet kcb"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Suivi au cabinet"); document.body.appendChild(el); }
     return el;
   }
-  function show(html, foot) {
+  // tab : onglet de l'espace kiné à afficher en bas (écrans principaux seulement)
+  function show(html, foot, tab) {
     var el = sheet();
-    el.innerHTML = "<div class='kf-sheet-body'>" + html + "</div>" + (foot ? "<div class='kf-sheet-foot'>" + foot + "</div>" : "");
+    el.innerHTML = "<div class='kf-sheet-body'>" + html + "</div>" + (foot ? "<div class='kf-sheet-foot'>" + foot + "</div>" : "") + (tab ? tabs(tab) : "");
+    el.classList.toggle("kcb-shell", !!tab);
     el.classList.add("open"); el.scrollTop = 0;
+  }
+  var TABS = [["list", "Patients", "<circle cx='9' cy='8' r='3.5'/><path d='M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6'/>", "KineCabinet.open()"],
+    ["demandes", "Demandes", "<path d='M4 4h16v12H8l-4 4z'/><path d='M8 9h8M8 12h5'/>", "KineCabinet.demandes()"],
+    ["bilan", "Bilan", "<path d='M4 19V9M10 19V5M16 19v-7M22 19H2'/>", "KineCabinet.bilanPick()"],
+    ["exos", "Exercices", "<path d='M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12'/>", "KineBiblio.open()"],
+    ["guide", "Guide", "<circle cx='12' cy='12' r='9'/><path d='M15.5 8.5l-2 5-5 2 2-5z'/>", "KineCabinet.guide(null)"]];
+  var nDem = 0;
+  function tabs(cur) {
+    return "<nav class='kcb-tabs' aria-label='Espace kiné'>" + TABS.map(function (t) {
+      return "<button class='" + (t[0] === cur ? "on" : "") + "' onclick='" + t[3] + "'" + (t[0] === cur ? " aria-current='page'" : "") + "><svg width='23' height='23' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" + t[2] + "</svg><span>" + t[1] + "</span>" +
+        (t[0] === "demandes" && nDem ? "<em>" + nDem + "</em>" : "") + "</button>"; }).join("") + "</nav>";
   }
   function top(back, label, right) {
     return "<div class='kcb-top'><button class='kf-back' onclick='" + back + "' aria-label='Retour'>" + ICON.back + "</button><span>" + esc(label || "") + "</span>" + (right || "<i></i>") + "</div>";
   }
+  // En-tête des écrans principaux : « Mode patient » à droite ; fermeture à gauche si l'appli n'est pas en mode kiné
+  function head(title, sub) {
+    var kineRole = window.KineRole && KineRole.role() === "kine";
+    var d = new Date(), J = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"], MO = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    return "<div class='kcb-head'><div><div class='kf-sub'>" + (sub || J[d.getDay()] + " " + d.getDate() + " " + MO[d.getMonth()]) + "</div><div class='kf-h1 kcb-h1'>" + esc(title) + "</div></div>" +
+      (kineRole ? "<button class='kcb-mode' onclick='KineRole.asPatient()'>Mode patient</button>" : "<button class='kf-back' onclick='KineCabinet.close()' aria-label='Fermer'>×</button>") + "</div>";
+  }
   function loading(t) { show(top("KineCabinet.close()", "") + "<div class='kf-note'>" + esc(t || "Chargement…") + "</div>"); }
-  function fail(e) { console.error(e); show(top("KineCabinet.open()", "") + "<div class='kf-note'>Connexion impossible pour l'instant. Vérifie Internet, puis réessaie.</div>", "<button class='seq-btn-main' onclick='KineCabinet.open()'>Réessayer</button>"); }
+  function fail(e) { console.error(e); show(top("KineCabinet.close()", "") + "<div class='kf-note'>Connexion impossible pour l'instant. Vérifie Internet, puis réessaie.</div>", "<button class='seq-btn-main' onclick='KineCabinet.open()'>Réessayer</button>"); }
 
   /* ════════ Liste des patients ════════ */
+  var filt = "tous";
   function open() {
     if (!isKine()) { if (window.KineCompose) KineCompose.kine(); return; }
     if (!window.fbCab) { loading("Connexion en cours…"); setTimeout(open, 800); return; }
     view = "list"; loading();
-    fbCab.list().then(function (rows) { L = rows; list(); }, fail);
+    Promise.all([fbCab.list(), fbCab.demandes ? fbCab.demandes().catch(function () { return []; }) : Promise.resolve([])]).then(function (r) { L = r[0]; D = r[1]; nDem = D.length; list(); }, fail);
+  }
+  var D = [];
+  function initials(a) { return String(a || "?").replace(/[^A-Za-zÀ-ÿ ]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join("") || "?"; }
+  function flags(p) {
+    var w = (p.maison || [])[0], w2 = (p.maison || [])[1], today = iso();
+    var pain = !!(w && w.dou != null && (w.dou >= 5 || (w2 && w2.dou != null && w.dou - w2.dou >= 2)));
+    var due = !!(p.next && p.next <= today);
+    return { pain: pain, due: due, today: p.next === today, w: w };
   }
   function list() {
     var rows = (L || []).slice().sort(function (a, b) { return (b.maj && b.maj.seconds || 0) - (a.maj && a.maj.seconds || 0); });
-    var html = top("KineCabinet.close()", "Espace kiné") +
-      "<div><div class='kf-h1 kcb-h1'>Mes patients</div><div class='kf-sub'>Suivi au cabinet : bilans, étapes et progression.</div></div>" +
-      "<button class='kcb-cta' onclick='KineCabinet.nouveau()'>" + ICON.plus + "Nouveau patient</button>";
-    if (!rows.length) html += "<div class='kf-note'>Aucun patient pour l'instant. Crée une fiche, puis donne le code au patient : son téléphone se relie à sa fiche.</div>";
-    html += rows.map(function (p) {
-      var P = KP.get(p.parcours), n = P ? P.etapes.length : 0, e = (p.etape || 0) + 1;
-      return "<button class='kcb-pat' onclick='KineCabinet.fiche(" + q(p.id) + ")'><div><b>" + esc(p.alias || "Patient") + "</b><span>" + esc(P ? P.nom : "Parcours à choisir") + (p.cote && p.cote !== "2" ? ", " + (p.cote === "D" ? "droit" : "gauche") : "") + "</span></div>" +
+    var F = rows.map(function (p) { return flags(p); });
+    var nPain = F.filter(function (f) { return f.pain; }).length, nDue = F.filter(function (f) { return f.due; }).length;
+    var html = head("Mes patients");
+    if (D.length) html += "<button class='kcb-dem' onclick='KineCabinet.demandes()'><i>" + D.length + "</i><span><b>" + (D.length > 1 ? "Nouvelles demandes d'accès" : "Nouvelle demande d'accès") + "</b><span>" + esc(D.slice(0, 3).map(function (d) { return d.prenom + " " + String(d.nom || "").charAt(0) + "."; }).join(", ")) + "</span></span>" + ICON.next + "</button>";
+    html += "<div class='kcb-stats'><div><b>" + rows.length + "</b><span>patient" + (rows.length > 1 ? "s" : "") + " suivi" + (rows.length > 1 ? "s" : "") + "</span></div><div><b>" + nDue + "</b><span>bilan" + (nDue > 1 ? "s" : "") + " à faire</span></div><div class='" + (nPain ? "warn" : "") + "'><b>" + nPain + "</b><span>douleur en hausse</span></div></div>";
+    html += "<div class='kcb-filt'>" + [["tous", "Tous"], ["auj", "Bilan aujourd'hui"], ["surv", "À surveiller"]].map(function (f) { return "<button class='" + (filt === f[0] ? "on" : "") + "' onclick='KineCabinet.filter(\"" + f[0] + "\")'>" + f[1] + "</button>"; }).join("") + "</div>";
+    var shown = rows.filter(function (p, i) { return filt === "tous" || (filt === "auj" && F[i].due) || (filt === "surv" && (F[i].pain || F[i].due)); });
+    if (!rows.length) html += "<div class='kf-note'>Aucun patient pour l'instant. Crée une fiche avec le bouton +, ou accepte une demande d'accès : le téléphone du patient se relie à sa fiche.</div>";
+    else if (!shown.length) html += "<div class='kf-note'>Personne dans ce filtre.</div>";
+    html += shown.map(function (p) {
+      var P = KP.get(p.parcours), n = P ? P.etapes.length : 0, e = (p.etape || 0) + 1, f = flags(p);
+      var sub = (P ? P.nom : "Parcours à choisir") + (p.cote && p.cote !== "2" ? ", " + (p.cote === "D" ? "droit" : "gauche") : "");
+      var info = f.pain ? "douleur " + KP.fmt(f.w.dou) + "/10 à la maison" : f.due ? "bilan prévu" + (f.today ? " aujourd'hui" : "") : f.w ? f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine" : "";
+      return "<button class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
         (P ? "<em>Étape " + e + "/" + n + "</em>" : "") + "</button>";
     }).join("");
-    html += "<button class='v2-row' onclick='KineCabinet.guide(null)'><b>Guide d'orientation du genou</b><span>›</span></button>";
-    show(html);
+    show(html + "<button class='kcb-fab' onclick='KineCabinet.nouveau()' aria-label='Nouveau patient'>" + ICON.plus + "</button>", null, "list");
   }
+  function filter(f) { filt = f; list(); }
+
+  /* ════════ Demandes d'accès ════════ */
+  function demandes() {
+    if (!isKine()) { open(); return; }
+    loading();
+    fbCab.demandes().then(function (rows) {
+      D = rows; nDem = rows.length;
+      var html = head("Demandes", "Patients sans code");
+      if (!rows.length) html += "<div class='kgd-empty'><b>Aucune demande</b><span>Un patient qui n'a pas de code peut demander un accès depuis l'appli, avec son prénom et son nom. La demande arrive ici.</span></div>";
+      html += rows.map(function (d) {
+        var t = d.t && d.t.toDate ? d.t.toDate() : null;
+        return "<button class='kcb-pat' onclick='KineCabinet.accept(" + q(d.id) + ")'><i>" + esc(initials(d.prenom + " " + d.nom)) + "</i><div><b>" + esc(d.prenom + " " + d.nom) + "</b><span>" + esc([t ? "Le " + t.getDate() + " " + MOIS[t.getMonth()] : "", d.msg ? "« " + d.msg + " »" : ""].filter(Boolean).join(" · ")) + "</span></div><em>Voir</em></button>";
+      }).join("");
+      html += "<p class='kcb-hint'>Les noms complets ne sont visibles que par toi. Une demande est effacée dès que tu l'acceptes ou la refuses, et au bout de 30 jours sinon.</p>";
+      show(html, null, "demandes");
+    }, fail);
+  }
+  function accept(uid) {
+    var d = D.filter(function (x) { return x.id === uid; })[0]; if (!d) { demandes(); return; }
+    draft = { alias: (d.prenom + " " + String(d.nom || "").charAt(0).toUpperCase() + ".").slice(0, 24), parcours: "", cote: "D", date0: iso(), opts: {}, uid: uid, full: d.prenom + " " + d.nom, msg: d.msg };
+    form(null);
+  }
+  function refuse(uid) {
+    if (!confirm("Refuser cette demande ? Le patient verra qu'elle n'a pas été acceptée.")) return;
+    loading(); fbCab.refuse(uid).then(demandes, fail);
+  }
+
+  /* ════════ Bilan rapide : choisir le patient ════════ */
+  function bilanPick() {
+    if (!isKine()) { open(); return; }
+    var go = function () {
+      var rows = (L || []).slice().sort(function (a, b) { var fa = flags(a).due ? 0 : 1, fb = flags(b).due ? 0 : 1; return fa - fb || String(a.alias).localeCompare(String(b.alias)); });
+      var html = head("Bilan", "Choisis le patient");
+      html += rows.length ? rows.map(function (p) { var P = KP.get(p.parcours), f = flags(p); return "<button class='kcb-pat' onclick='KineCabinet.bilanFor(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias) + "</b><span>" + esc((P ? P.nom : "") + (f.due ? " · bilan prévu" : "")) + "</span></div><em>Bilan</em></button>"; }).join("")
+        : "<div class='kf-note'>Aucun patient pour l'instant.</div>";
+      show(html, null, "bilan");
+    };
+    if (L) go(); else { loading(); fbCab.list().then(function (r) { L = r; go(); }, fail); }
+  }
+  function bilanFor(pid) { loading(); fbCab.get(pid).then(function (p) { C = p; sel = null; bilan(); }, fail); }
 
   /* ════════ Nouveau patient / réglages ════════ */
   function nouveau(fromGuide) {
@@ -77,10 +154,11 @@ var KineCabinet = (function () {
       return "<div class='kcb-field'><span class='kcb-lab'>" + esc(o.l) + "</span><div class='kf-chips'>" + o.ch.map(function (c) {
         return "<button type='button' class='" + (d.opts[o.id] === c[0] ? "sel" : "") + "' onclick='KineCabinet.opt(" + q(o.id) + "," + q(c[0]) + ")'>" + esc(c[1]) + "</button>"; }).join("") + "</div></div>";
     }).join("") : "";
-    var html = top(pid ? "KineCabinet.fiche(" + q(pid) + ")" : "KineCabinet.open()", pid ? "Réglages" : "Nouveau patient") +
-      "<div class='kf-h1 kcb-h1'>" + (pid ? "Modifier la fiche" : "Nouveau patient") + "</div>" +
+    var dem = !pid && d.uid;
+    var html = top(pid ? "KineCabinet.fiche(" + q(pid) + ")" : dem ? "KineCabinet.demandes()" : "KineCabinet.open()", pid ? "Réglages" : dem ? "Demande d'accès" : "Nouveau patient") +
+      (dem ? "<div><div class='kf-h1 kcb-h1'>" + esc(d.full) + "</div>" + (d.msg ? "<div class='kf-sub'>« " + esc(d.msg) + " »</div>" : "") + "</div>" : "<div class='kf-h1 kcb-h1'>" + (pid ? "Modifier la fiche" : "Nouveau patient") + "</div>") +
       "<label class='kcb-field'><span class='kcb-lab'>Pseudonyme ou initiales</span><input class='kcb-in' id='kcb-alias' maxlength='24' value='" + esc(d.alias) + "' placeholder='Par exemple : Samir B.' oninput='KineCabinet.set(\"alias\",this.value,1)'></label>" +
-      "<p class='kcb-hint'>Pas de nom complet : la fiche reste pseudonyme.</p>" +
+      "<p class='kcb-hint'>" + (dem ? "Le nom complet est effacé dès que tu acceptes : la fiche reste pseudonyme." : "Pas de nom complet : la fiche reste pseudonyme.") + "</p>" +
       "<div class='kcb-field'><span class='kcb-lab'>Parcours</span><div class='kf-chips'>" + chips + "</div>" +
       "<button type='button' class='kcb-link' onclick='KineCabinet.guide(\"new\")'>Pas de diagnostic ? Ouvrir le guide d'orientation</button></div>" +
       "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
@@ -88,8 +166,10 @@ var KineCabinet = (function () {
       "<label class='kcb-field'><span class='kcb-lab'>" + (P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1)'></label>" +
       opts +
       (pid ? "<label class='kcb-field'><span class='kcb-lab'>Exercice de référence au cabinet</span><input class='kcb-in' list='kcb-allex' value='" + esc(d.ref || (P ? P.ref : "")) + "' onchange='KineCabinet.set(\"ref\",this.value,1)'></label>" + datalist() : "");
-    var foot = "<button class='seq-btn-main' onclick='KineCabinet.saveForm(" + q(pid) + ")'>" + (pid ? "Enregistrer" : "Créer la fiche et le code") + "</button>" +
-      (pid ? "<button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.remove(" + q(pid) + ")'>Supprimer ce patient</button>" : "");
+    if (dem) html += "<div class='kcb-ok'>" + ICON.ok + "Son téléphone se reliera tout seul : pas de code à donner.</div>";
+    var foot = "<button class='seq-btn-main' onclick='KineCabinet.saveForm(" + q(pid) + ")'>" + (pid ? "Enregistrer" : dem ? "Accepter et créer la fiche" : "Créer la fiche et le code") + "</button>" +
+      (pid ? "<button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.remove(" + q(pid) + ")'>Supprimer ce patient</button>" : "") +
+      (dem ? "<button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.refuse(" + q(d.uid) + ")'>Refuser la demande</button>" : "");
     show(html, foot);
   }
   function datalist() {
@@ -109,6 +189,7 @@ var KineCabinet = (function () {
       fbCab.save(pid, data).then(function () { fiche(pid); }, fail);
     } else {
       data.etape = 0; data.done = {}; data.debut = iso();
+      if (d.uid) { loading("Création de la fiche…"); fbCab.accept(d.uid, data).then(function (id) { draft = null; D = D.filter(function (x) { return x.id !== d.uid; }); nDem = D.length; fiche(id); }, fail); return; }
       loading("Création de la fiche…");
       fbCab.create(data).then(function (id) { return fbCab.code(id).then(function () { draft = null; codeView(id, true); }); }, fail);
     }
@@ -197,7 +278,8 @@ var KineCabinet = (function () {
     html += "<div class='su-card'><div class='su-card-h'><b>À la maison</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
       (w ? "<div class='kcb-3'><div><b>" + w.n + "</b><span>séance" + (w.n > 1 ? "s" : "") + " sem. " + esc(String(w.w).split("-W")[1] || "") + "</span></div><div><b>" + (w.dou != null ? KP.fmt(w.dou) + "/10" : "–") + "</b><span>douleur moyenne</span></div><div><b>" + (w.der ? dfr(w.der) : "–") + "</b><span>dernière séance</span></div></div>"
          : "<div class='kf-sub'>" + (C.membres ? "Aucune séance faite à la maison cette semaine." : "Donne le code au patient pour voir ses séances à la maison.") + "</div>") +
-      "<button class='kcb-link' onclick='KineCabinet.code(" + q(C.id) + ")'>" + (C.membres ? "Code du patient" : "Afficher le code à donner au patient") + "</button></div>";
+      "<button class='kcb-link' onclick='KineCabinet.code(" + q(C.id) + ")'>" + (C.membres ? "Code du patient" : "Afficher le code à donner au patient") + "</button>" +
+      (window.KineMonSuivi ? "<button class='kcb-link' onclick='KineCabinet.asPatient()'>Voir comme mon patient</button>" : "") + "</div>";
     // bilans
     var B = C.bilans || [];
     html += "<div class='su-card'><div class='su-card-h'><b>Bilans</b><span>" + B.length + "</span></div>" + (km && km.hist.length > 1 ? curve(km.hist, P.key.lsi ? [km.next ? km.next.v : null, 90] : []) : "") +
@@ -372,7 +454,16 @@ var KineCabinet = (function () {
      Téléphone à plat sur la cuisse puis sur le tibia, le haut du téléphone toujours vers le pied :
      flexion = inclinaison de la cuisse − inclinaison du tibia. */
   var I = null;
+  function ov(id) { var el = $(id); if (!el) { el = document.createElement("div"); el.id = id; el.className = "kcb-incl-ov"; el.setAttribute("role", "dialog"); document.body.appendChild(el); } return el; }
+  // Deux façons de mesurer : téléphone posé sur la jambe, ou photo de profil avec 3 points
   function incl(m, sd) {
+    var el = ov("kcb-incl"); el.setAttribute("aria-label", "Mesurer l'angle");
+    el.innerHTML = "<div class='kcb-incl-card'><div class='kcb-mh'><span>" + esc(KP.M[m].l) + ", côté " + (sd === "a" ? "atteint" : "sain") + "</span><button class='kf-back' onclick='KineCabinet.inclClose()' aria-label='Fermer'>×</button></div>" +
+      "<button class='krl-row' onclick='KineCabinet.photo(" + q(m) + "," + q(sd) + ")'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/></svg></span><span class='krl-t'><b>Sur une photo</b><span>De profil, 3 points à ajuster du doigt</span></span></button>" +
+      "<button class='krl-row' onclick='KineCabinet.inclPhone(" + q(m) + "," + q(sd) + ")'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><rect x='7' y='2' width='10' height='20' rx='2.5'/><path d='M11 18h2'/></svg></span><span class='krl-t'><b>Téléphone posé sur la jambe</b><span>Sur la cuisse, puis sur le tibia</span></span></button></div>";
+    el.classList.add("open");
+  }
+  function inclPhone(m, sd) {
     I = { m: m, sd: sd, step: 0, buf: [], thigh: null, res: null, got: false };
     var el = $("kcb-incl"); if (!el) { el = document.createElement("div"); el.id = "kcb-incl"; el.className = "kcb-incl-ov"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Mesure avec le téléphone"); document.body.appendChild(el); }
     var start = function () { window.addEventListener("deviceorientation", onOri); setTimeout(function () { if (I && !I.got) { I.err = 1; inclView(); } }, 1800); inclView(); };
@@ -390,7 +481,7 @@ var KineCabinet = (function () {
     var body;
     if (I.err) body = "<p>" + (I.err === 2 ? "L'accès aux capteurs a été refusé. Tu peux l'autoriser dans les réglages du navigateur, ou saisir la valeur mesurée au goniomètre." : "Le capteur d'inclinaison ne répond pas sur cet appareil. Saisis la valeur mesurée au goniomètre.") + "</p><button class='seq-btn-main' onclick='KineCabinet.inclClose()'>Fermer</button>";
     else if (I.res != null) body = "<div class='kcb-ang big'>" + KP.fmt(I.res) + "°</div><p>" + (isExt ? (I.res < 0 ? "Déficit d'extension de " + KP.fmt(-I.res) + "°." : I.res > 0 ? "Hyperextension de " + KP.fmt(I.res) + "°." : "Extension complète.") : "Flexion du genou.") + "</p>" +
-      "<button class='seq-btn-main' onclick='KineCabinet.inclUse()'>Utiliser cette valeur</button><button class='seq-btn-secondary' onclick='KineCabinet.incl(" + q(I.m) + "," + q(I.sd) + ")'>Recommencer</button>";
+      "<button class='seq-btn-main' onclick='KineCabinet.inclUse()'>Utiliser cette valeur</button><button class='seq-btn-secondary' onclick='KineCabinet.inclPhone(" + q(I.m) + "," + q(I.sd) + ")'>Recommencer</button>";
     else body = "<div class='kcb-ang' id='kcb-ang'>–</div><div id='kcb-stab'>Garde le téléphone immobile</div>" +
       "<ol class='kcb-isteps'><li class='" + (I.step === 0 ? "now" : "done") + "'>Pose le téléphone à plat sur la face avant de la <b>cuisse</b>, écran vers le haut, <b>le haut du téléphone vers le pied</b>.</li>" +
       "<li class='" + (I.step === 1 ? "now" : "") + "'>Pose-le de la même façon sur le <b>tibia</b>, juste sous le genou.</li></ol>" +
@@ -410,6 +501,91 @@ var KineCabinet = (function () {
     inclClose();
   }
   function inclClose() { window.removeEventListener("deviceorientation", onOri); var el = $("kcb-incl"); if (el) el.classList.remove("open"); I = null; }
+
+  /* ════════ Angle sur photo : hanche, genou, cheville ════════
+     Points proposés par la détection de posture (si elle répond), ajustables du doigt.
+     Flexion = 180° − angle formé en dessous du genou par la cuisse et la jambe. La photo n'est pas enregistrée. */
+  var PH = null;
+  function photo(m, sd) {
+    inclClose();
+    PH = { m: m, sd: sd, pts: null, hyper: false };
+    var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
+    inp.onchange = function () { var f = inp.files && inp.files[0]; if (!f) return; var r = new FileReader(); r.onload = function () { PH.src = r.result; photoLoad(); }; r.readAsDataURL(f); };
+    inp.click();
+  }
+  function photoLoad() {
+    var img = new Image();
+    img.onload = function () {
+      PH.w = img.naturalWidth; PH.h = img.naturalHeight; PH.img = img;
+      PH.pts = [{ x: .22, y: .62 }, { x: .5, y: .38 }, { x: .78, y: .66 }];
+      photoView("Recherche des repères…");
+      autoPoints(img).then(function (p) { if (p && PH) PH.pts = p; if (PH) photoView(p ? "" : "Repères non trouvés : place les 3 points à la main."); });
+    };
+    img.src = PH.src;
+  }
+  function autoPoints(img) {
+    if (!window.KineCamera || !KineCamera.pose) return Promise.resolve(null);
+    var done = false;
+    return Promise.race([
+      KineCamera.pose("full").then(function (det) {
+        var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext("2d").drawImage(img, 0, 0);
+        var r = det.detectForVideo(c, performance.now() + 1000), lm = r && r.landmarks && r.landmarks[0]; if (!lm) return null;
+        var v = function (i) { return lm[i].visibility == null ? 1 : lm[i].visibility; };
+        var L = v(23) + v(25) + v(27), R = v(24) + v(26) + v(28), ids = L >= R ? [23, 25, 27] : [24, 26, 28];
+        return ids.map(function (i) { return { x: Math.max(0, Math.min(1, lm[i].x)), y: Math.max(0, Math.min(1, lm[i].y)) }; });
+      }).catch(function () { return null; }),
+      new Promise(function (r) { setTimeout(function () { if (!done) r(null); }, 8000); })
+    ]).then(function (x) { done = true; return x; });
+  }
+  function angleOf(p, W, H) {
+    var a = { x: p[0].x * W - p[1].x * W, y: p[0].y * H - p[1].y * H }, b = { x: p[2].x * W - p[1].x * W, y: p[2].y * H - p[1].y * H };
+    var cos = (a.x * b.x + a.y * b.y) / (Math.hypot(a.x, a.y) * Math.hypot(b.x, b.y) || 1);
+    return Math.acos(Math.max(-1, Math.min(1, cos))) * 180 / Math.PI;
+  }
+  function photoValue() { var flex = Math.round(180 - angleOf(PH.pts, PH.w, PH.h)); return PH.m === "ext" ? (PH.hyper ? flex : -flex) : flex; }
+  function photoView(note) {
+    var el = ov("kcb-photo"); el.classList.add("kcb-photo-ov"); el.setAttribute("aria-label", "Angle sur photo");
+    var W = PH.w, H = PH.h, p = PH.pts, X = function (i) { return (p[i].x * W).toFixed(1); }, Y = function (i) { return (p[i].y * H).toFixed(1); };
+    var r = Math.max(W, H) / 40, sw = Math.max(W, H) / 220, v = photoValue(), isExt = PH.m === "ext";
+    var names = ["Grand trochanter", "Interligne externe", "Malléole externe"];
+    el.innerHTML = "<div class='kph'><div class='kcb-mh'><span>" + esc(KP.M[PH.m].l) + ", côté " + (PH.sd === "a" ? "atteint" : "sain") + "</span><button class='kf-back' onclick='KineCabinet.photoClose()' aria-label='Fermer'>×</button></div>" +
+      "<div class='kph-stage'><img src='" + PH.src + "' alt='Photo de la jambe'><svg id='kph-svg' viewBox='0 0 " + W + " " + H + "' preserveAspectRatio='xMidYMid meet' role='img' aria-label='Points de mesure, angle " + v + " degrés'>" +
+        "<line x1='" + X(0) + "' y1='" + Y(0) + "' x2='" + X(1) + "' y2='" + Y(1) + "' stroke='#7CF0D6' stroke-width='" + sw + "'/><line x1='" + X(1) + "' y1='" + Y(1) + "' x2='" + X(2) + "' y2='" + Y(2) + "' stroke='#7CF0D6' stroke-width='" + sw + "'/>" +
+        p.map(function (_, i) { return "<circle data-i='" + i + "' cx='" + X(i) + "' cy='" + Y(i) + "' r='" + r + "' fill='rgba(124,240,214,.28)' stroke='" + (i === 1 ? "#fff" : "#7CF0D6") + "' stroke-width='" + sw + "'><title>" + names[i] + "</title></circle>"; }).join("") +
+      "</svg><div class='kph-val'><b>" + v + "°</b><span>" + (isExt ? (v < 0 ? "déficit d'extension" : v > 0 ? "hyperextension" : "extension complète") : "flexion") + "</span></div></div>" +
+      "<p class='kph-help'>" + esc(note || "Fais glisser les points sur le grand trochanter, l'interligne externe du genou et la malléole externe.") + "</p>" +
+      (isExt ? "<label class='krl-ok kph-hyp'><input type='checkbox' onchange='KineCabinet.photoHyper(this.checked)'" + (PH.hyper ? " checked" : "") + "><span>Le genou part en hyperextension</span></label>" : "") +
+      "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.photo(" + q(PH.m) + "," + q(PH.sd) + ")'>Reprendre</button><button class='seq-btn-main' onclick='KineCabinet.photoUse()'>Utiliser " + v + "°</button></div></div>";
+    el.classList.add("open");
+    dragWire();
+  }
+  function dragWire() {
+    var svg = $("kph-svg"); if (!svg) return;
+    var cur = -1;
+    var pos = function (e) { var b = svg.getBoundingClientRect(), sc = Math.min(b.width / PH.w, b.height / PH.h), ox = (b.width - PH.w * sc) / 2, oy = (b.height - PH.h * sc) / 2;
+      return { x: Math.max(0, Math.min(1, (e.clientX - b.left - ox) / sc / PH.w)), y: Math.max(0, Math.min(1, (e.clientY - b.top - oy) / sc / PH.h)) }; };
+    svg.addEventListener("pointerdown", function (e) {
+      var p = pos(e), best = -1, bd = 1e9;
+      PH.pts.forEach(function (q0, i) { var d = Math.hypot((q0.x - p.x) * PH.w, (q0.y - p.y) * PH.h); if (d < bd) { bd = d; best = i; } });
+      if (bd < Math.max(PH.w, PH.h) / 6) { cur = best; svg.setPointerCapture(e.pointerId); e.preventDefault(); }
+    });
+    svg.addEventListener("pointermove", function (e) { if (cur < 0) return; PH.pts[cur] = pos(e); move(); });
+    svg.addEventListener("pointerup", function () { if (cur >= 0) { cur = -1; photoView(); } });
+    function move() {
+      var c = svg.querySelectorAll("circle"), l = svg.querySelectorAll("line"), P = PH.pts, W = PH.w, H = PH.h;
+      c[cur].setAttribute("cx", P[cur].x * W); c[cur].setAttribute("cy", P[cur].y * H);
+      l[0].setAttribute("x1", P[0].x * W); l[0].setAttribute("y1", P[0].y * H); l[0].setAttribute("x2", P[1].x * W); l[0].setAttribute("y2", P[1].y * H);
+      l[1].setAttribute("x1", P[1].x * W); l[1].setAttribute("y1", P[1].y * H); l[1].setAttribute("x2", P[2].x * W); l[1].setAttribute("y2", P[2].y * H);
+      var b = document.querySelector(".kph-val b"); if (b) b.textContent = photoValue() + "°";
+    }
+  }
+  function photoHyper(v) { PH.hyper = !!v; photoView(); }
+  function photoUse() {
+    var el = sheet().querySelector("input[data-m='" + PH.m + "'][data-s='" + PH.sd + "'][data-i='0']");
+    if (el) { el.value = String(photoValue()); live(); }
+    photoClose();
+  }
+  function photoClose() { var el = $("kcb-photo"); if (el) { el.classList.remove("open"); el.innerHTML = ""; } PH = null; }
 
   /* ════════ Guide d'orientation du genou ════════ */
   var G_SEC = [["Interrogatoire", ["trauma", "age", "zone", "signes"]], ["Examen clinique", ["tests"]]];
@@ -449,7 +625,7 @@ var KineCabinet = (function () {
     var p0 = r.pistes[0], foot = "<div class='kgd-foot'><div><span>" + (r.alertes.length ? "Signe d'alerte" : p0 ? "Piste principale" : "Pistes") + "</span><b>" + esc(r.alertes.length ? "Avis médical d'abord" : p0 ? p0.nom : "à compléter") + "</b></div>" +
       "<button class='kcb-cta' onclick='KineCabinet.gGo()'>Voir</button><button class='kcb-link' onclick='KineCabinet.gReset()'>Effacer</button></div>";
     var y = sheet().classList.contains("open") ? sheet().scrollTop : 0;
-    show(html, foot);
+    show(html, foot, gFor ? null : "guide");
     sheet().scrollTop = y;
     holdWire();
   }
@@ -486,13 +662,19 @@ var KineCabinet = (function () {
   }
 
   function close() { var el = $("kcb-sheet"); if (el) el.classList.remove("open"); }
+  // Aperçu de ce que voit le patient (sans les notes du kiné)
+  function asPatient() {
+    var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, next: C.next, ref: C.ref, hist: C.hist,
+      bilans: (C.bilans || []).map(function (b) { return { d: b.d, m: b.m }; }), seances: (C.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; }) }));
+    KineMonSuivi.preview(d);
+  }
 
   return {
-    open: open, close: close, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    open: open, close: close, filter: filter, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
-    incl: incl, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
+    incl: incl, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
     guide: guide, gA: gA, gQ: gQ, gReset: gReset, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2
   };

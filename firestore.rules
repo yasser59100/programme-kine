@@ -86,6 +86,22 @@ service cloud.firestore {
       allow create, update: if isAdmin();
       allow delete: if isAdmin() || (request.auth != null && exists(/databases/$(database)/documents/patients/$(resource.data.pid)/membres/$(request.auth.uid)));
     }
+    // Demandes d'accès sans code : le patient écrit la sienne (prénom, nom, un mot), seul le kiné les lit
+    match /demandes/{uid} {
+      allow read, delete: if isAdmin();
+      allow get, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['prenom', 'nom', 'msg', 't'])
+        && request.resource.data.prenom is string && request.resource.data.prenom.size() >= 1 && request.resource.data.prenom.size() <= 40
+        && request.resource.data.nom is string && request.resource.data.nom.size() >= 1 && request.resource.data.nom.size() <= 40
+        && request.resource.data.msg is string && request.resource.data.msg.size() <= 160
+        && request.resource.data.t == request.time;
+    }
+    // Réponse à une demande : écrite par le kiné, lue puis effacée par le téléphone du patient
+    match /liens/{uid} {
+      allow read, write: if isAdmin();
+      allow get, delete: if request.auth != null && request.auth.uid == uid;
+    }
     match /patients/{pid} {
       allow read, write: if isAdmin();
       allow get: if isMember(pid);
@@ -116,7 +132,7 @@ service cloud.firestore {
       }
       // Rejoindre sa fiche : avec un code valide qui pointe vers cette fiche
       match /membres/{uid} {
-        allow read, delete: if isAdmin();
+        allow read, write: if isAdmin();
         allow get: if request.auth != null && request.auth.uid == uid;
         allow create: if request.auth != null && request.auth.uid == uid
           && request.resource.data.keys().hasOnly(['code', 't'])

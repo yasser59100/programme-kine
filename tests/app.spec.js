@@ -167,7 +167,7 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   expect(miss).toEqual([]);
   await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
   await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
-  await expect(page.locator("#kcb-sheet .kcb-cta")).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
   await page.evaluate(() => KineCabinet.nouveau());
   await page.fill("#kcb-alias", "S.B.");
   await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.set("date0", "2026-01-10", 1); KineCabinet.saveForm(null); });
@@ -198,6 +198,37 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await shot(page, info, "21-cabinet-patient");
   const custom = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine").map(x => x.ex.length)[0]);
   expect(custom).toBe(2);
+  await clean(errs);
+});
+
+test("kiné ou patient : premier lancement, demande d'accès et acceptation", async ({ page }, info) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await page.addInitScript(() => { localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-masc-off", "1"); sessionStorage.setItem("kf-ressenti-later", "1"); });
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  // nouveau téléphone : l'écran de choix s'ouvre
+  await expect(page.locator("#kf-role.open .krl-card")).toHaveCount(2, { timeout: 8000 });
+  await shot(page, info, "22-role-choix");
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => KineRole.pick("patient"));
+  await expect(page.locator("#kf-role .krl-row")).toHaveCount(3);
+  await page.evaluate(() => KineRole.demande());
+  await page.fill("#krl-prenom", "Samir"); await page.fill("#krl-nom", "Benali"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await expect(page.locator("#kms-slot .kms-wait")).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("kf-role"))).toBe("patient");
+  // le kiné accepte
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-dem")).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-tabs button")).toHaveCount(5);
+  await page.evaluate(() => KineCabinet.demandes());
+  await expect(page.locator("#kcb-sheet .kcb-pat")).toHaveCount(1);
+  await page.evaluate(() => { KineCabinet.accept("anonP"); KineCabinet.set("parcours", "sfp"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
+  expect(await page.evaluate(() => Object.keys(window.__db.demandes).length)).toBe(0);
+  // le téléphone du patient se relie tout seul
+  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; return KineMonSuivi.refresh(true); });
+  expect(await page.evaluate(() => !!JSON.parse(localStorage.getItem("kf-cab") || "{}").pid)).toBe(true);
   await clean(errs);
 });
 
