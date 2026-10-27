@@ -13,14 +13,14 @@ jobs:
         run: |
           K="AIzaSyCI7fwNeTl-2kYNnlpjr0IatLvQbppsUgg"; P="projects/programme-kine/databases/(default)/documents"
           R=$(curl -s -X POST "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$K" -H "Content-Type: application/json" -d '{"returnSecureToken":true}')
-          TOK=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin).get('idToken',''))"); UID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin).get('localId',''))")
+          TOK=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin).get('idToken',''))"); AUID=$(echo "$R" | python3 -c "import sys,json; print(json.load(sys.stdin).get('localId',''))")
           {
             echo "== connexion anonyme : $([ -n "$TOK" ] && echo OK || echo ECHEC)"
-            echo "== demande d'accès (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" -d '{"writes":[{"update":{"name":"'"$P"'/demandes/'"$UID"'","fields":{"prenom":{"stringValue":"Test"},"nom":{"stringValue":"Verification"},"msg":{"stringValue":"a ignorer"}}},"updateTransforms":[{"fieldPath":"t","setToServerValue":"REQUEST_TIME"}]}]}' "https://firestore.googleapis.com/v1/$P:commit"
-            echo "== relire sa demande (200)"; curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes/$UID"
+            echo "== demande d'accès (doit marcher : 200)"; curl -s -o /dev/null -w "%{http_code}\n" -X POST -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" -d '{"writes":[{"update":{"name":"'"$P"'/demandes/'"$AUID"'","fields":{"prenom":{"stringValue":"Test"},"nom":{"stringValue":"Verification"},"msg":{"stringValue":"a ignorer"}}},"updateTransforms":[{"fieldPath":"t","setToServerValue":"REQUEST_TIME"}]}]}' "https://firestore.googleapis.com/v1/$P:commit"
+            echo "== relire sa demande (200)"; curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes/$AUID"
             echo "== lister les demandes (403)"; curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes"
             echo "== lister les fiches patients (403)"; curl -s -o /dev/null -w "%{http_code}\n" -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/patients"
-            echo "== effacer sa demande de test (200)"; curl -s -o /dev/null -w "%{http_code}\n" -X DELETE -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes/$UID"
+            echo "== effacer sa demande de test (200)"; curl -s -o /dev/null -w "%{http_code}\n" -X DELETE -H "Authorization: Bearer $TOK" "https://firestore.googleapis.com/v1/$P/demandes/$AUID"
           } > /tmp/verif.txt 2>&1
           cat /tmp/verif.txt
           git config user.name "github-actions" && git config user.email "actions@github.com"
