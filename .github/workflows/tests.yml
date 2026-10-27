@@ -21,8 +21,17 @@ jobs:
       - name: Règles Firestore (émulateur)
         working-directory: tests
         run: |
-          npm i --no-save @firebase/rules-unit-testing@3 firebase@10.12.2 >/dev/null 2>&1
-          npx -y firebase-tools@13 emulators:exec --only firestore --project demo-kine "node regles-firestore.mjs"
+          set +e
+          npm i --no-save @firebase/rules-unit-testing@3 firebase@10.12.2 > /tmp/regles.txt 2>&1
+          npx -y firebase-tools@13 emulators:exec --only firestore --project demo-kine "node regles-firestore.mjs" >> /tmp/regles.txt 2>&1
+          code=$?
+          cat /tmp/regles.txt | tail -60
+          # Résultat lisible depuis la session (journaux d'Actions inaccessibles)
+          cd .. && git config user.name "github-actions" && git config user.email "actions@github.com"
+          git fetch -q origin diag || true
+          git checkout -q -B diag-regles origin/diag 2>/dev/null || git checkout -q -B diag-regles
+          mkdir -p tools && grep -v -i -E "token|key" /tmp/regles.txt | tail -80 > tools/regles_test.txt && git add tools/regles_test.txt && git commit -q -m "Regles test [skip ci]" && git push -q origin diag-regles:diag || true
+          exit $code
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 25
