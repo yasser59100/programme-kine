@@ -146,11 +146,15 @@ var KineRole = (function () {
         kine = "<button class='krl-row dark' onclick='KineRole.hubClose();KineMonSuivi.join()'><span class='krl-ic'>ABC</span><span class='krl-t'><b>J'ai un code de mon kiné</b><span>6 caractères, donnés au cabinet</span></span>" + NEXT + "</button>" +
           "<button class='krl-row' onclick='KineRole.hubClose();KineRole.demande()'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 4h16v12H8l-4 4z'/><path d='M8 9h8M8 12h5'/></svg></span><span class='krl-t'><b>Demander un accès</b><span>Pas de code ? Ton kiné reçoit ta demande</span></span>" + NEXT + "</button>";
       }
-      // Sauvegarde du suivi avec Google (changement de téléphone, appli supprimée)
-      var g = window.fbPat && fbPat.google ? fbPat.google() : null;
-      if (c && c.pid) kine += g ? "<div class='kcb-ok'>Suivi sauvegardé avec " + esc(g) + "</div>"
-        : "<button class='krl-row' onclick='KineRole.saveGoogle()'><span class='krl-ic soft'>G</span><span class='krl-t'><b>Sauvegarder mon suivi</b><span>Avec ton compte Google, pour le retrouver si tu changes de téléphone</span></span>" + NEXT + "</button>";
-      else if (!(c && c.pending)) kine += "<button class='krl-row dash' onclick='KineRole.restoreGoogle()'><span class='krl-ic grey'>G</span><span class='krl-t'><b>J'avais déjà un suivi</b><span>Le retrouver avec mon compte Google</span></span>" + NEXT + "</button>";
+      // Sauvegarde du suivi : identifiant et mot de passe, ou Google ; et sauvegarde des séances faites à la maison
+      var g = window.fbPat && fbPat.google ? fbPat.google() : null, lg = window.fbPat && fbPat.login ? fbPat.login() : null;
+      if (c && c.pid) {
+        kine += (lg || g) ? "<div class='kcb-ok'>Suivi sauvegardé" + (lg ? " : identifiant " + esc(lg) : " avec " + esc(g)) + "</div>"
+          : "<button class='krl-row' onclick='KineRole.loginForm(\"create\")'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='5' y='11' width='14' height='10' rx='2'/><path d='M8 11V8a4 4 0 0 1 8 0v3'/></svg></span><span class='krl-t'><b>Sauvegarder mon suivi</b><span>Un identifiant et un mot de passe, pour le retrouver si tu changes de téléphone</span></span>" + NEXT + "</button>";
+        var on = window.KineMonSuivi && KineMonSuivi.syncOn();
+        kine += "<div class='su-card khb-acc'><div><b>Sauvegarder mes séances</b><span>" + (on ? "Tes séances, douleurs et ressenti sont enregistrés dans ton suivi : ton kiné voit le détail." : "Tes séances restent seulement sur ce téléphone. Ton kiné ne voit qu'un résumé de la semaine.") + "</span></div>" +
+          "<button class='kcb-mode' onclick='KineMonSuivi.setConsent(" + (on ? 0 : 1) + ");KineRole.hub()'>" + (on ? "Désactiver" : "Activer") + "</button></div>";
+      } else if (!(c && c.pending)) kine += "<button class='krl-row dash' onclick='KineRole.loginForm(\"restore\")'><span class='krl-ic grey'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 12a9 9 0 1 0 3-6.7L3 8'/><path d='M3 3v5h5'/></svg></span><span class='krl-t'><b>J'avais déjà un suivi</b><span>Le retrouver avec mon identifiant</span></span>" + NEXT + "</button>";
       kine = "<div class='khb-h'>Mon kiné</div>" + kine + "<p class='kcb-hint' id='khb-msg'></p>";
     } else {
       kine = "<div class='khb-h'>Espace kiné</div><button class='krl-row dark' onclick='KineRole.hubClose();KineRole.kine()'><span class='krl-ic'>" + ME + "</span><span class='krl-t'><b>Mes patients</b><span>" + (admin ? "Connecté avec le compte kiné" : "Connexion avec ton compte Google de kiné") + "</span></span>" + NEXT + "</button>";
@@ -167,6 +171,48 @@ var KineRole = (function () {
     el.classList.add("open"); el.scrollTop = 0;
   }
   function hubSay(t) { var m = $("khb-msg"); if (m) m.textContent = t; }
+  /* Identifiant et mot de passe : créer (patient relié) ou retrouver son suivi (nouveau téléphone) */
+  function loginForm(mode, err, keep) {
+    var create = mode === "create", el = hubSheet(); keep = keep || {};
+    el.innerHTML = "<div class='kf-sheet-body'><div class='kcb-top'><button class='kf-back' onclick='KineRole.hub()' aria-label='Retour'>" + BACK + "</button><span></span><i></i></div>" +
+      "<div><h1 class='kf-h1 kcb-h1'>" + (create ? "Sauvegarder mon suivi" : "Retrouver mon suivi") + "</h1><p class='kf-sub krl-sub'>" + (create ? "Choisis un identifiant et un mot de passe. Note-les : ils te permettront de tout retrouver sur un autre téléphone." : "Tape l'identifiant et le mot de passe que tu avais choisis.") + "</p></div>" +
+      "<div class='su-card'><label class='kcb-field'><span class='kcb-lab'>Identifiant</span><input class='kcb-in' id='kl-id' autocapitalize='none' autocomplete='username' spellcheck='false' maxlength='30' placeholder='par exemple : samir.b' value='" + esc(keep.id || "") + "'></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Mot de passe" + (create ? " (6 caractères au moins)" : "") + "</span><input class='kcb-in' id='kl-pw' type='password' autocomplete='" + (create ? "new-password" : "current-password") + "' maxlength='60'></label></div>" +
+      (err ? "<div class='kcb-alert'><b>" + esc(err) + "</b></div>" : "") +
+      (create ? "<p class='kcb-hint'>Mot de passe oublié ? Ton kiné peut toujours te redonner un code.</p>" : "") +
+      "<button class='seq-btn-main' id='kl-go' onclick='KineRole.loginGo(\"" + mode + "\")'>" + (create ? "Enregistrer" : "Retrouver mon suivi") + "</button>" +
+      "<button class='v2-row' onclick='KineRole." + (create ? "saveGoogle" : "restoreGoogle") + "()'><b>" + (create ? "Plutôt avec mon compte Google" : "Avec mon compte Google") + "</b><span>›</span></button><p class='kcb-hint' id='khb-msg'></p></div>";
+    el.classList.add("open"); el.scrollTop = 0;
+  }
+  function loginGo(mode) {
+    var id = String($("kl-id").value || "").trim().toLowerCase(), pw = $("kl-pw").value || "", keep = { id: id };
+    if (!/^[a-z0-9._-]{3,30}$/.test(id)) { loginForm(mode, "L'identifiant fait 3 à 30 caractères : lettres sans accent, chiffres, point, tiret.", keep); return; }
+    if (pw.length < 6) { loginForm(mode, "Le mot de passe fait au moins 6 caractères.", keep); return; }
+    if (!window.fbPat) { loginForm(mode, "Connexion impossible pour l'instant. Vérifie Internet, puis réessaie.", keep); return; }
+    var b = $("kl-go"); if (b) { b.disabled = true; b.textContent = "Un instant…"; }
+    if (mode === "create") {
+      var c = cabState(); if (!c || !c.pid) { hub(); return; }
+      fbPat.linkLogin(c.pid, id, pw).then(function () { hub(); if (window.showToast) showToast("Suivi sauvegardé"); }, function (e) {
+        var code = e && e.code || "";
+        loginForm(mode, /already-in-use|email-already/.test(code) ? "Cet identifiant est déjà pris. Choisis-en un autre." : /weak-password/.test(code) ? "Mot de passe trop simple : 6 caractères au moins." : /provider-already-linked/.test(code) ? "Ton suivi est déjà sauvegardé avec un identifiant." : "La sauvegarde n'a pas marché. Vérifie Internet et réessaie.", keep);
+      });
+    } else {
+      fbPat.restoreLogin(id, pw).then(function (pid) {
+        if (!pid) { loginForm(mode, "Aucun suivi n'est rattaché à cet identifiant. Demande un code à ton kiné.", keep); return; }
+        found(pid);
+      }, function (e) { loginForm(mode, /too-many-requests/.test(e && e.code || "") ? "Trop d'essais. Patiente quelques minutes." : "Identifiant ou mot de passe incorrect.", keep); });
+    }
+  }
+  // Suivi retrouvé : on relie ce téléphone, on récupère le journal des séances s'il était sauvegardé
+  function found(pid) {
+    set(KEY, "patient"); set("kf-cab", JSON.stringify({ pid: pid }));
+    try { localStorage.removeItem("kf-cab-push"); localStorage.removeItem("kf-cab-jh"); } catch (e) {}
+    var M = window.KineMonSuivi; if (!M) { hubClose(); return; }
+    M.refresh(true).then(function () { return M.journalMerge(pid); }).then(function () {
+      hubClose(); if (window.showToast) showToast("Suivi retrouvé");
+      M.open();
+    });
+  }
   function saveGoogle() {
     var c = cabState(); if (!c || !c.pid || !window.fbPat) return;
     hubSay("Connexion à Google…");
@@ -180,8 +226,7 @@ var KineRole = (function () {
     hubSay("Connexion à Google…");
     fbPat.restoreGoogle().then(function (pid) {
       if (!pid) { hubSay("Aucun suivi n'est rattaché à ce compte Google. Demande un code à ton kiné."); return; }
-      set(KEY, "patient"); set("kf-cab", JSON.stringify({ pid: pid })); try { localStorage.removeItem("kf-cab-push"); } catch (e) {}
-      if (window.KineMonSuivi) KineMonSuivi.refresh(true).then(function () { hubClose(); KineMonSuivi.open(); if (window.showToast) showToast("Suivi retrouvé"); });
+      found(pid);
     }, function (e) { hubSay(e && /popup/.test(e.code || "") ? "La fenêtre Google a été fermée. Réessaie." : "Connexion impossible. Vérifie Internet et réessaie."); });
   }
   function hubMode(m) {
@@ -201,5 +246,5 @@ var KineRole = (function () {
   }
   document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 400); });
 
-  return { saveGoogle: saveGoogle, restoreGoogle: restoreGoogle, hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
+  return { loginForm: loginForm, loginGo: loginGo, saveGoogle: saveGoogle, restoreGoogle: restoreGoogle, hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
 })();

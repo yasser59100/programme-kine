@@ -29,7 +29,7 @@ var KineMonSuivi = (function () {
     if (!force && Date.now() - asked < 90000) return Promise.resolve(s);
     asked = Date.now();
     return fbPat.requestState().then(function (r) {
-      if (r.pid) { jset(KEY, { pid: r.pid }); try { localStorage.removeItem(PUSHKEY); } catch (e) {} return refresh(true).then(function () { if (window.showToast) showToast("Ton kiné a accepté ta demande"); return state(); }); }
+      if (r.pid) { jset(KEY, { pid: r.pid }); try { localStorage.removeItem(PUSHKEY); localStorage.removeItem(JH); } catch (e) {} return refresh(true).then(function () { if (window.showToast) showToast("Ton kiné a accepté ta demande"); askConsent(function () { close(); }); return state(); }); }
       if (r.refused) jset(KEY, { refused: true, prenom: s.prenom });
       else if (r.none) jset(KEY, null);
       slot(); return state();
@@ -52,11 +52,77 @@ var KineMonSuivi = (function () {
       d.seances = (d.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; });
       ["maj", "cree", "codeExp"].forEach(function (k) { delete d[k]; });
       var ns = { pid: s.pid, d: d, at: Date.now() };
-      jset(KEY, ns); syncSeance(d); pushHome(s.pid); slot();
+      jset(KEY, ns); syncSeance(d); pushHome(s.pid); slot(); journalSync(s.pid);
       if ($("kms-sheet") && $("kms-sheet").classList.contains("open")) view();
       return ns;
     }, function (e) { busy = false; console.log("Suivi cabinet indisponible", e); return s; });
   }
+  /* ════════ Journal : les séances faites à la maison, sauvegardées dans le suivi (avec l'accord du patient) ════════
+     Un document par mois (séances, douleurs signalées, ressenti du jour) et un pour le carnet de salle.
+     Seuls les documents qui ont changé sont envoyés. Au premier lien (ou en retrouvant son suivi), on fusionne. */
+  var JH = "kf-cab-jh", SYNC = "kf-cab-sync";
+  function consent() { try { return localStorage.getItem(SYNC); } catch (e) { return null; } }
+  function arr(k) { try { return JSON.parse(localStorage.getItem(k) || "[]") || []; } catch (e) { return []; } }
+  function obj(k) { try { return JSON.parse(localStorage.getItem(k) || "{}") || {}; } catch (e) { return {}; } }
+  function hashOf(o) { var t = JSON.stringify(o), h = 0; for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return h + ":" + t.length; }
+  function buckets() {
+    var B = {}, m = function (d) { return String(d || "").slice(0, 7); };
+    var add = function (k, f, x) { var id = m(k); if (!/^\d{4}-\d{2}$/.test(id)) return; B[id] = B[id] || { s: [], p: [], r: {} }; if (f === "r") B[id].r[k] = x; else B[id][f].push(x); };
+    arr("kf-sessions").forEach(function (x) { add(x.date, "s", x); });
+    arr("kf-pain").forEach(function (x) { add(String(x.date || "").slice(0, 10), "p", x); });
+    var R = obj("kf-checkin"); Object.keys(R).forEach(function (d) { add(d, "r", R[d]); });
+    Object.keys(B).forEach(function (k) { B[k].s = B[k].s.slice(0, 300); B[k].p = B[k].p.slice(0, 300); });
+    var G = obj("kf-salle-log"); if (Object.keys(G).length) B.salle = { g: G };
+    return B;
+  }
+  var jBusy = false, merged = false;
+  function journalSync(pid) {
+    if (consent() !== "1" || !window.fbPat || !fbPat.journalPut || jBusy) return Promise.resolve();
+    jBusy = true;
+    var first = !merged && !localStorage.getItem(JH) ? journalMerge(pid) : Promise.resolve();
+    return first.then(function () {
+      merged = true;
+      var B = buckets(), H = jget(JH, {}), todo = Object.keys(B).filter(function (k) { return H[k] !== hashOf(B[k]); });
+      return todo.reduce(function (p, k) { return p.then(function () { return fbPat.journalPut(pid, k, JSON.parse(JSON.stringify(B[k]))).then(function () { H[k] = hashOf(B[k]); jset(JH, H); }); }); }, Promise.resolve());
+    }).then(function () { jBusy = false; }, function (e) { jBusy = false; console.log("Journal non envoyé", e); });
+  }
+  // Récupère le journal enregistré et le fusionne avec ce qu'il y a sur ce téléphone (rien n'est effacé)
+  function journalMerge(pid) {
+    if (!window.fbPat || !fbPat.journalGet) return Promise.resolve();
+    return fbPat.journalGet(pid).then(function (docs) {
+      if (!docs.length) return;
+      var S = arr("kf-sessions"), P = arr("kf-pain"), R = obj("kf-checkin"), G = obj("kf-salle-log");
+      var sk = {}; S.forEach(function (x) { sk[x.id || x.ts || (x.date + x.seance)] = 1; });
+      var pk = {}; P.forEach(function (x) { pk[x.ts || (x.date + x.zone + x.exercice)] = 1; });
+      docs.forEach(function (d) {
+        (d.s || []).forEach(function (x) { var k = x.id || x.ts || (x.date + x.seance); if (!sk[k]) { S.push(x); sk[k] = 1; } });
+        (d.p || []).forEach(function (x) { var k = x.ts || (x.date + x.zone + x.exercice); if (!pk[k]) { P.push(x); pk[k] = 1; } });
+        Object.keys(d.r || {}).forEach(function (k) { if (!R[k]) R[k] = d.r[k]; });
+        Object.keys(d.g || {}).forEach(function (n) { var mine = G[n] || [], seen = {}; mine.forEach(function (e) { seen[e.d] = 1; }); (d.g[n] || []).forEach(function (e) { if (!seen[e.d]) mine.push(e); }); mine.sort(function (a, b) { return a.d < b.d ? -1 : 1; }); G[n] = mine; });
+      });
+      S.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0) || (a.date < b.date ? 1 : -1); });
+      P.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+      try { localStorage.setItem("kf-sessions", JSON.stringify(S)); localStorage.setItem("kf-pain", JSON.stringify(P.slice(0, 200))); localStorage.setItem("kf-checkin", JSON.stringify(R)); localStorage.setItem("kf-salle-log", JSON.stringify(G)); } catch (e) {}
+      try { if (typeof sessions !== "undefined") sessions = S; if (typeof renderAll === "function") renderAll(); if (window.KineLayout && KineLayout.render) KineLayout.render(); } catch (e) {}
+    }, function () {});
+  }
+  function setConsent(v) {
+    try { localStorage.setItem(SYNC, v ? "1" : "0"); } catch (e) {}
+    var s = state(); if (v && s && s.pid) journalSync(s.pid);
+  }
+  // Demandé une fois, juste après le lien avec le kiné
+  function askConsent(then) {
+    if (consent() != null) { if (then) then(); return; }
+    show(back() + "<div><div class='kf-h1 kcb-h1'>Sauvegarder tes séances ?</div><div class='kf-sub'>Tes séances faites à la maison, tes douleurs signalées et ton ressenti du jour peuvent être enregistrés dans ton suivi.</div></div>" +
+      "<div class='su-card'><b>Ce que ça change</b><div class='kf-sub'>Ton kiné voit le détail de ce que tu fais chez toi. Et tu retrouves tout si tu changes de téléphone.</div></div>" +
+      "<p class='kcb-hint'>Sinon, tout reste uniquement sur ton téléphone et ton kiné ne voit qu'un résumé de la semaine. Tu pourras changer d'avis dans « Mon espace ».</p>",
+      "<button class='seq-btn-main' onclick='KineMonSuivi.consent(1)'>Oui, sauvegarder</button><button class='seq-btn-secondary' onclick='KineMonSuivi.consent(0)'>Non, garder sur mon téléphone</button>");
+    askThen = then;
+  }
+  var askThen = null;
+  function consentPick(v) { setConsent(!!v); var t = askThen; askThen = null; if (t) t(); else open(); }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") { var s = state(); if (s && s.pid) journalSync(s.pid); } });
+
   // La séance préparée par le kiné devient une séance de « Ma séance », toujours à jour
   function syncSeance(d) {
     var list = jget("kf-custom", []), ex = (d.exos || []).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
@@ -138,7 +204,7 @@ var KineMonSuivi = (function () {
       (err ? "<div class='kcb-alert'><b>" + esc(err) + "</b></div>" : "") +
       "<p class='kcb-hint'>Ton kiné voit ta fiche et un résumé de tes séances à la maison (nombre de séances, douleur moyenne). Rien d'autre ne quitte ton téléphone.</p>" +
       (window.KineRole ? "<button class='v2-row' onclick='KineMonSuivi.close();KineRole.demande()'><b>Pas de code ? Demander un accès</b><span>›</span></button>" +
-        "<button class='v2-row' onclick='KineMonSuivi.close();KineRole.hub()'><b>J'avais déjà un suivi (compte Google)</b><span>›</span></button>" : ""),
+        "<button class='v2-row' onclick='KineMonSuivi.close();KineRole.loginForm(\"restore\")'><b>J'avais déjà un suivi</b><span>›</span></button>" : ""),
       "<button class='seq-btn-main' id='kms-go' onclick='KineMonSuivi.doJoin()'>Valider</button>");
     setTimeout(function () { var i = $("kms-code"); if (i) i.focus(); }, 100);
   }
@@ -148,8 +214,8 @@ var KineMonSuivi = (function () {
     if (!window.fbPat) { join("Connexion impossible pour l'instant. Vérifie Internet, puis réessaie."); return; }
     var b = $("kms-go"); if (b) { b.disabled = true; b.textContent = "Vérification…"; }
     fbPat.join(c).then(function (pid) {
-      jset(KEY, { pid: pid }); try { localStorage.removeItem(PUSHKEY); } catch (e) {}
-      return refresh(true).then(function () { open(); });
+      jset(KEY, { pid: pid }); try { localStorage.removeItem(PUSHKEY); localStorage.removeItem(JH); } catch (e) {}
+      return refresh(true).then(function () { askConsent(open); });
     }, function (e) {
       var m = String(e && e.message || "");
       join(m === "expire" ? "Ce code a expiré. Demande un nouveau code à ton kiné." : m === "code" || /permission/i.test(m) ? "Code inconnu ou déjà utilisé. Vérifie-le ou demande un nouveau code à ton kiné." : "Connexion impossible pour l'instant. Vérifie Internet, puis réessaie.");
@@ -211,12 +277,12 @@ var KineMonSuivi = (function () {
   }
   function unlink() {
     if (!confirm("Délier ce téléphone de ta fiche au cabinet ? Ton kiné devra te donner un nouveau code pour la relier.")) return;
-    jset(KEY, null); try { localStorage.removeItem(KEY); localStorage.removeItem(PUSHKEY); } catch (e) {}
+    jset(KEY, null); try { localStorage.removeItem(KEY); localStorage.removeItem(PUSHKEY); localStorage.removeItem(JH); } catch (e) {}
     jset("kf-custom", jget("kf-custom", []).filter(function (x) { return x.id !== "kine"; }));
     close(); slot();
   }
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();

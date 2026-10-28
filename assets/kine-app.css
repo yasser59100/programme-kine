@@ -3271,3 +3271,5 @@ html.kf-typing .kf-me { display: none; }
 .kcb-pmsg:empty { display: none; }
 #khb-msg:empty { display: none; }
 #khb-msg { color: #A1262A; font-weight: 600; }
+
+.kcb-jh { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-top: 6px; }

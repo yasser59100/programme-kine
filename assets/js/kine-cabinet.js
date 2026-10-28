@@ -308,6 +308,7 @@ var KineCabinet = (function () {
     html += "<div class='su-card'><div class='su-card-h'><b>À la maison</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
       (w ? "<div class='kcb-3'><div><b>" + w.n + "</b><span>séance" + (w.n > 1 ? "s" : "") + " sem. " + esc(String(w.w).split("-W")[1] || "") + "</span></div><div><b>" + (w.dou != null ? KP.fmt(w.dou) + "/10" : "–") + "</b><span>douleur moyenne</span></div><div><b>" + (w.der ? dfr(w.der) : "–") + "</b><span>dernière séance</span></div></div>"
          : "<div class='kf-sub'>" + (C.membres ? "Aucune séance faite à la maison cette semaine." : "Donne le code au patient pour voir ses séances à la maison.") + "</div>") +
+      journalHtml(4) +
       "<button class='kcb-link' onclick='KineCabinet.code(" + q(C.id) + ")'>" + (C.membres ? "Code du patient" : "Afficher le code à donner au patient") + "</button>" +
       (window.KineMonSuivi ? "<button class='kcb-link' onclick='KineCabinet.asPatient()'>Voir comme mon patient</button>" : "") + "</div>";
     // bilans
@@ -326,6 +327,32 @@ var KineCabinet = (function () {
     html += "<details class='kf-acc kcb-acc'><summary>Repères cliniques du parcours</summary><ul>" + (P.notes || []).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
       "<b>Signes d'alerte</b><ul>" + KP.ALERTES.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
       "<b>Sources</b><ul class='kcb-src'>" + P.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul><p class='kcb-hint'>Les seuils sont des repères issus de ces travaux : à adapter à chaque patient.</p></details>";
+    show(html);
+  }
+  /* Journal des séances faites à la maison (si le patient a accepté de le sauvegarder) */
+  function jdata() {
+    var S = [], P = [], R = {};
+    (C.journal || []).forEach(function (d) { (d.s || []).forEach(function (x) { S.push(x); }); (d.p || []).forEach(function (x) { P.push(x); }); Object.keys(d.r || {}).forEach(function (k) { R[k] = d.r[k]; }); });
+    S.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : (b.ts || 0) - (a.ts || 0); });
+    P.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    return { S: S, P: P, R: R };
+  }
+  function sesRow(x) {
+    var bits = [x.duree ? x.duree + " min" : "", x.borg ? "effort " + x.borg + "/5" : "", x.douleur != null && x.douleur !== "" ? "douleur " + x.douleur + "/10" : ""].filter(Boolean).join(" · ");
+    return "<div class='kcb-srow'><b>" + dfr(x.date) + "</b><span>" + esc(x.seance || "Séance") + (bits ? "<br><i>" + esc(bits) + "</i>" : "") + "</span></div>";
+  }
+  function journalHtml(n) {
+    if (!(C.journal || []).length) return C.membres ? "<p class='kcb-hint'>Le détail des séances apparaît ici si le patient accepte de les sauvegarder (dans « Mon espace » sur son téléphone).</p>" : "";
+    var J = jdata();
+    return "<div class='kcb-jh'>Dernières séances à la maison</div>" + (J.S.slice(0, n).map(sesRow).join("") || "<div class='kf-sub'>Aucune séance enregistrée.</div>") +
+      "<button class='kcb-link' onclick='KineCabinet.journal()'>Tout le journal (" + J.S.length + " séance" + (J.S.length > 1 ? "s" : "") + ", " + J.P.length + " douleur" + (J.P.length > 1 ? "s" : "") + " signalée" + (J.P.length > 1 ? "s" : "") + ")</button>";
+  }
+  function journal() {
+    var J = jdata(), days = Object.keys(J.R).sort().reverse().slice(0, 30);
+    var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) + "<div class='kf-h1 kcb-h1'>Journal à la maison</div>" +
+      "<div class='su-card'><b>Séances</b>" + (J.S.map(sesRow).join("") || "<div class='kf-sub'>Aucune séance.</div>") + "</div>" +
+      "<div class='su-card'><b>Douleurs signalées pendant les exercices</b>" + (J.P.slice(0, 60).map(function (p) { return "<div class='kcb-srow'><b>" + dfr(String(p.date).slice(0, 10)) + "</b><span>" + esc((p.zone || "") + ", " + p.intensite + "/10" + (p.vive ? ", vive" : "")) + "<br><i>" + esc((p.exercice || "") + (p.action ? " · " + p.action : "")) + "</i></span></div>"; }).join("") || "<div class='kf-sub'>Aucune.</div>") + "</div>" +
+      "<div class='su-card'><b>Ressenti du jour</b>" + (days.map(function (d) { var c = J.R[d] || {}, b = [c.pain != null ? "douleur " + c.pain + "/10" : "", c.mood != null ? "moral " + c.mood + "/5" : "", c.sleep != null ? "nuit " + ["bonne", "moyenne", "mauvaise"][c.sleep] : ""].filter(Boolean).join(" · "); return "<div class='kcb-srow'><b>" + dfr(d) + "</b><span>" + esc(b || "noté") + "</span></div>"; }).join("") || "<div class='kf-sub'>Aucun.</div>") + "</div>";
     show(html);
   }
   function same(a, b) { return a.length === b.length && a.every(function (x) { return b.indexOf(x) >= 0; }); }
@@ -700,7 +727,7 @@ var KineCabinet = (function () {
   }
 
   return {
-    open: open, close: close, filter: filter, setKine: setKine, push: push, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,

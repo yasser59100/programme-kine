@@ -197,6 +197,8 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
+  await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
+  await page.evaluate(() => KineMonSuivi.consent(0));
   await expect(page.locator("#kms-sheet .kms-et.now")).toBeVisible();
   await shot(page, info, "21-cabinet-patient");
   const custom = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine").map(x => x.ex.length)[0]);
@@ -251,6 +253,38 @@ test("mon espace : bouton toujours visible, code du kiné dans Progrès", async 
   await page.locator("#kf-me").click();
   await expect(page.locator("#kf-hub.open .khb-seg button")).toHaveCount(2);
   await shot(page, info, "23-mon-espace");
+  await clean(errs);
+});
+
+test("sauvegarde : identifiant, journal des séances à la maison et récupération", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  // le kiné crée la fiche et le code, le patient se relie et accepte la sauvegarde des séances
+  await page.evaluate(async () => { window.fbUser = { uid: "k1", isAdmin: true }; const id = await fbCab.create({ alias: "S.B.", parcours: "genou", etape: 0, cote: "D", date0: "2026-10-01" }); await fbCab.code(id); window.fbUser = null; KineMonSuivi.join(); });
+  await page.fill("#kms-code", "K7M2QX");
+  await page.evaluate(() => KineMonSuivi.doJoin());
+  await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
+  await page.evaluate(() => { localStorage.setItem("kf-sessions", JSON.stringify([{ id: 11, ts: 11, date: "2026-10-27", seance: "J1 — Membres inférieurs", borg: 3, douleur: 2, duree: 30 }])); sessions = JSON.parse(localStorage.getItem("kf-sessions")); KineMonSuivi.consent(1); });
+  await expect.poll(() => page.evaluate(() => { const p = Object.values(window.__db.patients)[0]; return p.journal && p.journal["2026-10"] && p.journal["2026-10"].s.length; })).toBe(1);
+  // identifiant et mot de passe
+  await page.evaluate(() => { KineMonSuivi.close(); KineRole.loginForm("create"); });
+  await page.fill("#kl-id", "samir.b"); await page.fill("#kl-pw", "secret12");
+  await page.evaluate(() => KineRole.loginGo("create"));
+  await expect(page.locator("#kf-hub .kcb-ok")).toContainText("samir.b");
+  // le kiné voit le détail
+  await page.evaluate(() => { KineRole.hubClose(); window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.fiche(Object.keys(window.__db.patients)[0]); });
+  await expect(page.locator("#kcb-sheet .kcb-jh")).toBeVisible();
+  // nouveau téléphone : tout est effacé, puis retrouvé avec l'identifiant
+  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; ["kf-cab", "kf-sessions", "kf-cab-jh"].forEach(k => localStorage.removeItem(k)); sessions = []; KineRole.loginForm("restore"); });
+  await page.fill("#kl-id", "samir.b"); await page.fill("#kl-pw", "mauvais1");
+  await page.evaluate(() => KineRole.loginGo("restore"));
+  await expect(page.locator("#kf-hub .kcb-alert")).toContainText("incorrect");
+  await page.fill("#kl-pw", "secret12");
+  await page.evaluate(() => KineRole.loginGo("restore"));
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("kf-sessions") || "[]").length)).toBe(1);
+  expect(await page.evaluate(() => !!JSON.parse(localStorage.getItem("kf-cab") || "{}").pid)).toBe(true);
   await clean(errs);
 });
 

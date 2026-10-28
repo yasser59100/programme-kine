@@ -61,6 +61,13 @@ await t("le patient relit son rattachement", assertSucceeds(getDoc(doc(patient, 
 await t("un autre ne lit pas le rattachement", assertFails(getDoc(doc(intrus, "acces/anonP"))));
 await t("abonnement kiné : refusé au patient", assertFails(setDoc(doc(patient, "kinepush/x"), { sub: {} })));
 await t("abonnement kiné : accepté pour le kiné", assertSucceeds(setDoc(doc(kine, "kinepush/x"), { sub: {} })));
+// Journal des séances à la maison
+await t("le patient relié sauvegarde son journal", assertSucceeds(setDoc(doc(patient, "patients/p1/journal/2026-10"), { s: [{ date: "2026-10-27" }], p: [], r: {}, t: serverTimestamp() })));
+await t("journal avec champ en trop refusé", assertFails(setDoc(doc(patient, "patients/p1/journal/2026-11"), { s: [], nom: "x", t: serverTimestamp() })));
+await t("un autre téléphone n'écrit pas le journal", assertFails(setDoc(doc(intrus, "patients/p1/journal/2026-10"), { s: [], t: serverTimestamp() })));
+await t("un autre téléphone ne lit pas le journal", assertFails(getDocs(collection(intrus, "patients/p1/journal"))));
+await t("le patient relit son journal", assertSucceeds(getDocs(collection(patient, "patients/p1/journal"))));
+await t("le kiné lit le journal", assertSucceeds(getDocs(collection(kine, "patients/p1/journal"))));
 await env.cleanup();
 console.log(ok + " réussis, " + ko + " échoués");
 process.exit(ko ? 1 : 0);

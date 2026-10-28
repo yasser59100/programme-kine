@@ -54,7 +54,7 @@ html.kf-boot body{visibility:hidden}
 <!-- Firebase SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, linkWithPopup, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, linkWithPopup, signInWithCredential, linkWithCredential, EmailAuthProvider, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getCountFromServer, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -208,8 +208,9 @@ window.fbCab = {
       getDocs(query(collection(db, CAB, pid, "seances"), orderBy("d", "desc"), limit(60))),
       getDocs(query(collection(db, CAB, pid, "maison"), orderBy("w", "desc"), limit(8))),
       getDocs(collection(db, CAB, pid, "membres")),
-      getDocs(query(collection(db, CAB, pid, "notes"), limit(60)))]);
-    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]);
+      getDocs(query(collection(db, CAB, pid, "notes"), limit(60))),
+      getDocs(collection(db, CAB, pid, "journal")).catch(function () { return { docs: [] }; })]);
+    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]); o.journal = cabRows(r[5]);
     return o;
   },
   create: async function (data) { cabNeedKine(); data.kine = window.fbUser.uid; data.cree = serverTimestamp(); var r = await addDoc(collection(db, CAB), data); return r.id; },
@@ -232,7 +233,7 @@ window.fbCab = {
   },
   remove: async function (pid) {
     cabNeedKine();
-    for (const sub of ["bilans", "seances", "maison", "membres", "notes"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
+    for (const sub of ["bilans", "seances", "maison", "membres", "notes", "journal"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
     var p = await getDoc(cabRef(pid)); if (p.exists() && p.data().code) { try { await deleteDoc(doc(db, "codes", p.data().code)); } catch (e) {} }
     await deleteDoc(cabRef(pid));
   }
@@ -284,6 +285,22 @@ window.fbPat = {
     await setDoc(doc(cabDb, "acces", cabAuth.currentUser.uid), { pid: pid, t: serverTimestamp() });
     return pid;
   },
+  // Identifiant et mot de passe choisis dans l'appli (sans adresse e-mail réelle)
+  login: function () { var u = cabAuth.currentUser; if (!u) return null; var p = (u.providerData || []).filter(function (x) { return x.providerId === "password"; })[0]; return p && p.email ? p.email.split("@")[0] : null; },
+  linkLogin: async function (pid, ident, pwd) {
+    var u = await cabAnon(), email = ident + "@patients.kineforce.app";
+    await linkWithCredential(u, EmailAuthProvider.credential(email, pwd));
+    await setDoc(doc(cabDb, "acces", cabAuth.currentUser.uid), { pid: pid, t: serverTimestamp() });
+    return pid;
+  },
+  restoreLogin: async function (ident, pwd) {
+    var r = await signInWithEmailAndPassword(cabAuth, ident + "@patients.kineforce.app", pwd);
+    var a = await getDoc(doc(cabDb, "acces", r.user.uid));
+    return a.exists() ? a.data().pid : null;
+  },
+  // Journal des séances faites à la maison (avec l'accord du patient) : un document par mois, plus le carnet de salle
+  journalPut: async function (pid, id, data) { await cabAnon(); data.t = serverTimestamp(); await setDoc(doc(cabDb, CAB, pid, "journal", id), data); },
+  journalGet: async function (pid) { await cabAnon(); return cabRows(await getDocs(collection(cabDb, CAB, pid, "journal"))); },
   restoreGoogle: async function () {
     var pv = new GoogleAuthProvider(); pv.setCustomParameters({ prompt: "select_account" });
     var r = await signInWithPopup(cabAuth, pv);
