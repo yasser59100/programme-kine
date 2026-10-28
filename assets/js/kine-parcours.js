@@ -55,6 +55,19 @@ var KineParcours = (function () {
     fElev:  { l: "Force en élévation (bras à 90°)", u: "kg", s: 1, n: 3, g: "Force", c: "Force en élévation", how: "Debout, bras à 90° dans le plan de l'omoplate (30° en avant), pouce vers le haut, dynamomètre au poignet, 3 essais de 5 s." },
     ckc:    { l: "CKCUEST (appui sur les mains)", u: "touches", g: "Fonction", c: "CKCUEST", how: "En position de pompe (sur les genoux si besoin), mains écartées de 91 cm : toucher la main d'appui avec l'autre main, en alternant, le plus de fois possible en 15 s. Meilleur de 3 essais." },
     dnu:    { l: "Douleur la nuit", u: "/10", lo: 1, g: "Douleur", c: "Nuit", how: "Douleur la plus forte la nuit cette semaine, de 0 à 10." },
+    /* hanche (incl 3, iref h : angle avec l'horizontale) */
+    hflex:  { l: "Flexion de hanche", u: "°", s: 1, incl: 3, iref: "h", g: "Amplitude", c: "Flexion de hanche", how: "Couché sur le dos, genou plié, la cuisse remonte vers la poitrine. Au téléphone : posé dans la longueur de la cuisse, le haut vers le genou.", ph: "Couché sur le dos. Pose le téléphone dans la longueur de la <b>cuisse</b>, <b>le haut vers le genou</b>, puis le patient ramène le genou vers la poitrine." },
+    hri:    { l: "Rotation interne de hanche", u: "°", s: 1, incl: 3, iref: "down", g: "Amplitude", c: "Rotation interne", how: "Assis au bord de la table, genou à 90° : le pied part vers l'extérieur. Moins de 15 à 24° oriente vers l'arthrose. Au téléphone : contre le tibia, le haut vers le pied.", ph: "Assis au bord de la table, genou à 90°. Pose le téléphone contre le <b>tibia</b>, dans sa longueur, <b>le haut vers le pied</b>, puis le pied part vers l'extérieur (rotation interne)." },
+    fAdd:   { l: "Force des adducteurs", u: "kg", s: 1, n: 3, g: "Force", c: "Adducteurs", how: "Couché sur le dos, jambes tendues, dynamomètre à la face interne de la cheville : le patient serre vers l'intérieur. 3 essais de 5 s." },
+    /* rachis */
+    djambe: { l: "Douleur dans la jambe", u: "/10", lo: 1, g: "Douleur", c: "Jambe", how: "Douleur la plus forte dans la jambe cette semaine, de 0 à 10." },
+    dbras:  { l: "Douleur dans le bras", u: "/10", lo: 1, g: "Douleur", c: "Bras", how: "Douleur la plus forte dans le bras cette semaine, de 0 à 10." },
+    dsol:   { l: "Distance doigts-sol", u: "cm", lo: 1, g: "Amplitude", c: "Doigts-sol", how: "Debout, genoux tendus, se pencher en avant : distance entre le bout des doigts et le sol (0 = touche le sol)." },
+    slr:    { l: "Jambe tendue levée (Lasègue)", u: "°", s: 1, incl: 3, iref: "h", g: "Amplitude", c: "Jambe tendue", how: "Couché sur le dos, le kiné lève la jambe tendue jusqu'à la douleur dans la jambe : angle atteint. Au téléphone : sur le tibia, le haut vers le pied.", ph: "Couché sur le dos. Pose le téléphone dans la longueur du <b>tibia</b>, <b>le haut vers le pied</b>, puis lève la jambe tendue jusqu'à l'apparition de la douleur." },
+    sorensen: { l: "Test de Sorensen", u: "s", g: "Force", c: "Sorensen", how: "À plat ventre, le buste dans le vide au bord de la table, bassin et jambes maintenus : buste tenu à l'horizontale le plus longtemps possible (240 s au maximum)." },
+    plk:    { l: "Planche latérale tenue", u: "s", s: 1, g: "Force", c: "Planche latérale", how: "En appui sur l'avant-bras et les pieds, corps aligné : temps tenu de chaque côté (côté douloureux = atteint)." },
+    rotC:   { l: "Rotation du cou", u: "°", s: 1, g: "Amplitude", c: "Rotation du cou", how: "Assis, rotation active de la tête de chaque côté (côté douloureux = atteint), au goniomètre. Normale : environ 70 à 80°." },
+    dnfe:   { l: "Endurance des fléchisseurs profonds du cou", u: "s", g: "Force", c: "Fléchisseurs du cou", how: "Couché sur le dos, menton rentré, la tête décollée de 2 cm : temps tenu avant que le menton ne s'avance. Repère : 30 à 40 s." },
     /* remplis par le patient (questionnaires envoyés depuis le bilan) */
     sane:   { l: "Note globale (SANE)", u: "/100", g: "Questionnaire", c: "Note globale", how: "Le patient note son articulation de 0 à 100, 100 étant une articulation normale. Envoyé et rempli sur son téléphone." },
     psfs:   { l: "Activités choisies (PSFS)", u: "/10", g: "Questionnaire", c: "Activités", how: "Le patient choisit jusqu'à 3 activités difficiles à cause de son problème et note chacune de 0 (impossible) à 10 (comme avant) : score = moyenne. Envoyé et rempli sur son téléphone." },
@@ -150,7 +163,33 @@ var KineParcours = (function () {
     profher: "Rangan A et al. Surgical vs nonsurgical treatment of adults with displaced fractures of the proximal humerus: the PROFHER randomized clinical trial. JAMA 2015.",
     williams99: "Williams GN et al. Comparison of the Single Assessment Numeric Evaluation method and two shoulder rating scales. Am J Sports Med 1999.",
     stratford: "Stratford P et al. Assessing disability and change on individual patients: a report of a patient specific measure. Physiother Can 1995.",
-    kamper: "Kamper SJ et al. Global rating of change scales: a review of strengths and weaknesses and considerations for design. J Man Manip Ther 2009."
+    kamper: "Kamper SJ et al. Global rating of change scales: a review of strengths and weaknesses and considerations for design. J Man Manip Ther 2009.",
+    kemp20: "Kemp JL et al. Physiotherapist-led treatment for young to middle-aged active adults with hip-related pain: consensus recommendations from the International Hip-related Pain Research Network, Zurich 2018. Br J Sports Med 2020.",
+    grimaldi15: "Grimaldi A et al. Gluteal tendinopathy: a review of mechanisms, assessment and management. Sports Med 2015.",
+    grimaldi17: "Grimaldi A et al. Utility of clinical tests to diagnose MRI-confirmed gluteal tendinopathy in patients presenting with lateral hip pain. Br J Sports Med 2017.",
+    mellor: "Mellor R et al. Education plus exercise versus corticosteroid injection use versus a wait and see approach on global outcome and pain from gluteal tendinopathy: prospective, single blinded, randomised clinical trial. BMJ 2018.",
+    fransenH: "Fransen M et al. Exercise for osteoarthritis of the hip. Cochrane Database Syst Rev 2014.",
+    altman91: "Altman R et al. The American College of Rheumatology criteria for the classification and reporting of osteoarthritis of the hip. Arthritis Rheum 1991.",
+    westby: "Westby MD et al. Expert consensus on best practices for post-acute rehabilitation after total hip and knee arthroplasty: a Canada and United States Delphi study. Arthritis Care Res 2014.",
+    minns: "Minns Lowe CJ et al. Effectiveness of physiotherapy exercise following hip arthroplasty for osteoarthritis: a systematic review of clinical trials. BMC Musculoskelet Disord 2009.",
+    griffin16: "Griffin DR et al. The Warwick Agreement on femoroacetabular impingement syndrome (FAI syndrome): an international consensus statement. Br J Sports Med 2016.",
+    reiman15: "Reiman MP et al. Diagnostic accuracy of clinical tests for the diagnosis of hip femoroacetabular impingement/labral tear: a systematic review with meta-analysis. Br J Sports Med 2015.",
+    weir15: "Weir A et al. Doha agreement meeting on terminology and definitions in groin pain in athletes. Br J Sports Med 2015.",
+    holmich: "Hölmich P et al. Effectiveness of active physical training as treatment for long-standing adductor-related groin pain in athletes: randomised trial. Lancet 1999.",
+    haroy: "Harøy J et al. The Adductor Strengthening Programme prevents groin problems among male football players: a cluster-randomised controlled trial. Br J Sports Med 2019.",
+    has19: "Haute Autorité de santé. Prise en charge du patient présentant une lombalgie commune. Recommandation de bonne pratique, 2019.",
+    nice59: "NICE guideline NG59. Low back pain and sciatica in over 16s: assessment and management. 2016, mise à jour 2020.",
+    foster18: "Foster NE et al. Prevention and treatment of low back pain: evidence, challenges, and promising directions. Lancet 2018.",
+    hayden21: "Hayden JA et al. Exercise therapy for chronic low back pain. Cochrane Database Syst Rev 2021.",
+    finucane: "Finucane LM et al. International framework for red flags for potential serious spinal pathologies. J Orthop Sports Phys Ther 2020.",
+    deville: "Devillé WL et al. The test of Lasègue: systematic review of the accuracy in diagnosing herniated discs. Spine 2000.",
+    majlesi: "Majlesi J et al. The sensitivity and specificity of the Slump and the Straight Leg Raising tests in patients with lumbar disc herniation. J Clin Rheumatol 2008.",
+    may12: "May S, Aina A. Centralization and directional preference: a systematic review. Man Ther 2012.",
+    sieper: "Sieper J et al. New criteria for inflammatory back pain in patients with chronic back pain: a real patient exercise by experts from the Assessment of SpondyloArthritis international Society (ASAS). Ann Rheum Dis 2009.",
+    nicholas: "Nicholas MK et al. Early identification and management of psychological risk factors (yellow flags) in patients with low back pain: a reappraisal. Phys Ther 2011.",
+    blanpied: "Blanpied PR et al. Neck pain: revision 2017. J Orthop Sports Phys Ther 2017.",
+    bier: "Bier JD et al. Clinical practice guideline for physical therapy assessment and treatment in patients with nonspecific neck pain. Phys Ther 2018.",
+    jull08: "Jull GA et al. Clinical assessment of the deep cervical flexor muscles: the craniocervical flexion test. J Manipulative Physiol Ther 2008."
   };
 
   /* Alertes communes à tous les parcours du genou : on oriente vers le médecin */
@@ -1034,12 +1073,312 @@ var KineParcours = (function () {
     src: ["lefevre", "profher"]
   };
 
+  /* ═══════════════════════ HANCHE ═══════════════════════ */
+  var ALERTES_HANCHE = [
+    "Chute chez une personne âgée, appui impossible ou jambe raccourcie et tournée vers l'extérieur : suspicion de fracture, radiographie en urgence.",
+    "Enfant ou adolescent qui boite avec une douleur de hanche ou de genou : penser à l'épiphysiolyse ou à une maladie de Perthes, avis médical rapide.",
+    "Fièvre, hanche chaude, douleur intense au moindre mouvement : suspicion d'infection, avis médical le jour même.",
+    "Douleur de l'aine à la toux avec une boule qui apparaît : hernie possible, avis médical.",
+    "Prise prolongée de corticoïdes ou alcool, douleur de l'aine qui s'installe : penser à l'ostéonécrose, avis médical.",
+    "Douleur la nuit sans lien avec les mouvements, perte de poids inexpliquée, antécédent de cancer : avis médical."
+  ];
+  P.hanche = {
+    nom: "Hanche, sans diagnostic précis", long: "Douleur de hanche ou de l'aine sans diagnostic établi", zone: "hanche",
+    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "hri", "abd", "fAdd", "sts30", "sane", "psfs"],
+    ref: "Pont de hanche",
+    notes: ["Parcours général en attendant d'affiner : le guide d'orientation propose une piste à partir de l'interrogatoire et des tests.",
+            "Penser à examiner le rachis lombaire : une douleur de fesse ou de hanche vient parfois du dos."],
+    etapes: [
+      { nom: "Calmer et bouger", but: "Adapter les activités, bouger dans l'amplitude confortable.",
+        obj: [
+          { id: "alerte", t: "Signes d'alerte écartés (dont le rachis lombaire)", p: "Ton kiné a vérifié qu'il n'y a pas de signe inquiétant" },
+          { id: "dou5", t: "Douleur à l'effort de 5/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 5 } }],
+        exos: ["Contraction des fessiers couché", "Rotation de hanche couché, genou plié", "Pont de hanche", "Clamshell", "Montée de genou assis", "Vélo d'appartement", "Le hula hoop"] },
+      { nom: "Renforcer", but: "Fessiers, abducteurs, adducteurs, contrôle du bassin sur une jambe.",
+        obj: [
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "uni", t: "Tient 30 s sur une jambe, bassin horizontal", p: "Tu tiens 30 secondes sur une jambe, bien droit" }],
+        exos: ["Abduction contre le mur, debout", "Abduction couché sur le côté", "Pont fessier unilatéral", "Montée de marche sur le côté", "Marche latérale élastique", "Serrage de ballon entre les genoux", "Squat bilatéral", "La marche du mannequin"] },
+      { nom: "Reprendre les activités", but: "Charges, course, sport.",
+        obj: [
+          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
+        exos: ["Squat bulgare", "Fente latérale", "Avion sur une jambe", "Planche Copenhague genou", "Le pas du crabe", "La porte du saloon"] }
+    ],
+    alertes: ALERTES_HANCHE,
+    src: ["kemp20", "grimaldi15", "oarsi"]
+  };
+  P.coxarthrose = {
+    nom: "Arthrose de la hanche", long: "Coxarthrose", zone: "hanche",
+    key: { m: "sts30", l: "Levers de chaise en 30 secondes" },
+    mes: ["dou", "hflex", "hri", "abd", "sts30", "tug", "marche40", "sane", "psfs"],
+    ref: "Assis-debout de chaise",
+    notes: ["L'exercice et les explications sont le traitement de base, à tous les stades : il ne use pas la hanche.",
+            "La perte de poids aide si elle est nécessaire. Une canne du côté opposé soulage la marche les mauvais jours.",
+            "Programme d'au moins 6 à 8 semaines, deux séances par semaine, puis entretien."],
+    etapes: [
+      { nom: "Comprendre et bouger", but: "Explications, reprise d'activité, mobilité et premiers renforcements.",
+        obj: [
+          { id: "edu", t: "Le patient sait que bouger ne use pas sa hanche", p: "Tu sais que bouger est bon pour ta hanche" },
+          { id: "dou5", t: "Douleur à l'effort de 5/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 5 } }],
+        exos: ["Rotation de hanche couché, genou plié", "Glissement de la jambe sur le côté, couché", "Pont de hanche", "Clamshell", "Assis-debout de chaise", "Vélo d'appartement", "Le hula hoop"] },
+      { nom: "Renforcer et contrôler", but: "Renforcement progressif et exercices d'équilibre, comme le programme GLA:D.",
+        obj: [
+          { id: "sts", t: "Levers de chaise en 30 s en hausse d'au moins 2", p: "Tu te lèves plus facilement d'une chaise", a: { m: "sts30", gain: 2 } },
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } }],
+        exos: ["Abduction contre le mur, debout", "Montée de marche sur le côté", "Step-up sur marche", "Squat bilatéral", "Pont fessier unilatéral", "Équilibre unipodal", "Marche latérale élastique", "La marche du mannequin"] },
+      { nom: "Autonomie", but: "Programme à faire seul, activité physique régulière (marche, vélo, natation).",
+        obj: [
+          { id: "marche", t: "Marche rapide 4 × 10 m améliorée", p: "Tu marches plus vite", a: { m: "marche40", gain: 2 } },
+          { id: "activ", t: "Activité physique régulière en place", p: "Tu bouges régulièrement" }],
+        exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Se relever du sol", "Le pas du crabe", "Avion sur une jambe"] }
+    ],
+    alertes: ALERTES_HANCHE,
+    src: ["oarsi", "nice", "glad", "fransenH", "dobson"]
+  };
+  P.pth = {
+    nom: "Prothèse de hanche", long: "Prothèse totale de hanche", zone: "hanche", op: 1,
+    opts: [{ id: "voie", l: "Voie d'abord", ch: [["ant", "Antérieure"], ["post", "Postérieure ou latérale"]] }],
+    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "abd", "sts30", "tug", "marche40", "sane", "psfs"],
+    ref: "Assis-debout de chaise",
+    notes: ["Voie postérieure : les premières semaines, éviter de plier la hanche au-delà de 90°, de croiser les jambes et de tourner le genou vers l'intérieur, selon le chirurgien.",
+            "Voie antérieure : éviter au début l'extension forcée avec la jambe tournée vers l'extérieur.",
+            "La boiterie vient surtout de la faiblesse des abducteurs : leur renforcement est central."],
+    etapes: [
+      { nom: "Remarcher", but: "Marche avec aides techniques, mobilité dans les limites autorisées, réveil des fessiers.",
+        obj: [
+          { id: "j21", t: "Au moins 3 semaines depuis l'opération", p: "3 semaines depuis l'opération", a: { j: 21 } },
+          { id: "esc", t: "Escaliers avec une rampe, en sécurité", p: "Tu montes les escaliers en sécurité" }],
+        exos: ["Pompe de cheville couché", "Contraction des fessiers couché", "Glissement de la jambe sur le côté, couché", "Glissement du talon couché", "Pont de hanche", "Montée de genou assis"] },
+      { nom: "Marcher sans aide", but: "Sevrage des cannes, marche sans boiterie, renforcement des abducteurs.",
+        obj: [
+          { id: "j42", t: "Au moins 6 semaines", p: "6 semaines depuis l'opération", a: { j: 42 } },
+          { id: "marche", t: "Marche sans canne et sans boiterie", p: "Tu marches sans canne et sans boiter" },
+          { id: "abd70", t: "Force des abducteurs : au moins 70 % du côté sain", p: "Ta hanche a retrouvé 70 % de sa force", a: { m: "abd", lsi: 70 } }],
+        exos: ["Abduction contre le mur, debout", "Abduction couché sur le côté", "Assis-debout de chaise", "Step-up sur marche", "Montée de marche sur le côté", "Marche latérale élastique", "Vélo d'appartement"] },
+      { nom: "Renforcer et autonomie", but: "Force, équilibre, activités de loisir adaptées.",
+        obj: [
+          { id: "abd85", t: "Force des abducteurs : au moins 85 % du côté sain", p: "Ta hanche a presque retrouvé sa force", a: { m: "abd", lsi: 85 } },
+          { id: "sts", t: "Levers de chaise en 30 s en hausse d'au moins 3", p: "Tu te lèves bien plus facilement", a: { m: "sts30", gain: 3 } }],
+        exos: ["Pont fessier unilatéral", "Squat bilatéral", "Équilibre unipodal", "Fente arrière", "Se relever du sol", "La marche du mannequin"] }
+    ],
+    alertes: ALERTES_HANCHE,
+    src: ["westby", "minns"]
+  };
+  P.tendino_fess = {
+    nom: "Douleur latérale de hanche (fessiers)", long: "Tendinopathie des moyen et petit fessiers", zone: "hanche",
+    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "abd", "hri", "sane", "psfs"],
+    ref: "Abduction contre le mur, debout",
+    notes: ["Le programme explications + exercices fait mieux qu'une infiltration à un an (essai LEAP).",
+            "À éviter : croiser les jambes, se tenir debout en appui sur une hanche, dormir couché sur le côté douloureux sans coussin entre les genoux, les étirements de la face externe de la hanche.",
+            "Pas d'abduction couché sur le côté au début : elle comprime le tendon."],
+    etapes: [
+      { nom: "Moins comprimer, contractions statiques", but: "Adapter les positions, contractions statiques des abducteurs.",
+        obj: [
+          { id: "edu", t: "Le patient connaît les positions à éviter", p: "Tu sais quelles positions éviter" },
+          { id: "dou4", t: "Douleur à l'effort de 4/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 4 } }],
+        exos: ["Abduction contre le mur, debout", "Contraction des fessiers couché", "Pont de hanche", "Montée de genou assis", "Vélo d'appartement"] },
+      { nom: "Renforcer en charge", but: "Renforcement progressif des abducteurs, contrôle du bassin.",
+        obj: [
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "uni", t: "Tient 30 s sur une jambe sans douleur", p: "Tu tiens 30 secondes sur une jambe sans douleur" }],
+        exos: ["Montée de marche sur le côté", "Pont fessier unilatéral", "Marche latérale élastique", "Squat bilatéral", "Équilibre unipodal", "La marche du mannequin"] },
+      { nom: "Reprendre les activités", but: "Montées, course, sport.",
+        obj: [
+          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
+        exos: ["Squat bulgare", "Fente latérale", "Avion sur une jambe", "Step-up sur marche", "Le pas du crabe"] }
+    ],
+    alertes: ALERTES_HANCHE,
+    src: ["mellor", "grimaldi15", "grimaldi17"]
+  };
+  P.cfa = {
+    nom: "Douleur de hanche du sportif (conflit)", long: "Conflit fémoro-acétabulaire et douleur de hanche du sujet jeune et actif", zone: "hanche",
+    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "hri", "abd", "fAdd", "sane", "psfs"],
+    ref: "Pont fessier unilatéral",
+    notes: ["Rééducation de 3 mois au moins en première intention : renforcement de la hanche et du tronc, contrôle du mouvement, adaptation du sport.",
+            "Limiter au début les flexions profondes de hanche avec rotation interne (squat très bas, position assise basse prolongée).",
+            "Avis chirurgical si échec d'une rééducation bien conduite."],
+    etapes: [
+      { nom: "Calmer et contrôler", but: "Adapter les gestes qui pincent, renforcement doux, contrôle du bassin.",
+        obj: [
+          { id: "edu", t: "Le patient connaît les gestes à adapter", p: "Tu sais quels gestes adapter" },
+          { id: "dou4", t: "Douleur à l'effort de 4/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 4 } }],
+        exos: ["Pont de hanche", "Clamshell", "Contraction des fessiers couché", "Dead bug", "Montée de genou assis", "Le hula hoop"] },
+      { nom: "Renforcer hanche et tronc", but: "Fessiers, adducteurs, gainage, sur une jambe.",
+        obj: [
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "add80", t: "Force des adducteurs : au moins 80 % du côté sain", p: "L'intérieur de ta cuisse a retrouvé 80 % de sa force", a: { m: "fAdd", lsi: 80 } }],
+        exos: ["Pont fessier unilatéral", "Montée de marche sur le côté", "Planche Copenhague genou", "Side plank sur genoux", "Avion sur une jambe", "Charnière de hanche, fesses au mur", "La porte du saloon"] },
+      { nom: "Reprendre le sport", but: "Course, changements de direction, frappes, sur critères.",
+        obj: [
+          { id: "abd90", t: "Force des abducteurs et des adducteurs : au moins 90 %", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "sport", t: "Entraînement repris sans douleur gênante", p: "Tu as repris l'entraînement" }],
+        exos: ["Squat bulgare", "Fente latérale", "Planche Copenhague", "Bonds du patineur", "Le pas du crabe"] }
+    ],
+    alertes: ALERTES_HANCHE,
+    src: ["griffin16", "kemp20", "reiman15"]
+  };
+  P.pubalgie = {
+    nom: "Douleur de l'aine du sportif (adducteurs)", long: "Douleur de l'aine liée aux adducteurs (pubalgie)", zone: "hanche",
+    key: { m: "fAdd", lsi: 1, l: "Symétrie de la force des adducteurs" },
+    mes: ["dou", "fAdd", "abd", "hri", "sane", "psfs"],
+    ref: "Planche Copenhague genou",
+    notes: ["Le renforcement actif des adducteurs et du tronc est le traitement de référence (programme d'Hölmich).",
+            "Le programme Copenhague (adducteurs) réduit nettement les douleurs de l'aine chez les footballeurs : à garder en prévention.",
+            "Toux ou éternuement douloureux, boule à l'aine : penser à une hernie."],
+    etapes: [
+      { nom: "Calmer et réveiller", but: "Contractions statiques des adducteurs, gainage, adapter le sport.",
+        obj: [
+          { id: "squeeze", t: "Serrage des genoux (squeeze) à 4/10 de douleur au maximum", p: "Serrer les genoux fait peu mal" },
+          { id: "dou4", t: "Douleur à l'effort de 4/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 4 } }],
+        exos: ["Serrage de ballon entre les genoux", "Pont avec ballon entre les genoux", "Dead bug", "Side plank sur genoux", "Vélo d'appartement"] },
+      { nom: "Renforcer les adducteurs", but: "Programme Copenhague progressif, gainage, contrôle sur une jambe.",
+        obj: [
+          { id: "add80", t: "Force des adducteurs : au moins 80 % du côté sain", p: "L'intérieur de ta cuisse a retrouvé 80 % de sa force", a: { m: "fAdd", lsi: 80 } }],
+        exos: ["Planche Copenhague genou", "Copenhague dynamique genou", "Fente latérale", "Avion sur une jambe", "Pallof press", "La porte du saloon"] },
+      { nom: "Reprendre le sport", but: "Course, frappes, changements de direction, sur critères.",
+        obj: [
+          { id: "add90", t: "Force des adducteurs : au moins 90 % du côté sain", p: "L'intérieur de ta cuisse a retrouvé sa force", a: { m: "fAdd", lsi: 90 } },
+          { id: "sport", t: "Sprints et frappes sans douleur", p: "Tu sprintes et frappes sans douleur" }],
+        exos: ["Planche Copenhague", "Copenhague dynamique", "Bonds du patineur", "Fentes sautées", "Le pas du crabe"] }
+    ],
+    alertes: ALERTES_HANCHE,
+    src: ["weir15", "holmich", "haroy"]
+  };
+
+  /* ═══════════════════════ RACHIS ═══════════════════════ */
+  var ALERTES_RACHIS = [
+    "Troubles pour uriner ou aller à la selle, perte de sensibilité entre les cuisses ou autour de l'anus, faiblesse des deux jambes : syndrome de la queue de cheval, urgence chirurgicale.",
+    "Faiblesse d'une jambe ou d'un bras qui s'aggrave : avis médical rapide.",
+    "Fièvre, frissons, infection récente, immunité affaiblie : suspicion d'infection, avis médical.",
+    "Antécédent de cancer, perte de poids inexpliquée, douleur la nuit qui ne cède pas au repos : avis médical.",
+    "Traumatisme important, ou chute banale chez une personne ostéoporotique ou sous corticoïdes : suspicion de fracture, radiographie.",
+    "Cou : maladresse des mains, marche instable, décharges dans le corps en penchant la tête (atteinte de la moelle), ou vertiges, troubles de la parole ou de la vue (atteinte vasculaire) : avis médical en urgence."
+  ];
+  P.dos = {
+    nom: "Lombalgie commune", long: "Lombalgie commune, aiguë ou persistante", zone: "rachis",
+    opts: [{ id: "duree", l: "Durée", ch: [["aigue", "Moins de 6 semaines"], ["sub", "6 à 12 semaines"], ["chro", "Plus de 3 mois"]] }],
+    key: { m: "dou", l: "Douleur à l'effort" },
+    mes: ["dou", "dsol", "sorensen", "plk", "sts30", "sane", "psfs"],
+    ref: "Superman quadrupédique en gainage",
+    notes: ["Explications rassurantes et reprise des activités : le repos au lit retarde la guérison. L'imagerie est inutile sans signe d'alerte.",
+            "La plupart des lombalgies aiguës s'améliorent nettement en quelques semaines. Repérer tôt les freins à la récupération : peur du mouvement, découragement, problèmes au travail.",
+            "Lombalgie persistante : exercice régulier, quel qu'il soit, et approche qui prend en compte le vécu de la douleur."],
+    etapes: [
+      { nom: "Rassurer et bouger", but: "Comprendre, rester actif, bouger le dos sans crainte.",
+        obj: [
+          { id: "alerte", t: "Signes d'alerte écartés", p: "Ton kiné a vérifié qu'il n'y a pas de signe inquiétant" },
+          { id: "edu", t: "Le patient sait que bouger aide son dos", p: "Tu sais que bouger aide ton dos" },
+          { id: "dou5", t: "Douleur à l'effort de 5/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 5 } }],
+        exos: ["Respiration abdominale couché", "Genoux vers la poitrine couché", "Essuie-glace genoux pliés", "Chat-vache", "Bascule du bassin couché", "Extension couché sur les coudes", "Pont de hanche", "L'hélicoptère"] },
+      { nom: "Renforcer et reprendre", but: "Gainage, force des jambes et du dos, gestes du quotidien.",
+        obj: [
+          { id: "dou3", t: "Douleur à l'effort de 3/10 au maximum", p: "Peu de douleur à l'effort", a: { m: "dou", max: 3 } },
+          { id: "sor", t: "Test de Sorensen en hausse d'au moins 20 s", p: "Ton dos tient bien plus longtemps", a: { m: "sorensen", gain: 20 } }],
+        exos: ["Superman quadrupédique en gainage", "Dead bug", "Curl-up de McGill", "Side plank sur genoux", "Charnière de hanche, fesses au mur", "Ramasser un objet en charnière de hanche", "Squat bilatéral", "Le métronome"] },
+      { nom: "Autonomie et charges", but: "Porter, soulever, sport et travail, programme à garder.",
+        obj: [
+          { id: "activ", t: "Activités et travail repris", p: "Tu as repris tes activités" },
+          { id: "auto", t: "Programme d'exercices fait seul chaque semaine", p: "Tu fais ton programme seul" }],
+        exos: ["Soulevé de terre avec deux sacs", "Marche du fermier sur place", "Pallof press", "Planche latérale complète", "Goblet squat", "Le bûcheron avec ballon"] }
+    ],
+    alertes: ALERTES_RACHIS,
+    src: ["has19", "nice59", "foster18", "hayden21"]
+  };
+  P.sciatique = {
+    nom: "Sciatique (radiculalgie lombaire)", long: "Douleur qui descend dans la jambe par atteinte d'une racine nerveuse lombaire", zone: "rachis",
+    key: { m: "djambe", l: "Douleur dans la jambe" },
+    mes: ["djambe", "dou", "slr", "dsol", "sane", "psfs"],
+    ref: "Glissement du nerf sciatique assis",
+    notes: ["La plupart des sciatiques s'améliorent en quelques semaines à quelques mois sans chirurgie. Rester actif dans la limite de la douleur.",
+            "Surveiller la force, la sensibilité et les réflexes à chaque séance : un déficit qui s'aggrave impose un avis rapide.",
+            "Les positions et mouvements qui centralisent la douleur (elle remonte de la jambe vers le dos) sont un bon signe et un bon guide pour les exercices."],
+    etapes: [
+      { nom: "Calmer la jambe", but: "Positions qui soulagent, mouvements qui centralisent, glissements nerveux doux.",
+        obj: [
+          { id: "neuro", t: "Pas de déficit qui s'aggrave", p: "Ta force et ta sensibilité sont surveillées" },
+          { id: "dj5", t: "Douleur dans la jambe de 5/10 au maximum", p: "La douleur dans la jambe a baissé", a: { m: "djambe", max: 5 } }],
+        exos: ["Respiration abdominale couché", "Extension couché sur les coudes", "Genoux vers la poitrine couché", "Glissement du nerf sciatique assis", "Bascule du bassin couché", "Marche avec une charge d'un seul côté"] },
+      { nom: "Bouger et renforcer", but: "Retrouver la mobilité du dos et du nerf, gainage, marche.",
+        obj: [
+          { id: "dj2", t: "Douleur dans la jambe de 2/10 au maximum", p: "La jambe ne fait presque plus mal", a: { m: "djambe", max: 2 } },
+          { id: "slr", t: "Jambe tendue levée en hausse d'au moins 20°", p: "Tu lèves ta jambe tendue bien plus haut", a: { m: "slr", gain: 20 } }],
+        exos: ["Superman quadrupédique en gainage", "Dead bug", "Pont de hanche", "Chat-vache", "Charnière de hanche, fesses au mur", "Le métronome"] },
+      { nom: "Reprendre les activités", but: "Porter, sport, travail.",
+        obj: [
+          { id: "activ", t: "Activités et travail repris", p: "Tu as repris tes activités" }],
+        exos: ["Ramasser un objet en charnière de hanche", "Soulevé de terre avec deux sacs", "Side plank sur genoux", "Squat bilatéral", "Pallof press"] }
+    ],
+    alertes: ALERTES_RACHIS,
+    src: ["nice59", "has19", "deville"]
+  };
+  P.cervicalgie = {
+    nom: "Cervicalgie", long: "Douleur du cou sans atteinte nerveuse", zone: "rachis",
+    key: { m: "rotC", lsi: 1, l: "Symétrie de la rotation du cou" },
+    mes: ["dou", "rotC", "dnfe", "sane", "psfs"],
+    ref: "Endurance des fléchisseurs du cou",
+    notes: ["Exercices du cou et du haut du dos, associés à la thérapie manuelle si besoin. Rester actif.",
+            "Douleur après un accident de voiture : rassurer, reprise progressive, surveiller les freins à la récupération."],
+    etapes: [
+      { nom: "Bouger sans crainte", but: "Mobilité douce du cou, posture variée, explications.",
+        obj: [
+          { id: "alerte", t: "Signes d'alerte écartés", p: "Ton kiné a vérifié qu'il n'y a pas de signe inquiétant" },
+          { id: "dou4", t: "Douleur de 4/10 au maximum", p: "La douleur a baissé", a: { m: "dou", max: 4 } }],
+        exos: ["Rentrer le menton", "Rotation du cou", "Inclinaison du cou", "Haussement et enroulement des épaules", "Livre ouvert couché sur le côté", "La tortue"] },
+      { nom: "Renforcer", but: "Muscles profonds du cou, haut du dos, omoplates.",
+        obj: [
+          { id: "dnfe", t: "Endurance des fléchisseurs du cou d'au moins 30 s", p: "Ton cou tient plus longtemps", a: { m: "dnfe", min: 30 } },
+          { id: "rot", t: "Rotation du cou : au moins 90 % de l'autre côté", p: "Ton cou tourne presque autant des deux côtés", a: { m: "rotC", lsi: 90 } }],
+        exos: ["Endurance des fléchisseurs du cou", "Contraction du cou contre la main", "Extension du cou à quatre pattes", "Serrage des omoplates", "Rowing un bras appui chaise", "Face pull à l'élastique"] },
+      { nom: "Autonomie", but: "Programme d'entretien, travail sur écran organisé.",
+        obj: [
+          { id: "activ", t: "Activités et travail sans gêne importante", p: "Ton cou ne te gêne presque plus" }],
+        exos: ["Élévation en Y", "Bras en arrière à plat ventre", "Tirage horizontal à l'élastique", "Le papillon", "La tortue"] }
+    ],
+    alertes: ALERTES_RACHIS,
+    src: ["blanpied", "bier"]
+  };
+  P.nevralgie_cb = {
+    nom: "Névralgie cervico-brachiale", long: "Douleur du cou qui descend dans le bras (radiculopathie cervicale)", zone: "rachis",
+    key: { m: "dbras", l: "Douleur dans le bras" },
+    mes: ["dbras", "dou", "rotC", "dnfe", "sane", "psfs"],
+    ref: "Rentrer le menton",
+    notes: ["La plupart s'améliorent en quelques semaines à quelques mois sans chirurgie.",
+            "Surveiller la force, la sensibilité et les réflexes du bras : un déficit qui s'aggrave impose un avis rapide.",
+            "Mouvements qui soulagent : rentrer le menton, bras posé sur la tête (signe de Bakody) pour certains patients."],
+    etapes: [
+      { nom: "Calmer le bras", but: "Positions qui soulagent, glissements nerveux doux, mobilité du cou sans pincer.",
+        obj: [
+          { id: "neuro", t: "Pas de déficit qui s'aggrave", p: "Ta force et ta sensibilité sont surveillées" },
+          { id: "db5", t: "Douleur dans le bras de 5/10 au maximum", p: "La douleur dans le bras a baissé", a: { m: "dbras", max: 5 } }],
+        exos: ["Rentrer le menton", "Glissement du nerf du bras", "Haussement et enroulement des épaules", "Livre ouvert couché sur le côté", "Respiration abdominale couché"] },
+      { nom: "Renforcer", but: "Muscles profonds du cou, omoplates, haut du dos.",
+        obj: [
+          { id: "db2", t: "Douleur dans le bras de 2/10 au maximum", p: "Le bras ne fait presque plus mal", a: { m: "dbras", max: 2 } },
+          { id: "dnfe", t: "Endurance des fléchisseurs du cou d'au moins 30 s", p: "Ton cou tient plus longtemps", a: { m: "dnfe", min: 30 } }],
+        exos: ["Endurance des fléchisseurs du cou", "Contraction du cou contre la main", "Serrage des omoplates", "Rowing un bras appui chaise", "Rotation du cou", "La tortue"] },
+      { nom: "Reprendre les activités", but: "Travail, port de charges, sport.",
+        obj: [
+          { id: "activ", t: "Activités reprises sans douleur dans le bras", p: "Tu as repris tes activités" }],
+        exos: ["Face pull à l'élastique", "Élévation en Y", "Tirage horizontal à l'élastique", "Marche du fermier sur place", "Le papillon"] }
+    ],
+    alertes: ALERTES_RACHIS,
+    src: ["blanpied", "wainner"]
+  };
+
   var ORDER = ["genou", "lca_op", "lca_cons", "menisectomie", "suture_men", "sfp", "tendino_rot", "gonarthrose", "ptg", "lcm",
                "cheville", "entorse", "instab", "achille", "rupt_achille", "aponev", "fract_cheville",
-               "epaule", "coiffe", "coiffe_op", "capsulite", "instab_ep", "stab_op", "pte", "fx_humerus"];
+               "epaule", "coiffe", "coiffe_op", "capsulite", "instab_ep", "stab_op", "pte", "fx_humerus",
+               "hanche", "coxarthrose", "pth", "tendino_fess", "cfa", "pubalgie",
+               "dos", "sciatique", "cervicalgie", "nevralgie_cb"];
   // Les questionnaires remplis par le patient (note globale, activités choisies) sont proposés dans tous les parcours
   ORDER.forEach(function (id) { ["sane", "psfs"].forEach(function (m) { if (P[id].mes.indexOf(m) < 0) P[id].mes.push(m); }); });
-  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"]];
+  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"], ["hanche", "Hanche"], ["rachis", "Dos et cou"]];
 
   /* ════════ Calculs ════════ */
   function num(v) { if (v == null || v === "") return null; var n = +String(v).replace(",", "."); return isFinite(n) ? n : null; }
@@ -1213,7 +1552,57 @@ var KineParcours = (function () {
       val: "Associé à une douleur à la palpation de l'articulation acromio-claviculaire, il oriente vers celle-ci.", src: "hegedus" },
     spurling: { n: "Test de Spurling", how: "Patient assis : tête inclinée du côté douloureux et légèrement en extension, le kiné appuie doucement sur le sommet du crâne.",
       pos: "Douleur ou fourmillements qui descendent dans le bras.", neg: "Pas de douleur dans le bras.",
-      val: "Spécifique d'une souffrance d'une racine nerveuse du cou : la douleur d'épaule vient peut-être du cou.", src: "wainner" }
+      val: "Spécifique d'une souffrance d'une racine nerveuse du cou : la douleur d'épaule vient peut-être du cou.", src: "wainner" },
+    /* hanche */
+    fadir: { n: "FADIR (flexion, adduction, rotation interne)", how: "Patient sur le dos : hanche fléchie à 90°, puis adduction et rotation interne passives.",
+      pos: "Douleur de l'aine qui reproduit la douleur habituelle.", neg: "Pas de douleur de l'aine.",
+      val: "Très sensible pour le conflit fémoro-acétabulaire et les lésions du labrum : négatif, il les rend peu probables ; positif, il n'est pas spécifique.", src: "reiman15" },
+    faber: { n: "FABER (Patrick)", how: "Patient sur le dos : le pied posé sur le genou opposé, le genou tombe vers l'extérieur ; le kiné appuie doucement sur le genou.",
+      pos: "Douleur de l'aine (hanche) ou de la fesse (sacro-iliaque), ou genou nettement plus haut que de l'autre côté.", neg: "Pas de douleur, amplitude symétrique.",
+      val: "Peu spécifique : utile pour situer la douleur (aine ou fesse) et comparer les côtés.", src: "reiman15" },
+    rilim: { n: "Rotation interne de hanche limitée", how: "Patient assis ou sur le dos, hanche et genou à 90° : rotation interne passive, comparée à l'autre côté.",
+      pos: "Rotation interne de 15° ou moins (ou nettement plus faible que de l'autre côté), souvent douloureuse.", neg: "Rotation interne normale.",
+      val: "Après 50 ans, avec une douleur de l'aine et une raideur matinale courte, elle oriente fortement vers l'arthrose de hanche (critères de l'ACR).", src: "altman91" },
+    trochanter: { n: "Palpation du grand trochanter", how: "Patient couché sur le côté sain : palper la face externe du grand trochanter.",
+      pos: "Douleur vive localisée qui reproduit la douleur habituelle.", neg: "Palpation peu ou pas douloureuse.",
+      val: "Très sensible : négatif, il rend une tendinopathie des fessiers peu probable. À associer au test d'appui unipodal de 30 s.", src: "grimaldi17" },
+    sls30: { n: "Appui unipodal de 30 s", how: "Debout sur la jambe douloureuse, un doigt au mur pour l'équilibre, pendant 30 s.",
+      pos: "La douleur latérale de hanche apparaît pendant les 30 s.", neg: "Pas de douleur.",
+      val: "Le test le plus utile pour la tendinopathie des fessiers (bonne spécificité).", src: "grimaldi17" },
+    adres: { n: "Adduction contre résistance", how: "Patient sur le dos, jambe tendue : il serre vers l'intérieur contre la main du kiné, à la cheville.",
+      pos: "Douleur à l'insertion des adducteurs, près du pubis.", neg: "Pas de douleur.",
+      val: "Avec la palpation des adducteurs, oriente vers une douleur de l'aine liée aux adducteurs (accord de Doha).", src: "weir15" },
+    sqz: { n: "Squeeze test (serrage des genoux)", how: "Patient sur le dos, genoux pliés à 45° : il serre le poing du kiné entre ses genoux, fort, 5 s.",
+      pos: "Douleur de l'aine, et force plus faible qu'attendu.", neg: "Pas de douleur.",
+      val: "Sert aussi au suivi : la douleur de 0 à 10 au squeeze test est un bon repère pour reprendre le sport.", src: "weir15" },
+    flexlim: { n: "Flexion de hanche limitée", how: "Patient sur le dos : flexion passive de hanche, comparée à l'autre côté.",
+      pos: "Flexion de 115° ou moins, ou nettement plus faible que de l'autre côté.", neg: "Flexion normale.",
+      val: "Avec la rotation interne limitée et l'âge, un des critères cliniques de l'arthrose de hanche.", src: "altman91" },
+    /* rachis */
+    lasegue: { n: "Jambe tendue levée (Lasègue)", how: "Patient sur le dos : le kiné lève la jambe tendue, lentement.",
+      pos: "Douleur qui descend sous le genou (pas seulement une tension derrière la cuisse), entre 30 et 70° environ.", neg: "Pas de douleur dans la jambe, ou simple tension des ischios.",
+      val: "Très sensible pour une hernie discale avec atteinte de racine : négatif, il rend une sciatique par hernie peu probable.", src: "deville" },
+    crossed: { n: "Lasègue croisé", how: "Le kiné lève la jambe tendue du côté sain.",
+      pos: "La douleur apparaît dans la jambe douloureuse.", neg: "Pas de douleur de l'autre côté.",
+      val: "Peu sensible mais très spécifique : positif, il confirme presque une hernie discale.", src: "deville" },
+    slump: { n: "Slump test", how: "Assis au bord de la table, dos enroulé, menton sur la poitrine : le patient tend le genou puis relève la pointe du pied ; on relâche ensuite la tête.",
+      pos: "Douleur de la jambe reproduite, qui diminue quand la tête se relève.", neg: "Pas de douleur de la jambe, ou pas de changement avec la tête.",
+      val: "Plus sensible que le Lasègue pour les atteintes de racine ; aide à confirmer une composante nerveuse.", src: "majlesi" },
+    deficit: { n: "Déficit neurologique", how: "Force (marche sur les talons et les pointes, extension du gros orteil, quadriceps), sensibilité et réflexes, comparés à l'autre côté.",
+      pos: "Faiblesse, perte de sensibilité ou réflexe diminué dans un territoire de racine.", neg: "Examen neurologique normal.",
+      val: "Confirme une atteinte de racine. Un déficit important ou qui s'aggrave impose un avis rapide.", src: "finucane" },
+    centrali: { n: "Centralisation", how: "Mouvements répétés (par exemple 10 extensions couché sur le ventre ou debout) : on observe où se situe la douleur après.",
+      pos: "La douleur remonte de la jambe vers le dos, ou diminue.", neg: "La douleur ne change pas ou descend plus loin.",
+      val: "Bon signe : la centralisation annonce une évolution plus favorable et guide le choix des exercices.", src: "may12" },
+    rotc60: { n: "Rotation du cou inférieure à 60°", how: "Patient assis : rotation active de la tête de chaque côté, mesurée au goniomètre.",
+      pos: "Moins de 60° du côté douloureux.", neg: "60° ou plus.",
+      val: "Un des 4 éléments de l'association de Wainner pour la radiculopathie cervicale (avec Spurling, distraction et ULTT A).", src: "wainner" },
+    ultta: { n: "ULTT A (test de tension du nerf médian)", how: "Patient sur le dos : abaissement de l'épaule, abduction, extension du poignet et des doigts, supination, rotation externe, puis extension du coude ; enfin inclinaison du cou.",
+      pos: "Symptômes du bras reproduits, qui changent avec l'inclinaison du cou, ou asymétrie de plus de 10° d'extension du coude.", neg: "Pas de symptômes du bras.",
+      val: "Très sensible : négatif, il rend une radiculopathie cervicale peu probable.", src: "wainner" },
+    distraction: { n: "Test de distraction cervicale", how: "Patient sur le dos : le kiné tire doucement la tête dans l'axe (environ 14 kg).",
+      pos: "La douleur du bras diminue ou disparaît.", neg: "Pas de changement.",
+      val: "Spécifique : positif, il renforce l'hypothèse d'une radiculopathie cervicale.", src: "wainner" }
   };
 
   /* ════════ Guide d'orientation : cheville et pied sans diagnostic ════════ */
@@ -1356,6 +1745,128 @@ var KineParcours = (function () {
     };
     return { R: R, NAME: NAME, PATH: PATH, NOTE: NOTE };
   }
+  /* ════════ Guide d'orientation : hanche sans diagnostic ════════ */
+  var GUIDE_HANCHE = {
+    alertes: [
+      { id: "fracture", t: "Chute, appui impossible, jambe raccourcie ou tournée vers l'extérieur", d: "Suspicion de fracture : radiographie en urgence." },
+      { id: "enfant", t: "Enfant ou adolescent qui boite", d: "Épiphysiolyse ou maladie de Perthes possibles : avis médical rapide." },
+      { id: "infect", t: "Fièvre, hanche chaude, douleur au moindre mouvement", d: "Suspicion d'infection : avis médical le jour même." },
+      { id: "hernie", t: "Douleur de l'aine à la toux avec une boule", d: "Hernie possible : avis médical." },
+      { id: "osteo", t: "Corticoïdes au long cours ou alcool, douleur de l'aine qui s'installe", d: "Ostéonécrose possible : avis médical et imagerie." },
+      { id: "nuit", t: "Douleur nocturne non mécanique, perte de poids, antécédent de cancer", d: "Avis médical." }
+    ],
+    q: [
+      { id: "debut", t: "Début", ch: [["progressif", "Progressif"], ["sport", "Pendant le sport (frappe, pivot, sprint)"], ["chute", "Après une chute"]] },
+      { id: "age", t: "Âge", ch: [["jeune", "Moins de 35 ans"], ["moyen", "35 à 49 ans"], ["50", "50 ans ou plus"]] },
+      { id: "zone", t: "Où est la douleur", ch: [["aine", "Dans l'aine, en profondeur"], ["lat", "Face externe de la hanche"], ["add", "Aine, près du pubis, intérieur de la cuisse"], ["fesse", "Dans la fesse"]] },
+      { id: "signes", t: "Ce que le patient décrit", multi: 1, ch: [["raideur", "Raideur le matin, moins d'une heure"], ["cote", "Douleur couché sur le côté"], ["assis", "Douleur assis bas ou longtemps, ou en enfilant ses chaussettes"], ["accroch", "Accrochage, claquement dans l'aine"], ["sprint", "Douleur aux sprints, frappes, changements de direction"], ["dos", "Douleur du dos, qui descend dans la jambe"]] },
+      { id: "tests", t: "Tests positifs", multi: 1, ch: [["fadir", "FADIR"], ["faber", "FABER"], ["rilim", "Rotation interne limitée"], ["flexlim", "Flexion limitée"], ["trochanter", "Palpation du trochanter"], ["sls30", "Appui unipodal de 30 s"], ["adres", "Adduction contre résistance"], ["sqz", "Squeeze test"], ["lasegue", "Lasègue"]] }
+    ]
+  };
+  function guideHanche(ans) {
+    var has = function (k, v) { var x = ans[k]; return Array.isArray(x) ? x.indexOf(v) >= 0 : x === v; };
+    var R = { coxarthrose: { s: 0, why: [] }, fessiers: { s: 0, why: [] }, cfa: { s: 0, why: [] }, adducteurs: { s: 0, why: [] }, lombaire: { s: 0, why: [] } };
+    function add(k, n, w) { R[k].s += n; R[k].why.push(w); }
+    // Arthrose (Altman 1991)
+    if (has("age", "50")) add("coxarthrose", 3, "50 ans ou plus");
+    if (has("debut", "progressif")) { add("coxarthrose", 1, "début progressif"); add("fessiers", 1, "début progressif"); }
+    if (has("zone", "aine")) { add("coxarthrose", 2, "douleur de l'aine"); add("cfa", 2, "douleur de l'aine"); }
+    if (has("signes", "raideur")) add("coxarthrose", 2, "raideur matinale courte");
+    if (has("tests", "rilim")) { add("coxarthrose", 4, "rotation interne limitée"); add("cfa", 1, "rotation interne limitée"); }
+    if (has("tests", "flexlim")) add("coxarthrose", 2, "flexion limitée");
+    // Tendinopathie des fessiers (Grimaldi 2017)
+    if (has("zone", "lat")) add("fessiers", 4, "douleur de la face externe");
+    if (has("signes", "cote")) add("fessiers", 2, "douleur couché sur le côté");
+    if (has("tests", "trochanter")) add("fessiers", 2, "trochanter douloureux");
+    if (has("tests", "sls30")) add("fessiers", 4, "appui unipodal de 30 s douloureux");
+    if (has("age", "moyen") || has("age", "50")) add("fessiers", 1, "plus de 35 ans");
+    // Conflit fémoro-acétabulaire (Griffin 2016 ; Reiman 2015)
+    if (has("age", "jeune")) add("cfa", 2, "moins de 35 ans");
+    if (has("debut", "sport")) { add("cfa", 1, "pendant le sport"); add("adducteurs", 2, "pendant le sport"); }
+    if (has("signes", "assis")) add("cfa", 2, "douleur assis bas ou longtemps");
+    if (has("signes", "accroch")) add("cfa", 2, "accrochage ou claquement");
+    if (has("tests", "fadir")) add("cfa", 2, "FADIR positif");
+    if (has("tests", "faber")) add("cfa", 1, "FABER douloureux à l'aine");
+    // Adducteurs (Weir 2015)
+    if (has("zone", "add")) add("adducteurs", 4, "douleur près du pubis");
+    if (has("signes", "sprint")) { add("adducteurs", 2, "douleur aux sprints et frappes"); add("cfa", 1, "douleur aux sprints et frappes"); }
+    if (has("tests", "adres")) add("adducteurs", 3, "adduction contre résistance douloureuse");
+    if (has("tests", "sqz")) add("adducteurs", 2, "squeeze test douloureux");
+    // Origine lombaire
+    if (has("zone", "fesse")) { add("lombaire", 2, "douleur de la fesse"); add("fessiers", 1, "douleur de la fesse"); }
+    if (has("signes", "dos")) add("lombaire", 4, "douleur du dos qui descend");
+    if (has("tests", "lasegue")) add("lombaire", 3, "Lasègue positif");
+    var NAME = { coxarthrose: "Arthrose de la hanche", fessiers: "Tendinopathie des fessiers", cfa: "Conflit fémoro-acétabulaire", adducteurs: "Douleur liée aux adducteurs", lombaire: "Douleur d'origine lombaire" };
+    var PATH = { coxarthrose: "coxarthrose", fessiers: "tendino_fess", cfa: "cfa", adducteurs: "pubalgie", lombaire: "sciatique" };
+    var NOTE = {
+      coxarthrose: "Diagnostic clinique possible : 50 ans ou plus, douleur de l'aine, rotation interne limitée, raideur matinale courte. Radiographie utile si doute.",
+      fessiers: "Douleur latérale, trochanter douloureux et appui unipodal de 30 s douloureux : tendinopathie très probable.",
+      cfa: "FADIR négatif : conflit peu probable. Positif : il faut l'histoire et l'imagerie pour confirmer (accord de Warwick).",
+      adducteurs: "Douleur à la palpation et à l'adduction contre résistance : douleur de l'aine liée aux adducteurs (accord de Doha).",
+      lombaire: "La douleur vient peut-être du dos : examiner le rachis lombaire et la neurologie."
+    };
+    return { R: R, NAME: NAME, PATH: PATH, NOTE: NOTE };
+  }
+  /* ════════ Guide d'orientation : dos et cou ════════ */
+  var GUIDE_RACHIS = {
+    alertes: [
+      { id: "qdc", t: "Troubles urinaires ou de la selle, perte de sensibilité entre les cuisses, faiblesse des deux jambes", d: "Syndrome de la queue de cheval : urgence chirurgicale.", s: "finucane" },
+      { id: "deficit", t: "Faiblesse d'une jambe ou d'un bras qui s'aggrave", d: "Avis médical rapide." },
+      { id: "cancer", t: "Antécédent de cancer, perte de poids inexpliquée, douleur nocturne qui ne cède pas", d: "Avis médical.", s: "finucane" },
+      { id: "infect", t: "Fièvre, infection récente, immunité affaiblie", d: "Suspicion d'infection : avis médical." },
+      { id: "fracture", t: "Traumatisme important, ou chute banale chez une personne ostéoporotique ou sous corticoïdes", d: "Suspicion de fracture : radiographie." },
+      { id: "moelle", t: "Cou : maladresse des mains, marche instable, décharges en penchant la tête, ou vertiges et troubles de la parole", d: "Atteinte de la moelle ou vasculaire possible : avis médical en urgence." }
+    ],
+    q: [
+      { id: "zone", t: "Où est la douleur", ch: [["lomb", "Bas du dos"], ["lombjambe", "Bas du dos, et la jambe sous le genou"], ["cou", "Cou"], ["coubras", "Cou, et le bras"]] },
+      { id: "debut", t: "Début", ch: [["effort", "Après un effort ou un faux mouvement"], ["progressif", "Progressif"], ["accident", "Après un accident (voiture, chute)"]] },
+      { id: "age", t: "Âge", ch: [["jeune", "Moins de 45 ans"], ["45", "45 ans ou plus"]] },
+      { id: "signes", t: "Ce que le patient décrit", multi: 1, ch: [["jambe", "La douleur de jambe est plus forte que celle du dos"], ["fourm", "Fourmillements ou engourdissement du pied ou de la main"], ["toux", "La toux ou l'éternuement réveillent la douleur"], ["inflam", "Raideur le matin de plus de 30 min, qui s'améliore en bougeant"], ["peur", "Peur de bouger, découragement, arrêt de travail qui dure"], ["tete", "Maux de tête qui partent du cou"]] },
+      { id: "tests", t: "Tests positifs", multi: 1, ch: [["lasegue", "Lasègue"], ["crossed", "Lasègue croisé"], ["slump", "Slump"], ["deficit", "Déficit neurologique"], ["centrali", "Centralisation"], ["spurling", "Spurling"], ["distraction", "Distraction cervicale"], ["ultta", "ULTT A"], ["rotc60", "Rotation du cou < 60°"]] }
+    ]
+  };
+  function guideRachis(ans) {
+    var has = function (k, v) { var x = ans[k]; return Array.isArray(x) ? x.indexOf(v) >= 0 : x === v; };
+    var R = { lombalgie: { s: 0, why: [] }, sciatique: { s: 0, why: [] }, cervicalgie: { s: 0, why: [] }, ncb: { s: 0, why: [] }, inflam: { s: 0, why: [] }, chronicite: { s: 0, why: [] } };
+    function add(k, n, w) { R[k].s += n; R[k].why.push(w); }
+    if (has("zone", "lomb")) add("lombalgie", 4, "douleur du bas du dos");
+    if (has("zone", "lombjambe")) { add("sciatique", 4, "douleur qui descend sous le genou"); add("lombalgie", 1, "douleur du bas du dos"); }
+    if (has("zone", "cou")) add("cervicalgie", 4, "douleur du cou");
+    if (has("zone", "coubras")) { add("ncb", 4, "douleur qui descend dans le bras"); add("cervicalgie", 1, "douleur du cou"); }
+    if (has("debut", "effort")) add("lombalgie", 1, "après un effort");
+    if (has("debut", "accident") && (has("zone", "cou") || has("zone", "coubras"))) add("cervicalgie", 1, "après un accident");
+    // Sciatique (Devillé 2000 ; Majlesi 2008)
+    if (has("signes", "jambe")) add("sciatique", 3, "la jambe fait plus mal que le dos");
+    if (has("signes", "fourm")) { if (has("zone", "coubras") || has("zone", "cou")) add("ncb", 2, "fourmillements de la main"); else add("sciatique", 2, "fourmillements du pied"); }
+    if (has("signes", "toux")) add("sciatique", 1, "toux douloureuse");
+    if (has("tests", "lasegue")) add("sciatique", 3, "Lasègue positif");
+    if (has("tests", "crossed")) add("sciatique", 3, "Lasègue croisé positif");
+    if (has("tests", "slump")) add("sciatique", 2, "slump positif");
+    if (has("tests", "deficit")) { if (has("zone", "coubras") || has("zone", "cou")) add("ncb", 3, "déficit neurologique du bras"); else add("sciatique", 3, "déficit neurologique de la jambe"); }
+    if (has("tests", "centrali")) { add("lombalgie", 1, "la douleur se centralise"); add("sciatique", 1, "la douleur se centralise"); }
+    // Radiculopathie cervicale (Wainner 2003)
+    if (has("tests", "spurling")) add("ncb", 3, "Spurling positif");
+    if (has("tests", "distraction")) add("ncb", 2, "distraction positive");
+    if (has("tests", "ultta")) add("ncb", 2, "ULTT A positif");
+    if (has("tests", "rotc60")) { add("ncb", 1, "rotation du cou limitée"); add("cervicalgie", 1, "rotation du cou limitée"); }
+    if (has("signes", "tete")) add("cervicalgie", 2, "maux de tête qui partent du cou");
+    // Spondylarthrite (Sieper 2009) et risque de chronicité (Nicholas 2011)
+    if (has("signes", "inflam")) add("inflam", 3, "raideur matinale longue qui cède en bougeant");
+    if (has("age", "jeune") && has("signes", "inflam")) add("inflam", 1, "moins de 45 ans");
+    if (has("debut", "progressif") && has("signes", "inflam")) add("inflam", 1, "début progressif");
+    if (has("signes", "peur")) add("chronicite", 4, "peur de bouger, découragement");
+    var NAME = { lombalgie: "Lombalgie commune", sciatique: "Sciatique (radiculalgie lombaire)", cervicalgie: "Cervicalgie", ncb: "Névralgie cervico-brachiale", inflam: "Douleur inflammatoire (spondylarthrite ?)", chronicite: "Risque de douleur persistante" };
+    var PATH = { lombalgie: "dos", sciatique: "sciatique", cervicalgie: "cervicalgie", ncb: "nevralgie_cb", inflam: "dos", chronicite: "dos" };
+    var NOTE = {
+      lombalgie: "Pas d'imagerie sans signe d'alerte. Rassurer, rester actif, exercices.",
+      sciatique: "Lasègue négatif : hernie peu probable. Lasègue croisé positif : hernie très probable. Surveiller la neurologie.",
+      cervicalgie: "Exercices du cou et du haut du dos, thérapie manuelle en complément.",
+      ncb: "Spurling, distraction, ULTT A et rotation < 60° : avec 3 ou 4 tests positifs, radiculopathie cervicale très probable (Wainner).",
+      inflam: "Avant 45 ans, raideur matinale longue et amélioration au mouvement : demander un avis rhumatologique.",
+      chronicite: "Les freins à la récupération (peur, découragement, travail) pèsent plus que l'imagerie : les aborder dès maintenant."
+    };
+    return { R: R, NAME: NAME, PATH: PATH, NOTE: NOTE };
+  }
   /* cles : pour chaque piste, les tests qui la confirment ou l'écartent (proposés « à tester ensuite ») */
   var GUIDES = {
     genou: { titre: "Genou sans diagnostic", def: "genou", defNom: "Parcours genou sans diagnostic précis", g: GUIDE, src: ["stiell", "benj", "decary", "nice", "malliaras", "logLig"],
@@ -1363,13 +1874,17 @@ var KineParcours = (function () {
     cheville: { titre: "Cheville et pied sans diagnostic", def: "cheville", defNom: "Parcours cheville sans diagnostic précis", g: GUIDE_CHEVILLE, src: ["stiellA", "maffulli", "croy", "sman", "martinAch", "koc", "degarceau"],
       cles: { entorse: ["tiroir", "tilt", "fente"], syndes: ["squeeze", "rotext"], instab: ["tiroir", "fente"], achille: ["ach"], rupture: ["thompson"], aponev: ["fascia", "windlass"] } },
     epaule: { titre: "Épaule sans diagnostic", def: "epaule", defNom: "Parcours épaule sans diagnostic précis", g: GUIDE_EPAULE, src: ["park05", "hegedus", "hertel", "kelley", "lo04", "wainner"],
-      cles: { coiffe: ["arc", "hawkins", "rer"], rupture: ["lag", "rer", "jobe"], capsulite: ["repass"], instab: ["appr", "sulcus"], ac: ["croise"], cervical: ["spurling"] } }
+      cles: { coiffe: ["arc", "hawkins", "rer"], rupture: ["lag", "rer", "jobe"], capsulite: ["repass"], instab: ["appr", "sulcus"], ac: ["croise"], cervical: ["spurling"] } },
+    hanche: { titre: "Hanche sans diagnostic", def: "hanche", defNom: "Parcours hanche sans diagnostic précis", g: GUIDE_HANCHE, src: ["altman91", "grimaldi17", "reiman15", "weir15", "griffin16"],
+      cles: { coxarthrose: ["rilim", "flexlim"], fessiers: ["sls30", "trochanter"], cfa: ["fadir", "faber"], adducteurs: ["adres", "sqz"], lombaire: ["lasegue"] } },
+    rachis: { titre: "Dos et cou sans diagnostic", def: "dos", defNom: "Parcours lombalgie commune", g: GUIDE_RACHIS, src: ["finucane", "deville", "majlesi", "wainner", "may12", "sieper", "nicholas"],
+      cles: { lombalgie: ["centrali"], sciatique: ["lasegue", "crossed", "deficit"], cervicalgie: ["rotc60"], ncb: ["spurling", "distraction", "ultta"], inflam: [], chronicite: [] } }
   };
   // Pistes classées, tests négatifs pris en compte, et tests conseillés pour départager les pistes
   function guide(ans, zone) {
     ans = ans || {};
     zone = GUIDES[zone] ? zone : "genou";
-    var GZ = GUIDES[zone], r = zone === "cheville" ? guideCheville(ans) : zone === "epaule" ? guideEpaule(ans) : guideGenou(ans), R = r.R;
+    var GZ = GUIDES[zone], r = ({ cheville: guideCheville, epaule: guideEpaule, hanche: guideHanche, rachis: guideRachis }[zone] || guideGenou)(ans), R = r.R;
     var neg = ans.neg || [], pos = ans.tests || [], tn = {}; (GZ.g.q.filter(function (x) { return x.id === "tests"; })[0] || { ch: [] }).ch.forEach(function (c) { tn[c[0]] = c[1]; });
     Object.keys(R).forEach(function (k) { (GZ.cles[k] || []).forEach(function (t) { if (neg.indexOf(t) >= 0) { R[k].s -= 2; R[k].why.push(tn[t] + " négatif"); } }); });
     var pistes = Object.keys(R).filter(function (k) { return R[k].s >= 3; }).sort(function (a, b) { return R[b].s - R[a].s; }).map(function (k) {

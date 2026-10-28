@@ -8,7 +8,7 @@ var KineQuest = (function () {
   "use strict";
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
   var $ = function (id) { return document.getElementById(id); };
-  var ZW = { genou: { art: "ton genou", adj: "normal" }, cheville: { art: "ta cheville", adj: "normale" }, epaule: { art: "ton épaule", adj: "normale" } };
+  var ZW = { genou: { art: "ton genou", adj: "normal" }, cheville: { art: "ta cheville", adj: "normale" }, epaule: { art: "ton épaule", adj: "normale" }, hanche: { art: "ta hanche", adj: "normale" }, rachis: { art: "ton dos", adj: "normal" }, cou: { art: "ton cou", adj: "normal" } };
   function zw(z) { return ZW[z] || { art: "ton articulation", adj: "normale" }; }
   function iso() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function days(a) { if (!a) return 9999; var p = String(a).split("-"); return Math.floor((Date.now() - new Date(+p[0], +p[1] - 1, +p[2]).getTime()) / 864e5); }

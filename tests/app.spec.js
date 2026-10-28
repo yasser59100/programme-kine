@@ -198,6 +198,10 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await expect(page.locator("#kcb-sheet .kgd-sug .kgd-st")).toHaveCount(3);
   await page.evaluate(() => { const el = document.querySelector("#kcb-sheet .kgd-sug"); el.scrollIntoView(); });
   await shot(page, info, "25-guide-epaule");
+  await page.evaluate(() => { KineCabinet.gZ("rachis"); KineCabinet.gQ("zone", "lombjambe", 0); KineCabinet.gQ("signes", "jambe", 1); });
+  await expect(page.locator("#kcb-sheet .kgd-p.first b").first()).toHaveText("Sciatique (radiculalgie lombaire)");
+  await shot(page, info, "26-guide-rachis");
+  await page.evaluate(() => { KineCabinet.gZ("epaule"); KineCabinet.gQ("trauma", "progressif", 0); KineCabinet.gQ("zone", "antlat", 0); });
   await page.evaluate(() => KineCabinet.gN("hawkins"));
   await expect(page.locator("#kcb-sheet .kgd-chips button.neg")).toHaveCount(1);
   await page.evaluate(() => { KineCabinet.gZ("genou"); KineCabinet.testInfo("thompson"); });
@@ -371,7 +375,7 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
     KineAvatar.setShirt(["Yasser", "Ladraa"]); const t1 = KineAvatar.shirt(); KineAvatar.setShirt(null);
     return { miss, nb: KineChevilleEx.names.length, zones, piste: piste && piste.parcours, rupt: rupt && rupt.parcours, t1, t2: KineAvatar.shirt(), al: KineParcours.alertes("entorse")[0].slice(0, 20) };
   });
-  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7, 8]);
+  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7, 8, 6, 4]);
   expect(c.piste).toBe("entorse"); expect(c.rupt).toBe("rupt_achille");
   expect(c.t1).toEqual(["Yasser", "Ladraa"]); expect(c.t2).toBe(null); expect(c.al).toBe("Impossible de faire ");
   // Épaule : exercices animés, 8 parcours, guide avec tests conseillés
@@ -383,6 +387,17 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   });
   expect(e.miss).toEqual([]); expect(e.nb).toBe(15); expect(e.n).toBe(8); expect(e.p).toBe("coiffe");
   expect(e.sug).toContain("hawkins"); expect(e.s2).toBeLessThan(e.s1); expect(e.sug2).not.toContain("hawkins");
+  // Hanche et rachis : exercices animés, guides
+  const h = await page.evaluate(() => {
+    const miss = KineHancheDosEx.names.filter(n => !(KineBiblio.find(n) && KineAvatar.supports(n) && KineIdees.USAGE[n]));
+    return { miss, nb: KineHancheDosEx.names.length,
+      fess: KineParcours.guide({ zone: "lat", tests: ["sls30"] }, "hanche").pistes[0].parcours,
+      cox: KineParcours.guide({ age: "50", zone: "aine", tests: ["rilim"] }, "hanche").pistes[0].parcours,
+      sci: KineParcours.guide({ zone: "lombjambe", signes: ["jambe"] }, "rachis").pistes[0].parcours,
+      ncb: KineParcours.guide({ zone: "coubras", tests: ["spurling", "distraction"] }, "rachis").pistes[0].parcours };
+  });
+  expect(h.miss).toEqual([]); expect(h.nb).toBe(22);
+  expect([h.fess, h.cox, h.sci, h.ncb]).toEqual(["tendino_fess", "coxarthrose", "sciatique", "nevralgie_cb"]);
   await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
   await expect(page.locator(".kf-sheet.open").getByText("Rentrer le menton").first()).toBeVisible();
   await page.evaluate(() => { document.querySelectorAll(".kf-sheet.open").forEach(e => e.classList.remove("open")); KineBiblio.demo("Rentrer le menton"); });

@@ -509,7 +509,7 @@ var KineCabinet = (function () {
   /* ════════ Questionnaires ════════ */
   function qSend(id) {
     var P = KP.get(C.parcours), inBilan = !!sheet().querySelector("#kcb-bd");
-    fbCab.questSend(C.id, { q: id, env: iso(), zone: P.zone }).then(function () {
+    fbCab.questSend(C.id, { q: id, env: iso(), zone: P.zone === "rachis" && /cervic|nevralgie/.test(C.parcours) ? "cou" : P.zone }).then(function () {
       say(C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié.");
       return fbCab.get(C.id).then(function (p) { C = p; if (inBilan) bilan(); else ficheView(); });
     }, fail);
@@ -588,7 +588,7 @@ var KineCabinet = (function () {
     var a = e && e.accelerationIncludingGravity; if (!I || !a || a.y == null) return;
     var g = Math.sqrt((a.x || 0) * (a.x || 0) + a.y * a.y + (a.z || 0) * (a.z || 0)); if (g < 5) return;
     var c = Math.max(-1, Math.min(1, (KP.M[I.m].iref === "up" ? a.y : -a.y) / g));
-    I.got = true; I.buf.push(Math.acos(c) * 180 / Math.PI); if (I.buf.length > 15) I.buf.shift();
+    I.got = true; I.buf.push(Math.acos(c) * 180 / Math.PI - (KP.M[I.m].iref === "h" ? 90 : 0));   // « h » : angle avec l'horizontale (hanche, jambe tendue) if (I.buf.length > 15) I.buf.shift();
     var el = $("kcb-ang"); if (el) el.textContent = Math.round(med()) + "°"; var st = $("kcb-stab"); if (st) st.className = spread() < 2 ? "ok" : "";
   }
   function med() { var a = I.buf.slice().sort(function (x, y) { return x - y; }); return a.length ? a[Math.floor(a.length / 2)] : 0; }
@@ -714,7 +714,6 @@ var KineCabinet = (function () {
   function photoClose() { var el = $("kcb-photo"); if (el) { el.classList.remove("open"); el.innerHTML = ""; } PH = null; }
 
   /* ════════ Guide d'orientation du genou ════════ */
-  var G_SEC = [["Interrogatoire", ["trauma", "age", "zone", "signes"]], ["Examen clinique", ["tests"]]];
   function guide(forWho) {
     if (forWho !== gFor || !gAns) {   // zone de départ : celle du parcours en cours
       var cur = forWho === "new" ? draft && KP.P[draft.parcours] : forWho && C ? KP.P[C.parcours] : null;
@@ -730,6 +729,7 @@ var KineCabinet = (function () {
     html += "<section class='kgd-sec" + (nAl ? " alert" : "") + "'><div class='kgd-h'><i>1</i><b>Signes d'alerte</b><span>" + (nAl ? nAl + " coché" + (nAl > 1 ? "s" : "") : "à écarter d'abord") + "</span></div>" +
       G.alertes.map(function (a) { var on = gAns.alertes.indexOf(a.id) >= 0; return "<button class='kgd-al" + (on ? " on" : "") + "' onclick='KineCabinet.gA(" + q(a.id) + ")' aria-pressed='" + on + "'><i>" + (on ? "!" : "") + "</i><span>" + esc(a.t) + "</span></button>"; }).join("") + "</section>";
     // 2 et 3. interrogatoire et examen
+    var G_SEC = [["Interrogatoire", G.q.filter(function (x) { return x.id !== "tests"; }).map(function (x) { return x.id; })], ["Examen clinique", ["tests"]]];   // les questions de la zone, dans leur ordre
     G_SEC.forEach(function (sec, si) {
       html += "<section class='kgd-sec'><div class='kgd-h'><i>" + (si + 2) + "</i><b>" + esc(sec[0]) + "</b>" + (sec[1][0] === "tests" ? "<span>appui long : description</span>" : "") + "</div>" +
         sec[1].map(function (id) {
@@ -741,7 +741,7 @@ var KineCabinet = (function () {
         }).join("") + "</section>";
     });
     // à tester ensuite : les tests qui départagent le mieux les pistes en cours
-    if (r.suggest && r.suggest.length) html += "<section class='kgd-sec kgd-sug'><div class='kgd-h'><i>" + (G_SEC.length + 2) + "</i><b>À tester ensuite</b><span>pour départager les pistes</span></div>" +
+    if (r.suggest && r.suggest.length) html += "<section class='kgd-sec kgd-sug'><div class='kgd-h'><i>4</i><b>À tester ensuite</b><span>pour départager les pistes</span></div>" +
       r.suggest.map(function (x, i) { return "<div class='kgd-st" + (i === 0 ? " kf-hop" : "") + "'><button class='kgd-stn kgd-t' data-t='" + x.t + "' onclick='KineCabinet.testInfo(" + q(x.t) + ")'><b>" + esc(x.nom) + "</b><span>pour : " + esc(x.pour) + " · appui pour la description</span></button>" +
         "<div class='kgd-pn'><button onclick='KineCabinet.gQ(\"tests\"," + q(x.t) + ",1)'>Positif</button><button class='n' onclick='KineCabinet.gN(" + q(x.t) + ")'>Négatif</button></div></div>"; }).join("") + "</section>";
     // pistes
