@@ -23,7 +23,7 @@ var KineCabinet = (function () {
     next: "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' aria-hidden='true'><path d='M9 6l6 6-6 6'/></svg>"
   };
 
-  var formPid = null, L = null, C = null, view = "list", bilanEdit = null, sel = null, draft = null, gAns = null, gFor = null;
+  var formPid = null, L = null, C = null, view = "list", bilanEdit = null, sel = null, draft = null, gAns = null, gFor = null, gZone = "genou";
 
   function sheet() {
     var el = $("kcb-sheet");
@@ -96,9 +96,26 @@ var KineCabinet = (function () {
       return "<button class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
         (P ? "<em>Étape " + e + "/" + n + "</em>" : "") + "</button>";
     }).join("");
+    var tee = window.KineAvatar && KineAvatar.shirt ? KineAvatar.shirt() : null;
+    html += "<button class='v2-row kcb-tee' onclick='KineCabinet.tee()'><b>T-shirt de Yass</b><span>" + esc(tee ? (tee[0] + " " + tee[1]).trim() : "Neutre : « Coach Yass »") + " ›</span></button>";
     show(html + "<button class='kcb-fab' onclick='KineCabinet.nouveau()' aria-label='Nouveau patient'>" + ICON.plus + "</button>", null, "list");
   }
   function filter(f) { filt = f; list(); }
+  // Le nom imprimé sur le t-shirt de Yass : sur ce téléphone, et sur celui de chaque patient (recopié sur sa fiche)
+  function tee() {
+    var t = (window.KineAvatar && KineAvatar.shirt && KineAvatar.shirt()) || ["", ""];
+    var html = top("KineCabinet.open()", "T-shirt de Yass") +
+      "<div><div class='kf-h1 kcb-h1'>Ton nom sur son t-shirt</div><div class='kf-sub'>Tes patients reliés verront Yass avec ton nom, dès la prochaine mise à jour de leur fiche. Laisse vide pour le t-shirt neutre « Coach Yass ».</div></div>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Prénom</span><input class='kcb-in' id='kcb-tee1' maxlength='14' value='" + esc(t[0] || "") + "' placeholder='Par exemple : Yasser'></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Nom</span><input class='kcb-in' id='kcb-tee2' maxlength='14' value='" + esc(t[1] || "") + "' placeholder='Par exemple : Ladraa'></label>";
+    show(html, "<button class='seq-btn-main' onclick='KineCabinet.teeSave()'>Enregistrer</button><button class='seq-btn-secondary' onclick='KineCabinet.teeSave(1)'>T-shirt neutre</button>");
+  }
+  function teeSave(neutral) {
+    var a = neutral ? "" : ($("kcb-tee1").value || "").trim(), b = neutral ? "" : ($("kcb-tee2").value || "").trim();
+    if (window.KineAvatar && KineAvatar.setShirt) KineAvatar.setShirt(a || b ? [a, b] : null);
+    say(a || b ? "C'est enregistré : Yass porte ton nom." : "Yass porte le t-shirt neutre.");
+    open();
+  }
   function setKine() { try { localStorage.setItem("kf-role", "kine"); } catch (e) {} list(); }
 
   /* ════════ Demandes d'accès ════════ */
@@ -179,7 +196,9 @@ var KineCabinet = (function () {
   function form(pid) {
     formPid = pid;
     var d = draft, P = KP.get(d.parcours);
-    var chips = KP.ORDER.map(function (id) { return "<button type='button' class='" + (d.parcours === id ? "sel" : "") + "' onclick='KineCabinet.set(\"parcours\"," + q(id) + ")'>" + esc(KP.P[id].nom) + "</button>"; }).join("");
+    var chips = KP.ZONES.map(function (z) {
+      return "<span class='kcb-zone'>" + esc(z[1]) + "</span><div class='kf-chips'>" + KP.ORDER.filter(function (id) { return KP.P[id].zone === z[0]; }).map(function (id) { return "<button type='button' class='" + (d.parcours === id ? "sel" : "") + "' onclick='KineCabinet.set(\"parcours\"," + q(id) + ")'>" + esc(KP.P[id].nom) + "</button>"; }).join("") + "</div>";
+    }).join("");
     var opts = P && P.opts ? P.opts.map(function (o) {
       return "<div class='kcb-field'><span class='kcb-lab'>" + esc(o.l) + "</span><div class='kf-chips'>" + o.ch.map(function (c) {
         return "<button type='button' class='" + (d.opts[o.id] === c[0] ? "sel" : "") + "' onclick='KineCabinet.opt(" + q(o.id) + "," + q(c[0]) + ")'>" + esc(c[1]) + "</button>"; }).join("") + "</div></div>";
@@ -189,11 +208,11 @@ var KineCabinet = (function () {
       (dem ? "<div><div class='kf-h1 kcb-h1'>" + esc(d.full) + "</div>" + (d.msg ? "<div class='kf-sub'>« " + esc(d.msg) + " »</div>" : "") + "</div>" : "<div class='kf-h1 kcb-h1'>" + (pid ? "Modifier la fiche" : "Nouveau patient") + "</div>") +
       "<label class='kcb-field'><span class='kcb-lab'>Pseudonyme ou initiales</span><input class='kcb-in' id='kcb-alias' maxlength='24' value='" + esc(d.alias) + "' placeholder='Par exemple : Samir B.' oninput='KineCabinet.set(\"alias\",this.value,1)'></label>" +
       "<p class='kcb-hint'>" + (dem ? "Le nom complet est effacé dès que tu acceptes : la fiche reste pseudonyme." : "Pas de nom complet : la fiche reste pseudonyme.") + "</p>" +
-      "<div class='kcb-field'><span class='kcb-lab'>Parcours</span><div class='kf-chips'>" + chips + "</div>" +
+      "<div class='kcb-field'><span class='kcb-lab'>Parcours</span>" + chips +
       "<button type='button' class='kcb-link' onclick='KineCabinet.guide(\"new\")'>Pas de diagnostic ? Ouvrir le guide d'orientation</button></div>" +
       "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
         [["D", "Droit"], ["G", "Gauche"], ["2", "Les deux"]].map(function (c) { return "<button type='button' class='" + (d.cote === c[0] ? "sel" : "") + "' onclick='KineCabinet.set(\"cote\"," + q(c[0]) + ")'>" + c[1] + "</button>"; }).join("") + "</div></div>" +
-      "<label class='kcb-field'><span class='kcb-lab'>" + (P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1)'></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>" + (P && P.d0 ? P.d0 : P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1)'></label>" +
       opts +
       (pid ? "<label class='kcb-field'><span class='kcb-lab'>Exercice de référence au cabinet</span><input class='kcb-in' list='kcb-allex' value='" + esc(d.ref || (P ? P.ref : "")) + "' onchange='KineCabinet.set(\"ref\",this.value,1)'></label>" + datalist() : "");
     if (dem) html += "<div class='kcb-ok'>" + ICON.ok + "Son téléphone se reliera tout seul : pas de code à donner.</div>";
@@ -262,7 +281,7 @@ var KineCabinet = (function () {
     var hist = B.slice().reverse().map(function (x) { var y = k.lsi ? KP.lsi(x, k.m) : KP.val(x, k.m, "a"); return y == null ? null : { d: x.d, v: y }; }).filter(Boolean);
     // prochain seuil : premier objectif de cette mesure, non atteint, à partir de l'étape en cours
     var next = null;
-    P.etapes.slice(C.etape || 0).some(function (e) { return e.obj.some(function (o) { if (o.a && o.a.m === k.m && (o.a.lsi || o.a.min) && !objState(o).done) { next = { v: o.a.lsi || o.a.min, e: P.etapes.indexOf(e) }; return true; } }); });
+    P.etapes.slice(C.etape || 0).some(function (e) { return e.obj.some(function (o) { if (o.a && o.a.m === k.m && (o.a.lsi || o.a.min || o.a.max != null) && !objState(o).done) { next = { v: o.a.lsi || o.a.min || o.a.max, e: P.etapes.indexOf(e) }; return true; } }); });
     return { v: v, u: u, hist: hist, next: next };
   }
   function fiche(pid) {
@@ -280,7 +299,7 @@ var KineCabinet = (function () {
       "<div><div class='kf-h1 kcb-h1'>" + esc(C.alias) + "</div><div class='kf-sub'>" + esc(P.long) + (C.cote && C.cote !== "2" ? ", " + (C.cote === "D" ? "droit" : "gauche") : "") + (when ? " · " + when : "") + "</div></div>" +
       "<div class='kcb-slab'><div class='kcb-slab-k'><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span><span>" + nDone + "/" + et.obj.length + " objectifs</span></div>" +
         "<div class='kcb-slab-t'>" + esc(et.nom) + "</div><div class='kcb-bars'>" + bars + "</div>" +
-        (km ? "<div class='kcb-slab-m'><div><b>" + KP.fmt(km.v) + km.u + "</b><span>" + esc(P.key.l) + "</span></div>" + (km.next ? "<em>Objectif " + km.next.v + (P.key.lsi ? " %" : "") + "<br>étape " + (km.next.e + 1) + "</em>" : "") + "</div>"
+        (km ? "<div class='kcb-slab-m'><div><b>" + KP.fmt(km.v) + km.u + "</b><span>" + esc(P.key.l) + "</span></div>" + (km.next ? "<em>Objectif " + km.next.v + (P.key.lsi ? " %" : km.u) + "<br>étape " + (km.next.e + 1) + "</em>" : "") + "</div>"
             : "<div class='kcb-slab-m'><span>Premier bilan à faire</span></div>") + "</div>" +
       "<div class='kcb-two'><button class='kcb-cta' onclick='KineCabinet.bilan()'>" + ICON.plus + "Nouveau bilan</button><button class='kcb-cta alt' onclick='KineCabinet.seance()'>Noter la séance</button></div>";
     // objectifs
@@ -325,7 +344,7 @@ var KineCabinet = (function () {
       "<label class='kcb-field'><span class='kcb-lab'>Prochain bilan</span><input class='kcb-in' id='kcb-next' type='date' value='" + esc(C.next || "") + "'></label><button class='seq-btn-secondary' onclick='KineCabinet.saveMsg()'>Enregistrer</button></div>";
     // repères cliniques
     html += "<details class='kf-acc kcb-acc'><summary>Repères cliniques du parcours</summary><ul>" + (P.notes || []).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
-      "<b>Signes d'alerte</b><ul>" + KP.ALERTES.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
+      "<b>Signes d'alerte</b><ul>" + KP.alertes(C.parcours).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
       "<b>Sources</b><ul class='kcb-src'>" + P.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul><p class='kcb-hint'>Les seuils sont des repères issus de ces travaux : à adapter à chaque patient.</p></details>";
     show(html);
   }
@@ -358,11 +377,11 @@ var KineCabinet = (function () {
   function same(a, b) { return a.length === b.length && a.every(function (x) { return b.indexOf(x) >= 0; }); }
   function summary(b, P) {
     var out = [];
-    ["quad", "flex", "ext", "visap", "akps", "sts30", "dou", "hop1"].forEach(function (m) {
-      if (out.length >= 3 || P.mes.indexOf(m) < 0) return;
+    [P.key.m].concat(P.mes).filter(function (m, i, a) { return a.indexOf(m) === i && KP.M[m] && KP.M[m].c; }).forEach(function (m) {
+      if (out.length >= 3) return;
       var v = KP.val(b, m, "a"); if (v == null) return;
-      var l = KP.M[m].s && m !== "flex" && m !== "ext" ? KP.lsi(b, m) : null;
-      out.push(({ quad: "Quadri", flex: "Flexion", ext: "Extension", visap: "VISA-P", akps: "Kujala", sts30: "Lever de chaise", dou: "Douleur", hop1: "Saut" })[m] + " " + (l != null ? l + " %" : KP.fmt(v) + (KP.M[m].u === "°" ? "°" : " " + KP.M[m].u)));
+      var l = KP.M[m].s && KP.M[m].u !== "°" && !/^(fig8|dfl)$/.test(m) ? KP.lsi(b, m) : null;
+      out.push(KP.M[m].c + " " + (l != null ? l + " %" : KP.fmt(v) + (KP.M[m].u === "°" ? "°" : " " + KP.M[m].u)));
     });
     return out.join(" · ") || "Bilan";
   }
@@ -514,6 +533,7 @@ var KineCabinet = (function () {
   function ov(id) { var el = $(id); if (!el) { el = document.createElement("div"); el.id = id; el.className = "kcb-incl-ov"; el.setAttribute("role", "dialog"); document.body.appendChild(el); } return el; }
   // Deux façons de mesurer : téléphone posé sur la jambe, ou photo de profil avec 3 points
   function incl(m, sd) {
+    if (KP.M[m].incl === 2) { inclPhone(m, sd); return; }
     var el = ov("kcb-incl"); el.setAttribute("aria-label", "Mesurer l'angle");
     el.innerHTML = "<div class='kcb-incl-card'><div class='kcb-mh'><span>" + esc(KP.M[m].l) + ", côté " + (sd === "a" ? "atteint" : "sain") + "</span><button class='kf-back' onclick='KineCabinet.inclClose()' aria-label='Fermer'>×</button></div>" +
       "<button class='krl-row' onclick='KineCabinet.photo(" + q(m) + "," + q(sd) + ")'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/></svg></span><span class='krl-t'><b>Sur une photo</b><span>De profil, 3 points à ajuster du doigt</span></span></button>" +
@@ -537,8 +557,11 @@ var KineCabinet = (function () {
     var isExt = I.m === "ext";
     var body;
     if (I.err) body = "<p>" + (I.err === 2 ? "L'accès aux capteurs a été refusé. Tu peux l'autoriser dans les réglages du navigateur, ou saisir la valeur mesurée au goniomètre." : "Le capteur d'inclinaison ne répond pas sur cet appareil. Saisis la valeur mesurée au goniomètre.") + "</p><button class='seq-btn-main' onclick='KineCabinet.inclClose()'>Fermer</button>";
-    else if (I.res != null) body = "<div class='kcb-ang big'>" + KP.fmt(I.res) + "°</div><p>" + (isExt ? (I.res < 0 ? "Déficit d'extension de " + KP.fmt(-I.res) + "°." : I.res > 0 ? "Hyperextension de " + KP.fmt(I.res) + "°." : "Extension complète.") : "Flexion du genou.") + "</p>" +
+    else if (I.res != null) body = "<div class='kcb-ang big'>" + KP.fmt(I.res) + "°</div><p>" + (isExt ? (I.res < 0 ? "Déficit d'extension de " + KP.fmt(-I.res) + "°." : I.res > 0 ? "Hyperextension de " + KP.fmt(I.res) + "°." : "Extension complète.") : KP.M[I.m].incl === 2 ? "Inclinaison du tibia : flexion dorsale en charge." : "Flexion du genou.") + "</p>" +
       "<button class='seq-btn-main' onclick='KineCabinet.inclUse()'>Utiliser cette valeur</button><button class='seq-btn-secondary' onclick='KineCabinet.inclPhone(" + q(I.m) + "," + q(I.sd) + ")'>Recommencer</button>";
+    else if (KP.M[I.m].incl === 2) body = "<div class='kcb-ang' id='kcb-ang'>–</div><div id='kcb-stab'>Garde le téléphone immobile</div>" +
+      "<ol class='kcb-isteps'><li class='now'>Le patient en fente contre le mur, à sa distance maximale. Pose le téléphone à plat sur l'avant du <b>tibia</b>, <b>le haut du téléphone vers le genou</b>.</li></ol>" +
+      "<button class='seq-btn-main' onclick='KineCabinet.inclTake()'>Enregistrer l'angle du tibia</button>";
     else body = "<div class='kcb-ang' id='kcb-ang'>–</div><div id='kcb-stab'>Garde le téléphone immobile</div>" +
       "<ol class='kcb-isteps'><li class='" + (I.step === 0 ? "now" : "done") + "'>Pose le téléphone à plat sur la face avant de la <b>cuisse</b>, écran vers le haut, <b>le haut du téléphone vers le pied</b>.</li>" +
       "<li class='" + (I.step === 1 ? "now" : "") + "'>Pose-le de la même façon sur le <b>tibia</b>, juste sous le genou.</li></ol>" +
@@ -548,6 +571,7 @@ var KineCabinet = (function () {
   function inclTake() {
     if (!I.buf.length) return;
     var v = med();
+    if (KP.M[I.m].incl === 2) { I.res = Math.round(90 - Math.abs(v)); inclView(); return; }   // inclinaison du tibia par rapport à la verticale
     if (I.step === 0) { I.thigh = v; I.step = 1; I.buf = []; inclView(); return; }
     var flex = Math.round(I.thigh - v);
     I.res = I.m === "ext" ? -flex : flex; inclView();
@@ -647,11 +671,16 @@ var KineCabinet = (function () {
   /* ════════ Guide d'orientation du genou ════════ */
   var G_SEC = [["Interrogatoire", ["trauma", "age", "zone", "signes"]], ["Examen clinique", ["tests"]]];
   function guide(forWho) {
+    if (forWho !== gFor || !gAns) {   // zone de départ : celle du parcours en cours
+      var cur = forWho === "new" ? draft && KP.P[draft.parcours] : forWho && C ? KP.P[C.parcours] : null;
+      if (cur && cur.zone && cur.zone !== gZone) { gZone = cur.zone; gAns = null; }
+    }
     gFor = forWho; gAns = gAns || { alertes: [] };
-    var G = KP.GUIDE, r = KP.guide(gAns), Q = {}; G.q.forEach(function (x) { Q[x.id] = x; });
+    var GZ = KP.GUIDES[gZone], G = GZ.g, r = KP.guide(gAns, gZone), Q = {}; G.q.forEach(function (x) { Q[x.id] = x; });
     var nAl = gAns.alertes.length;
     var html = top(forWho === "new" ? "KineCabinet.nouveau()" : forWho ? "KineCabinet.fiche(" + q(forWho) + ")" : "KineCabinet.open()", "Guide d'orientation") +
-      "<div><div class='kf-h1 kcb-h1'>Genou sans diagnostic</div><div class='kf-sub'>Coche ce que tu observes : le guide classe les pistes et explique pourquoi. Une aide au raisonnement, pas un diagnostic.</div></div>";
+      "<div class='kc-seg kgd-zone' role='group' aria-label='Zone'>" + KP.ZONES.map(function (z) { return "<button type='button' class='" + (gZone === z[0] ? "on" : "") + "' aria-pressed='" + (gZone === z[0]) + "' onclick='KineCabinet.gZ(" + q(z[0]) + ")'>" + esc(z[1]) + "</button>"; }).join("") + "</div>" +
+      "<div><div class='kf-h1 kcb-h1'>" + esc(GZ.titre) + "</div><div class='kf-sub'>Coche ce que tu observes : le guide classe les pistes et explique pourquoi. Une aide au raisonnement, pas un diagnostic.</div></div>";
     // 1. alertes
     html += "<section class='kgd-sec" + (nAl ? " alert" : "") + "'><div class='kgd-h'><i>1</i><b>Signes d'alerte</b><span>" + (nAl ? nAl + " coché" + (nAl > 1 ? "s" : "") : "à écarter d'abord") + "</span></div>" +
       G.alertes.map(function (a) { var on = gAns.alertes.indexOf(a.id) >= 0; return "<button class='kgd-al" + (on ? " on" : "") + "' onclick='KineCabinet.gA(" + q(a.id) + ")' aria-pressed='" + on + "'><i>" + (on ? "!" : "") + "</i><span>" + esc(a.t) + "</span></button>"; }).join("") + "</section>";
@@ -668,7 +697,7 @@ var KineCabinet = (function () {
     // pistes
     html += "<div class='kcb-v2h' id='kgd-res'>Pistes</div>";
     if (r.alertes.length) html += r.alertes.map(function (a) { return "<div class='kcb-alert'><b>" + esc(a.d) + "</b><span>" + esc(a.t) + "</span></div>"; }).join("");
-    if (!r.pistes.length) html += "<div class='kgd-empty'><b>Pas encore de piste</b><span>Renseigne l'interrogatoire et les tests. Sans piste claire, le parcours « Genou, sans diagnostic précis » permet de commencer.</span></div>";
+    if (!r.pistes.length) html += "<div class='kgd-empty'><b>Pas encore de piste</b><span>Renseigne l'interrogatoire et les tests. Sans piste claire, le parcours « " + esc(KP.P[GZ.def].nom) + " » permet de commencer.</span></div>";
     var mx = r.pistes.length ? r.pistes[0].score : 1;
     html += r.pistes.map(function (p, i) {
       return "<div class='kgd-p" + (i === 0 ? " first" : "") + "'><div class='kgd-ph'><i>" + (i + 1) + "</i><div><b>" + esc(p.nom) + "</b><span>" + (i === 0 ? "Piste principale" : "Autre piste") + "</span></div></div>" +
@@ -677,8 +706,8 @@ var KineCabinet = (function () {
         "<div class='kgd-note'>" + esc(p.note) + "</div>" +
         (gFor ? "<button class='" + (i === 0 ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.gUse(" + q(p.parcours) + ")'>Parcours « " + esc(KP.P[p.parcours].nom) + " »</button>" : "") + "</div>";
     }).join("");
-    if (gFor) html += "<button class='v2-row' onclick='KineCabinet.gUse(\"genou\")'><b>Parcours genou sans diagnostic précis</b><span>›</span></button>";
-    html += "<details class='kf-acc kcb-acc'><summary>Sources</summary><ul class='kcb-src'>" + ["stiell", "benj", "decary", "nice", "malliaras", "logLig"].map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul></details>";
+    if (gFor) html += "<button class='v2-row' onclick='KineCabinet.gUse(" + q(GZ.def) + ")'><b>" + esc(GZ.defNom) + "</b><span>›</span></button>";
+    html += "<details class='kf-acc kcb-acc'><summary>Sources</summary><ul class='kcb-src'>" + GZ.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul></details>";
     var p0 = r.pistes[0], foot = "<div class='kgd-foot'><div><span>" + (r.alertes.length ? "Signe d'alerte" : p0 ? "Piste principale" : "Pistes") + "</span><b>" + esc(r.alertes.length ? "Avis médical d'abord" : p0 ? p0.nom : "à compléter") + "</b></div>" +
       "<button class='kcb-cta' onclick='KineCabinet.gGo()'>Voir</button><button class='kcb-link' onclick='KineCabinet.gReset()'>Effacer</button></div>";
     var y = sheet().classList.contains("open") ? sheet().scrollTop : 0;
@@ -713,6 +742,7 @@ var KineCabinet = (function () {
   function gA(id) { var a = gAns.alertes, i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); guide(gFor); }
   function gQ(k, v, multi, btn) { if (held && btn && btn.classList.contains("kgd-t")) { held = false; return; } if (multi) { var a = gAns[k] = gAns[k] || [], i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); } else gAns[k] = gAns[k] === v ? null : v; guide(gFor); }
   function gReset() { gAns = { alertes: [] }; guide(gFor); }
+  function gZ(z) { if (z === gZone) return; gZone = z; gAns = { alertes: [] }; guide(gFor); sheet().scrollTop = 0; }
   function gUse(pid) {
     if (gFor === "new") { nouveau(pid); return; }
     if (gFor) { loading(); fbCab.save(gFor, { parcours: pid, etape: 0, done: {}, exos: [] }).then(function () { fiche(gFor); }, fail); }
@@ -732,7 +762,7 @@ var KineCabinet = (function () {
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
     incl: incl, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
-    guide: guide, gA: gA, gQ: gQ, gReset: gReset, gUse: gUse, gGo: gGo, testInfo: testInfo,
+    guide: guide, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, tee: tee, teeSave: teeSave, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2
   };
 })();

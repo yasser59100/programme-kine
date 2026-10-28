@@ -51,6 +51,7 @@ var KineMonSuivi = (function () {
       d.bilans = (d.bilans || []).map(function (b) { return { d: b.d, m: b.m }; });
       d.seances = (d.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; });
       ["maj", "cree", "codeExp"].forEach(function (k) { delete d[k]; });
+      if (window.KineAvatar && KineAvatar.setShirt && !(window.KineRole && KineRole.role() === "kine")) KineAvatar.setShirt(d.tee || null);   // le t-shirt de Yass au nom de son kiné
       var ns = { pid: s.pid, d: d, at: Date.now() };
       jset(KEY, ns); syncSeance(d); pushHome(s.pid); slot(); journalSync(s.pid);
       if ($("kms-sheet") && $("kms-sheet").classList.contains("open")) view();
@@ -154,9 +155,9 @@ var KineMonSuivi = (function () {
     var v = k.lsi ? KP.lsi(b, k.m) : KP.val(b, k.m, "a"); if (v == null) return null;
     var hist = B.slice().reverse().map(function (x) { var y = k.lsi ? KP.lsi(x, k.m) : KP.val(x, k.m, "a"); return y == null ? null : { d: x.d, v: y }; }).filter(Boolean);
     var u = k.lsi ? " %" : (KP.M[k.m].u === "°" ? "°" : " " + KP.M[k.m].u);
-    var lab = k.lsi ? ({ quad: "Force de ta cuisse, comparée à l'autre" })[k.m] || KP.M[k.m].l : ({ flex: "Pliage de ton genou", sts30: "Levers de chaise en 30 secondes", visap: "Ton score VISA-P", akps: "Ton score de Kujala" })[k.m] || KP.M[k.m].l;
+    var lab = k.lsi ? ({ quad: "Force de ta cuisse, comparée à l'autre", heel: "Endurance de ton mollet, comparée à l'autre", heelh: "Hauteur de ton talon, comparée à l'autre", dfl: "Souplesse de ta cheville, comparée à l'autre" })[k.m] || KP.M[k.m].l : ({ flex: "Pliage de ton genou", sts30: "Levers de chaise en 30 secondes", visap: "Ton score VISA-P", akps: "Ton score de Kujala", cait: "Stabilité de ta cheville (CAIT, sur 30)", dmat: "Douleur aux premiers pas du matin" })[k.m] || KP.M[k.m].l;
     var next = null;
-    P.etapes.slice(d.etape || 0).some(function (e) { return e.obj.some(function (o) { if (o.a && o.a.m === k.m && (o.a.lsi || o.a.min) && !(d.done && d.done[o.id]) && !(KP.evalObj(o.a, ctx(d)) || {}).ok) { next = o.a.lsi || o.a.min; return true; } }); });
+    P.etapes.slice(d.etape || 0).some(function (e) { return e.obj.some(function (o) { if (o.a && o.a.m === k.m && (o.a.lsi || o.a.min || o.a.max != null) && !(d.done && d.done[o.id]) && !(KP.evalObj(o.a, ctx(d)) || {}).ok) { next = o.a.lsi || o.a.min || o.a.max; return true; } }); });
     return { v: v, u: u, lab: lab, hist: hist, next: next, prev: hist.length > 1 ? hist[hist.length - 2].v : null, lsi: !!k.lsi };
   }
   function slot() {
@@ -240,11 +241,14 @@ var KineMonSuivi = (function () {
     } else html += "<div class='kf-note'>Ton premier bilan se fait au cabinet : tes mesures et ta courbe apparaîtront ici.</div>";
     // tuiles : amplitude et périmètre
     var tiles = [];
-    [["flex", "Pliage du genou"], ["peri", "Gonflement"]].forEach(function (t) {
+    // tuiles : [mesure, titre, unité, écart avec l'autre côté (gonflement) ou progrès depuis le début]
+    var cote = P.zone === "cheville" ? "l'autre cheville" : "l'autre genou";
+    [["flex", "Pliage du genou", "°"], ["peri", "Gonflement", " cm", 1], ["dfl", "Souplesse de la cheville", " cm"], ["fig8", "Gonflement", " cm", 1]].forEach(function (t) {
+      if (P.mes.indexOf(t[0]) < 0) return;
       var b = KP.lastWith(B, t[0]), f = KP.firstWith(B, t[0]); if (!b || t[0] === (P.key && P.key.m)) return;
       var a = KP.val(b, t[0], "a"), sn = KP.val(b, t[0], "s");
-      if (t[0] === "peri") { if (sn == null) return; var dd = Math.abs(a - sn), d0 = f && f !== b && KP.val(f, "peri", "s") != null ? Math.abs(KP.val(f, "peri", "a") - KP.val(f, "peri", "s")) : null; tiles.push([t[1], KP.fmt(dd) + " cm", d0 != null && d0 > dd ? "−" + KP.fmt(d0 - dd) + " cm depuis le début" : "écart avec l'autre genou"]); }
-      else { var a0 = f && f !== b ? KP.val(f, t[0], "a") : null; tiles.push([t[1], KP.fmt(a) + "°", a0 != null && a > a0 ? "+" + KP.fmt(a - a0) + "° depuis le début" : ""]); }
+      if (t[3]) { if (sn == null) return; var dd = Math.abs(a - sn), d0 = f && f !== b && KP.val(f, t[0], "s") != null ? Math.abs(KP.val(f, t[0], "a") - KP.val(f, t[0], "s")) : null; tiles.push([t[1], KP.fmt(dd) + t[2], d0 != null && d0 > dd ? "−" + KP.fmt(d0 - dd) + t[2] + " depuis le début" : "écart avec " + cote]); }
+      else { var a0 = f && f !== b ? KP.val(f, t[0], "a") : null; tiles.push([t[1], KP.fmt(a) + t[2], a0 != null && a > a0 ? "+" + KP.fmt(a - a0) + t[2] + " depuis le début" : ""]); }
     });
     if (tiles.length) html += "<div class='kcb-two'>" + tiles.map(function (t) { return "<div class='su-card kms-tile'><span>" + esc(t[0]) + "</span><b>" + esc(t[1]) + "</b><em>" + esc(t[2]) + "</em></div>"; }).join("") + "</div>";
     // mot du kiné

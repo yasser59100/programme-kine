@@ -188,7 +188,14 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   // guide : description d'un test (appui long)
   await page.evaluate(() => { KineCabinet.guide(null); KineCabinet.testInfo("lachman"); });
   await expect(page.locator("#kcb-tinfo .kgd-ib.pos")).toBeVisible();
-  expect(await page.evaluate(() => Object.keys(KineParcours.TESTS).every(k => KineParcours.GUIDE.q.filter(x => x.id === "tests")[0].ch.some(c => c[0] === k)))).toBe(true);
+  expect(await page.evaluate(() => Object.keys(KineParcours.TESTS).every(k => Object.keys(KineParcours.GUIDES).some(z => KineParcours.GUIDES[z].g.q.filter(x => x.id === "tests")[0].ch.some(c => c[0] === k))))).toBe(true);
+  // guide de la cheville
+  await page.evaluate(() => { document.getElementById("kcb-tinfo").classList.remove("open"); KineCabinet.gZ("cheville"); KineCabinet.gQ("trauma", "inversion", 0); KineCabinet.gQ("zone", "ext", 0); KineCabinet.gQ("tests", "tiroir", 1); });
+  await expect(page.locator("#kcb-sheet .kcb-h1").first()).toHaveText("Cheville et pied sans diagnostic");
+  await expect(page.locator("#kcb-sheet .kgd-p.first b").first()).toHaveText("Entorse du ligament latéral externe");
+  await shot(page, info, "22-guide-cheville");
+  await page.evaluate(() => { KineCabinet.gZ("genou"); KineCabinet.testInfo("thompson"); });
+  await expect(page.locator("#kcb-tinfo .kgd-in")).toHaveText("Test de Thompson");
   await page.evaluate((pid) => { document.getElementById("kcb-tinfo").classList.remove("open"); KineCabinet.fiche(pid); }, pid);
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
   await page.evaluate(() => { KineCabinet.pick("Pont de hanche"); KineCabinet.pick("Équilibre unipodal"); KineCabinet.sendExos(); });
@@ -302,6 +309,18 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
     return { miss, nb: KineGenouEx.names.length };
   });
   expect(g.miss).toEqual([]); expect(g.nb).toBe(26);
+  // Cheville et pied : exercices animés, parcours, guide d'orientation et t-shirt de Yass
+  const c = await page.evaluate(() => {
+    const miss = KineChevilleEx.names.filter(n => !(KineBiblio.find(n) && KineAvatar.supports(n) && KineIdees.USAGE[n]));
+    const zones = KineParcours.ZONES.map(z => KineParcours.ORDER.filter(id => KineParcours.P[id].zone === z[0]).length);
+    const piste = KineParcours.guide({ trauma: "inversion", zone: "ext", tests: ["tiroir"] }, "cheville").pistes[0];
+    const rupt = KineParcours.guide({ trauma: "impulsion", tests: ["thompson"] }, "cheville").pistes[0];
+    KineAvatar.setShirt(["Yasser", "Ladraa"]); const t1 = KineAvatar.shirt(); KineAvatar.setShirt(null);
+    return { miss, nb: KineChevilleEx.names.length, zones, piste: piste && piste.parcours, rupt: rupt && rupt.parcours, t1, t2: KineAvatar.shirt(), al: KineParcours.alertes("entorse")[0].slice(0, 20) };
+  });
+  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7]);
+  expect(c.piste).toBe("entorse"); expect(c.rupt).toBe("rupt_achille");
+  expect(c.t1).toEqual(["Yasser", "Ladraa"]); expect(c.t2).toBe(null); expect(c.al).toBe("Impossible de faire ");
   await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
   await expect(page.locator(".kf-sheet.open").getByText("Rentrer le menton").first()).toBeVisible();
   await page.evaluate(() => { document.querySelectorAll(".kf-sheet.open").forEach(e => e.classList.remove("open")); KineBiblio.demo("Rentrer le menton"); });

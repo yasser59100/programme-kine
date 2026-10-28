@@ -1291,10 +1291,18 @@
 
   /* ════════════════ 3. RENDU 3D ════════════════ */
   var AVATAR = {
-    name: ["YASSER", "LADRAA"], title: "Kinésithérapeute",
+    name: ["COACH", "YASS"], title: "KinéForce",
     skin: "#B07A52", hair: "#2E1F16", fade: "#6E4F3C", shirt: "#F6F6F3", print: "#2A6FC4",
     pants: "#1E1F22", shoes: "#FAFAFA", sole: "#B8BEC2", lips: "#8A4B3A", eyes: "#1B1410"
   };
+  /* T-shirt : neutre (« Coach Yass ») par défaut ; avec le nom du kiné quand il l'a choisi (ou quand le patient est relié à lui) */
+  var teePaint = null;
+  function teeApply(v) {
+    if (v && v.length && String(v[0] || v[1] || "").trim()) { AVATAR.name = [String(v[0] || "").toUpperCase().slice(0, 14), String(v[1] || "").toUpperCase().slice(0, 14)]; AVATAR.title = "Kinésithérapeute"; }
+    else { AVATAR.name = ["COACH", "YASS"]; AVATAR.title = "KinéForce"; }
+    if (teePaint) teePaint();
+  }
+  try { var tee0 = JSON.parse(localStorage.getItem("kf-tee") || "null"); if (tee0) teeApply(tee0); } catch (e) {}
   var LEN = { thigh: 0.44, shank: 0.42, upper: 0.28, fore: 0.26, hipX: 0.095, shX: 0.205, shY: 0.49 };
 
   var loading = null;
@@ -1395,7 +1403,7 @@
       g.font = "700 62px " + font; g.fillText(AVATAR.name[1], 256, 190);
       shirtTex.needsUpdate = true;
     }
-    paintShirt(); if (document.fonts) document.fonts.ready.then(paintShirt);
+    teePaint = paintShirt; paintShirt(); if (document.fonts) document.fonts.ready.then(paintShirt);
 
     /* Squelette : bassin, puis colonne, puis tête / épaules, puis coudes ; bassin, puis hanches, puis genoux, puis chevilles */
     var pelvis = group(scene); pelvis.rotation.order = "YXZ";
@@ -1673,6 +1681,12 @@
       var tx = towelTex("#7FB2E0", "#FFFFFF"); tx.rotation = Math.PI / 2; tx.center.set(0.5, 0.5);
       return mesh(gq, new T.MeshStandardMaterial({ map: tx, roughness: 1 }), scene);
     })(); props.floorTowel.visible = false;
+    // Balle de tennis (sous le pied), serviette roulée (sous les orteils), croix de scotch au sol (sauts en croix)
+    props.tball = mesh(new T.SphereGeometry(0.033, 20, 14), mat("#D8E64A", 0.7), scene); props.tball.visible = false;
+    props.towelRoll = mesh(new T.CylinderGeometry(0.024, 0.024, 0.2, 18), towelMat0(), scene); props.towelRoll.rotation.z = Math.PI / 2; props.towelRoll.visible = false;
+    props.floorCross = new T.Group(); scene.add(props.floorCross); props.floorCross.visible = false;
+    (function () { var tape = mat("#3341E0", 0.8); mesh(new T.BoxGeometry(0.9, 0.006, 0.035), tape, props.floorCross).position.y = 0.003; mesh(new T.BoxGeometry(0.035, 0.006, 0.9), tape, props.floorCross).position.y = 0.003; })();
+    function towelMat0() { return new T.MeshStandardMaterial({ map: towelTex("#7FB2E0", "#FFFFFF"), roughness: 1 }); }
     var towelMat = new T.MeshStandardMaterial({ map: towelTex("#7FB2E0", "#FFFFFF"), roughness: 1, side: T.DoubleSide });
     // Accessoires tenus : bâton (manche à balai), serviette, ballon
     var tools = {
@@ -2030,6 +2044,9 @@
       u.cone.scale.set(dd * (floor ? 0.62 : 0.4), dd * (floor ? 0.4 : 0.62), dd); u.cone.position.set(0, floor ? 0.08 : ph + 0.05, 0);
       u.cone.rotation.set(-Math.atan2(aim - (floor ? 0.08 : ph), dd), yaw, 0, "YXZ");
     }
+    var tb = d && d.tball; if (R.props.tball && tb) R.props.tball.position.set((tb.x || 0) * sgn, 0.033, tb.z || 0);
+    var tr = d && d.towelRoll; if (R.props.towelRoll && tr) R.props.towelRoll.position.set((tr.x || 0) * sgn, tr.y || 0.024, tr.z || 0);
+    var fc = d && d.floorCross; if (R.props.floorCross && fc) R.props.floorCross.position.set((fc.x || 0) * sgn, 0, fc.z || 0);
     var ft = (d && d.floorTowel) || { x: 0, z: 0.3 }; if (R.props.floorTowel) { R.props.floorTowel.position.set((ft.x || 0) * sgn, 0.006, ft.z || 0); R.props.floorTowel.scale.set(ft.w || 0.36, 1, ft.l || 0.6); }
     if (be) { be.position.set((bc.x || 0) * sgn, 0, bc.z || 0); be.rotation.set(0, bc.along === "x" ? Math.PI / 2 : 0, 0); }
     var stp = d && d.stepAt; R.props.step.position.set(stp ? (stp.x || 0) * sgn : 0, 0.09, stp ? stp.z || 0 : 0.42); R.props.step.rotation.set(0, stp && stp.along === "z" ? Math.PI / 2 : 0, 0);
@@ -2056,7 +2073,7 @@
     placeProps(d);
     syncCones(d);
     curSideSign = side === "R" ? -1 : 1; placeProps(d);
-    R.props.wallSide.position.x = side === "R" ? 0.62 : -0.62;
+    R.props.wallSide.position.x = d && d.wallSideX != null ? d.wallSideX * (side === "R" ? -1 : 1) : side === "R" ? 0.62 : -0.62;
     if (R.props.cushion) R.props.cushion.position.x = side === "R" ? 0.1 : -0.1;
     bandDef = d; bandSide = side === "R" ? "R" : "L";
     var both = d && d.load === "both";
@@ -2246,6 +2263,9 @@
     info: info,
     holdSay: function (name, side) { var d = EX[name]; return d && d.holdSay ? d.holdSay[side === "R" ? "R" : "L"] : null; },
     plan: plan, isoFor: isoFor, isoText: isoText, isoTotal: isoTotal,
+    // Nom imprimé sur le t-shirt : [prénom, nom] ou null pour le t-shirt neutre ; gardé sur l'appareil
+    setShirt: function (v) { var c = v && v.length && String(v[0] || v[1] || "").trim() ? [String(v[0] || ""), String(v[1] || "")] : null; try { if (c) localStorage.setItem("kf-tee", JSON.stringify(c)); else localStorage.removeItem("kf-tee"); } catch (e) {} teeApply(c); },
+    shirt: function () { try { return JSON.parse(localStorage.getItem("kf-tee") || "null"); } catch (e) { return null; } },
     supports: function (name) { return !!(EX[name] && EX[name].poses); },
     hasSteps: function (name) { return !!(EX[name] && EX[name].steps); },
     // Mouvements supplémentaires (échauffements, étirements) déclarés par kine-routines.js

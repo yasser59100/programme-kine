@@ -170,6 +170,8 @@ const CAB = "patients";
 function cabRef(pid) { return doc(db, CAB, pid); }
 function cabRows(snap) { return snap.docs.map(function (x) { var o = x.data(); o.id = x.id; return o; }); }
 function cabNeedKine() { if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("kine"); }
+// Nom du kiné sur le t-shirt de Yass (choisi dans l'espace kiné) : recopié sur la fiche, le téléphone du patient l'affiche
+function cabTee() { try { var t = JSON.parse(localStorage.getItem("kf-tee") || "null"); return t && t.length ? [String(t[0] || "").slice(0, 14), String(t[1] || "").slice(0, 14)] : null; } catch (e) { return null; } }
 window.fbCab = {
   // Patients, avec les 2 derniers résumés de la semaine (séances et douleur à la maison)
   list: async function () {
@@ -188,7 +190,7 @@ window.fbCab = {
   // Accepter : la fiche est créée en pseudonyme, le téléphone du patient est relié, le nom complet est effacé
   accept: async function (uid, data) {
     cabNeedKine();
-    data.kine = window.fbUser.uid; data.cree = serverTimestamp();
+    data.kine = window.fbUser.uid; data.cree = serverTimestamp(); data.tee = cabTee();
     var r = await addDoc(collection(db, CAB), data);
     await setDoc(doc(db, CAB, r.id, "membres", uid), { code: "demande", t: serverTimestamp() });
     await setDoc(doc(db, "liens", uid), { pid: r.id, t: serverTimestamp() });
@@ -213,8 +215,8 @@ window.fbCab = {
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]); o.journal = cabRows(r[5]);
     return o;
   },
-  create: async function (data) { cabNeedKine(); data.kine = window.fbUser.uid; data.cree = serverTimestamp(); var r = await addDoc(collection(db, CAB), data); return r.id; },
-  save: async function (pid, data) { cabNeedKine(); data.maj = serverTimestamp(); await setDoc(cabRef(pid), data, { merge: true }); },
+  create: async function (data) { cabNeedKine(); data.kine = window.fbUser.uid; data.cree = serverTimestamp(); data.tee = cabTee(); var r = await addDoc(collection(db, CAB), data); return r.id; },
+  save: async function (pid, data) { cabNeedKine(); data.maj = serverTimestamp(); data.tee = cabTee(); await setDoc(cabRef(pid), data, { merge: true }); },
   bilan: async function (pid, id, data) { cabNeedKine(); if (id) await setDoc(doc(db, CAB, pid, "bilans", id), data); else id = (await addDoc(collection(db, CAB, pid, "bilans"), data)).id; await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return id; },
   bilanDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "bilans", id)); },
   seance: async function (pid, data) { cabNeedKine(); var r = await addDoc(collection(db, CAB, pid, "seances"), data); await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return r.id; },
@@ -3366,6 +3368,7 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-nouveaux2.js" defer></script>
 <script src="assets/js/kine-salle-ex.js" defer></script>
 <script src="assets/js/kine-genou-ex.js" defer></script>
+<script src="assets/js/kine-cheville-ex.js" defer></script>
 <script src="assets/js/kine-salle.js" defer></script>
 <script src="assets/js/kine-modefx.js" defer></script>
 <script src="assets/js/kine-course.js" defer></script>

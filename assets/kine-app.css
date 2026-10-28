@@ -3088,7 +3088,12 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 .kms-why b { font: 800 1.05rem var(--lu-head); color: #1E2AB0; }
 .kms-why span { font-size: .9rem; line-height: 1.45; color: #2A3550; }
 .kms-code { text-align: center; font: 800 1.9rem var(--lu-head) !important; letter-spacing: .3em; min-height: 64px !important; text-transform: uppercase; }
-/* guide d'orientation du genou */
+/* parcours groupés par zone, choix de la zone du guide */
+.kcb-zone { display: block; margin: 10px 0 6px; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); }
+.kcb-zone:first-of-type { margin-top: 2px; }
+.kgd-zone { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kgd-zone button { min-height: 44px; font-weight: 700; }
+/* guide d'orientation */
 .kgd-sec { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .kgd-sec.alert { border-color: rgba(229, 72, 77, .45); background: linear-gradient(180deg, rgba(229, 72, 77, .06), var(--surface) 60%); }
 .kgd-h { display: flex; align-items: center; gap: 10px; }
