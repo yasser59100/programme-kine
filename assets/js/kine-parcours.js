@@ -45,7 +45,20 @@ var KineParcours = (function () {
     faam:   { l: "FAAM, activités quotidiennes", u: "%", g: "Questionnaire", c: "FAAM", how: "Foot and Ankle Ability Measure, sous-score des activités de la vie quotidienne : 100 % = aucune gêne." },
     visaa:  { l: "Score VISA-A", u: "/100", g: "Questionnaire", c: "VISA-A", how: "Questionnaire de la tendinopathie d'Achille : 100 = aucune gêne." },
     atrs:   { l: "Score ATRS", u: "/100", g: "Questionnaire", c: "ATRS", how: "Achilles tendon Total Rupture Score : 100 = aucune gêne." },
-    omas:   { l: "Score OMAS (Olerud-Molander)", u: "/100", g: "Questionnaire", c: "OMAS", how: "Score fonctionnel après une fracture de cheville : 100 = aucune gêne." }
+    omas:   { l: "Score OMAS (Olerud-Molander)", u: "/100", g: "Questionnaire", c: "OMAS", how: "Score fonctionnel après une fracture de cheville : 100 = aucune gêne." },
+    /* épaule : incl 3 = téléphone posé dans la longueur du segment (angle avec la verticale, accéléromètre) */
+    fle:    { l: "Élévation du bras (flexion)", u: "°", s: 1, incl: 3, iref: "down", g: "Amplitude", c: "Élévation", how: "Debout, dos droit, le bras monte devant le plus haut possible, coude tendu. Au téléphone : posé contre le bras, dans sa longueur, le haut vers le coude.", ph: "Pose le téléphone contre le <b>bras</b>, dans sa longueur, <b>le haut du téléphone vers le coude</b>. Le patient lève le bras devant lui le plus haut possible, coude tendu." },
+    abd:    { l: "Abduction du bras", u: "°", s: 1, incl: 3, iref: "down", g: "Amplitude", c: "Abduction", how: "Debout, le bras monte sur le côté le plus haut possible, coude tendu. Au téléphone : posé contre le bras, dans sa longueur, le haut vers le coude.", ph: "Pose le téléphone contre le <b>bras</b>, dans sa longueur, <b>le haut du téléphone vers le coude</b>. Le patient lève le bras sur le côté le plus haut possible." },
+    re1:    { l: "Rotation externe, coude au corps", u: "°", s: 1, g: "Amplitude", c: "Rotation externe", how: "Coude collé au corps, fléchi à 90° : l'avant-bras tourne vers l'extérieur. Goniomètre. Repère clé de la capsulite rétractile." },
+    re90:   { l: "Rotation externe, bras écarté à 90°", u: "°", s: 1, incl: 3, iref: "up", g: "Amplitude", c: "Rotation externe à 90°", how: "Couché sur le dos, bras écarté à 90°, coude à 90° : l'avant-bras bascule vers l'arrière. Au téléphone : contre l'avant-bras, le haut vers la main.", ph: "Couché sur le dos, bras écarté à 90°, coude plié à 90°. Pose le téléphone contre l'<b>avant-bras</b>, dans sa longueur, <b>le haut vers la main</b> : 0° quand l'avant-bras est vertical." },
+    fRE:    { l: "Force des rotateurs externes", u: "kg", s: 1, n: 3, g: "Force", c: "Rotateurs externes", how: "Assis, coude au corps fléchi à 90°, dynamomètre sur la face externe du poignet, 3 essais de 5 s." },
+    fElev:  { l: "Force en élévation (bras à 90°)", u: "kg", s: 1, n: 3, g: "Force", c: "Force en élévation", how: "Debout, bras à 90° dans le plan de l'omoplate (30° en avant), pouce vers le haut, dynamomètre au poignet, 3 essais de 5 s." },
+    ckc:    { l: "CKCUEST (appui sur les mains)", u: "touches", g: "Fonction", c: "CKCUEST", how: "En position de pompe (sur les genoux si besoin), mains écartées de 91 cm : toucher la main d'appui avec l'autre main, en alternant, le plus de fois possible en 15 s. Meilleur de 3 essais." },
+    dnu:    { l: "Douleur la nuit", u: "/10", lo: 1, g: "Douleur", c: "Nuit", how: "Douleur la plus forte la nuit cette semaine, de 0 à 10." },
+    /* remplis par le patient (questionnaires envoyés depuis le bilan) */
+    sane:   { l: "Note globale (SANE)", u: "/100", g: "Questionnaire", c: "Note globale", how: "Le patient note son articulation de 0 à 100, 100 étant une articulation normale. Envoyé et rempli sur son téléphone." },
+    psfs:   { l: "Activités choisies (PSFS)", u: "/10", g: "Questionnaire", c: "Activités", how: "Le patient choisit jusqu'à 3 activités difficiles à cause de son problème et note chacune de 0 (impossible) à 10 (comme avant) : score = moyenne. Envoyé et rempli sur son téléphone." },
+    groc:   { l: "Impression globale de changement", u: "", g: "Questionnaire", c: "Changement", how: "De −3 (beaucoup moins bien) à +3 (beaucoup mieux) depuis le début de la rééducation. Envoyé et rempli sur son téléphone." }
   };
 
   /* ════════ Les règles des objectifs calculés ════════
@@ -112,7 +125,32 @@ var KineParcours = (function () {
     degarceau: "De Garceau D et al. The association between diagnosis of plantar fasciitis and Windlass test results. Foot Ankle Int 2003.",
     linFx: "Lin CWC et al. Rehabilitation for ankle fractures in adults. Cochrane Database Syst Rev 2012.",
     olerud: "Olerud C, Molander H. A scoring scale for symptom evaluation after ankle fracture. Arch Orthop Trauma Surg 1984.",
-    bennell: "Bennell KL et al. Intra-rater and inter-rater reliability of a weight-bearing lunge measure of ankle dorsiflexion. Aust J Physiother 1998."
+    bennell: "Bennell KL et al. Intra-rater and inter-rater reliability of a weight-bearing lunge measure of ankle dorsiflexion. Aust J Physiother 1998.",
+    diercks: "Diercks R et al. Guideline for diagnosis and treatment of subacromial pain syndrome: a multidisciplinary review by the Dutch Orthopaedic Association. Acta Orthop 2014.",
+    littlewood: "Littlewood C et al. Exercise for rotator cuff tendinopathy: a systematic review. Physiotherapy 2012.",
+    lewis16: "Lewis J. Rotator cuff related shoulder pain: assessment, management and uncertainties. Man Ther 2016.",
+    beard: "Beard DJ et al. Arthroscopic subacromial decompression for subacromial shoulder pain (CSAW): a multicentre, pragmatic, parallel group, placebo-controlled, three-group, randomised surgical trial. Lancet 2018.",
+    kuhn13: "Kuhn JE et al. Effectiveness of physical therapy in treating atraumatic full-thickness rotator cuff tears: a multicenter prospective cohort study. J Shoulder Elbow Surg 2013.",
+    park05: "Park HB et al. Diagnostic accuracy of clinical tests for the different degrees of subacromial impingement syndrome. J Bone Joint Surg Am 2005.",
+    hegedus: "Hegedus EJ et al. Which physical examination tests provide clinicians with the most value when examining the shoulder? Update of a systematic review with meta-analysis of individual tests. Br J Sports Med 2012.",
+    hertel: "Hertel R et al. Lag signs in the diagnosis of rotator cuff rupture. J Shoulder Elbow Surg 1996.",
+    lo04: "Lo IKY et al. An evaluation of the apprehension, relocation, and surprise tests for anterior shoulder instability. Am J Sports Med 2004.",
+    wainner: "Wainner RS et al. Reliability and diagnostic accuracy of the clinical examination and patient self-report measures for cervical radiculopathy. Spine 2003.",
+    thigpen: "Thigpen CA et al. The American Society of Shoulder and Elbow Therapists' consensus statement on rehabilitation following arthroscopic rotator cuff repair. J Shoulder Elbow Surg 2016.",
+    kelley: "Kelley MJ et al. Shoulder pain and mobility deficits: adhesive capsulitis. J Orthop Sports Phys Ther 2013.",
+    rangan: "Rangan A et al. Management of adults with primary frozen shoulder in secondary care (UK FROST): a multicentre, pragmatic, three-arm, superiority randomised clinical trial. Lancet 2020.",
+    olds: "Olds M et al. Risk factors which predispose first-time traumatic anterior shoulder dislocations to recurrent instability in adults: a systematic review and meta-analysis. Br J Sports Med 2015.",
+    kuhn10: "Kuhn JE. A new classification system for shoulder instability. Br J Sports Med 2010.",
+    tucci: "Tucci HT et al. Closed Kinetic Chain Upper Extremity Stability test (CKCUES test): a reliability study in persons with and without shoulder impingement syndrome. BMC Musculoskelet Disord 2014.",
+    watson: "Watson L et al. The treatment of multidirectional instability of the shoulder with a rehabilitation programme: part 1. Shoulder Elbow 2016.",
+    gaunt: "Gaunt BW et al. The American Society of Shoulder and Elbow Therapists' consensus rehabilitation guideline for arthroscopic anterior capsulolabral repair of the shoulder. J Orthop Sports Phys Ther 2010.",
+    kennedy: "Kennedy JS et al. The American Society of Shoulder and Elbow Therapists' consensus statement on rehabilitation for anatomic total shoulder arthroplasty. J Shoulder Elbow Surg 2020.",
+    boudreau: "Boudreau S et al. Rehabilitation following reverse total shoulder arthroplasty. J Orthop Sports Phys Ther 2007.",
+    lefevre: "Lefevre-Colau MM et al. Immediate mobilization compared with conventional immobilization for the impacted nonoperatively treated proximal humeral fracture: a randomized controlled trial. J Bone Joint Surg Am 2007.",
+    profher: "Rangan A et al. Surgical vs nonsurgical treatment of adults with displaced fractures of the proximal humerus: the PROFHER randomized clinical trial. JAMA 2015.",
+    williams99: "Williams GN et al. Comparison of the Single Assessment Numeric Evaluation method and two shoulder rating scales. Am J Sports Med 1999.",
+    stratford: "Stratford P et al. Assessing disability and change on individual patients: a report of a patient specific measure. Physiother Can 1995.",
+    kamper: "Kamper SJ et al. Global rating of change scales: a review of strengths and weaknesses and considerations for design. J Man Manip Ther 2009."
   };
 
   /* Alertes communes à tous les parcours du genou : on oriente vers le médecin */
@@ -729,9 +767,279 @@ var KineParcours = (function () {
     src: ["linFx", "olerud", "bennell", "stiellA"]
   };
 
+  /* ═══════════════════════ ÉPAULE ═══════════════════════ */
+  var ALERTES_EPAULE = [
+    "Épaule chaude, rouge, très douloureuse avec fièvre : suspicion d'arthrite septique, avis médical le jour même.",
+    "Chute chez une personne âgée avec douleur importante et bras impossible à lever : radiographie (fracture).",
+    "Perte brutale de la force pour lever le bras après un traumatisme, chez un patient actif : avis chirurgical rapide (rupture aiguë de la coiffe).",
+    "Douleur de l'épaule gauche ou de la mâchoire à l'effort, essoufflement, sueurs : penser au cœur, avis médical en urgence.",
+    "Fourmillements, perte de force dans la main, douleur qui part du cou : examiner le rachis cervical.",
+    "Douleur la nuit sans lien avec les mouvements, perte de poids inexpliquée, antécédent de cancer : avis médical."
+  ];
+  var QE = ["sane", "psfs", "dou"];
+
+  P.epaule = {
+    nom: "Épaule, sans diagnostic précis", long: "Douleur d'épaule sans diagnostic établi", zone: "epaule",
+    key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
+    mes: ["dou", "dnu", "fle", "abd", "re1", "fRE", "fElev", "sane", "psfs"],
+    ref: "Rotation externe à l'élastique",
+    notes: ["Parcours général en attendant d'affiner : le guide d'orientation propose une piste à partir de l'interrogatoire et des tests.",
+            "Toujours examiner le rachis cervical : une partie des douleurs d'épaule vient du cou."],
+    etapes: [
+      { nom: "Calmer et bouger", but: "Adapter les activités, bouger dans l'amplitude tolérée, mieux dormir.",
+        obj: [
+          { id: "alerte", t: "Signes d'alerte écartés (dont le rachis cervical)", p: "Ton kiné a vérifié qu'il n'y a pas de signe inquiétant" },
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } },
+          { id: "dou5", t: "Douleur à l'effort de 5/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 5 } }],
+        exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Marche des doigts sur le mur", "Glissement de la main sur la table", "Haussement et enroulement des épaules", "Contraction de l'épaule contre le mur", "Serrage des omoplates"] },
+      { nom: "Renforcer", but: "Coiffe des rotateurs et muscles de l'omoplate, de plus en plus haut.",
+        obj: [
+          { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } },
+          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } }],
+        exos: ["Rotation externe à l'élastique", "Rotation externe couché sur le côté", "Élévation dans le plan de l'omoplate", "Coup de poing vers le plafond", "Bras en arrière à plat ventre", "Wall slides", "Rowing un bras appui chaise", "Le mime contre la vitre", "Le chef d'orchestre"] },
+      { nom: "Reprendre les activités", but: "Bras au-dessus de la tête, charges, sport.",
+        obj: [
+          { id: "fre90", t: "Force des rotateurs externes : au moins 90 % du côté sain", p: "Ton épaule a retrouvé sa force", a: { m: "fRE", lsi: 90 } },
+          { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
+        exos: ["Rotation externe à 90° à l'élastique", "Élévation en Y", "Pompes inclinées", "Lancer de balle contre le mur", "Le cow-boy au lasso", "Porté d'une bouteille bras tendu en l'air"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["diercks", "littlewood", "lewis16"]
+  };
+
+  P.coiffe = {
+    nom: "Douleur de la coiffe des rotateurs", long: "Tendinopathie, conflit ou rupture non opérée de la coiffe des rotateurs", zone: "epaule",
+    key: { m: "fRE", lsi: 1, l: "Symétrie de la force des rotateurs externes" },
+    mes: ["dou", "dnu", "fle", "abd", "re1", "fRE", "fElev", "sane", "psfs"],
+    ref: "Rotation externe à l'élastique",
+    notes: ["Le renforcement progressif est le traitement de première intention, avec des résultats comparables à la chirurgie de décompression.",
+            "La douleur pendant l'exercice est acceptée jusqu'à 5/10 si elle revient à son niveau habituel le lendemain.",
+            "Rupture de la coiffe sans traumatisme : la rééducation aide souvent la majorité des patients ; avis chirurgical si échec après 3 mois environ."],
+    etapes: [
+      { nom: "Calmer et charger doucement", but: "Contractions statiques, mobilité, adapter les gestes au-dessus de la tête.",
+        obj: [
+          { id: "edu", t: "Le patient sait quels gestes adapter", p: "Tu sais quoi adapter au quotidien" },
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } },
+          { id: "dou5", t: "Douleur à l'effort de 5/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 5 } }],
+        exos: ["Contraction de l'épaule contre le mur", "Pendulaire de Codman", "Élévation du bras aidée, couché", "Rotation externe au bâton, coude au corps", "Serrage des omoplates", "Haussement et enroulement des épaules", "Glissement de la main sur la table"] },
+      { nom: "Renforcer la coiffe", but: "Rotations externes et élévations progressives, travail de l'omoplate.",
+        obj: [
+          { id: "fle", t: "Élévation complète, sans arc douloureux net", p: "Tu lèves le bras jusqu'en haut", a: { m: "fle", lsi: 95 } },
+          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } }],
+        exos: ["Rotation externe à l'élastique", "Rotation externe couché sur le côté", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Coup de poing vers le plafond", "Bras en arrière à plat ventre", "Wall slides", "Face pull à l'élastique", "Le mime contre la vitre", "Le chef d'orchestre"] },
+      { nom: "Bras en hauteur et reprise", but: "Charges au-dessus de la tête, vitesse, gestes du sport ou du travail.",
+        obj: [
+          { id: "fre90", t: "Force des rotateurs externes : au moins 90 % du côté sain", p: "Ton épaule a retrouvé sa force", a: { m: "fRE", lsi: 90 } },
+          { id: "felev90", t: "Force en élévation : au moins 90 % du côté sain", p: "Tu soulèves aussi bien des deux côtés", a: { m: "fElev", lsi: 90 } },
+          { id: "activ", t: "Gestes au-dessus de la tête sans douleur gênante", p: "Tu lèves les bras sans douleur gênante" }],
+        exos: ["Rotation externe à 90° à l'élastique", "Élévation en Y", "Développé épaules assis", "Pompes inclinées", "Lancer de balle contre le mur", "Le cow-boy au lasso", "Porté d'une bouteille bras tendu en l'air"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["diercks", "littlewood", "beard", "kuhn13", "park05"]
+  };
+
+  P.coiffe_op = {
+    nom: "Réparation de la coiffe opérée", long: "Suture des tendons de la coiffe des rotateurs", zone: "epaule", op: 1,
+    opts: [{ id: "taille", l: "Taille de la rupture", ch: [["petite", "Petite ou moyenne"], ["large", "Large ou massive"]] }],
+    key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
+    mes: ["dou", "dnu", "fle", "abd", "re1", "fRE", "fElev", "sane", "psfs"],
+    ref: "Élévation du bras aidée, couché",
+    notes: ["Attelle et mobilisation passive seulement pendant environ 4 à 6 semaines, selon le chirurgien : pas de mouvement actif contre la pesanteur.",
+            "Rupture large ou massive : progression souvent plus lente, renforcement pas avant 10 à 12 semaines environ.",
+            "La raideur des premières semaines est fréquente et se récupère ; la cicatrisation du tendon prime."],
+    etapes: [
+      { nom: "Protéger (attelle)", but: "Cicatrisation du tendon : mobilisation passive, mobilité du coude, de la main et du cou.",
+        obj: [
+          { id: "j42", t: "Au moins 6 semaines depuis l'opération", p: "6 semaines depuis l'opération", a: { j: 42 } },
+          { id: "passif", t: "Élévation passive d'au moins 120°", p: "Ton bras monte bien quand on t'aide" },
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+        exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Haussement et enroulement des épaules", "Serrage des omoplates"] },
+      { nom: "Bouger activement", but: "Sevrage de l'attelle, mouvements actifs aidés puis actifs, sans charge.",
+        obj: [
+          { id: "j70", t: "Au moins 10 semaines", p: "10 semaines depuis l'opération", a: { j: 70 } },
+          { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } }],
+        exos: ["Marche des doigts sur le mur", "Rotation externe au bâton, coude au corps", "Élévation du bâton bras tendus", "Contraction de l'épaule contre le mur", "Coup de poing vers le plafond", "Wall slides", "Le mime contre la vitre"] },
+      { nom: "Renforcer", but: "Renforcement progressif de la coiffe et de l'omoplate.",
+        obj: [
+          { id: "j112", t: "Au moins 16 semaines", p: "16 semaines depuis l'opération", a: { j: 112 } },
+          { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } },
+          { id: "fre70", t: "Force des rotateurs externes : au moins 70 % du côté sain", p: "Ton épaule a retrouvé 70 % de sa force", a: { m: "fRE", lsi: 70 } }],
+        exos: ["Rotation externe à l'élastique", "Rotation externe couché sur le côté", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Bras en arrière à plat ventre", "Rowing un bras appui chaise", "Le chef d'orchestre"] },
+      { nom: "Reprendre les activités", but: "Charges, bras au-dessus de la tête, sport, en général à partir de 6 mois.",
+        obj: [
+          { id: "fre90", t: "Force des rotateurs externes : au moins 90 % du côté sain", p: "Ton épaule a retrouvé sa force", a: { m: "fRE", lsi: 90 } },
+          { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
+        exos: ["Rotation externe à 90° à l'élastique", "Élévation en Y", "Pompes inclinées", "Développé épaules assis", "Le cow-boy au lasso", "Porté d'une bouteille bras tendu en l'air"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["thigpen", "diercks"]
+  };
+
+  P.capsulite = {
+    nom: "Capsulite rétractile (épaule gelée)", long: "Capsulite rétractile de l'épaule", zone: "epaule",
+    key: { m: "re1", lsi: 1, l: "Symétrie de la rotation externe" },
+    mes: ["dou", "dnu", "fle", "abd", "re1", "sane", "psfs"],
+    ref: "Rotation externe au bâton, coude au corps",
+    notes: ["Évolution en trois phases (douloureuse, raide, récupération) sur 1 à 3 ans en général : rassurer, c'est une maladie qui guérit.",
+            "Phase douloureuse : mobiliser sans forcer, en dessous du seuil de douleur. Une infiltration peut aider au début : en parler au médecin.",
+            "Plus fréquente chez les personnes diabétiques ou avec un problème de thyroïde."],
+    etapes: [
+      { nom: "Calmer la douleur", but: "Mouvements doux sans forcer, sommeil, explications sur l'évolution.",
+        obj: [
+          { id: "edu", t: "Le patient comprend l'évolution en phases", p: "Tu sais comment ça va évoluer" },
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+        exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Marche des doigts sur le mur", "Haussement et enroulement des épaules"] },
+      { nom: "Gagner de l'amplitude", but: "Étirements plus francs, tenus plus longtemps, quand la douleur le permet.",
+        obj: [
+          { id: "re1", t: "Rotation externe en hausse d'au moins 20°", p: "Ton bras tourne mieux vers l'extérieur", a: { m: "re1", gain: 20 } },
+          { id: "fle", t: "Élévation en hausse d'au moins 30°", p: "Ton bras monte plus haut", a: { m: "fle", gain: 30 } }],
+        exos: ["Rotation externe au bâton, coude au corps", "Élévation du bâton bras tendus", "Étirement du bras croisé devant la poitrine", "Étirement de l'épaule couché sur le côté", "Le chef d'orchestre", "Wall slides"] },
+      { nom: "Récupérer la force et les gestes", but: "Renforcement et gestes du quotidien, au-dessus de la tête.",
+        obj: [
+          { id: "re80", t: "Rotation externe : au moins 80 % du côté sain", p: "Ton bras tourne presque comme l'autre", a: { m: "re1", lsi: 80 } },
+          { id: "activ", t: "Gestes du quotidien possibles (s'habiller, se coiffer)", p: "Tu t'habilles et te coiffes sans gêne" }],
+        exos: ["Rotation externe à l'élastique", "Élévation dans le plan de l'omoplate", "Coup de poing vers le plafond", "Rowing un bras appui chaise", "Le cow-boy au lasso", "Le mime contre la vitre"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["kelley", "rangan"]
+  };
+
+  P.instab_ep = {
+    nom: "Instabilité ou luxation de l'épaule", long: "Luxation ou instabilité de l'épaule, traitée sans opération", zone: "epaule",
+    opts: [{ id: "type", l: "Origine", ch: [["trauma", "Après une luxation"], ["laxe", "Sans traumatisme (épaule laxe)"]] }],
+    key: { m: "fRE", lsi: 1, l: "Symétrie de la force des rotateurs externes" },
+    mes: ["dou", "fle", "abd", "re1", "re90", "fRE", "ckc", "sane", "psfs"],
+    ref: "Rotation externe à l'élastique",
+    notes: ["Après une première luxation chez un patient jeune et sportif, le risque de récidive est élevé : en parler avec le chirurgien selon le sport.",
+            "Pas d'armé du bras (abduction et rotation externe combinées) en force au début.",
+            "Épaule laxe sans traumatisme : rééducation longue, centrée sur le contrôle de l'omoplate et de la tête de l'humérus."],
+    etapes: [
+      { nom: "Protéger et contrôler", but: "Calmer, mobilité dans la zone sûre, contractions statiques de la coiffe.",
+        obj: [
+          { id: "dou3", t: "Douleur à l'effort de 3/10 au maximum", p: "Peu de douleur", a: { m: "dou", max: 3 } },
+          { id: "fle", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } }],
+        exos: ["Contraction de l'épaule contre le mur", "Serrage des omoplates", "Pompe au mur avec poussée des omoplates", "Coup de poing vers le plafond", "Rotation externe au bâton, coude au corps", "Le mime contre la vitre"] },
+      { nom: "Renforcer", but: "Coiffe et omoplate, en élevant progressivement le bras.",
+        obj: [
+          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } },
+          { id: "appr", t: "Pas d'appréhension dans les gestes du quotidien", p: "Tu n'as plus peur que l'épaule ressorte au quotidien" }],
+        exos: ["Rotation externe à l'élastique", "Rotation interne à l'élastique", "Rotation externe couché sur le côté", "Élévation dans le plan de l'omoplate", "Bras en arrière à plat ventre", "Pompes contre le mur", "Rowing un bras appui chaise", "Face pull à l'élastique"] },
+      { nom: "Bras armé et appuis", but: "Positions à risque contrôlées, appui sur les mains, vitesse.",
+        obj: [
+          { id: "fre90", t: "Force des rotateurs externes : au moins 90 % du côté sain", p: "Ton épaule a retrouvé sa force", a: { m: "fRE", lsi: 90 } },
+          { id: "ckc", t: "CKCUEST : au moins 21 touches en 15 s", p: "Tes appuis sur les mains sont solides", a: { m: "ckc", min: 21 } }],
+        exos: ["Rotation externe à 90° à l'élastique", "Pompes inclinées", "Toucher d'épaule en planche", "Chute contrôlée sur les mains contre le mur", "Lancer de balle contre le mur", "Le cow-boy au lasso"] },
+      { nom: "Retour au sport", but: "Gestes du sport complets, contacts, puis compétition.",
+        obj: [
+          { id: "appr2", t: "Pas d'appréhension dans les gestes du sport", p: "Tu fais les gestes de ton sport sans crainte" },
+          { id: "entr", t: "Entraînement complet sans dérobement", p: "Tu as repris l'entraînement complet" }],
+        exos: ["Pompes complètes", "Pompe avec rotation en T", "Marche de l'ours", "Lancer de balle contre le mur", "Chute contrôlée sur les mains contre le mur"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["olds", "kuhn10", "tucci", "watson"]
+  };
+
+  P.stab_op = {
+    nom: "Stabilisation de l'épaule opérée", long: "Opération de Bankart ou de Latarjet après luxations", zone: "epaule", op: 1,
+    opts: [{ id: "tech", l: "Opération", ch: [["bankart", "Bankart (sous arthroscopie)"], ["latarjet", "Latarjet (butée osseuse)"]] }],
+    key: { m: "fRE", lsi: 1, l: "Symétrie de la force des rotateurs externes" },
+    mes: ["dou", "fle", "abd", "re1", "re90", "fRE", "ckc", "sane", "psfs"],
+    ref: "Rotation externe à l'élastique",
+    notes: ["Rotation externe limitée les premières semaines selon le chirurgien (souvent 0 à 30° coude au corps), pour protéger la réparation.",
+            "Latarjet : la consolidation de la butée permet souvent une progression un peu plus rapide qu'après un Bankart.",
+            "Retour au sport de contact en général entre 4 et 6 mois, sur critères."],
+    etapes: [
+      { nom: "Protéger (attelle)", but: "Mobilisation passive dans les limites du chirurgien, omoplate, coude et main.",
+        obj: [
+          { id: "j28", t: "Au moins 4 semaines depuis l'opération", p: "4 semaines depuis l'opération", a: { j: 28 } },
+          { id: "dou3", t: "Douleur de 3/10 au maximum", p: "La douleur a bien baissé", a: { m: "dou", max: 3 } }],
+        exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Serrage des omoplates", "Haussement et enroulement des épaules"] },
+      { nom: "Bouger et contrôler", but: "Amplitudes actives progressives, contractions de la coiffe.",
+        obj: [
+          { id: "j56", t: "Au moins 8 semaines", p: "8 semaines depuis l'opération", a: { j: 56 } },
+          { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } }],
+        exos: ["Contraction de l'épaule contre le mur", "Marche des doigts sur le mur", "Rotation externe au bâton, coude au corps", "Coup de poing vers le plafond", "Wall slides", "Le mime contre la vitre"] },
+      { nom: "Renforcer", but: "Coiffe, omoplate, appuis sur les mains.",
+        obj: [
+          { id: "j84", t: "Au moins 12 semaines", p: "12 semaines depuis l'opération", a: { j: 84 } },
+          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } }],
+        exos: ["Rotation externe à l'élastique", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Bras en arrière à plat ventre", "Pompes contre le mur", "Rowing un bras appui chaise", "Face pull à l'élastique"] },
+      { nom: "Retour au sport", but: "Bras armé, vitesse, contacts, sur critères.",
+        obj: [
+          { id: "fre90", t: "Force des rotateurs externes : au moins 90 % du côté sain", p: "Ton épaule a retrouvé sa force", a: { m: "fRE", lsi: 90 } },
+          { id: "ckc", t: "CKCUEST : au moins 21 touches en 15 s", p: "Tes appuis sur les mains sont solides", a: { m: "ckc", min: 21 } },
+          { id: "appr", t: "Pas d'appréhension dans les gestes du sport", p: "Tu fais les gestes de ton sport sans crainte" }],
+        exos: ["Rotation externe à 90° à l'élastique", "Pompes inclinées", "Toucher d'épaule en planche", "Chute contrôlée sur les mains contre le mur", "Lancer de balle contre le mur", "Pompe avec rotation en T", "Le cow-boy au lasso"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["gaunt", "tucci"]
+  };
+
+  P.pte = {
+    nom: "Prothèse d'épaule", long: "Prothèse totale d'épaule, anatomique ou inversée", zone: "epaule", op: 1,
+    opts: [{ id: "type", l: "Type de prothèse", ch: [["anat", "Anatomique"], ["inv", "Inversée"]] }],
+    key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
+    mes: ["dou", "dnu", "fle", "abd", "re1", "sane", "psfs"],
+    ref: "Élévation du bras aidée, couché",
+    notes: ["Prothèse anatomique : protéger le tendon sous-scapulaire (rotation externe et rotation interne contre résistance limitées les 6 premières semaines environ).",
+            "Prothèse inversée : éviter la combinaison bras en arrière, rotation interne et rapprochement (main dans le dos) au début : risque de luxation.",
+            "C'est le deltoïde qui lève le bras avec une prothèse inversée : son renforcement est central."],
+    etapes: [
+      { nom: "Protéger", but: "Attelle, mobilisation passive puis active aidée, selon le chirurgien.",
+        obj: [
+          { id: "j42", t: "Au moins 6 semaines depuis l'opération", p: "6 semaines depuis l'opération", a: { j: 42 } },
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+        exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Haussement et enroulement des épaules", "Serrage des omoplates"] },
+      { nom: "Bouger activement", but: "Mouvements actifs dans les amplitudes fonctionnelles.",
+        obj: [
+          { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } },
+          { id: "quot", t: "Main à la bouche et à la tête sans aide", p: "Tu manges et te coiffes seul" }],
+        exos: ["Marche des doigts sur le mur", "Élévation du bâton bras tendus", "Coup de poing vers le plafond", "Contraction de l'épaule contre le mur", "Le chef d'orchestre", "Le mime contre la vitre"] },
+      { nom: "Renforcer et autonomie", but: "Renforcement du deltoïde et de la coiffe, gestes du quotidien et loisirs.",
+        obj: [
+          { id: "fle90", t: "Élévation : au moins 80 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 80 } },
+          { id: "activ", t: "Gestes du quotidien et loisirs repris", p: "Tu as repris tes activités" }],
+        exos: ["Élévation dans le plan de l'omoplate", "Élévation frontale avec bouteilles", "Rotation externe à l'élastique", "Rowing un bras appui chaise", "Pompes contre le mur", "Porté d'une bouteille bras tendu en l'air"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["kennedy", "boudreau"]
+  };
+
+  P.fx_humerus = {
+    nom: "Fracture du haut de l'humérus", long: "Fracture de l'extrémité supérieure de l'humérus, traitée sans opération", zone: "epaule", op: 1,
+    d0: "Date de la fracture",
+    key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
+    mes: ["dou", "dnu", "fle", "abd", "re1", "sane", "psfs"],
+    ref: "Pendulaire de Codman",
+    notes: ["Fracture peu déplacée : une mobilisation précoce (dès la première ou la deuxième semaine, selon le médecin) donne de meilleurs résultats qu'une longue immobilisation.",
+            "Chez la personne âgée, l'objectif est un bras utile au quotidien : manger, s'habiller, se laver."],
+    etapes: [
+      { nom: "Bouger tôt sans forcer", but: "Pendulaire, mobilisation passive, coude, poignet et main.",
+        obj: [
+          { id: "accord", t: "Mobilisation autorisée par le médecin", p: "Ton médecin a autorisé les mouvements" },
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+        exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Haussement et enroulement des épaules"] },
+      { nom: "Bouger activement", but: "Consolidation : mouvements actifs, gestes du quotidien.",
+        obj: [
+          { id: "j42", t: "Au moins 6 semaines depuis la fracture", p: "6 semaines depuis la fracture", a: { j: 42 } },
+          { id: "quot", t: "Main à la bouche et à la tête sans aide", p: "Tu manges et te coiffes seul" }],
+        exos: ["Marche des doigts sur le mur", "Élévation du bâton bras tendus", "Rotation externe au bâton, coude au corps", "Coup de poing vers le plafond", "Le chef d'orchestre"] },
+      { nom: "Renforcer et autonomie", but: "Force, amplitude, autonomie complète.",
+        obj: [
+          { id: "fle80", t: "Élévation : au moins 80 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 80 } },
+          { id: "activ", t: "Autonomie complète au quotidien", p: "Tu te débrouilles seul au quotidien" }],
+        exos: ["Élévation dans le plan de l'omoplate", "Rotation externe à l'élastique", "Rowing un bras appui chaise", "Pompes contre le mur", "Le mime contre la vitre"] }
+    ],
+    alertes: ALERTES_EPAULE, q: QE,
+    src: ["lefevre", "profher"]
+  };
+
   var ORDER = ["genou", "lca_op", "lca_cons", "menisectomie", "suture_men", "sfp", "tendino_rot", "gonarthrose", "ptg", "lcm",
-               "cheville", "entorse", "instab", "achille", "rupt_achille", "aponev", "fract_cheville"];
-  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"]];
+               "cheville", "entorse", "instab", "achille", "rupt_achille", "aponev", "fract_cheville",
+               "epaule", "coiffe", "coiffe_op", "capsulite", "instab_ep", "stab_op", "pte", "fx_humerus"];
+  // Les questionnaires remplis par le patient (note globale, activités choisies) sont proposés dans tous les parcours
+  ORDER.forEach(function (id) { ["sane", "psfs"].forEach(function (m) { if (P[id].mes.indexOf(m) < 0) P[id].mes.push(m); }); });
+  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"]];
 
   /* ════════ Calculs ════════ */
   function num(v) { if (v == null || v === "") return null; var n = +String(v).replace(",", "."); return isFinite(n) ? n : null; }
@@ -874,7 +1182,38 @@ var KineParcours = (function () {
       val: "Très spécifique mais peu sensible : positif, il renforce l'hypothèse ; négatif, il ne l'exclut pas.", src: "degarceau" },
     fente: { n: "Fente contre le mur", how: "Pied face au mur, le genou vient toucher le mur sans que le talon décolle : on mesure la plus grande distance orteil-mur.",
       pos: "Moins de 9 à 10 cm, ou plus de 2 cm d'écart avec l'autre côté.", neg: "Distance normale et symétrique.",
-      val: "Mesure fiable de la flexion dorsale en charge. Souvent limitée après une entorse ou une fracture : à reprendre à chaque bilan.", src: "bennell" }
+      val: "Mesure fiable de la flexion dorsale en charge. Souvent limitée après une entorse ou une fracture : à reprendre à chaque bilan.", src: "bennell" },
+    /* épaule */
+    arc: { n: "Arc douloureux", how: "Le patient lève le bras sur le côté, lentement, jusqu'en haut, puis redescend.",
+      pos: "Douleur entre 60 et 120° environ, qui diminue au-delà.", neg: "Pas de douleur, ou douleur seulement en fin d'amplitude.",
+      val: "Un des tests les plus utiles du conflit et de la coiffe. Associé à Hawkins et à une faiblesse des rotateurs externes, la probabilité d'atteinte de la coiffe devient élevée.", src: "park05" },
+    jobe: { n: "Test de Jobe (empty can)", how: "Bras à 90° dans le plan de l'omoplate, pouces vers le bas. Le patient résiste à une pression vers le bas sur les avant-bras.",
+      pos: "Douleur ou faiblesse par rapport au côté sain.", neg: "Force normale et indolore.",
+      val: "Faiblesse : évoque une atteinte du sus-épineux (rupture possible) ; douleur seule : plutôt une tendinopathie.", src: "hegedus" },
+    hawkins: { n: "Hawkins-Kennedy", how: "Bras et coude fléchis à 90° devant le patient. Le kiné tourne le bras en rotation interne (l'avant-bras descend).",
+      pos: "Douleur à l'épaule qui reproduit la douleur habituelle.", neg: "Pas de douleur.",
+      val: "Sensible mais peu spécifique : négatif, il rend une atteinte de la coiffe moins probable.", src: "hegedus" },
+    rer: { n: "Rotation externe contre résistance", how: "Coude au corps fléchi à 90°. Le patient pousse vers l'extérieur contre la main du kiné.",
+      pos: "Faiblesse par rapport au côté sain (avec ou sans douleur).", neg: "Force symétrique.",
+      val: "Faiblesse nette : évoque une atteinte de l'infra-épineux ; un des 3 éléments de l'association de Park.", src: "park05" },
+    lag: { n: "Signe de chute en rotation externe (lag sign)", how: "Coude au corps fléchi à 90°. Le kiné amène l'avant-bras en rotation externe presque maximale et demande au patient de tenir la position, puis lâche.",
+      pos: "L'avant-bras revient vers le ventre : le patient ne peut pas tenir la position.", neg: "Le patient tient la position.",
+      val: "Très spécifique d'une rupture transfixiante du sus- et de l'infra-épineux. Positif : avis chirurgical à discuter.", src: "hertel" },
+    repass: { n: "Rotation externe passive limitée", how: "Coude au corps fléchi à 90°. Le kiné tourne l'avant-bras vers l'extérieur, le patient détendu. Comparer au côté sain.",
+      pos: "Rotation externe passive nettement limitée (moins de la moitié du côté sain).", neg: "Rotation passive normale ou proche du côté sain.",
+      val: "Signe clé de la capsulite rétractile (et de l'arthrose de l'épaule) : la coiffe seule limite le mouvement actif, pas le passif.", src: "kelley" },
+    appr: { n: "Appréhension et relocation", how: "Patient sur le dos, bras à 90° d'abduction : le kiné amène progressivement en rotation externe (appréhension), puis pousse la tête de l'humérus vers l'arrière (relocation).",
+      pos: "Appréhension (peur que l'épaule sorte) qui disparaît à la relocation.", neg: "Pas d'appréhension, ou seulement de la douleur.",
+      val: "L'appréhension, et non la douleur, est le critère : très spécifique d'une instabilité antérieure.", src: "lo04" },
+    sulcus: { n: "Signe du sillon (sulcus)", how: "Patient assis, bras détendu le long du corps : le kiné tire le bras vers le bas.",
+      pos: "Un creux apparaît sous l'acromion (plus de 1 à 2 cm).", neg: "Pas de creux.",
+      val: "Évoque une laxité inférieure, qui fait penser à une instabilité multidirectionnelle si elle est symptomatique.", src: "watson" },
+    croise: { n: "Bras croisé (adduction horizontale)", how: "Bras à 90° devant le patient : le kiné le croise vers l'épaule opposée.",
+      pos: "Douleur localisée sur le dessus de l'épaule (articulation acromio-claviculaire).", neg: "Pas de douleur sur l'articulation.",
+      val: "Associé à une douleur à la palpation de l'articulation acromio-claviculaire, il oriente vers celle-ci.", src: "hegedus" },
+    spurling: { n: "Test de Spurling", how: "Patient assis : tête inclinée du côté douloureux et légèrement en extension, le kiné appuie doucement sur le sommet du crâne.",
+      pos: "Douleur ou fourmillements qui descendent dans le bras.", neg: "Pas de douleur dans le bras.",
+      val: "Spécifique d'une souffrance d'une racine nerveuse du cou : la douleur d'épaule vient peut-être du cou.", src: "wainner" }
   };
 
   /* ════════ Guide d'orientation : cheville et pied sans diagnostic ════════ */
@@ -946,20 +1285,103 @@ var KineParcours = (function () {
     };
     return { R: R, NAME: NAME, PATH: PATH, NOTE: NOTE };
   }
-  var GUIDES = {
-    genou: { titre: "Genou sans diagnostic", def: "genou", defNom: "Parcours genou sans diagnostic précis", g: GUIDE, src: ["stiell", "benj", "decary", "nice", "malliaras", "logLig"] },
-    cheville: { titre: "Cheville et pied sans diagnostic", def: "cheville", defNom: "Parcours cheville sans diagnostic précis", g: GUIDE_CHEVILLE, src: ["stiellA", "maffulli", "croy", "sman", "martinAch", "koc", "degarceau"] }
+  /* ════════ Guide d'orientation : épaule sans diagnostic ════════ */
+  var GUIDE_EPAULE = {
+    alertes: [
+      { id: "septique", t: "Épaule chaude, rouge, très douloureuse avec fièvre", d: "Suspicion d'arthrite septique : avis médical le jour même." },
+      { id: "fracture", t: "Chute avec douleur importante, bras impossible à lever, personne âgée ou déformation", d: "Radiographie avant de poursuivre (fracture, luxation non réduite)." },
+      { id: "coiffe_aigue", t: "Perte brutale de la force pour lever le bras après un traumatisme, patient actif", d: "Rupture aiguë de la coiffe possible : avis chirurgical rapide." },
+      { id: "coeur", t: "Douleur à l'épaule gauche ou à la mâchoire à l'effort, essoufflement, sueurs", d: "Penser au cœur : avis médical en urgence." },
+      { id: "neuro", t: "Perte de force ou fourmillements dans la main, troubles de la sensibilité", d: "Atteinte neurologique possible (cou, plexus) : examen neurologique et avis médical." },
+      { id: "nuit", t: "Douleur nocturne non mécanique, perte de poids, antécédent de cancer", d: "Avis médical." }
+    ],
+    q: [
+      { id: "trauma", t: "Début", ch: [["chute", "Chute ou choc sur l'épaule"], ["luxation", "L'épaule est sortie (luxation)"], ["progressif", "Progressif, gestes répétés"], ["spontane", "Sans cause, raideur qui s'installe"]] },
+      { id: "age", t: "Âge", ch: [["jeune", "Moins de 30 ans"], ["moyen", "30 à 49 ans"], ["50", "50 ans ou plus"]] },
+      { id: "zone", t: "Où est la douleur", ch: [["antlat", "Face externe du bras (deltoïde)"], ["ant", "Devant de l'épaule"], ["sup", "Sur le dessus de l'épaule"], ["diffuse", "Profonde et diffuse"], ["cou", "Part du cou et descend dans le bras"]] },
+      { id: "signes", t: "Ce que le patient décrit", multi: 1, ch: [["nuit", "Douleur la nuit, couché sur l'épaule"], ["elev", "Douleur en levant le bras ou au-dessus de la tête"], ["raideur", "Raideur : même aidé, le bras ne va pas loin"], ["faibl", "Manque de force pour lever le bras"], ["sort", "Sensation que l'épaule va sortir"], ["diab", "Diabète ou problème de thyroïde"], ["fourm", "Fourmillements dans la main, douleur du cou"]] },
+      { id: "tests", t: "Tests positifs", multi: 1, ch: [["arc", "Arc douloureux"], ["jobe", "Jobe"], ["hawkins", "Hawkins-Kennedy"], ["rer", "Rotation externe contre résistance"], ["lag", "Lag sign en rotation externe"], ["repass", "Rotation externe passive limitée"], ["appr", "Appréhension et relocation"], ["sulcus", "Signe du sillon"], ["croise", "Bras croisé"], ["spurling", "Spurling"]] }
+    ]
   };
+  function guideEpaule(ans) {
+    var has = function (k, v) { var x = ans[k]; return Array.isArray(x) ? x.indexOf(v) >= 0 : x === v; };
+    var R = { coiffe: { s: 0, why: [] }, rupture: { s: 0, why: [] }, capsulite: { s: 0, why: [] }, instab: { s: 0, why: [] }, ac: { s: 0, why: [] }, cervical: { s: 0, why: [] } };
+    function add(k, n, w) { R[k].s += n; R[k].why.push(w); }
+    // Coiffe des rotateurs (Park 2005 ; Hegedus 2012)
+    if (has("trauma", "progressif")) add("coiffe", 2, "début progressif, gestes répétés");
+    if (has("age", "moyen")) add("coiffe", 1, "30 à 49 ans");
+    if (has("age", "50")) { add("coiffe", 2, "50 ans ou plus"); add("rupture", 1, "50 ans ou plus"); }
+    if (has("zone", "antlat")) add("coiffe", 3, "douleur de la face externe du bras");
+    if (has("signes", "elev")) add("coiffe", 2, "douleur en levant le bras");
+    if (has("signes", "nuit")) { add("coiffe", 1, "douleur la nuit"); add("capsulite", 1, "douleur la nuit"); }
+    if (has("tests", "arc")) add("coiffe", 2, "arc douloureux");
+    if (has("tests", "hawkins")) add("coiffe", 2, "Hawkins positif");
+    if (has("tests", "jobe")) { add("coiffe", 2, "Jobe positif"); add("rupture", 1, "Jobe positif"); }
+    if (has("tests", "rer")) { add("coiffe", 1, "faiblesse en rotation externe"); add("rupture", 3, "faiblesse en rotation externe"); }
+    // Rupture de la coiffe (Hertel 1996)
+    if (has("signes", "faibl")) add("rupture", 3, "manque de force pour lever le bras");
+    if (has("trauma", "chute") && has("age", "50")) add("rupture", 1, "chute après 50 ans");
+    if (has("tests", "lag")) add("rupture", 5, "lag sign positif");
+    // Capsulite (Kelley 2013)
+    if (has("trauma", "spontane")) add("capsulite", 3, "raideur qui s'installe sans cause");
+    if (has("age", "50")) add("capsulite", 2, "50 ans ou plus");
+    if (has("age", "moyen")) add("capsulite", 1, "30 à 49 ans");
+    if (has("signes", "raideur")) add("capsulite", 4, "raideur même passive");
+    if (has("signes", "diab")) add("capsulite", 3, "diabète ou thyroïde");
+    if (has("zone", "diffuse")) add("capsulite", 1, "douleur profonde et diffuse");
+    if (has("tests", "repass")) { add("capsulite", 5, "rotation externe passive limitée"); add("coiffe", -1, "rotation passive limitée : plutôt une capsulite"); }
+    // Instabilité (Lo 2004)
+    if (has("trauma", "luxation")) add("instab", 6, "luxation");
+    if (has("signes", "sort")) add("instab", 4, "sensation que l'épaule va sortir");
+    if (has("age", "jeune")) add("instab", 2, "moins de 30 ans");
+    if (has("tests", "appr")) add("instab", 5, "appréhension levée par la relocation");
+    if (has("tests", "sulcus")) add("instab", 2, "signe du sillon");
+    // Acromio-claviculaire
+    if (has("zone", "sup")) add("ac", 4, "douleur sur le dessus de l'épaule");
+    if (has("trauma", "chute")) add("ac", 2, "chute sur l'épaule");
+    if (has("tests", "croise")) add("ac", 3, "bras croisé douloureux");
+    // Origine cervicale (Wainner 2003)
+    if (has("zone", "cou")) add("cervical", 4, "douleur qui part du cou");
+    if (has("signes", "fourm")) add("cervical", 3, "fourmillements, douleur du cou");
+    if (has("tests", "spurling")) add("cervical", 4, "Spurling positif");
+    var NAME = { coiffe: "Atteinte de la coiffe des rotateurs", rupture: "Rupture de la coiffe des rotateurs", capsulite: "Capsulite rétractile", instab: "Instabilité de l'épaule", ac: "Atteinte acromio-claviculaire", cervical: "Douleur d'origine cervicale" };
+    var PATH = { coiffe: "coiffe", rupture: "coiffe", capsulite: "capsulite", instab: "instab_ep", ac: "epaule", cervical: "epaule" };
+    var NOTE = {
+      coiffe: "Arc douloureux + Hawkins + faiblesse en rotation externe : association la plus parlante. Renforcement progressif en première intention.",
+      rupture: "Faiblesse nette et lag sign : rupture probable. Après un traumatisme chez un patient actif, avis chirurgical rapide ; sinon rééducation d'abord.",
+      capsulite: "Rotation externe passive très limitée, souvent après 40 ans : capsulite probable (ou arthrose, à vérifier par une radiographie).",
+      instab: "L'appréhension plus que la douleur. Première luxation chez un jeune sportif : en parler au chirurgien.",
+      ac: "Douleur précise sur l'articulation, à la palpation et au bras croisé : parcours général de l'épaule, en ménageant les appuis.",
+      cervical: "La douleur vient peut-être du cou : examiner le rachis cervical et la neurologie avant de traiter l'épaule."
+    };
+    return { R: R, NAME: NAME, PATH: PATH, NOTE: NOTE };
+  }
+  /* cles : pour chaque piste, les tests qui la confirment ou l'écartent (proposés « à tester ensuite ») */
+  var GUIDES = {
+    genou: { titre: "Genou sans diagnostic", def: "genou", defNom: "Parcours genou sans diagnostic précis", g: GUIDE, src: ["stiell", "benj", "decary", "nice", "malliaras", "logLig"],
+      cles: { lca_cons: ["lachman", "pivotshift"], menisque: ["interligne", "mcmurray"], lcm: ["valgus"], tendino_rot: ["tendon", "declive"], gonarthrose: ["crepit"], sfp: [] } },
+    cheville: { titre: "Cheville et pied sans diagnostic", def: "cheville", defNom: "Parcours cheville sans diagnostic précis", g: GUIDE_CHEVILLE, src: ["stiellA", "maffulli", "croy", "sman", "martinAch", "koc", "degarceau"],
+      cles: { entorse: ["tiroir", "tilt", "fente"], syndes: ["squeeze", "rotext"], instab: ["tiroir", "fente"], achille: ["ach"], rupture: ["thompson"], aponev: ["fascia", "windlass"] } },
+    epaule: { titre: "Épaule sans diagnostic", def: "epaule", defNom: "Parcours épaule sans diagnostic précis", g: GUIDE_EPAULE, src: ["park05", "hegedus", "hertel", "kelley", "lo04", "wainner"],
+      cles: { coiffe: ["arc", "hawkins", "rer"], rupture: ["lag", "rer", "jobe"], capsulite: ["repass"], instab: ["appr", "sulcus"], ac: ["croise"], cervical: ["spurling"] } }
+  };
+  // Pistes classées, tests négatifs pris en compte, et tests conseillés pour départager les pistes
   function guide(ans, zone) {
     ans = ans || {};
-    if (zone === "cheville") {
-      var C = guideCheville(ans);
-      var outC = Object.keys(C.R).filter(function (k) { return C.R[k].s >= 3; }).sort(function (a, b) { return C.R[b].s - C.R[a].s; }).map(function (k) {
-        return { id: k, nom: C.NAME[k], parcours: C.PATH[k], score: C.R[k].s, why: C.R[k].why.filter(function (w, i, a) { return a.indexOf(w) === i; }), note: C.NOTE[k] };
-      });
-      var alC = (ans.alertes || []).map(function (id) { return GUIDE_CHEVILLE.alertes.filter(function (x) { return x.id === id; })[0]; }).filter(Boolean);
-      return { alertes: alC, pistes: outC };
-    }
+    zone = GUIDES[zone] ? zone : "genou";
+    var GZ = GUIDES[zone], r = zone === "cheville" ? guideCheville(ans) : zone === "epaule" ? guideEpaule(ans) : guideGenou(ans), R = r.R;
+    var neg = ans.neg || [], pos = ans.tests || [], tn = {}; (GZ.g.q.filter(function (x) { return x.id === "tests"; })[0] || { ch: [] }).ch.forEach(function (c) { tn[c[0]] = c[1]; });
+    Object.keys(R).forEach(function (k) { (GZ.cles[k] || []).forEach(function (t) { if (neg.indexOf(t) >= 0) { R[k].s -= 2; R[k].why.push(tn[t] + " négatif"); } }); });
+    var pistes = Object.keys(R).filter(function (k) { return R[k].s >= 3; }).sort(function (a, b) { return R[b].s - R[a].s; }).map(function (k) {
+      return { id: k, nom: r.NAME[k], parcours: r.PATH[k], score: R[k].s, why: R[k].why.filter(function (w, i, a) { return a.indexOf(w) === i; }), note: r.NOTE[k] };
+    });
+    // à tester ensuite : les tests clés des pistes les plus avancées (même faibles), pas encore faits
+    var cand = Object.keys(R).filter(function (k) { return R[k].s > 0; }).sort(function (a, b) { return R[b].s - R[a].s; }).slice(0, 3), sug = [];
+    cand.forEach(function (k) { (GZ.cles[k] || []).forEach(function (t) { if (pos.indexOf(t) < 0 && neg.indexOf(t) < 0 && !sug.some(function (x) { return x.t === t; })) sug.push({ t: t, nom: tn[t], pour: r.NAME[k] }); }); });
+    var alert = (ans.alertes || []).map(function (id) { return GZ.g.alertes.filter(function (x) { return x.id === id; })[0]; }).filter(Boolean);
+    return { alertes: alert, pistes: pistes, suggest: sug.slice(0, 3) };
+  }
+  function guideGenou(ans) {
     var has = function (k, v) { var x = ans[k]; return Array.isArray(x) ? x.indexOf(v) >= 0 : x === v; };
     var R = {
       lca_cons: { s: 0, why: [] }, sfp: { s: 0, why: [] }, tendino_rot: { s: 0, why: [] },
@@ -1010,11 +1432,7 @@ var KineParcours = (function () {
       tendino_rot: "Douleur localisée au tendon, liée à la charge, qui augmente avec la vitesse et la hauteur des sauts.",
       gonarthrose: "Diagnostic clinique possible sans imagerie (NICE) : 45 ans ou plus, douleur liée à l'activité, raideur matinale de 30 min au maximum."
     };
-    var out = Object.keys(R).filter(function (k) { return R[k].s >= 3; }).sort(function (a, b) { return R[b].s - R[a].s; }).map(function (k) {
-      return { id: k, nom: NAME[k], parcours: PATH[k], score: R[k].s, why: R[k].why.filter(function (w, i, a) { return a.indexOf(w) === i; }), note: NOTE[k] };
-    });
-    var alert = (ans.alertes || []).map(function (id) { return GUIDE.alertes.filter(function (x) { return x.id === id; })[0]; }).filter(Boolean);
-    return { alertes: alert, pistes: out };
+    return { R: R, NAME: NAME, PATH: PATH, NOTE: NOTE };
   }
 
   return {

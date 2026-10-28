@@ -267,13 +267,14 @@ var KineCabinet = (function () {
   function newCode(pid) { loading("Nouveau code…"); fbCab.code(pid).then(function () { codeView(pid); }, fail); }
 
   /* ════════ Fiche patient ════════ */
-  function ctx() { return { bilans: C.bilans || [], seances: C.seances || [], date0: C.date0 }; }
+  function allB() { return window.KineQuest ? KineQuest.merge(C.bilans, C.quest) : (C.bilans || []); }   // bilans du cabinet + questionnaires remplis par le patient
+  function ctx() { return { bilans: allB(), seances: C.seances || [], date0: C.date0 }; }
   function objState(o) {
     var a = o.a ? KP.evalObj(o.a, ctx()) : null, man = !!(C.done && C.done[o.id]);
     return { auto: a, done: man || !!(a && a.ok === true), man: man };
   }
   function keyMetric(P) {
-    var k = P.key, B = C.bilans || [];
+    var k = P.key, B = allB();
     var b = KP.lastWith(B, k.m); if (!b) return null;
     var v = k.lsi ? KP.lsi(b, k.m) : KP.val(b, k.m, "a");
     if (v == null) return null;
@@ -311,6 +312,8 @@ var KineCabinet = (function () {
       }).join("") +
       (E < P.etapes.length - 1 ? "<button class='" + (nDone === et.obj.length ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.etape(1)'>" + (nDone === et.obj.length ? "Débloquer l'étape " + (E + 2) + " : " + esc(P.etapes[E + 1].nom) : "Débloquer l'étape " + (E + 2) + " quand même") + "</button>" : "<div class='kcb-ok'>" + ICON.ok + "Dernière étape du parcours.</div>") +
       (E > 0 ? "<button class='kcb-link' onclick='KineCabinet.etape(-1)'>Revenir à l'étape " + E + "</button>" : "") + "</div>";
+    // questionnaires du patient
+    if (window.KineQuest) html += KineQuest.card(C, P, "fiche");
     // exercices proposés
     var ex = KP.exos(C.parcours, E, C.opts), sent = C.exos || [];
     if (!sel) sel = sent.length ? sent.slice() : [];
@@ -426,17 +429,25 @@ var KineCabinet = (function () {
     var P = KP.get(C.parcours);
     bilanEdit = id ? (C.bilans || []).filter(function (b) { return b.id === id; })[0] : null;
     var prev = (C.bilans || []).filter(function (b) { return !bilanEdit || b.id !== bilanEdit.id; })[0] || null;
-    var cur = bilanEdit || { d: iso(), m: {} };
+    var cur = bilanEdit || { d: iso(), m: {} }, fromQ = [];
+    if (!bilanEdit && window.KineQuest) KineQuest.asBilans(C.quest).sort(function (a, b) { return a.d < b.d ? -1 : 1; }).forEach(function (x) {
+      if (prev && x.d < prev.d) return;
+      Object.keys(x.m).forEach(function (k) { if (KP.M[k]) { cur.m[k] = x.m[k]; if (fromQ.indexOf(k) < 0) fromQ.push(k); } });
+    });
     // Mesures utiles maintenant : celles des objectifs de l'étape en cours et de la suivante, et la mesure clé du parcours
     var E = C.etape || 0, need = [P.key.m];
     P.etapes.slice(E, E + 2).forEach(function (e) { e.obj.forEach(function (o) { if (o.a && o.a.m) need.push(o.a.m); if (o.a && o.a.hops) need.push("hop1", "hop3", "hop6"); }); });
     var mes = P.mes.filter(function (m) { return need.indexOf(m) >= 0 || (cur.m && cur.m[m]); });
+    var needNow = need.filter(function (m) { return P.etapes[Math.min(E, P.etapes.length - 1)].obj.some(function (o) { return o.a && o.a.m === m && !objState(o).done; }); });
     if (mes.length < 3) mes = P.mes.slice(0, 4);
     var others = P.mes.filter(function (m) { return mes.indexOf(m) < 0; }).concat(Object.keys(KP.M).filter(function (m) { return P.mes.indexOf(m) < 0; }));
     var side = C.cote === "G" ? "gauche" : C.cote === "D" ? "droit" : "";
     var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) +
       "<div><div class='kf-h1 kcb-h1'>Bilan</div><div class='kf-sub'>" + (side ? "Côté atteint : <b>" + side + "</b>. " : "") + (prev ? "En gris : le bilan du " + dfr(prev.d) + "." : "Premier bilan.") + "</div></div>" +
-      "<label class='kcb-field'><span class='kcb-lab'>Date</span><input class='kcb-in' type='date' id='kcb-bd' value='" + esc(cur.d) + "'></label>";
+      "<label class='kcb-field'><span class='kcb-lab'>Date</span><input class='kcb-in' type='date' id='kcb-bd' value='" + esc(cur.d) + "'></label>" +
+      (fromQ.length ? "<div class='kcb-ok'>" + ICON.ok + "Déjà rempli par le patient : " + esc(fromQ.map(function (k) { return KP.M[k].c || KP.M[k].l; }).join(", ")) + ".</div>" : "") +
+      (window.KineQuest && !bilanEdit ? KineQuest.card(C, P, "bilan") : "");
+    BNEED = needNow; BFROMQ = fromQ;
     var groups = {};
     mes.forEach(function (m) { var g = KP.M[m].g; (groups[g] = groups[g] || []).push(m); });
     Object.keys(groups).forEach(function (g) { html += "<div class='su-card kcb-mcard'><b class='kcb-g'>" + esc(g) + "</b>" + groups[g].map(function (m) { return mrow(m, cur, prev); }).join("") + "</div>"; });
@@ -450,7 +461,8 @@ var KineCabinet = (function () {
       var v = Array.isArray(r[sd]) ? r[sd][i] : (i === 0 ? r[sd] : null), pv = Array.isArray(pr[sd]) ? KP.best(m, pr[sd]) : pr[sd];
       return "<input class='kcb-num' inputmode='decimal' data-m='" + m + "' data-s='" + sd + "' data-i='" + i + "' value='" + esc(v == null ? "" : String(v).replace(".", ",")) + "' placeholder='" + esc(i === 0 && pv != null ? KP.fmt(pv) : "") + "' oninput='KineCabinet.live()' aria-label='" + esc(d.l + (sd === "a" ? ", côté atteint" : ", côté sain") + (d.n ? ", essai " + (i + 1) : "")) + "'>";
     };
-    var head = "<div class='kcb-mh'><span>" + esc(d.l) + (d.u ? " <i>" + esc(d.u) + "</i>" : "") + "</span><em id='kcb-l-" + m + "'></em></div>";
+    var tag = BFROMQ.indexOf(m) >= 0 ? "<u class='kcb-tagq'>rempli par le patient</u>" : BNEED.indexOf(m) >= 0 && !(cur.m && cur.m[m]) ? "<u class='kcb-tag kf-hop'>objectif de l'étape</u>" : "";
+    var head = "<div class='kcb-mh'><span>" + esc(d.l) + (d.u ? " <i>" + esc(d.u) + "</i>" : "") + tag + "</span><em id='kcb-l-" + m + "'></em></div>";
     var how = "<details class='kcb-how'><summary>Protocole</summary>" + esc(d.how) + "</details>";
     if (d.ch) {
       return "<div class='kcb-m'>" + head + "<div class='kf-chips kcb-ch'>" + d.ch.map(function (c, i) { return "<button type='button' data-m='" + m + "' data-s='a' data-ch='" + i + "' class='" + (r.a === i ? "sel" : "") + "' onclick='KineCabinet.ch(this)'>" + esc(c) + "</button>"; }).join("") + "</div>" + how + "</div>";
@@ -493,6 +505,26 @@ var KineCabinet = (function () {
     loading("Enregistrement du bilan…");
     fbCab.bilan(C.id, bilanEdit ? bilanEdit.id : null, { d: d, m: m }).then(function () { fiche(C.id); }, fail);
   }
+  var BNEED = [], BFROMQ = [];
+  /* ════════ Questionnaires ════════ */
+  function qSend(id) {
+    var P = KP.get(C.parcours), inBilan = !!sheet().querySelector("#kcb-bd");
+    fbCab.questSend(C.id, { q: id, env: iso(), zone: P.zone }).then(function () {
+      say(C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié.");
+      return fbCab.get(C.id).then(function (p) { C = p; if (inBilan) bilan(); else ficheView(); });
+    }, fail);
+  }
+  function qCancel(docId) {
+    if (!confirm("Annuler ce questionnaire ? Le patient ne le verra plus.")) return;
+    var inBilan = !!sheet().querySelector("#kcb-bd");
+    fbCab.questDel(C.id, docId).then(function () { return fbCab.get(C.id).then(function (p) { C = p; if (inBilan) bilan(); else ficheView(); }); }, fail);
+  }
+  function qView(docId) {
+    var x = (C.quest || []).filter(function (y) { return y.id === docId; })[0]; if (!x) return;
+    var P = KP.get(C.parcours);
+    show(top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) + "<div><div class='kf-h1 kcb-h1'>" + esc(KineQuest.Q[x.q] ? KineQuest.Q[x.q].nom : x.q) + "</div><div class='kf-sub'>Réponses du patient, telles qu'il les a données.</div></div>" + KineQuest.detail(x, P.zone),
+      "<button class='seq-btn-main' onclick='KineCabinet.qSend(" + q(x.q) + ")'>Le renvoyer</button>");
+  }
   function delBilan() { if (!confirm("Supprimer ce bilan ?")) return; fbCab.bilanDel(C.id, bilanEdit.id).then(function () { fiche(C.id); }, fail); }
 
   /* ════════ Séance au cabinet ════════ */
@@ -533,7 +565,7 @@ var KineCabinet = (function () {
   function ov(id) { var el = $(id); if (!el) { el = document.createElement("div"); el.id = id; el.className = "kcb-incl-ov"; el.setAttribute("role", "dialog"); document.body.appendChild(el); } return el; }
   // Deux façons de mesurer : téléphone posé sur la jambe, ou photo de profil avec 3 points
   function incl(m, sd) {
-    if (KP.M[m].incl === 2) { inclPhone(m, sd); return; }
+    if (KP.M[m].incl >= 2) { inclPhone(m, sd); return; }
     var el = ov("kcb-incl"); el.setAttribute("aria-label", "Mesurer l'angle");
     el.innerHTML = "<div class='kcb-incl-card'><div class='kcb-mh'><span>" + esc(KP.M[m].l) + ", côté " + (sd === "a" ? "atteint" : "sain") + "</span><button class='kf-back' onclick='KineCabinet.inclClose()' aria-label='Fermer'>×</button></div>" +
       "<button class='krl-row' onclick='KineCabinet.photo(" + q(m) + "," + q(sd) + ")'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/></svg></span><span class='krl-t'><b>Sur une photo</b><span>De profil, 3 points à ajuster du doigt</span></span></button>" +
@@ -543,13 +575,22 @@ var KineCabinet = (function () {
   function inclPhone(m, sd) {
     I = { m: m, sd: sd, step: 0, buf: [], thigh: null, res: null, got: false };
     var el = $("kcb-incl"); if (!el) { el = document.createElement("div"); el.id = "kcb-incl"; el.className = "kcb-incl-ov"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Mesure avec le téléphone"); document.body.appendChild(el); }
-    var start = function () { window.addEventListener("deviceorientation", onOri); setTimeout(function () { if (I && !I.got) { I.err = 1; inclView(); } }, 1800); inclView(); };
-    if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function") {
-      DeviceOrientationEvent.requestPermission().then(function (r) { if (r === "granted") start(); else { I.err = 2; inclView(); } }, function () { I.err = 2; inclView(); });
+    var mot = KP.M[m].incl === 3, EV = mot ? window.DeviceMotionEvent : window.DeviceOrientationEvent;
+    var start = function () { window.addEventListener(mot ? "devicemotion" : "deviceorientation", mot ? onMot : onOri); setTimeout(function () { if (I && !I.got) { I.err = 1; inclView(); } }, 1800); inclView(); };
+    if (EV && typeof EV.requestPermission === "function") {
+      EV.requestPermission().then(function (r) { if (r === "granted") start(); else { I.err = 2; inclView(); } }, function () { I.err = 2; inclView(); });
     } else start();
     el.classList.add("open");
   }
   function onOri(e) { if (!I || e.beta == null) return; I.got = true; I.buf.push(e.beta); if (I.buf.length > 15) I.buf.shift(); var c = $("kcb-ang"); if (c) c.textContent = Math.round(med()) + "°"; var s = $("kcb-stab"); if (s) s.className = spread() < 1.5 ? "ok" : ""; }
+  // Téléphone dans la longueur du bras : angle entre son grand axe et la verticale (pesanteur), quel que soit le côté de l'écran
+  function onMot(e) {
+    var a = e && e.accelerationIncludingGravity; if (!I || !a || a.y == null) return;
+    var g = Math.sqrt((a.x || 0) * (a.x || 0) + a.y * a.y + (a.z || 0) * (a.z || 0)); if (g < 5) return;
+    var c = Math.max(-1, Math.min(1, (KP.M[I.m].iref === "up" ? a.y : -a.y) / g));
+    I.got = true; I.buf.push(Math.acos(c) * 180 / Math.PI); if (I.buf.length > 15) I.buf.shift();
+    var el = $("kcb-ang"); if (el) el.textContent = Math.round(med()) + "°"; var st = $("kcb-stab"); if (st) st.className = spread() < 2 ? "ok" : "";
+  }
   function med() { var a = I.buf.slice().sort(function (x, y) { return x - y; }); return a.length ? a[Math.floor(a.length / 2)] : 0; }
   function spread() { if (I.buf.length < 8) return 99; return Math.max.apply(null, I.buf) - Math.min.apply(null, I.buf); }
   function inclView() {
@@ -557,8 +598,11 @@ var KineCabinet = (function () {
     var isExt = I.m === "ext";
     var body;
     if (I.err) body = "<p>" + (I.err === 2 ? "L'accès aux capteurs a été refusé. Tu peux l'autoriser dans les réglages du navigateur, ou saisir la valeur mesurée au goniomètre." : "Le capteur d'inclinaison ne répond pas sur cet appareil. Saisis la valeur mesurée au goniomètre.") + "</p><button class='seq-btn-main' onclick='KineCabinet.inclClose()'>Fermer</button>";
-    else if (I.res != null) body = "<div class='kcb-ang big'>" + KP.fmt(I.res) + "°</div><p>" + (isExt ? (I.res < 0 ? "Déficit d'extension de " + KP.fmt(-I.res) + "°." : I.res > 0 ? "Hyperextension de " + KP.fmt(I.res) + "°." : "Extension complète.") : KP.M[I.m].incl === 2 ? "Inclinaison du tibia : flexion dorsale en charge." : "Flexion du genou.") + "</p>" +
+    else if (I.res != null) body = "<div class='kcb-ang big'>" + KP.fmt(I.res) + "°</div><p>" + (isExt ? (I.res < 0 ? "Déficit d'extension de " + KP.fmt(-I.res) + "°." : I.res > 0 ? "Hyperextension de " + KP.fmt(I.res) + "°." : "Extension complète.") : KP.M[I.m].incl === 2 ? "Inclinaison du tibia : flexion dorsale en charge." : KP.M[I.m].incl === 3 ? esc(KP.M[I.m].l) + "." : "Flexion du genou.") + "</p>" +
       "<button class='seq-btn-main' onclick='KineCabinet.inclUse()'>Utiliser cette valeur</button><button class='seq-btn-secondary' onclick='KineCabinet.inclPhone(" + q(I.m) + "," + q(I.sd) + ")'>Recommencer</button>";
+    else if (KP.M[I.m].incl === 3) body = "<div class='kcb-ang' id='kcb-ang'>–</div><div id='kcb-stab'>Garde le téléphone immobile en fin de mouvement</div>" +
+      "<ol class='kcb-isteps'><li class='now'>" + KP.M[I.m].ph + "</li></ol>" +
+      "<button class='seq-btn-main' onclick='KineCabinet.inclTake()'>Enregistrer l'angle</button>";
     else if (KP.M[I.m].incl === 2) body = "<div class='kcb-ang' id='kcb-ang'>–</div><div id='kcb-stab'>Garde le téléphone immobile</div>" +
       "<ol class='kcb-isteps'><li class='now'>Le patient en fente contre le mur, à sa distance maximale. Pose le téléphone à plat sur l'avant du <b>tibia</b>, <b>le haut du téléphone vers le genou</b>.</li></ol>" +
       "<button class='seq-btn-main' onclick='KineCabinet.inclTake()'>Enregistrer l'angle du tibia</button>";
@@ -571,7 +615,8 @@ var KineCabinet = (function () {
   function inclTake() {
     if (!I.buf.length) return;
     var v = med();
-    if (KP.M[I.m].incl === 2) { I.res = Math.round(90 - Math.abs(v)); inclView(); return; }   // inclinaison du tibia par rapport à la verticale
+    if (KP.M[I.m].incl === 2) { I.res = Math.round(90 - Math.abs(v)); inclView(); return; }
+    if (KP.M[I.m].incl === 3) { I.res = Math.round(v); inclView(); return; }   // inclinaison du tibia par rapport à la verticale
     if (I.step === 0) { I.thigh = v; I.step = 1; I.buf = []; inclView(); return; }
     var flex = Math.round(I.thigh - v);
     I.res = I.m === "ext" ? -flex : flex; inclView();
@@ -581,7 +626,7 @@ var KineCabinet = (function () {
     if (el) { el.value = String(I.res); live(); }
     inclClose();
   }
-  function inclClose() { window.removeEventListener("deviceorientation", onOri); var el = $("kcb-incl"); if (el) el.classList.remove("open"); I = null; }
+  function inclClose() { window.removeEventListener("deviceorientation", onOri); window.removeEventListener("devicemotion", onMot); var el = $("kcb-incl"); if (el) el.classList.remove("open"); I = null; }
 
   /* ════════ Angle sur photo : hanche, genou, cheville ════════
      Points proposés par la détection de posture (si elle répond), ajustables du doigt.
@@ -677,7 +722,7 @@ var KineCabinet = (function () {
     }
     gFor = forWho; gAns = gAns || { alertes: [] };
     var GZ = KP.GUIDES[gZone], G = GZ.g, r = KP.guide(gAns, gZone), Q = {}; G.q.forEach(function (x) { Q[x.id] = x; });
-    var nAl = gAns.alertes.length;
+    var nAl = gAns.alertes.length, sugT = (r.suggest || []).map(function (x) { return x.t; });
     var html = top(forWho === "new" ? "KineCabinet.nouveau()" : forWho ? "KineCabinet.fiche(" + q(forWho) + ")" : "KineCabinet.open()", "Guide d'orientation") +
       "<div class='kc-seg kgd-zone' role='group' aria-label='Zone'>" + KP.ZONES.map(function (z) { return "<button type='button' class='" + (gZone === z[0] ? "on" : "") + "' aria-pressed='" + (gZone === z[0]) + "' onclick='KineCabinet.gZ(" + q(z[0]) + ")'>" + esc(z[1]) + "</button>"; }).join("") + "</div>" +
       "<div><div class='kf-h1 kcb-h1'>" + esc(GZ.titre) + "</div><div class='kf-sub'>Coche ce que tu observes : le guide classe les pistes et explique pourquoi. Une aide au raisonnement, pas un diagnostic.</div></div>";
@@ -691,9 +736,14 @@ var KineCabinet = (function () {
           var x = Q[id];
           return "<div class='kgd-q'><span class='kcb-lab'>" + esc(x.t) + (x.multi ? " <em>plusieurs choix</em>" : "") + "</span><div class='kf-chips kgd-chips'>" + x.ch.map(function (c) {
             var v = gAns[x.id], on = x.multi ? (v || []).indexOf(c[0]) >= 0 : v === c[0], info = id === "tests" && KP.TESTS[c[0]];
-            return "<button type='button' class='" + (on ? "sel" : "") + (info ? " kgd-t" : "") + "'" + (info ? " data-t='" + c[0] + "'" : "") + " onclick='KineCabinet.gQ(" + q(x.id) + "," + q(c[0]) + "," + (x.multi ? 1 : 0) + ",this)'>" + esc(c[1]) + (info ? "<i aria-hidden='true'>?</i>" : "") + "</button>"; }).join("") + "</div></div>";
+            var neg = id === "tests" && (gAns.neg || []).indexOf(c[0]) >= 0, sg = id === "tests" && sugT.indexOf(c[0]) >= 0;
+            return "<button type='button' class='" + (on ? "sel" : "") + (neg ? " neg" : "") + (sg ? " sug kf-hop" : "") + (info ? " kgd-t" : "") + "'" + (info ? " data-t='" + c[0] + "'" : "") + " onclick='KineCabinet.gQ(" + q(x.id) + "," + q(c[0]) + "," + (x.multi ? 1 : 0) + ",this)'>" + esc(c[1]) + (neg ? " · négatif" : "") + (info ? "<i aria-hidden='true'>?</i>" : "") + "</button>"; }).join("") + "</div></div>";
         }).join("") + "</section>";
     });
+    // à tester ensuite : les tests qui départagent le mieux les pistes en cours
+    if (r.suggest && r.suggest.length) html += "<section class='kgd-sec kgd-sug'><div class='kgd-h'><i>" + (G_SEC.length + 2) + "</i><b>À tester ensuite</b><span>pour départager les pistes</span></div>" +
+      r.suggest.map(function (x, i) { return "<div class='kgd-st" + (i === 0 ? " kf-hop" : "") + "'><button class='kgd-stn kgd-t' data-t='" + x.t + "' onclick='KineCabinet.testInfo(" + q(x.t) + ")'><b>" + esc(x.nom) + "</b><span>pour : " + esc(x.pour) + " · appui pour la description</span></button>" +
+        "<div class='kgd-pn'><button onclick='KineCabinet.gQ(\"tests\"," + q(x.t) + ",1)'>Positif</button><button class='n' onclick='KineCabinet.gN(" + q(x.t) + ")'>Négatif</button></div></div>"; }).join("") + "</section>";
     // pistes
     html += "<div class='kcb-v2h' id='kgd-res'>Pistes</div>";
     if (r.alertes.length) html += r.alertes.map(function (a) { return "<div class='kcb-alert'><b>" + esc(a.d) + "</b><span>" + esc(a.t) + "</span></div>"; }).join("");
@@ -704,6 +754,7 @@ var KineCabinet = (function () {
         "<div class='kgd-bar'><u style='width:" + Math.round(p.score / mx * 100) + "%'></u></div>" +
         "<div class='kgd-why'>" + p.why.map(function (w) { return "<span>" + esc(w) + "</span>"; }).join("") + "</div>" +
         "<div class='kgd-note'>" + esc(p.note) + "</div>" +
+        (KP.P[p.parcours] ? "<div class='kgd-mes'><b>Au premier bilan :</b> " + esc([KP.P[p.parcours].key.m].concat(KP.P[p.parcours].mes).filter(function (m, i, a) { return a.indexOf(m) === i && KP.M[m] && KP.M[m].g !== "Questionnaire"; }).slice(0, 4).map(function (m) { return KP.M[m].c || KP.M[m].l; }).join(", ")) + "</div>" : "") +
         (gFor ? "<button class='" + (i === 0 ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.gUse(" + q(p.parcours) + ")'>Parcours « " + esc(KP.P[p.parcours].nom) + " »</button>" : "") + "</div>";
     }).join("");
     if (gFor) html += "<button class='v2-row' onclick='KineCabinet.gUse(" + q(GZ.def) + ")'><b>" + esc(GZ.defNom) + "</b><span>›</span></button>";
@@ -740,7 +791,12 @@ var KineCabinet = (function () {
     el.classList.add("open");
   }
   function gA(id) { var a = gAns.alertes, i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); guide(gFor); }
-  function gQ(k, v, multi, btn) { if (held && btn && btn.classList.contains("kgd-t")) { held = false; return; } if (multi) { var a = gAns[k] = gAns[k] || [], i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); } else gAns[k] = gAns[k] === v ? null : v; guide(gFor); }
+  function gQ(k, v, multi, btn) {
+    if (held && btn && btn.classList.contains("kgd-t")) { held = false; return; }
+    if (k === "tests" && gAns.neg && gAns.neg.indexOf(v) >= 0) { gAns.neg.splice(gAns.neg.indexOf(v), 1); guide(gFor); return; }   // un test noté négatif : un appui l'efface
+    if (multi) { var a = gAns[k] = gAns[k] || [], i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); } else gAns[k] = gAns[k] === v ? null : v; guide(gFor);
+  }
+  function gN(t) { var a = gAns.neg = gAns.neg || [], i = a.indexOf(t); if (i >= 0) a.splice(i, 1); else { a.push(t); var p = (gAns.tests || []).indexOf(t); if (p >= 0) gAns.tests.splice(p, 1); } guide(gFor); }
   function gReset() { gAns = { alertes: [] }; guide(gFor); }
   function gZ(z) { if (z === gZone) return; gZone = z; gAns = { alertes: [] }; guide(gFor); sheet().scrollTop = 0; }
   function gUse(pid) {
@@ -762,7 +818,7 @@ var KineCabinet = (function () {
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
     incl: incl, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
-    guide: guide, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, tee: tee, teeSave: teeSave, gUse: gUse, gGo: gGo, testInfo: testInfo,
+    guide: guide, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2
   };
 })();

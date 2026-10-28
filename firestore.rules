@@ -143,6 +143,18 @@ service cloud.firestore {
           && (!('g' in request.resource.data) || request.resource.data.g is map)
           && request.resource.data.t == request.time;
       }
+      // Questionnaires : envoyés par le kiné, remplis une seule fois par le téléphone du patient
+      match /quest/{id} {
+        allow read, write: if isAdmin();
+        allow read: if isMember(pid);
+        allow update: if isMember(pid) && !('fini' in resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rep', 'score', 'm', 'fini', 'tf'])
+          && request.resource.data.rep is map && request.resource.data.rep.size() <= 20
+          && request.resource.data.score is number
+          && request.resource.data.m is map && request.resource.data.m.size() <= 4
+          && request.resource.data.fini is string && request.resource.data.fini.size() <= 10
+          && request.resource.data.tf == request.time;
+      }
       // Résumé des séances faites à la maison : écrit par le téléphone du patient, une fiche par semaine
       match /maison/{w} {
         allow read, write: if isAdmin();

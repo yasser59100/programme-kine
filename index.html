@@ -211,8 +211,9 @@ window.fbCab = {
       getDocs(query(collection(db, CAB, pid, "maison"), orderBy("w", "desc"), limit(8))),
       getDocs(collection(db, CAB, pid, "membres")),
       getDocs(query(collection(db, CAB, pid, "notes"), limit(60))),
-      getDocs(collection(db, CAB, pid, "journal")).catch(function () { return { docs: [] }; })]);
-    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]); o.journal = cabRows(r[5]);
+      getDocs(collection(db, CAB, pid, "journal")).catch(function () { return { docs: [] }; }),
+      getDocs(collection(db, CAB, pid, "quest")).catch(function () { return { docs: [] }; })]);
+    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]); o.journal = cabRows(r[5]); o.quest = cabRows(r[6]);
     return o;
   },
   create: async function (data) { cabNeedKine(); data.kine = window.fbUser.uid; data.cree = serverTimestamp(); data.tee = cabTee(); var r = await addDoc(collection(db, CAB), data); return r.id; },
@@ -233,9 +234,12 @@ window.fbCab = {
     await setDoc(cabRef(pid), { code: c, codeExp: exp }, { merge: true });
     return c;
   },
+  // Questionnaires envoyés au patient : il y répond sur son téléphone, les réponses reviennent dans la fiche
+  questSend: async function (pid, data) { cabNeedKine(); data.t = serverTimestamp(); var r = await addDoc(collection(db, CAB, pid, "quest"), data); await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return r.id; },
+  questDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "quest", id)); },
   remove: async function (pid) {
     cabNeedKine();
-    for (const sub of ["bilans", "seances", "maison", "membres", "notes", "journal"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
+    for (const sub of ["bilans", "seances", "maison", "membres", "notes", "journal", "quest"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
     var p = await getDoc(cabRef(pid)); if (p.exists() && p.data().code) { try { await deleteDoc(doc(db, "codes", p.data().code)); } catch (e) {} }
     await deleteDoc(cabRef(pid));
   }
@@ -259,8 +263,9 @@ window.fbPat = {
     var o = p.data(); o.id = pid;
     var r = await Promise.all([
       getDocs(query(collection(cabDb, CAB, pid, "bilans"), orderBy("d", "desc"), limit(40))),
-      getDocs(query(collection(cabDb, CAB, pid, "seances"), orderBy("d", "desc"), limit(60)))]);
-    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]);
+      getDocs(query(collection(cabDb, CAB, pid, "seances"), orderBy("d", "desc"), limit(60))),
+      getDocs(collection(cabDb, CAB, pid, "quest")).catch(function () { return { docs: [] }; })]);
+    o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.quest = cabRows(r[2]);
     return o;
   },
   // Demande d'accès sans code : prénom, nom, un mot facultatif
@@ -309,6 +314,8 @@ window.fbPat = {
     var a = await getDoc(doc(cabDb, "acces", r.user.uid));
     return a.exists() ? a.data().pid : null;
   },
+  // Réponses à un questionnaire du kiné (une seule fois par envoi)
+  questDone: async function (pid, id, data) { await cabAnon(); data.tf = serverTimestamp(); await setDoc(doc(cabDb, CAB, pid, "quest", id), data, { merge: true }); },
   home: async function (pid, w, data) { await cabAnon(); data.w = w; data.t = serverTimestamp(); await setDoc(doc(cabDb, CAB, pid, "maison", w), data); }
 };
 window.dispatchEvent(new Event("kf-fb-ready"));
@@ -3369,6 +3376,7 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-salle-ex.js" defer></script>
 <script src="assets/js/kine-genou-ex.js" defer></script>
 <script src="assets/js/kine-cheville-ex.js" defer></script>
+<script src="assets/js/kine-epaule-ex.js" defer></script>
 <script src="assets/js/kine-salle.js" defer></script>
 <script src="assets/js/kine-modefx.js" defer></script>
 <script src="assets/js/kine-course.js" defer></script>
@@ -3392,6 +3400,7 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-stats.js" defer></script>
 <script src="assets/js/kine-legal.js" defer></script>
 <script src="assets/js/kine-parcours.js" defer></script>
+<script src="assets/js/kine-quest.js" defer></script>
 <script src="assets/js/kine-cabinet.js" defer></script>
 <script src="assets/js/kine-monsuivi.js" defer></script>
 <script src="assets/js/kine-role.js" defer></script>

@@ -68,6 +68,16 @@ await t("un autre téléphone n'écrit pas le journal", assertFails(setDoc(doc(i
 await t("un autre téléphone ne lit pas le journal", assertFails(getDocs(collection(intrus, "patients/p1/journal"))));
 await t("le patient relit son journal", assertSucceeds(getDocs(collection(patient, "patients/p1/journal"))));
 await t("le kiné lit le journal", assertSucceeds(getDocs(collection(kine, "patients/p1/journal"))));
+// Questionnaires : le kiné envoie, le patient relié répond une seule fois
+await t("le kiné envoie un questionnaire", assertSucceeds(setDoc(doc(kine, "patients/p1/quest/q1"), { q: "sane", env: "2026-10-28", zone: "epaule", t: serverTimestamp() })));
+await t("le patient lit ses questionnaires", assertSucceeds(getDocs(collection(patient, "patients/p1/quest"))));
+await t("un autre téléphone ne lit pas les questionnaires", assertFails(getDocs(collection(intrus, "patients/p1/quest"))));
+await t("le patient ne crée pas de questionnaire", assertFails(setDoc(doc(patient, "patients/p1/quest/q9"), { q: "sane", env: "2026-10-28" })));
+await t("réponse avec champ en trop refusée", assertFails(setDoc(doc(patient, "patients/p1/quest/q1"), { rep: { n: 70 }, score: 70, m: { sane: 70 }, fini: "2026-10-28", tf: serverTimestamp(), q: "autre" }, { merge: true })));
+await t("un autre téléphone ne répond pas", assertFails(setDoc(doc(intrus, "patients/p1/quest/q1"), { rep: { n: 70 }, score: 70, m: { sane: 70 }, fini: "2026-10-28", tf: serverTimestamp() }, { merge: true })));
+await t("le patient répond", assertSucceeds(setDoc(doc(patient, "patients/p1/quest/q1"), { rep: { n: 70 }, score: 70, m: { sane: 70 }, fini: "2026-10-28", tf: serverTimestamp() }, { merge: true })));
+await t("pas de deuxième réponse au même envoi", assertFails(setDoc(doc(patient, "patients/p1/quest/q1"), { rep: { n: 90 }, score: 90, m: { sane: 90 }, fini: "2026-10-29", tf: serverTimestamp() }, { merge: true })));
+await t("le kiné lit la réponse", assertSucceeds(getDoc(doc(kine, "patients/p1/quest/q1"))));
 await env.cleanup();
 console.log(ok + " réussis, " + ko + " échoués");
 process.exit(ko ? 1 : 0);

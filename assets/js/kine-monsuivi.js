@@ -50,6 +50,7 @@ var KineMonSuivi = (function () {
       if (!d) { jset(KEY, { pid: s.pid, lost: 1 }); slot(); return state(); }
       d.bilans = (d.bilans || []).map(function (b) { return { d: b.d, m: b.m }; });
       d.seances = (d.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; });
+      d.quest = (d.quest || []).map(function (x) { return { id: x.id, q: x.q, env: x.env, zone: x.zone, fini: x.fini || null, score: x.score, m: x.m, rep: x.rep }; });
       ["maj", "cree", "codeExp"].forEach(function (k) { delete d[k]; });
       if (window.KineAvatar && KineAvatar.setShirt && !(window.KineRole && KineRole.role() === "kine")) KineAvatar.setShirt(d.tee || null);   // le t-shirt de Yass au nom de son kiné
       var ns = { pid: s.pid, d: d, at: Date.now() };
@@ -148,10 +149,11 @@ var KineMonSuivi = (function () {
   }
 
   /* ════════ Carte dans l'onglet Suivi ════════ */
-  function ctx(d) { return { bilans: d.bilans || [], seances: d.seances || [], date0: d.date0 }; }
+  function allB(d) { return window.KineQuest ? KineQuest.merge(d.bilans, d.quest) : (d.bilans || []); }
+  function ctx(d) { return { bilans: allB(d), seances: d.seances || [], date0: d.date0 }; }
   function metric(d) {
     var P = KP.get(d.parcours); if (!P) return null;
-    var k = P.key, B = d.bilans || [], b = KP.lastWith(B, k.m); if (!b) return null;
+    var k = P.key, B = allB(d), b = KP.lastWith(B, k.m); if (!b) return null;
     var v = k.lsi ? KP.lsi(b, k.m) : KP.val(b, k.m, "a"); if (v == null) return null;
     var hist = B.slice().reverse().map(function (x) { var y = k.lsi ? KP.lsi(x, k.m) : KP.val(x, k.m, "a"); return y == null ? null : { d: x.d, v: y }; }).filter(Boolean);
     var u = k.lsi ? " %" : (KP.M[k.m].u === "°" ? "°" : " " + KP.M[k.m].u);
@@ -182,7 +184,7 @@ var KineMonSuivi = (function () {
     if (s.lost) { el.innerHTML = "<button class='kms-card' onclick='KineMonSuivi.join()'><b>Suivi au cabinet</b><span>Ta fiche n'est plus disponible. Demande un nouveau code à ton kiné.</span></button>"; return; }
     var d = s.d; if (!d) { el.innerHTML = "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; refresh(true); return; }
     var P = KP.get(d.parcours), E = d.etape || 0, m = metric(d);
-    el.innerHTML = "<button class='kms-card' onclick='KineMonSuivi.open()'><div class='kms-ck'><span>Suivi au cabinet</span><span>Étape " + (E + 1) + (P ? " sur " + P.etapes.length : "") + "</span></div>" +
+    el.innerHTML = (window.KineQuest ? KineQuest.patientCard(d, s.pid) : "") + "<button class='kms-card' onclick='KineMonSuivi.open()'><div class='kms-ck'><span>Suivi au cabinet</span><span>Étape " + (E + 1) + (P ? " sur " + P.etapes.length : "") + "</span></div>" +
       "<div class='kms-ct'>" + esc(P ? P.etapes[Math.min(E, P.etapes.length - 1)].nom : "Ton parcours") + "</div>" +
       (m ? "<div class='kms-cm'><b>" + KP.fmt(m.v) + m.u + "</b><span>" + esc(m.lab) + "</span></div>" : "<div class='kms-cm'><span>Ton premier bilan arrive au cabinet.</span></div>") +
       (d.msg && d.msg.t ? "<div class='kms-cmsg'>« " + esc(d.msg.t) + " »</div>" : "") + "</button>";
@@ -230,7 +232,7 @@ var KineMonSuivi = (function () {
     var s = PREV ? { d: PREV } : state(); if (!s || !s.d) { join(); return; }
     var d = s.d, P = KP.get(d.parcours); if (!P) { show(back() + "<div class='kf-note'>Ton kiné prépare ton parcours.</div>"); return; }
     var E = Math.min(d.etape || 0, P.etapes.length - 1), m = metric(d), cx = ctx(d), B = d.bilans || [];
-    var html = back() + (PREV ? "<div class='kms-prev'>Aperçu : ce que voit ton patient</div>" : "") + "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>";
+    var html = back() + (PREV ? "<div class='kms-prev'>Aperçu : ce que voit ton patient</div>" : "") + "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>" + (!PREV && window.KineQuest ? KineQuest.patientCard(d, s.pid) : "");
     if (m) {
       var pct = m.lsi ? Math.min(100, m.v) : null;
       html += "<div class='kcb-slab'><div class='kcb-slab-k'><span>" + esc(m.lab) + "</span></div><div class='kms-big'><b>" + KP.fmt(m.v) + m.u + "</b>" +
@@ -288,5 +290,5 @@ var KineMonSuivi = (function () {
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();

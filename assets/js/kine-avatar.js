@@ -1466,6 +1466,7 @@
       var kbH = mesh(new T.TorusGeometry(0.045, 0.011, 10, 28, Math.PI), M.iron, kinds.kettlebell); kbH.rotation.z = Math.PI; kbH.position.y = 0.0;
       var kbB = ball(0.082, M.iron, kinds.kettlebell); kbB.position.y = -0.105; kbB.scale.set(1, 0.95, 1);
       var kbF = mesh(new T.CylinderGeometry(0.05, 0.05, 0.012, 20), M.iron, kinds.kettlebell); kbF.position.y = -0.18;
+      kinds.ball = group(load); mesh(new T.SphereGeometry(0.034, 18, 12), new T.MeshStandardMaterial({ color: 0xD8E64A, roughness: 0.7 }), kinds.ball).position.set(0, -0.03, 0.03);   // balle de tennis tenue dans la main
       load.userData.kinds = kinds;
       // pancarte (vrai/faux) : un manche tenu dans la main, le panneau au-dessus ; cachée par défaut
       var sign = new T.Group(); sign.position.y = -0.03; hand.add(sign); sign.visible = false;
@@ -2044,6 +2045,7 @@
       u.cone.scale.set(dd * (floor ? 0.62 : 0.4), dd * (floor ? 0.4 : 0.62), dd); u.cone.position.set(0, floor ? 0.08 : ph + 0.05, 0);
       u.cone.rotation.set(-Math.atan2(aim - (floor ? 0.08 : ph), dd), yaw, 0, "YXZ");
     }
+    var tbl = R.props.table, tp = d && d.tablePos; if (tbl) { tbl.position.set(0, 0, tp ? tp.z || 0 : 0); tbl.rotation.y = tp && tp.turn ? Math.PI : 0; }
     var tb = d && d.tball; if (R.props.tball && tb) R.props.tball.position.set((tb.x || 0) * sgn, 0.033, tb.z || 0);
     var tr = d && d.towelRoll; if (R.props.towelRoll && tr) R.props.towelRoll.position.set((tr.x || 0) * sgn, tr.y || 0.024, tr.z || 0);
     var fc = d && d.floorCross; if (R.props.floorCross && fc) R.props.floorCross.position.set((fc.x || 0) * sgn, 0, fc.z || 0);

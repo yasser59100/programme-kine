@@ -194,6 +194,12 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await expect(page.locator("#kcb-sheet .kcb-h1").first()).toHaveText("Cheville et pied sans diagnostic");
   await expect(page.locator("#kcb-sheet .kgd-p.first b").first()).toHaveText("Entorse du ligament latéral externe");
   await shot(page, info, "22-guide-cheville");
+  await page.evaluate(() => { KineCabinet.gZ("epaule"); KineCabinet.gQ("trauma", "progressif", 0); KineCabinet.gQ("zone", "antlat", 0); KineCabinet.gQ("age", "50", 0); });
+  await expect(page.locator("#kcb-sheet .kgd-sug .kgd-st")).toHaveCount(3);
+  await page.evaluate(() => { const el = document.querySelector("#kcb-sheet .kgd-sug"); el.scrollIntoView(); });
+  await shot(page, info, "25-guide-epaule");
+  await page.evaluate(() => KineCabinet.gN("hawkins"));
+  await expect(page.locator("#kcb-sheet .kgd-chips button.neg")).toHaveCount(1);
   await page.evaluate(() => { KineCabinet.gZ("genou"); KineCabinet.testInfo("thompson"); });
   await expect(page.locator("#kcb-tinfo .kgd-in")).toHaveText("Test de Thompson");
   await page.evaluate((pid) => { document.getElementById("kcb-tinfo").classList.remove("open"); KineCabinet.fiche(pid); }, pid);
@@ -210,6 +216,53 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await shot(page, info, "21-cabinet-patient");
   const custom = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine").map(x => x.ex.length)[0]);
   expect(custom).toBe(2);
+  await clean(errs);
+});
+
+test("questionnaires : envoi depuis le bilan, réponse du patient, retour dans la fiche", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.nouveau());
+  await page.fill("#kcb-alias", "M.D.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "coiffe"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  // le bilan propose les questionnaires, les conseillés en premier
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kq-card")).toBeVisible();
+  await page.evaluate(() => KineCabinet.bilan());
+  await expect(page.locator("#kcb-sheet .kq-item.sug").first()).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-tag").first()).toBeVisible();
+  await shot(page, info, "23-bilan-questionnaires");
+  await page.evaluate(() => KineCabinet.qSend("sane"));
+  await expect(page.locator("#kcb-sheet .kq-item.pend")).toHaveCount(1);
+  // le patient se relie, voit la carte, répond
+  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.fill("#kms-code", "K7M2QX");
+  await page.evaluate(() => KineMonSuivi.doJoin());
+  await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
+  await page.evaluate(() => KineMonSuivi.consent(0));
+  await expect(page.locator("#kms-sheet .kq-pcard")).toBeVisible();
+  await page.locator("#kms-sheet .kq-pcard").click();
+  await expect(page.locator("#kq-sheet.open .kq-intro")).toBeVisible();
+  await page.locator("#kq-sheet .seq-btn-main").click();
+  await expect(page.locator("#kq-sheet .kq-q")).toContainText("ton épaule");
+  await page.evaluate(() => KineQuest.set("n", 70));
+  await shot(page, info, "24-questionnaire-patient");
+  await page.locator("#kq-next").click();
+  await expect(page.locator("#kq-sheet .kq-end")).toBeVisible();
+  await expect(page.locator("#kq-sheet .kq-sum b")).toHaveText("70/100");
+  await page.locator("#kq-sheet .seq-btn-main").click();
+  // retour automatique dans la fiche du kiné et dans le bilan suivant
+  await page.evaluate((pid) => { KineMonSuivi.close(); window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.fiche(pid); }, pid);
+  await expect(page.locator("#kcb-sheet .kq-card")).toContainText("Note globale : 70/100");
+  await page.evaluate(() => KineCabinet.bilan());
+  await expect(page.locator("#kcb-sheet input[data-m=sane][data-s=a][data-i='0']")).toHaveValue("70");
+  await expect(page.locator("#kcb-sheet .kcb-tagq")).toHaveCount(1);
   await clean(errs);
 });
 
@@ -318,9 +371,18 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
     KineAvatar.setShirt(["Yasser", "Ladraa"]); const t1 = KineAvatar.shirt(); KineAvatar.setShirt(null);
     return { miss, nb: KineChevilleEx.names.length, zones, piste: piste && piste.parcours, rupt: rupt && rupt.parcours, t1, t2: KineAvatar.shirt(), al: KineParcours.alertes("entorse")[0].slice(0, 20) };
   });
-  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7]);
+  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7, 8]);
   expect(c.piste).toBe("entorse"); expect(c.rupt).toBe("rupt_achille");
   expect(c.t1).toEqual(["Yasser", "Ladraa"]); expect(c.t2).toBe(null); expect(c.al).toBe("Impossible de faire ");
+  // Épaule : exercices animés, 8 parcours, guide avec tests conseillés
+  const e = await page.evaluate(() => {
+    const miss = KineEpauleEx.names.filter(n => !(KineBiblio.find(n) && KineAvatar.supports(n) && KineIdees.USAGE[n]));
+    const g = KineParcours.guide({ trauma: "progressif", zone: "antlat" }, "epaule");
+    const g2 = KineParcours.guide({ trauma: "progressif", zone: "antlat", neg: ["hawkins"] }, "epaule");
+    return { miss, nb: KineEpauleEx.names.length, n: KineParcours.ORDER.filter(id => KineParcours.P[id].zone === "epaule").length, p: g.pistes[0].parcours, sug: g.suggest.map(x => x.t), s1: g.pistes[0].score, s2: g2.pistes[0] ? g2.pistes[0].score : 0, sug2: g2.suggest.map(x => x.t) };
+  });
+  expect(e.miss).toEqual([]); expect(e.nb).toBe(15); expect(e.n).toBe(8); expect(e.p).toBe("coiffe");
+  expect(e.sug).toContain("hawkins"); expect(e.s2).toBeLessThan(e.s1); expect(e.sug2).not.toContain("hawkins");
   await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
   await expect(page.locator(".kf-sheet.open").getByText("Rentrer le menton").first()).toBeVisible();
   await page.evaluate(() => { document.querySelectorAll(".kf-sheet.open").forEach(e => e.classList.remove("open")); KineBiblio.demo("Rentrer le menton"); });
