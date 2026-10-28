@@ -101,7 +101,7 @@ var KineParcours = (function () {
           { id: "epanch", t: "Épanchement à « Traces » au maximum", p: "Ton genou a dégonflé", a: { m: "epanch", max: 1 } },
           { id: "slr", t: "Jambe tendue levée sans décrochage du genou", p: "Tu lèves la jambe tendue sans que le genou plie" },
           { id: "marche", t: "Marche sans boiterie, sans béquilles", p: "Tu marches normalement, sans béquilles" }],
-        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Squat ballon dans le dos contre le mur", "Pont de hanche", "Élévation des talons", "Équilibre unipodal", "Assis-debout de chaise", { n: "Talons-fesses debout", sauf: { greffe: "didt" } }] },
+        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Squat ballon dans le dos contre le mur", "Pont de hanche", "Élévation des talons", "Équilibre unipodal", "Assis-debout de chaise", { n: "Talons-fesses debout", sauf: { greffe: "didt" } }, "Pompe de cheville couché", "Contraction du quadriceps couché", "Glissement du talon couché", "Extension passive talon sur un rouleau", { n: "Contraction des ischios talon au sol", sauf: { greffe: "didt" } }, "Flexion assise, le pied recule", "Genou qui se balance, assis sur une table", "Vélo d'appartement", "Arc court du quadriceps sur un rouleau"] },
       { nom: "Renforcer dans l'axe", but: "Renforcement dans le plan sagittal, sans rotation. Équilibre sur une jambe.",
         obj: [
           { id: "dou", t: "Douleur de 3/10 au maximum aux 3 dernières séances", p: "Peu ou pas de douleur pendant tes séances", a: { dou: 3 } },
@@ -109,7 +109,7 @@ var KineParcours = (function () {
           { id: "flex2", t: "Flexion d'au moins 90 % du côté sain", p: "Ton genou se plie presque comme l'autre", a: { m: "flex", lsi: 90 } },
           { id: "quad70", t: "Symétrie du quadriceps d'au moins 70 %", p: "Ta cuisse a retrouvé 70 % de sa force", a: { m: "quad", lsi: 70 } },
           { id: "squat", t: "Squat sur deux jambes symétrique, sans report du poids", p: "Tu fais des squats bien droits" }],
-        exos: ["Squat bilatéral", "Goblet squat", "Chaise contre le mur", "Step-up sur marche", "Descente de marche", "Pont fessier unilatéral", { n: "Soulevé de terre roumain unipodal", sauf: { greffe: "didt" } }, "Presse à cuisses", "Leg extension amplitude limitée", "Élévation des talons unipodale", "Unipodal yeux fermés"] },
+        exos: ["Squat bilatéral", "Goblet squat", "Chaise contre le mur", "Step-up sur marche", "Descente de marche", "Pont fessier unilatéral", { n: "Soulevé de terre roumain unipodal", sauf: { greffe: "didt" } }, "Presse à cuisses", "Leg extension amplitude limitée", "Élévation des talons unipodale", "Unipodal yeux fermés", "Mini-squat", "Marche arrière", "Fente statique", "Descente de marche sur le côté", "Mini-squat sur une jambe, tenu", "La chaise qui récite l'alphabet"] },
       { nom: "Renforcer dans tous les plans", but: "Plan frontal puis rotation. Équilibre sur surface instable.",
         obj: [
           { id: "j84", t: "Au moins 12 semaines depuis l'opération", p: "12 semaines depuis ton opération", a: { j: 84 } },
@@ -117,28 +117,28 @@ var KineParcours = (function () {
           { id: "flex3", t: "Flexion d'au moins 95 % du côté sain", p: "Ton genou se plie comme l'autre", a: { m: "flex", lsi: 95 } },
           { id: "yb", t: "Y-balance antérieur : moins de 4 cm d'écart entre les côtés", p: "Ton équilibre est le même des deux côtés", a: { m: "yb", diff: 4 } },
           { id: "sls", t: "Squat sur une jambe contrôlé, sans valgus", p: "Tu fais un squat sur une jambe bien contrôlé" }],
-        exos: ["Fente latérale", "Marche latérale élastique", "Monster walk", "Squat bulgare", "Planche Copenhague genou", "Pallof press", "Fente avant et rotation ballon", "Toucher en étoile unipodal", "Avion sur une jambe", "Unipodal sur coussin", "Presse à une jambe", "Nordic curl assisté"] },
+        exos: ["Fente latérale", "Marche latérale élastique", "Monster walk", "Squat bulgare", "Planche Copenhague genou", "Pallof press", "Fente avant et rotation ballon", "Toucher en étoile unipodal", "Avion sur une jambe", "Unipodal sur coussin", "Presse à une jambe", "Nordic curl assisté", "Squat sur une jambe vers la chaise", { n: "Pont des ischios, talons loin", sauf: { greffe: "didt" } }, "Le serveur pressé", "Le squat du cosaque"] },
       { nom: "Courir et petits sauts", but: "Reprise de la course en ligne droite, sauts sur deux pieds puis sur un pied, de faible hauteur.",
         obj: [
           { id: "course", t: "30 min de course continue sans douleur ni gonflement le lendemain", p: "Tu cours 30 minutes sans douleur" },
           { id: "quad85", t: "Symétrie du quadriceps d'au moins 85 %", p: "Ta cuisse a retrouvé 85 % de sa force", a: { m: "quad", lsi: 85 } },
           { id: "hop80", t: "Tests de saut à au moins 80 % du côté sain", p: "Tes sauts atteignent 80 % de l'autre jambe", a: { hops: 80 } },
           { id: "recep", t: "Réceptions de sauts symétriques, genou dans l'axe", p: "Tu te réceptionnes bien droit" }],
-        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Montées de genoux", "Skater latéral sans saut", "Squat réactif", "Squat bulgare", "Presse à une jambe", "Leg extension", "Copenhague dynamique genou"] },
+        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Montées de genoux", "Skater latéral sans saut", "Squat réactif", "Squat bulgare", "Presse à une jambe", "Leg extension", "Copenhague dynamique genou", "Réception de saut stabilisée", "Saut sur la marche", "Le kangourou"] },
       { nom: "Grands sauts et changements de direction", but: "Pliométrie, pivots, agilité, puis travail spécifique au sport.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps et des ischios d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "isch90", t: "Symétrie des ischio-jambiers d'au moins 90 %", p: "L'arrière de ta cuisse a retrouvé 90 % de sa force", a: { m: "ischio", lsi: 90 } },
           { id: "hop90", t: "Tests de saut (simple, triple, 6 m) à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
           { id: "agil", t: "Changements de direction et pivots sans appréhension", p: "Tu changes de direction sans crainte" }],
-        exos: ["Sauts sur une jambe", "Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Fentes réactives", "Pas chassés réactifs", "Copenhague dynamique", "Nordic curl assisté", "Fente avec charge"] },
+        exos: ["Sauts sur une jambe", "Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Fentes réactives", "Pas chassés réactifs", "Copenhague dynamique", "Nordic curl assisté", "Fente avec charge", "Saut sur une jambe, réception tenue", "Bonds du patineur", "Fentes sautées"] },
       { nom: "Retour au sport", but: "Entraînement complet puis compétition. Programme de prévention à garder.",
         obj: [
           { id: "j270", t: "Au moins 9 mois depuis l'opération", p: "9 mois depuis ton opération", a: { j: 270 } },
           { id: "rsi", t: "ACL-RSI satisfaisant (repère : 65 ou plus, à interpréter)", p: "Tu te sens prêt dans ta tête", a: { m: "aclrsi", min: 65 } },
           { id: "entr", t: "Entraînement collectif complet, sans restriction", p: "Tu as repris l'entraînement complet" },
           { id: "prev", t: "Programme de prévention expliqué et en place", p: "Tu as ton programme de prévention" }],
-        exos: ["Nordic curl assisté", "Planche Copenhague", "Sauts sur une jambe", "Fentes réactives", "Squat bulgare", "Pallof press"] }
+        exos: ["Nordic curl assisté", "Planche Copenhague", "Sauts sur une jambe", "Fentes réactives", "Squat bulgare", "Pallof press", "Bonds du patineur", "Fentes sautées"] }
     ],
     src: ["melick", "aspetar", "grindem", "webster", "noyes", "plisky"]
   };
@@ -157,30 +157,30 @@ var KineParcours = (function () {
           { id: "flex", t: "Flexion d'au moins 90 % du côté sain", p: "Ton genou se plie presque comme l'autre", a: { m: "flex", lsi: 90 } },
           { id: "epanch", t: "Épanchement à « Traces » au maximum", p: "Ton genou a dégonflé", a: { m: "epanch", max: 1 } },
           { id: "marche", t: "Marche sans boiterie", p: "Tu marches normalement" }],
-        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Équilibre unipodal"] },
+        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Équilibre unipodal", "Contraction du quadriceps couché", "Glissement du talon couché", "Extension passive talon sur un rouleau", "Vélo d'appartement", "Arc court du quadriceps sur un rouleau"] },
       { nom: "Renforcer dans l'axe", but: "Programme progressif de renforcement, plan sagittal d'abord.",
         obj: [
           { id: "dou", t: "Douleur de 3/10 au maximum aux 3 dernières séances", p: "Peu ou pas de douleur pendant tes séances", a: { dou: 3 } },
           { id: "quad80", t: "Symétrie du quadriceps d'au moins 80 %", p: "Ta cuisse a retrouvé 80 % de sa force", a: { m: "quad", lsi: 80 } },
           { id: "nodero", t: "Aucun dérobement dans la vie quotidienne", p: "Ton genou ne lâche pas" }],
-        exos: ["Squat bilatéral", "Goblet squat", "Step-up sur marche", "Descente de marche", "Presse à une jambe", "Leg extension", "Leg curl assis", "Pont fessier unilatéral", "Unipodal yeux fermés"] },
+        exos: ["Squat bilatéral", "Goblet squat", "Step-up sur marche", "Descente de marche", "Presse à une jambe", "Leg extension", "Leg curl assis", "Pont fessier unilatéral", "Unipodal yeux fermés", "Mini-squat", "Fente statique", "Descente de marche sur le côté", "Mini-squat sur une jambe, tenu", "Pont des ischios, talons loin"] },
       { nom: "Contrôle dans tous les plans", but: "Plan frontal, rotation, perturbations et surfaces instables.",
         obj: [
           { id: "quad85", t: "Symétrie du quadriceps d'au moins 85 %", p: "Ta cuisse a retrouvé 85 % de sa force", a: { m: "quad", lsi: 85 } },
           { id: "yb", t: "Y-balance antérieur : moins de 4 cm d'écart", p: "Ton équilibre est le même des deux côtés", a: { m: "yb", diff: 4 } },
           { id: "sls", t: "Squat sur une jambe contrôlé, sans valgus", p: "Tu fais un squat sur une jambe bien contrôlé" }],
-        exos: ["Fente latérale", "Monster walk", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal", "Avion sur une jambe", "Équilibre réactif sur une jambe", "Planche Copenhague genou"] },
+        exos: ["Fente latérale", "Monster walk", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal", "Avion sur une jambe", "Équilibre réactif sur une jambe", "Planche Copenhague genou", "Squat sur une jambe vers la chaise", "Le serveur pressé", "Le squat du cosaque"] },
       { nom: "Courir et sauter", but: "Course, sauts progressifs puis changements de direction.",
         obj: [
           { id: "course", t: "30 min de course sans douleur ni gonflement", p: "Tu cours 30 minutes sans douleur" },
           { id: "hop85", t: "Tests de saut à au moins 85 %", p: "Tes sauts atteignent 85 % de l'autre jambe", a: { hops: 85 } }],
-        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Pas chassés réactifs", "Fentes réactives", "Squat réactif"] },
+        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Pas chassés réactifs", "Fentes réactives", "Squat réactif", "Réception de saut stabilisée", "Saut sur la marche", "Saut sur une jambe, réception tenue", "Le kangourou"] },
       { nom: "Retour à l'activité", but: "Reprise du sport choisi. Si sport à pivots : décision partagée avec le patient.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "hop90", t: "Tests de saut à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
           { id: "nodero2", t: "Pas de dérobement à l'entraînement", p: "Ton genou tient à l'entraînement" }],
-        exos: ["Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Nordic curl assisté", "Planche Copenhague"] }
+        exos: ["Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Nordic curl assisté", "Planche Copenhague", "Bonds du patineur", "Fentes sautées"] }
     ],
     src: ["filbay", "frobell", "eitzen", "fitz", "grindem", "noyes"]
   };
@@ -198,19 +198,19 @@ var KineParcours = (function () {
           { id: "ext", t: "Extension complète (déficit de 3° maximum)", p: "Ton genou s'étend complètement", a: { m: "ext", def: 3 } },
           { id: "flex", t: "Flexion d'au moins 90 % du côté sain", p: "Ton genou se plie presque comme l'autre", a: { m: "flex", lsi: 90 } },
           { id: "marche", t: "Marche sans boiterie", p: "Tu marches normalement" }],
-        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Assis-debout de chaise", "Pont de hanche", "Équilibre unipodal"] },
+        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Assis-debout de chaise", "Pont de hanche", "Équilibre unipodal", "Contraction du quadriceps couché", "Glissement du talon couché", "Extension passive talon sur un rouleau", "Flexion assise, le pied recule", "Vélo d'appartement", "Genou qui se balance, assis sur une table"] },
       { nom: "Renforcer", but: "Renforcement progressif du quadriceps, des fessiers et du mollet.",
         obj: [
           { id: "dou", t: "Douleur de 3/10 au maximum aux 3 dernières séances", p: "Peu ou pas de douleur pendant tes séances", a: { dou: 3 } },
           { id: "quad80", t: "Symétrie du quadriceps d'au moins 80 %", p: "Ta cuisse a retrouvé 80 % de sa force", a: { m: "quad", lsi: 80 } },
           { id: "sls", t: "Squat sur une jambe contrôlé", p: "Tu fais un squat sur une jambe bien contrôlé" }],
-        exos: ["Squat bilatéral", "Step-up sur marche", "Descente de marche", "Presse à une jambe", "Leg extension", "Fente arrière", "Pont fessier unilatéral", "Marche latérale élastique", "Unipodal sur coussin"] },
+        exos: ["Squat bilatéral", "Step-up sur marche", "Descente de marche", "Presse à une jambe", "Leg extension", "Fente arrière", "Pont fessier unilatéral", "Marche latérale élastique", "Unipodal sur coussin", "Mini-squat", "Descente de marche sur le côté", "Fente statique", "Pont des ischios, talons loin", "Squat sur une jambe vers la chaise", "La chaise qui récite l'alphabet"] },
       { nom: "Reprendre course et sport", but: "Course, sauts, changements de direction selon le sport.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "hop90", t: "Saut sur une jambe à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
           { id: "course", t: "Course sans douleur ni gonflement", p: "Tu cours sans douleur" }],
-        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Squat bulgare", "Fente latérale", "Pas chassés réactifs", "Sauts sur une jambe"] }
+        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Squat bulgare", "Fente latérale", "Pas chassés réactifs", "Sauts sur une jambe", "Réception de saut stabilisée", "Saut sur une jambe, réception tenue", "Bonds du patineur", "Le kangourou"] }
     ],
     src: ["logMen", "kise", "noyes"]
   };
@@ -229,25 +229,25 @@ var KineParcours = (function () {
           { id: "epanch", t: "Épanchement à « Traces » au maximum", p: "Ton genou a dégonflé", a: { m: "epanch", max: 1 } },
           { id: "slr", t: "Jambe tendue levée sans décrochage", p: "Tu lèves la jambe tendue sans que le genou plie" },
           { id: "consigne", t: "Fin de la période de protection fixée par le chirurgien", p: "Ton chirurgien autorise la suite" }],
-        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Pont de hanche", "Élévation des talons", "Équilibre unipodal"] },
+        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Extension terminale du genou", "Pont de hanche", "Élévation des talons", "Équilibre unipodal", "Pompe de cheville couché", "Contraction du quadriceps couché", "Glissement du talon couché", "Extension passive talon sur un rouleau", "Contraction des ischios talon au sol", "Arc court du quadriceps sur un rouleau"] },
       { nom: "Récupérer et renforcer", but: "Amplitude complète progressive, renforcement sans charge en flexion profonde.",
         obj: [
           { id: "flex", t: "Flexion d'au moins 90 % du côté sain", p: "Ton genou se plie presque comme l'autre", a: { m: "flex", lsi: 90 } },
           { id: "marche", t: "Marche sans boiterie", p: "Tu marches normalement" },
           { id: "quad70", t: "Symétrie du quadriceps d'au moins 70 %", p: "Ta cuisse a retrouvé 70 % de sa force", a: { m: "quad", lsi: 70 } }],
-        exos: ["Squat ballon dans le dos contre le mur", "Step-up sur marche", "Leg extension amplitude limitée", "Pont fessier unilatéral", "Marche latérale élastique", "Unipodal yeux fermés", "Clamshell"] },
+        exos: ["Squat ballon dans le dos contre le mur", "Step-up sur marche", "Leg extension amplitude limitée", "Pont fessier unilatéral", "Marche latérale élastique", "Unipodal yeux fermés", "Clamshell", "Vélo d'appartement", "Mini-squat", "Marche arrière", "Fente statique", "Pont des ischios, talons loin"] },
       { nom: "Renforcer en charge complète", but: "Charge progressive, plan frontal puis rotation, à partir de 3 à 4 mois.",
         obj: [
           { id: "quad80", t: "Symétrie du quadriceps d'au moins 80 %", p: "Ta cuisse a retrouvé 80 % de sa force", a: { m: "quad", lsi: 80 } },
           { id: "sls", t: "Squat sur une jambe contrôlé", p: "Tu fais un squat sur une jambe bien contrôlé" },
           { id: "dou", t: "Douleur de 3/10 au maximum aux 3 dernières séances", p: "Peu ou pas de douleur pendant tes séances", a: { dou: 3 } }],
-        exos: ["Squat bilatéral", "Presse à une jambe", "Fente arrière", "Fente latérale", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal"] },
+        exos: ["Squat bilatéral", "Presse à une jambe", "Fente arrière", "Fente latérale", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal", "Descente de marche sur le côté", "Mini-squat sur une jambe, tenu", "Squat sur une jambe vers la chaise", "Le serveur pressé"] },
       { nom: "Courir et reprendre le sport", but: "Course, sauts, pivots, en général vers 4 à 6 mois.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "hop90", t: "Saut sur une jambe à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
           { id: "course", t: "Course sans douleur ni gonflement", p: "Tu cours sans douleur" }],
-        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Pas chassés réactifs", "Fentes réactives"] }
+        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Pas chassés réactifs", "Fentes réactives", "Réception de saut stabilisée", "Saut sur une jambe, réception tenue", "Bonds du patineur"] }
     ],
     src: ["logMen"]
   };
@@ -266,20 +266,20 @@ var KineParcours = (function () {
           { id: "edu", t: "Le patient a compris la gestion de la charge (escaliers, squats, position assise prolongée)", p: "Tu sais quoi adapter au quotidien" },
           { id: "dou5", t: "Douleur à l'effort de 5/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 5 } },
           { id: "iso", t: "Exercices isométriques bien tolérés", p: "Les exercices statiques passent bien" }],
-        exos: ["Chaise contre le mur", "Extension de genou tenue", "Clamshell", "Abduction couché sur le côté", "Pont de hanche", "Squat ballon dans le dos contre le mur"] },
+        exos: ["Chaise contre le mur", "Extension de genou tenue", "Clamshell", "Abduction couché sur le côté", "Pont de hanche", "Squat ballon dans le dos contre le mur", "Contraction du quadriceps couché", "Arc court du quadriceps sur un rouleau", "Marche arrière", "Vélo d'appartement", "La chaise qui récite l'alphabet"] },
       { nom: "Renforcer hanche et genou", but: "Renforcement progressif de la hanche et du quadriceps, contrôle du genou dans l'axe.",
         obj: [
           { id: "dou3", t: "Douleur à l'effort de 3/10 au maximum", p: "Peu de douleur à l'effort", a: { m: "dou", max: 3 } },
           { id: "akps", t: "Kujala amélioré d'au moins 10 points", p: "Ton genou te gêne nettement moins", a: { m: "akps", gain: 10 } },
           { id: "escalier", t: "Escaliers montés et descendus sans douleur gênante", p: "Les escaliers passent sans douleur" },
           { id: "sls", t: "Squat sur une jambe sans valgus", p: "Tu fais un squat sur une jambe bien contrôlé" }],
-        exos: ["Marche latérale élastique", "Monster walk", "Pont fessier unilatéral", "Step-up sur marche", "Descente de marche", "Squat bilatéral", "Leg extension amplitude limitée", "Presse à cuisses", "Coquillage pieds décollés", "Unipodal sur coussin"] },
+        exos: ["Marche latérale élastique", "Monster walk", "Pont fessier unilatéral", "Step-up sur marche", "Descente de marche", "Squat bilatéral", "Leg extension amplitude limitée", "Presse à cuisses", "Coquillage pieds décollés", "Unipodal sur coussin", "Mini-squat", "Descente de marche sur le côté", "Mini-squat sur une jambe, tenu", "Fente statique"] },
       { nom: "Reprendre les activités", but: "Course, squats profonds, sauts, sport, avec progression de la charge.",
         obj: [
           { id: "dou2", t: "Douleur à l'effort de 2/10 au maximum", p: "Presque plus de douleur à l'effort", a: { m: "dou", max: 2 } },
           { id: "akps85", t: "Kujala d'au moins 85", p: "Ton genou ne te gêne presque plus", a: { m: "akps", min: 85 } },
           { id: "activ", t: "Activité ou sport repris sans douleur gênante", p: "Tu as repris ton sport" }],
-        exos: ["Squat bulgare", "Fente avec charge", "Petersen step-up", "Planche Copenhague genou", "Avion sur une jambe", "Petits sauts sur place", "Sauts latéraux par-dessus une ligne"] }
+        exos: ["Squat bulgare", "Fente avec charge", "Petersen step-up", "Planche Copenhague genou", "Avion sur une jambe", "Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Squat sur une jambe vers la chaise", "Réception de saut stabilisée", "Le serveur pressé", "Le squat du cosaque"] }
     ],
     src: ["crossley", "collins", "willy"]
   };
@@ -297,23 +297,23 @@ var KineParcours = (function () {
         obj: [
           { id: "iso", t: "Isométriques à 3/10 de douleur au maximum", p: "Les exercices statiques passent bien" },
           { id: "dec", t: "Squat déclive : 3/10 de douleur au maximum", p: "Le test du squat incliné fait moins mal", a: { m: "sldec", max: 3 } }],
-        exos: ["Spanish squat à l'élastique", "Chaise contre le mur", "Extension de genou tenue", "Pont de hanche", "Élévation des talons"] },
+        exos: ["Spanish squat à l'élastique", "Chaise contre le mur", "Extension de genou tenue", "Pont de hanche", "Élévation des talons", "La chaise qui récite l'alphabet", "Vélo d'appartement"] },
       { nom: "Charge lourde et lente", but: "Mouvements lents et lourds (3 s en montée, 3 s en descente), charge qui augmente chaque semaine.",
         obj: [
           { id: "dou", t: "Douleur de 3/10 au maximum aux 3 dernières séances", p: "Peu de douleur pendant tes séances", a: { dou: 3 } },
           { id: "visap", t: "VISA-P amélioré d'au moins 15 points", p: "Ton tendon te gêne nettement moins", a: { m: "visap", gain: 15 } },
           { id: "sls", t: "Squat sur une jambe tolérable en charge", p: "Tu fais un squat sur une jambe avec charge" }],
-        exos: ["Leg extension", "Presse à une jambe", "Squat talons surélevés", "Squat bulgare", "Petersen step-up", "Goblet squat", "Spanish squat à l'élastique"] },
+        exos: ["Leg extension", "Presse à une jambe", "Squat talons surélevés", "Squat bulgare", "Petersen step-up", "Goblet squat", "Spanish squat à l'élastique", "Squat sur une jambe vers la chaise", "Fente statique", "Marche arrière"] },
       { nom: "Stockage d'énergie", but: "Sauts progressifs : sur deux pieds puis un pied, plus haut puis plus vite.",
         obj: [
           { id: "dec2", t: "Squat déclive : 2/10 de douleur au maximum", p: "Le test du squat incliné ne fait presque plus mal", a: { m: "sldec", max: 2 } },
           { id: "saut", t: "Sauts tolérés, retour au niveau de douleur habituel le lendemain", p: "Les sauts passent bien" }],
-        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Squat réactif", "Fentes réactives", "Leg extension"] },
+        exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Squat réactif", "Fentes réactives", "Leg extension", "Réception de saut stabilisée", "Saut sur la marche", "Saut sur une jambe, réception tenue", "Le kangourou"] },
       { nom: "Retour au sport", but: "Reprise progressive de l'entraînement, puis de la compétition. On garde 2 séances de renforcement par semaine.",
         obj: [
           { id: "visap80", t: "VISA-P d'au moins 80 (repère)", p: "Ton tendon ne te gêne presque plus", a: { m: "visap", min: 80 } },
           { id: "entr", t: "Entraînement complet sans aggravation le lendemain", p: "Tu as repris l'entraînement complet" }],
-        exos: ["Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Presse à une jambe", "Leg extension", "Squat bulgare"] }
+        exos: ["Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Presse à une jambe", "Leg extension", "Squat bulgare", "Bonds du patineur", "Fentes sautées"] }
     ],
     src: ["malliaras", "breda", "silber"]
   };
@@ -331,18 +331,18 @@ var KineParcours = (function () {
         obj: [
           { id: "edu", t: "Le patient a compris l'arthrose et la règle de la douleur acceptable", p: "Tu sais comment bouger avec l'arthrose" },
           { id: "regul", t: "2 à 3 séances d'exercices par semaine", p: "Tu fais tes exercices 2 à 3 fois par semaine" }],
-        exos: ["Assis-debout de chaise", "Extension de genou assis", "Pont de hanche", "Abduction couché sur le côté", "Élévation des talons", "Équilibre unipodal", "Tandem talon-pointe"] },
+        exos: ["Assis-debout de chaise", "Extension de genou assis", "Pont de hanche", "Abduction couché sur le côté", "Élévation des talons", "Équilibre unipodal", "Tandem talon-pointe", "Genou qui se balance, assis sur une table", "Vélo d'appartement", "Glissement du talon couché", "Arc court du quadriceps sur un rouleau", "Mini-squat"] },
       { nom: "Renforcer et contrôler", but: "Renforcement progressif et exercices neuromusculaires (genou dans l'axe, équilibre).",
         obj: [
           { id: "sts", t: "Lever de chaise amélioré d'au moins 2 répétitions", p: "Tu te lèves plus facilement de ta chaise", a: { m: "sts30", gain: 2 } },
           { id: "marche", t: "Marche rapide 4 × 10 m plus rapide qu'au premier bilan", p: "Tu marches plus vite", a: { m: "marche40", gain: 1 } },
           { id: "dou", t: "Douleur à l'effort de 4/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 4 } }],
-        exos: ["Step-up sur marche", "Squat ballon dans le dos contre le mur", "Squat bilatéral", "Marche latérale élastique", "Pont fessier unilatéral", "Extension de genou assis", "Unipodal yeux fermés", "Toucher en étoile unipodal", "Presse à cuisses", "Leg extension"] },
+        exos: ["Step-up sur marche", "Squat ballon dans le dos contre le mur", "Squat bilatéral", "Marche latérale élastique", "Pont fessier unilatéral", "Extension de genou assis", "Unipodal yeux fermés", "Toucher en étoile unipodal", "Presse à cuisses", "Leg extension", "Marche arrière", "Fente statique", "Descente de marche sur le côté", "La chaise qui récite l'alphabet"] },
       { nom: "Autonomie", but: "Programme à faire seul, activité physique régulière (marche, vélo, natation).",
         obj: [
           { id: "auto", t: "Programme maison fait en autonomie", p: "Tu fais ton programme seul" },
           { id: "act", t: "Activité physique régulière reprise", p: "Tu bouges régulièrement" }],
-        exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Squat bulgare", "Marche du fermier sur place", "Se relever du sol"] }
+        exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Squat bulgare", "Marche du fermier sur place", "Se relever du sol", "Squat sur une jambe vers la chaise", "Le serveur pressé"] }
     ],
     src: ["oarsi", "nice", "glad", "fransen", "dobson"]
   };
@@ -361,19 +361,19 @@ var KineParcours = (function () {
           { id: "ext", t: "Déficit d'extension de 5° maximum", p: "Ton genou s'étend presque complètement", a: { m: "ext", def: 5 } },
           { id: "slr", t: "Jambe tendue levée sans décrochage", p: "Tu lèves la jambe tendue sans que le genou plie" },
           { id: "cic", t: "Cicatrice fermée, pas de signe d'infection", p: "Ta cicatrice va bien" }],
-        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Assis-debout de chaise", "Extension de genou assis", "Pont de hanche", "Élévation des talons"] },
+        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Assis-debout de chaise", "Extension de genou assis", "Pont de hanche", "Élévation des talons", "Pompe de cheville couché", "Contraction du quadriceps couché", "Glissement du talon couché", "Extension passive talon sur un rouleau", "Flexion assise, le pied recule", "Genou qui se balance, assis sur une table", "Vélo d'appartement", "Arc court du quadriceps sur un rouleau"] },
       { nom: "Renforcer", but: "Renforcement progressif et intense du quadriceps, escaliers, équilibre.",
         obj: [
           { id: "flex110", t: "Flexion d'au moins 110°", p: "Ton genou se plie à 110°", a: { m: "flex", min: 110 } },
           { id: "marche", t: "Marche sans aide technique, sans boiterie", p: "Tu marches sans canne" },
           { id: "tug", t: "Timed Up and Go en moins de 10 s", p: "Tu te lèves et marches facilement", a: { m: "tug", max: 10 } },
           { id: "esc", t: "Escaliers en alternant les pieds", p: "Tu montes les escaliers normalement" }],
-        exos: ["Step-up sur marche", "Descente de marche", "Squat ballon dans le dos contre le mur", "Leg extension", "Presse à cuisses", "Marche latérale élastique", "Équilibre unipodal", "Tandem talon-pointe"] },
+        exos: ["Step-up sur marche", "Descente de marche", "Squat ballon dans le dos contre le mur", "Leg extension", "Presse à cuisses", "Marche latérale élastique", "Équilibre unipodal", "Tandem talon-pointe", "Mini-squat", "Marche arrière", "Fente statique", "Descente de marche sur le côté"] },
       { nom: "Autonomie", but: "Programme maison, activités de loisir adaptées (marche, vélo, natation, golf).",
         obj: [
           { id: "sts", t: "Lever de chaise amélioré d'au moins 2 répétitions", p: "Tu te lèves plus facilement", a: { m: "sts30", gain: 2 } },
           { id: "auto", t: "Programme maison fait en autonomie", p: "Tu fais ton programme seul" }],
-        exos: ["Goblet squat", "Fente arrière", "Montée de marche avec charge", "Unipodal sur coussin", "Se relever du sol"] }
+        exos: ["Goblet squat", "Fente arrière", "Montée de marche avec charge", "Unipodal sur coussin", "Se relever du sol", "Squat sur une jambe vers la chaise", "Le serveur pressé"] }
     ],
     src: ["jette", "bade"]
   };
@@ -392,19 +392,19 @@ var KineParcours = (function () {
           { id: "ext", t: "Extension complète (déficit de 3° maximum)", p: "Ton genou s'étend complètement", a: { m: "ext", def: 3 } },
           { id: "flex", t: "Flexion d'au moins 90 % du côté sain", p: "Ton genou se plie presque comme l'autre", a: { m: "flex", lsi: 90 } },
           { id: "marche", t: "Marche sans boiterie", p: "Tu marches normalement" }],
-        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Équilibre unipodal"] },
+        exos: ["Extension de genou tenue", "Relevé de jambe tendue couché", "Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Équilibre unipodal", "Contraction du quadriceps couché", "Glissement du talon couché", "Vélo d'appartement", "Mini-squat"] },
       { nom: "Renforcer", but: "Renforcement dans l'axe puis plan frontal contrôlé.",
         obj: [
           { id: "valg", t: "Pas de douleur au test en valgus à 30°", p: "Ton ligament ne fait plus mal" },
           { id: "quad80", t: "Symétrie du quadriceps d'au moins 80 %", p: "Ta cuisse a retrouvé 80 % de sa force", a: { m: "quad", lsi: 80 } },
           { id: "dou", t: "Douleur de 3/10 au maximum aux 3 dernières séances", p: "Peu ou pas de douleur pendant tes séances", a: { dou: 3 } }],
-        exos: ["Squat bilatéral", "Step-up sur marche", "Presse à une jambe", "Leg extension", "Fente arrière", "Marche latérale élastique", "Unipodal sur coussin", "Pallof press"] },
+        exos: ["Squat bilatéral", "Step-up sur marche", "Presse à une jambe", "Leg extension", "Fente arrière", "Marche latérale élastique", "Unipodal sur coussin", "Pallof press", "Fente statique", "Mini-squat sur une jambe, tenu", "Descente de marche sur le côté", "Squat sur une jambe vers la chaise"] },
       { nom: "Retour au sport", but: "Course, changements de direction, sauts, puis sport.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "hop90", t: "Saut sur une jambe à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
           { id: "agil", t: "Changements de direction sans douleur ni appréhension", p: "Tu changes de direction sans crainte" }],
-        exos: ["Fente latérale", "Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Pas chassés réactifs", "Planche Copenhague genou", "Sauts sur une jambe"] }
+        exos: ["Fente latérale", "Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Pas chassés réactifs", "Planche Copenhague genou", "Sauts sur une jambe", "Réception de saut stabilisée", "Saut sur une jambe, réception tenue", "Bonds du patineur", "Le squat du cosaque"] }
     ],
     src: ["logLig", "noyes"]
   };
@@ -422,18 +422,18 @@ var KineParcours = (function () {
           { id: "alerte", t: "Signes d'alerte écartés", p: "Ton kiné a vérifié qu'il n'y a pas de signe inquiétant" },
           { id: "dou5", t: "Douleur à l'effort de 5/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 5 } },
           { id: "edu", t: "Le patient sait quelles activités adapter", p: "Tu sais quoi adapter au quotidien" }],
-        exos: ["Extension de genou tenue", "Chaise contre le mur", "Assis-debout de chaise", "Pont de hanche", "Clamshell", "Élévation des talons", "Équilibre unipodal"] },
+        exos: ["Extension de genou tenue", "Chaise contre le mur", "Assis-debout de chaise", "Pont de hanche", "Clamshell", "Élévation des talons", "Équilibre unipodal", "Contraction du quadriceps couché", "Glissement du talon couché", "Genou qui se balance, assis sur une table", "Vélo d'appartement", "Mini-squat", "Marche arrière"] },
       { nom: "Renforcer progressivement", but: "Renforcement du quadriceps et de la hanche, contrôle du genou dans l'axe.",
         obj: [
           { id: "dou3", t: "Douleur à l'effort de 3/10 au maximum", p: "Peu de douleur à l'effort", a: { m: "dou", max: 3 } },
           { id: "quad80", t: "Symétrie du quadriceps d'au moins 80 %", p: "Ta cuisse a retrouvé 80 % de sa force", a: { m: "quad", lsi: 80 } },
           { id: "sls", t: "Squat sur une jambe contrôlé", p: "Tu fais un squat sur une jambe bien contrôlé" }],
-        exos: ["Squat bilatéral", "Step-up sur marche", "Descente de marche", "Marche latérale élastique", "Pont fessier unilatéral", "Presse à cuisses", "Leg extension", "Unipodal sur coussin"] },
+        exos: ["Squat bilatéral", "Step-up sur marche", "Descente de marche", "Marche latérale élastique", "Pont fessier unilatéral", "Presse à cuisses", "Leg extension", "Unipodal sur coussin", "Fente statique", "Descente de marche sur le côté", "Mini-squat sur une jambe, tenu", "Pont des ischios, talons loin", "La chaise qui récite l'alphabet", "La marche du canard"] },
       { nom: "Reprendre les activités", but: "Retour progressif aux activités et au sport.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
-        exos: ["Squat bulgare", "Fente avec charge", "Fente latérale", "Petits sauts sur place", "Avion sur une jambe"] }
+        exos: ["Squat bulgare", "Fente avec charge", "Fente latérale", "Petits sauts sur place", "Avion sur une jambe", "Squat sur une jambe vers la chaise", "Réception de saut stabilisée", "Saut sur la marche", "Le kangourou", "Le serveur pressé", "Le squat du cosaque"] }
     ],
     src: ["logMen", "willy", "oarsi"]
   };

@@ -295,6 +295,13 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   const ok = await page.evaluate(() => ["Rentrer le menton", "Pendulaire de Codman", "Spanish squat à l'élastique", "Pied court", "Planche Copenhague", "Copenhague dynamique genou", "Extension en appui sur les mains", "Reverse Nordic", "Coquillage à l'élastique", "Torsion de serviette", "Se relever du sol", "Regard fixe en tournant la tête"]
     .every(n => KineBiblio.find(n) && KineAvatar.supports(n)));
   expect(ok).toBe(true);
+  // Exercices du genou : animation, fiche, usage, et chaque exercice des parcours genou existe
+  const g = await page.evaluate(() => {
+    const miss = KineGenouEx.names.filter(n => !(KineBiblio.find(n) && KineAvatar.supports(n) && KineIdees.USAGE[n]));
+    KineParcours.list().forEach(({ id: pid }) => (KineParcours.get(pid).etapes || []).forEach((e, i) => KineParcours.exos(pid, i, {}).forEach(n => { if (!KineBiblio.find(n)) miss.push(pid + ":" + n); })));
+    return { miss, nb: KineGenouEx.names.length };
+  });
+  expect(g.miss).toEqual([]); expect(g.nb).toBe(26);
   await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
   await expect(page.locator(".kf-sheet.open").getByText("Rentrer le menton").first()).toBeVisible();
   await page.evaluate(() => { document.querySelectorAll(".kf-sheet.open").forEach(e => e.classList.remove("open")); KineBiblio.demo("Rentrer le menton"); });

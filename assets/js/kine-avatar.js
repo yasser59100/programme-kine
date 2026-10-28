@@ -1595,6 +1595,21 @@
       mesh(new T.BoxGeometry(0.05, 0.36, 0.05), M.iron, props.hyperBench).position.set(x, 0.18, 0.2);
     });
     mesh(new T.BoxGeometry(0.62, 0.04, 1.0), M.iron, props.hyperBench).position.set(0, 0.02, -0.15);
+    // Vélo d'appartement : selle à 88 cm, guidon devant, volant d'inertie, manivelle et pédales (axe du pédalier en z = 0.12)
+    props.bike = new T.Group(); scene.add(props.bike);
+    (function () {
+      var B = props.bike, blk = mat("#1F2A3D", 0.6), red = mat("#3341E0", 0.5);
+      mesh(new T.BoxGeometry(0.5, 0.04, 0.08), M.iron, B).position.set(0, 0.02, -0.42);
+      mesh(new T.BoxGeometry(0.5, 0.04, 0.08), M.iron, B).position.set(0, 0.02, 0.5);
+      mesh(new T.BoxGeometry(0.07, 0.07, 0.95), blk, B).position.set(0, 0.1, 0.04);
+      var post = mesh(new T.BoxGeometry(0.06, 0.82, 0.06), blk, B); post.position.set(0, 0.44, -0.24); post.rotation.x = -0.25;
+      mesh(new T.BoxGeometry(0.2, 0.05, 0.28), M.pad, B).position.set(0, 0.86, -0.32);
+      var col = mesh(new T.BoxGeometry(0.06, 0.95, 0.06), blk, B); col.position.set(0, 0.55, 0.4); col.rotation.x = 0.22;
+      mesh(new T.BoxGeometry(0.46, 0.035, 0.035), M.steel, B).position.set(0, 1.03, 0.52);
+      var fly = mesh(new T.CylinderGeometry(0.22, 0.22, 0.05, 28), red, B); fly.position.set(0, 0.3, 0.42); fly.rotation.z = Math.PI / 2;
+      var hub = mesh(new T.CylinderGeometry(0.05, 0.05, 0.14, 14), M.steel, B); hub.position.set(0, 0.34, 0.12); hub.rotation.z = Math.PI / 2;
+      [-1, 1].forEach(function (sg) { var cr = mesh(new T.BoxGeometry(0.02, 0.34, 0.03), M.steel, B); cr.position.set(sg * 0.09, 0.34, 0.12); cr.rotation.x = sg > 0 ? 0.6 : 0.6 + Math.PI; });
+    })();
     // Traîneau : patins, plateau chargé de disques, deux montants pour pousser
     props.sled = new T.Group(); scene.add(props.sled);
     [-0.26, 0.26].forEach(function (x) {
