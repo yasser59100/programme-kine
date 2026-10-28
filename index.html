@@ -54,7 +54,7 @@ html.kf-boot body{visibility:hidden}
 <!-- Firebase SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, linkWithPopup, signInWithCredential } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getCountFromServer, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -195,6 +195,9 @@ window.fbCab = {
     await deleteDoc(doc(db, "demandes", uid));
     return r.id;
   },
+  // Notifications des nouvelles demandes sur l'appareil du kiné
+  pushSave: async function (id, sub) { cabNeedKine(); await setDoc(doc(db, "kinepush", id), { sub: sub, t: serverTimestamp() }); },
+  pushDel: async function (id) { cabNeedKine(); await deleteDoc(doc(db, "kinepush", id)); },
   refuse: async function (uid) { cabNeedKine(); await setDoc(doc(db, "liens", uid), { non: true, t: serverTimestamp() }); await deleteDoc(doc(db, "demandes", uid)); },
   get: async function (pid) {
     cabNeedKine();
@@ -267,6 +270,25 @@ window.fbPat = {
     if (l.exists()) { var d = l.data(); try { await deleteDoc(doc(cabDb, "liens", u.uid)); } catch (e) {} return d.pid ? { pid: d.pid } : { refused: true }; }
     var q = await getDoc(doc(cabDb, "demandes", u.uid));
     return q.exists() ? { pending: true } : { none: true };
+  },
+  // Compte Google rattaché au suivi : pour le retrouver sur un autre téléphone
+  google: function () { var u = cabAuth.currentUser; return u && !u.isAnonymous ? (u.email || "compte Google") : null; },
+  linkGoogle: async function (pid) {
+    var u = await cabAnon(), pv = new GoogleAuthProvider(); pv.setCustomParameters({ prompt: "select_account" });
+    try { if (u.isAnonymous) await linkWithPopup(u, pv); }
+    catch (e) {
+      // Ce compte Google est déjà rattaché à un suivi : on s'y connecte et on retrouve sa fiche
+      if (e && e.code === "auth/credential-already-in-use") { var c = GoogleAuthProvider.credentialFromError(e); await signInWithCredential(cabAuth, c); var a = await getDoc(doc(cabDb, "acces", cabAuth.currentUser.uid)); return a.exists() ? a.data().pid : null; }
+      throw e;
+    }
+    await setDoc(doc(cabDb, "acces", cabAuth.currentUser.uid), { pid: pid, t: serverTimestamp() });
+    return pid;
+  },
+  restoreGoogle: async function () {
+    var pv = new GoogleAuthProvider(); pv.setCustomParameters({ prompt: "select_account" });
+    var r = await signInWithPopup(cabAuth, pv);
+    var a = await getDoc(doc(cabDb, "acces", r.user.uid));
+    return a.exists() ? a.data().pid : null;
   },
   home: async function (pid, w, data) { await cabAnon(); data.w = w; data.t = serverTimestamp(); await setDoc(doc(cabDb, CAB, pid, "maison", w), data); }
 };

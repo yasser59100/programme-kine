@@ -107,7 +107,7 @@ var KineCabinet = (function () {
     loading();
     fbCab.demandes().then(function (rows) {
       D = rows; nDem = rows.length;
-      var html = head("Demandes", "Patients sans code");
+      var html = head("Demandes", "Patients sans code") + pushCard();
       if (!rows.length) html += "<div class='kgd-empty'><b>Aucune demande</b><span>Un patient qui n'a pas de code peut demander un accès depuis l'appli, avec son prénom et son nom. La demande arrive ici.</span></div>";
       html += rows.map(function (d) {
         var t = d.t && d.t.toDate ? d.t.toDate() : null;
@@ -116,6 +116,34 @@ var KineCabinet = (function () {
       html += "<p class='kcb-hint'>Les noms complets ne sont visibles que par toi. Une demande est effacée dès que tu l'acceptes ou la refuses, et au bout de 30 jours sinon.</p>";
       show(html, null, "demandes");
     }, fail);
+  }
+  /* Notification sur ce téléphone à chaque nouvelle demande (envoyée par le robot GitHub, sans nom) */
+  function pst() { try { return JSON.parse(localStorage.getItem("kf-kpush") || "null") || {}; } catch (e) { return {}; } }
+  function pushCard() {
+    var on = !!pst().on;
+    return "<div class='su-card khb-acc'><div><b>" + (on ? "Notifications activées" : "Être prévenu des demandes") + "</b><span>" + (on ? "Ce téléphone reçoit une notification à chaque nouvelle demande, sans le nom du patient." : "Une notification sur ce téléphone à chaque nouvelle demande d'accès.") + "</span><span id='kcb-pmsg' class='kcb-pmsg'></span></div>" +
+      "<button class='kcb-mode' onclick='KineCabinet.push(" + (on ? 0 : 1) + ")'>" + (on ? "Désactiver" : "Activer") + "</button></div>";
+  }
+  function b64u8(b64) { var pad = "=".repeat((4 - b64.length % 4) % 4), raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/")), o = new Uint8Array(raw.length); for (var i = 0; i < raw.length; i++) o[i] = raw.charCodeAt(i); return o; }
+  async function push(on) {
+    var m = $("kcb-pmsg"), say = function (t) { if (m) m.textContent = t; };
+    try {
+      if (!on) { var s0 = pst(); if (s0.id) await fbCab.pushDel(s0.id); localStorage.setItem("kf-kpush", JSON.stringify({ on: false })); demandes(); return; }
+      if (!("serviceWorker" in navigator && "PushManager" in window && "Notification" in window)) { say("Ce téléphone ne permet pas les notifications depuis l'appli."); return; }
+      if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !((window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone)) { say("Sur iPhone, ouvre l'appli depuis son icône sur l'écran d'accueil pour activer les notifications."); return; }
+      var perm = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+      if (perm !== "granted") { say("Les notifications sont bloquées dans les réglages du téléphone."); return; }
+      say("Activation…");
+      var k = localStorage.getItem("kf-push-key") || (window.fbPushKey ? await fbPushKey() : null);
+      if (!k) { say("L'envoi des notifications n'est pas encore prêt. Réessaie plus tard."); return; }
+      var reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u8(k) });
+      var j = sub.toJSON(), buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(j.endpoint));
+      var id = Array.from(new Uint8Array(buf)).map(function (b) { return ("0" + b.toString(16)).slice(-2); }).join("").slice(0, 40);
+      await fbCab.pushSave(id, { endpoint: j.endpoint, keys: { p256dh: j.keys.p256dh, auth: j.keys.auth } });
+      localStorage.setItem("kf-kpush", JSON.stringify({ on: true, id: id }));
+      demandes();
+    } catch (e) { console.error(e); say("L'activation n'a pas marché. Vérifie ta connexion et réessaie."); }
   }
   function accept(uid) {
     var d = D.filter(function (x) { return x.id === uid; })[0]; if (!d) { demandes(); return; }
@@ -672,7 +700,7 @@ var KineCabinet = (function () {
   }
 
   return {
-    open: open, close: close, filter: filter, setKine: setKine, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    open: open, close: close, filter: filter, setKine: setKine, push: push, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,

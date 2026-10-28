@@ -54,6 +54,13 @@ await t("le patient lit sa réponse", assertSucceeds(getDoc(doc(patient, "liens/
 await t("un autre ne lit pas la réponse", assertFails(getDoc(doc(intrus, "liens/anonP"))));
 await t("le patient n'écrit pas de réponse", assertFails(setDoc(doc(patient, "liens/anonP"), { pid: "p2" })));
 await t("le patient efface sa réponse", assertSucceeds(deleteDoc(doc(patient, "liens/anonP"))));
+// Sauvegarde du suivi avec Google, notifications du kiné
+await t("le patient relié rattache son suivi", assertSucceeds(setDoc(doc(patient, "acces/anonP"), { pid: "p1", t: serverTimestamp() })));
+await t("rattacher une fiche dont on n'est pas membre : refusé", assertFails(setDoc(doc(intrus, "acces/anonX"), { pid: "p1", t: serverTimestamp() })));
+await t("le patient relit son rattachement", assertSucceeds(getDoc(doc(patient, "acces/anonP"))));
+await t("un autre ne lit pas le rattachement", assertFails(getDoc(doc(intrus, "acces/anonP"))));
+await t("abonnement kiné : refusé au patient", assertFails(setDoc(doc(patient, "kinepush/x"), { sub: {} })));
+await t("abonnement kiné : accepté pour le kiné", assertSucceeds(setDoc(doc(kine, "kinepush/x"), { sub: {} })));
 await env.cleanup();
 console.log(ok + " réussis, " + ko + " échoués");
 process.exit(ko ? 1 : 0);

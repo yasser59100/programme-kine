@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v128';
+const VERSION = 'kineforce-v129';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
@@ -160,28 +160,7 @@ self.addEventListener('fetch', function (e) {
   // Autres domaines (connexion, communauté) : comportement normal du navigateur
 });
 
-// ── Notifications ──
-self.addEventListener('push', function (e) {
-  var data = e.data ? e.data.json() : {};
-  e.waitUntil(self.registration.showNotification(data.title || 'KinéForce', {
-    body: data.body || 'Votre séance du jour vous attend.',
-    icon: data.icon || 'assets/icons/icon-192.png',
-    badge: 'assets/icons/icon-72.png',
-    vibrate: [200, 100, 200],
-    data: { url: data.url || './' },
-    actions: [{ action: 'open', title: 'Ouvrir le programme' }, { action: 'dismiss', title: 'Plus tard' }]
-  }));
-});
-
-self.addEventListener('notificationclick', function (e) {
-  e.notification.close();
-  if (e.action === 'dismiss') return;
-  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (cls) {
-    if (cls.length > 0) return cls[0].focus();
-    return clients.openWindow(e.notification.data.url || './');
-  }));
-});
-
+// ── Notifications : un seul gestionnaire (l'ancien affichait la notification en double) ──
 // ── Notifications du jour (« Le saviez-vous ? », « Vrai ou faux ») ──
 self.addEventListener('push', function (e) {
   var d = {};

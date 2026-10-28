@@ -12,6 +12,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = JSON.parse(JSON.stringify(D.patients[k].doc)); o.id=k; o.maison = Object.keys(D.patients[k].maison).sort().reverse().slice(0,2).map(function(w){ return D.patients[k].maison[w]; }); return o; })); },
     demandes: function(){ return R(Object.keys(D.demandes).map(function(k){ var o = JSON.parse(JSON.stringify(D.demandes[k])); o.id=k; return o; })); },
     accept: function(uid, d){ var k = id(); D.patients[k] = { doc: d, bilans: {}, seances: {}, maison: {}, notes: {}, membres: 1 }; D.liens[uid] = { pid: k }; delete D.demandes[uid]; return R(k); },
+    pushSave: function(){ return R(); }, pushDel: function(){ return R(); },
     refuse: function(uid){ D.liens[uid] = { non: true }; delete D.demandes[uid]; return R(); },
     get: function(pid){ return R(full(pid)); },
     create: function(d){ var k = id(); D.patients[k] = { doc: d, bilans: {}, seances: {}, maison: {}, notes: {}, membres: 0 }; return R(k); },
@@ -26,6 +27,9 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
   window.fbPat = {
     join: function(c){ var pid = D.codes[c]; if(!pid) return Promise.reject(new Error("code")); D.patients[pid].membres = 1; delete D.codes[c]; return R(pid); },
     get: function(pid){ var o = full(pid); if (o) { delete o.notes; } return R(o); },
+    google: function(){ return D.google || null; },
+    linkGoogle: function(pid){ D.google = "samir@gmail.com"; D.acces = pid; return R(pid); },
+    restoreGoogle: function(){ return R(D.acces || null); },
     request: function(d){ D.demandes.anonP = { prenom: d.prenom, nom: d.nom, msg: d.msg }; return R(); },
     cancel: function(){ delete D.demandes.anonP; return R(); },
     requestState: function(){ var l = D.liens.anonP; if (l) { delete D.liens.anonP; return R(l.pid ? { pid: l.pid } : { refused: true }); } return R(D.demandes.anonP ? { pending: true } : { none: true }); },

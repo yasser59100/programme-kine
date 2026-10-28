@@ -146,13 +146,18 @@ var KineRole = (function () {
         kine = "<button class='krl-row dark' onclick='KineRole.hubClose();KineMonSuivi.join()'><span class='krl-ic'>ABC</span><span class='krl-t'><b>J'ai un code de mon kiné</b><span>6 caractères, donnés au cabinet</span></span>" + NEXT + "</button>" +
           "<button class='krl-row' onclick='KineRole.hubClose();KineRole.demande()'><span class='krl-ic soft'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 4h16v12H8l-4 4z'/><path d='M8 9h8M8 12h5'/></svg></span><span class='krl-t'><b>Demander un accès</b><span>Pas de code ? Ton kiné reçoit ta demande</span></span>" + NEXT + "</button>";
       }
-      kine = "<div class='khb-h'>Mon kiné</div>" + kine;
+      // Sauvegarde du suivi avec Google (changement de téléphone, appli supprimée)
+      var g = window.fbPat && fbPat.google ? fbPat.google() : null;
+      if (c && c.pid) kine += g ? "<div class='kcb-ok'>Suivi sauvegardé avec " + esc(g) + "</div>"
+        : "<button class='krl-row' onclick='KineRole.saveGoogle()'><span class='krl-ic soft'>G</span><span class='krl-t'><b>Sauvegarder mon suivi</b><span>Avec ton compte Google, pour le retrouver si tu changes de téléphone</span></span>" + NEXT + "</button>";
+      else if (!(c && c.pending)) kine += "<button class='krl-row dash' onclick='KineRole.restoreGoogle()'><span class='krl-ic grey'>G</span><span class='krl-t'><b>J'avais déjà un suivi</b><span>Le retrouver avec mon compte Google</span></span>" + NEXT + "</button>";
+      kine = "<div class='khb-h'>Mon kiné</div>" + kine + "<p class='kcb-hint' id='khb-msg'></p>";
     } else {
       kine = "<div class='khb-h'>Espace kiné</div><button class='krl-row dark' onclick='KineRole.hubClose();KineRole.kine()'><span class='krl-ic'>" + ME + "</span><span class='krl-t'><b>Mes patients</b><span>" + (admin ? "Connecté avec le compte kiné" : "Connexion avec ton compte Google de kiné") + "</span></span>" + NEXT + "</button>";
     }
     var acc = "<div class='khb-h'>Compte de la Communauté</div><div class='su-card khb-acc'>" +
       (u ? "<div><b>" + esc(u.name || "Connecté") + "</b><span>" + (admin ? "Compte kiné" : "Pour publier et encourager dans la Communauté") + "</span></div><button class='kcb-mode' onclick='KineRole.hubClose();fbSignOut()'>Se déconnecter</button>"
-         : "<div><b>Pas connecté</b><span>Le compte Google sert seulement à publier dans la Communauté. Ton suivi n'en a pas besoin.</span></div><button class='kcb-mode' onclick='KineRole.hubClose();signInWithGoogle()'>Se connecter</button>") + "</div>";
+         : "<div><b>Pas connecté</b><span>Pour publier et encourager les autres patients dans la Communauté.</span></div><button class='kcb-mode' onclick='KineRole.hubClose();signInWithGoogle()'>Se connecter</button>") + "</div>";
     var more = "<div class='v2-other'>" +
       (window.KineLumiere ? "<button class='v2-row' onclick='KineRole.hubClose();KineLumiere.settings()'><b>Réglages</b><span>›</span></button>" : "") +
       (admin ? "<button class='v2-row' onclick='KineRole.hubClose();KineRole.choose()'><b>Revoir l'écran de bienvenue</b><span>›</span></button>" : "") + "</div>";
@@ -160,6 +165,24 @@ var KineRole = (function () {
     el.innerHTML = "<div class='kf-sheet-body'><div class='kcb-top'><button class='kf-back' onclick='KineRole.hubClose()' aria-label='Fermer'>" + BACK + "</button><span></span><i></i></div>" +
       "<div><h1 class='kf-h1 kcb-h1'>Mon espace</h1></div><div class='khb-h'>Je suis</div>" + seg + kine + acc + more + "</div>";
     el.classList.add("open"); el.scrollTop = 0;
+  }
+  function hubSay(t) { var m = $("khb-msg"); if (m) m.textContent = t; }
+  function saveGoogle() {
+    var c = cabState(); if (!c || !c.pid || !window.fbPat) return;
+    hubSay("Connexion à Google…");
+    fbPat.linkGoogle(c.pid).then(function (pid) {
+      if (pid && pid !== c.pid) { set("kf-cab", JSON.stringify({ pid: pid })); if (window.KineMonSuivi) KineMonSuivi.refresh(true); }
+      hub(); if (window.showToast) showToast("Suivi sauvegardé avec ton compte Google");
+    }, function (e) { hubSay(e && /popup/.test(e.code || "") ? "La fenêtre Google a été fermée. Réessaie." : "La sauvegarde n'a pas marché. Vérifie Internet et réessaie."); });
+  }
+  function restoreGoogle() {
+    if (!window.fbPat) return;
+    hubSay("Connexion à Google…");
+    fbPat.restoreGoogle().then(function (pid) {
+      if (!pid) { hubSay("Aucun suivi n'est rattaché à ce compte Google. Demande un code à ton kiné."); return; }
+      set(KEY, "patient"); set("kf-cab", JSON.stringify({ pid: pid })); try { localStorage.removeItem("kf-cab-push"); } catch (e) {}
+      if (window.KineMonSuivi) KineMonSuivi.refresh(true).then(function () { hubClose(); KineMonSuivi.open(); if (window.showToast) showToast("Suivi retrouvé"); });
+    }, function (e) { hubSay(e && /popup/.test(e.code || "") ? "La fenêtre Google a été fermée. Réessaie." : "Connexion impossible. Vérifie Internet et réessaie."); });
   }
   function hubMode(m) {
     if (m === "kine") { hubClose(); kine(); return; }
@@ -178,5 +201,5 @@ var KineRole = (function () {
   }
   document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 400); });
 
-  return { hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
+  return { saveGoogle: saveGoogle, restoreGoogle: restoreGoogle, hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
 })();

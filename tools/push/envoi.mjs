@@ -63,5 +63,20 @@ for (const doc of snap.docs) {
     else console.log("Échec", e.statusCode || "", String(e.body || e.message).slice(0, 120));
   }
 }
+// Nouvelles demandes d'accès : une notification sur le téléphone du kiné (sans aucun nom)
+const dem = await db.collection("demandes").get();
+const fresh = dem.docs.filter((x) => !x.data().notifie);
+if (fresh.length) {
+  const subs = await db.collection("kinepush").get();
+  const n = fresh.length;
+  const msg = { title: n > 1 ? n + " nouvelles demandes d'accès" : "Nouvelle demande d'accès", body: n > 1 ? n + " patients demandent l'accès à leur suivi." : "Un patient demande l'accès à son suivi.", url: "./?ouvrir=demandes", tag: "kf-demandes" };
+  let ok = 0;
+  for (const k of subs.docs) {
+    try { await webpush.sendNotification(k.data().sub, JSON.stringify(msg), { TTL: 24 * 3600 }); ok++; }
+    catch (e) { if (e.statusCode === 404 || e.statusCode === 410) await k.ref.delete(); }
+  }
+  for (const x of fresh) await x.ref.update({ notifie: true });
+  console.log(`Demandes : ${n} nouvelle(s), notification envoyée à ${ok} appareil(s) du kiné.`);
+}
 console.log(`Abonnés : ${snap.size} · envoyées : ${sent} · déjà faites ou pas encore l'heure : ${skip} · abonnements périmés retirés : ${gone}`);
 process.exit(0);

@@ -106,6 +106,8 @@
   /* ── Ouverture depuis une notification ── */
   function show(what) {
     if (!what) return;
+    // Nouvelle demande d'accès (notification du kiné) : on ouvre l'onglet Demandes dès que le compte kiné est prêt
+    if (what === "demandes") { var n = 0, t = setInterval(function () { if (window.KineCabinet && window.fbUser && fbUser.isAdmin && window.fbCab) { clearInterval(t); KineCabinet.demandes(); } else if (++n > 40) clearInterval(t); }, 250); return; }
     if (typeof showPage === "function") { try { showPage("home"); } catch (e) {} }
     setTimeout(function () {
       if (what === "savoir" && window.KineSavoir) KineSavoir.open(KineSavoir.today ? KineSavoir.today() : 0);

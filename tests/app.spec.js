@@ -232,6 +232,12 @@ test("kiné ou patient : premier lancement, demande d'accès et acceptation", as
   // le téléphone du patient se relie tout seul
   await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; return KineMonSuivi.refresh(true); });
   expect(await page.evaluate(() => !!JSON.parse(localStorage.getItem("kf-cab") || "{}").pid)).toBe(true);
+  // sauvegarde avec Google, puis on le retrouve après avoir « supprimé » l'appli
+  const pid = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-cab")).pid);
+  await page.evaluate(() => { KineRole.hub(); KineRole.saveGoogle(); });
+  await expect(page.locator("#kf-hub .kcb-ok")).toContainText("samir@gmail.com");
+  await page.evaluate(() => { KineRole.hubClose(); localStorage.removeItem("kf-cab"); KineRole.hub(); KineRole.restoreGoogle(); });
+  await expect.poll(() => page.evaluate(() => (JSON.parse(localStorage.getItem("kf-cab") || "{}")).pid)).toBe(pid);
   await clean(errs);
 });
 

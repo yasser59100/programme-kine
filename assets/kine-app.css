@@ -3266,3 +3266,8 @@ html.kf-typing .kf-me { display: none; }
 .kms-joincard > div { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
 .kms-joincard button { flex: 1 1 130px; min-height: 46px; border-radius: 24px; border: 1px solid rgba(51, 65, 224, .25); background: #fff; color: #1E2AB0; font: 700 .9rem var(--font); }
 .kms-joincard button.kms-jc-main { background: var(--lu-ink, #0F1D2E); border-color: var(--lu-ink, #0F1D2E); color: #fff; }
+
+.kcb-pmsg { color: #A1262A !important; font-weight: 600; }
+.kcb-pmsg:empty { display: none; }
+#khb-msg:empty { display: none; }
+#khb-msg { color: #A1262A; font-weight: 600; }

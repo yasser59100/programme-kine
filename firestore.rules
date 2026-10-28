@@ -102,6 +102,20 @@ service cloud.firestore {
       allow read, write: if isAdmin();
       allow get, delete: if request.auth != null && request.auth.uid == uid;
     }
+    // Abonnements aux notifications du kiné (nouvelles demandes) : seulement le kiné
+    match /kinepush/{id} {
+      allow read, write: if isAdmin();
+    }
+    // Suivi rattaché à un compte Google : le patient retrouve sa fiche sur un autre téléphone
+    match /acces/{uid} {
+      allow read, write: if isAdmin();
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['pid', 't'])
+        && request.resource.data.pid is string && request.resource.data.pid.size() <= 40
+        && exists(/databases/$(database)/documents/patients/$(request.resource.data.pid)/membres/$(request.auth.uid))
+        && request.resource.data.t == request.time;
+    }
     match /patients/{pid} {
       allow read, write: if isAdmin();
       allow get: if isMember(pid);

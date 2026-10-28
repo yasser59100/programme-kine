@@ -137,7 +137,8 @@ var KineMonSuivi = (function () {
       "<input class='kcb-in kms-code' id='kms-code' maxlength='7' autocomplete='off' autocapitalize='characters' spellcheck='false' placeholder='ABC123' aria-label='Code de ton kiné'>" +
       (err ? "<div class='kcb-alert'><b>" + esc(err) + "</b></div>" : "") +
       "<p class='kcb-hint'>Ton kiné voit ta fiche et un résumé de tes séances à la maison (nombre de séances, douleur moyenne). Rien d'autre ne quitte ton téléphone.</p>" +
-      (window.KineRole ? "<button class='v2-row' onclick='KineMonSuivi.close();KineRole.demande()'><b>Pas de code ? Demander un accès</b><span>›</span></button>" : ""),
+      (window.KineRole ? "<button class='v2-row' onclick='KineMonSuivi.close();KineRole.demande()'><b>Pas de code ? Demander un accès</b><span>›</span></button>" +
+        "<button class='v2-row' onclick='KineMonSuivi.close();KineRole.hub()'><b>J'avais déjà un suivi (compte Google)</b><span>›</span></button>" : ""),
       "<button class='seq-btn-main' id='kms-go' onclick='KineMonSuivi.doJoin()'>Valider</button>");
     setTimeout(function () { var i = $("kms-code"); if (i) i.focus(); }, 100);
   }
