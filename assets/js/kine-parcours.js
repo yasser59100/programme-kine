@@ -117,7 +117,7 @@ var KineParcours = (function () {
           { id: "flex3", t: "Flexion d'au moins 95 % du côté sain", p: "Ton genou se plie comme l'autre", a: { m: "flex", lsi: 95 } },
           { id: "yb", t: "Y-balance antérieur : moins de 4 cm d'écart entre les côtés", p: "Ton équilibre est le même des deux côtés", a: { m: "yb", diff: 4 } },
           { id: "sls", t: "Squat sur une jambe contrôlé, sans valgus", p: "Tu fais un squat sur une jambe bien contrôlé" }],
-        exos: ["Fente latérale", "Marche latérale élastique", "Monster walk", "Squat bulgare", "Planche Copenhague genou", "Pallof press", "Fente avant et rotation ballon", "Toucher en étoile unipodal", "Avion sur une jambe", "Unipodal sur coussin", "Presse à une jambe", "Nordic curl assisté", "Squat sur une jambe vers la chaise", { n: "Pont des ischios, talons loin", sauf: { greffe: "didt" } }, "Le serveur pressé", "Le squat du cosaque"] },
+        exos: ["Fente latérale", "Marche latérale élastique", "Monster walk", "Squat bulgare", "Planche Copenhague genou", "Pallof press", "Fente avant et rotation ballon", "Toucher en étoile unipodal", "Avion sur une jambe", "Unipodal sur coussin", "Presse à une jambe", "Nordic curl assisté", "Squat sur une jambe vers la chaise", { n: "Pont des ischios, talons loin", sauf: { greffe: "didt" } }, "Fentes en marchant, bras au ciel", "Le squat du cosaque"] },
       { nom: "Courir et petits sauts", but: "Reprise de la course en ligne droite, sauts sur deux pieds puis sur un pied, de faible hauteur.",
         obj: [
           { id: "course", t: "30 min de course continue sans douleur ni gonflement le lendemain", p: "Tu cours 30 minutes sans douleur" },
@@ -169,7 +169,7 @@ var KineParcours = (function () {
           { id: "quad85", t: "Symétrie du quadriceps d'au moins 85 %", p: "Ta cuisse a retrouvé 85 % de sa force", a: { m: "quad", lsi: 85 } },
           { id: "yb", t: "Y-balance antérieur : moins de 4 cm d'écart", p: "Ton équilibre est le même des deux côtés", a: { m: "yb", diff: 4 } },
           { id: "sls", t: "Squat sur une jambe contrôlé, sans valgus", p: "Tu fais un squat sur une jambe bien contrôlé" }],
-        exos: ["Fente latérale", "Monster walk", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal", "Avion sur une jambe", "Équilibre réactif sur une jambe", "Planche Copenhague genou", "Squat sur une jambe vers la chaise", "Le serveur pressé", "Le squat du cosaque"] },
+        exos: ["Fente latérale", "Monster walk", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal", "Avion sur une jambe", "Équilibre réactif sur une jambe", "Planche Copenhague genou", "Squat sur une jambe vers la chaise", "Fentes en marchant, bras au ciel", "Le squat du cosaque"] },
       { nom: "Courir et sauter", but: "Course, sauts progressifs puis changements de direction.",
         obj: [
           { id: "course", t: "30 min de course sans douleur ni gonflement", p: "Tu cours 30 minutes sans douleur" },
@@ -241,7 +241,7 @@ var KineParcours = (function () {
           { id: "quad80", t: "Symétrie du quadriceps d'au moins 80 %", p: "Ta cuisse a retrouvé 80 % de sa force", a: { m: "quad", lsi: 80 } },
           { id: "sls", t: "Squat sur une jambe contrôlé", p: "Tu fais un squat sur une jambe bien contrôlé" },
           { id: "dou", t: "Douleur de 3/10 au maximum aux 3 dernières séances", p: "Peu ou pas de douleur pendant tes séances", a: { dou: 3 } }],
-        exos: ["Squat bilatéral", "Presse à une jambe", "Fente arrière", "Fente latérale", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal", "Descente de marche sur le côté", "Mini-squat sur une jambe, tenu", "Squat sur une jambe vers la chaise", "Le serveur pressé"] },
+        exos: ["Squat bilatéral", "Presse à une jambe", "Fente arrière", "Fente latérale", "Squat bulgare", "Pallof press", "Unipodal sur coussin", "Toucher en étoile unipodal", "Descente de marche sur le côté", "Mini-squat sur une jambe, tenu", "Squat sur une jambe vers la chaise", "Fentes en marchant, bras au ciel"] },
       { nom: "Courir et reprendre le sport", but: "Course, sauts, pivots, en général vers 4 à 6 mois.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
@@ -279,7 +279,7 @@ var KineParcours = (function () {
           { id: "dou2", t: "Douleur à l'effort de 2/10 au maximum", p: "Presque plus de douleur à l'effort", a: { m: "dou", max: 2 } },
           { id: "akps85", t: "Kujala d'au moins 85", p: "Ton genou ne te gêne presque plus", a: { m: "akps", min: 85 } },
           { id: "activ", t: "Activité ou sport repris sans douleur gênante", p: "Tu as repris ton sport" }],
-        exos: ["Squat bulgare", "Fente avec charge", "Petersen step-up", "Planche Copenhague genou", "Avion sur une jambe", "Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Squat sur une jambe vers la chaise", "Réception de saut stabilisée", "Le serveur pressé", "Le squat du cosaque"] }
+        exos: ["Squat bulgare", "Fente avec charge", "Petersen step-up", "Planche Copenhague genou", "Avion sur une jambe", "Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Squat sur une jambe vers la chaise", "Réception de saut stabilisée", "Fentes en marchant, bras au ciel", "Le squat du cosaque"] }
     ],
     src: ["crossley", "collins", "willy"]
   };
@@ -342,7 +342,7 @@ var KineParcours = (function () {
         obj: [
           { id: "auto", t: "Programme maison fait en autonomie", p: "Tu fais ton programme seul" },
           { id: "act", t: "Activité physique régulière reprise", p: "Tu bouges régulièrement" }],
-        exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Squat bulgare", "Marche du fermier sur place", "Se relever du sol", "Squat sur une jambe vers la chaise", "Le serveur pressé"] }
+        exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Squat bulgare", "Marche du fermier sur place", "Se relever du sol", "Squat sur une jambe vers la chaise", "Fentes en marchant, bras au ciel"] }
     ],
     src: ["oarsi", "nice", "glad", "fransen", "dobson"]
   };
@@ -373,7 +373,7 @@ var KineParcours = (function () {
         obj: [
           { id: "sts", t: "Lever de chaise amélioré d'au moins 2 répétitions", p: "Tu te lèves plus facilement", a: { m: "sts30", gain: 2 } },
           { id: "auto", t: "Programme maison fait en autonomie", p: "Tu fais ton programme seul" }],
-        exos: ["Goblet squat", "Fente arrière", "Montée de marche avec charge", "Unipodal sur coussin", "Se relever du sol", "Squat sur une jambe vers la chaise", "Le serveur pressé"] }
+        exos: ["Goblet squat", "Fente arrière", "Montée de marche avec charge", "Unipodal sur coussin", "Se relever du sol", "Squat sur une jambe vers la chaise", "Fentes en marchant, bras au ciel"] }
     ],
     src: ["jette", "bade"]
   };
@@ -433,7 +433,7 @@ var KineParcours = (function () {
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
-        exos: ["Squat bulgare", "Fente avec charge", "Fente latérale", "Petits sauts sur place", "Avion sur une jambe", "Squat sur une jambe vers la chaise", "Réception de saut stabilisée", "Saut sur la marche", "Le kangourou", "Le serveur pressé", "Le squat du cosaque"] }
+        exos: ["Squat bulgare", "Fente avec charge", "Fente latérale", "Petits sauts sur place", "Avion sur une jambe", "Squat sur une jambe vers la chaise", "Réception de saut stabilisée", "Saut sur la marche", "Le kangourou", "Fentes en marchant, bras au ciel", "Le squat du cosaque"] }
     ],
     src: ["logMen", "willy", "oarsi"]
   };

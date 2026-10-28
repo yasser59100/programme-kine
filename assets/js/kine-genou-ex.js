@@ -214,15 +214,13 @@
     abc.holdSay = { L: "On récite l'alphabet, A, B, C… sans bouger", R: "On récite l'alphabet, sans bouger" };
     reg("La chaise qui récite l'alphabet", abc);
   }
-  var WAITER = function (front) {
-    var o = LUNGE(front);
-    o.LA = { hand: { at: [0.24, 0.98, 0.34], pole: [1, -1, -0.2] } }; o.RA = { ang: [10, 12, 0, 30] };
-    return o;
-  };
-  reg("Le serveur pressé", {
-    noIso: true, timed: { seconds: 40 }, camera: { yaw: 1.15, dist: 4.4, ty: 0.75 }, start: "up", thumb: "lL",
-    poses: { up: merge(STAND(0.1, 0), { LA: { hand: { at: [0.24, 1.28, 0.3], pole: [1, -1, -0.2] } }, RA: { ang: [10, 12, 0, 30] } }), lL: WAITER("L"), lR: WAITER("R") },
-    steps: [step("lL", 1.5, "Fente en avançant, le plateau reste droit", "Fente en avançant, le livre ne tombe pas", "down"), step("up", 1, "On se redresse", null, "up"), step("lR", 1.5, "Fente de l'autre jambe", null, "down"), step("up", 1, "On se redresse", null, "up")]
+  // Fentes en marchant, une bouteille (ou un haltère) dans chaque main, bras tendus au-dessus de la tête tout l'exercice
+  var OVER = { LA: { ang: [172, 8, 0, 4] }, RA: { ang: [172, 8, 0, 4] } };
+  var OVERHEAD = function (front) { return merge(LUNGE(front), OVER); };
+  reg("Fentes en marchant, bras au ciel", {
+    noIso: true, load: "both", timed: { seconds: 40 }, camera: { yaw: 1.15, dist: 4.6, ty: 0.85 }, start: "up", thumb: "lL",
+    poses: { up: merge(STAND(0.1, 0), OVER), lL: OVERHEAD("L"), lR: OVERHEAD("R") },
+    steps: [step("lL", 1.5, "Fente en avançant, bras tendus au ciel", "Fente en avançant, les bras restent tendus au-dessus de la tête", "down"), step("up", 1, "On se redresse", null, "up"), step("lR", 1.5, "Fente de l'autre jambe", null, "down"), step("up", 1, "On se redresse", null, "up")]
   });
 
   /* ════════ FICHES (bibliothèque) ════════ */
@@ -328,10 +326,10 @@
       "Dos au mur, descends comme pour t'asseoir sur une chaise invisible, genoux au-dessus des pieds. Tiens la position en récitant l'alphabet à voix haute. Arrivé à Z, tu as fini !",
       "On récite à voix haute, sans retenir sa respiration.", "On ne descend pas plus bas que ce que le genou accepte.",
       "Parler empêche de bloquer sa respiration, et le temps passe plus vite. Plus dur : l'alphabet à l'envers.", "Arrêt si douleur sous la rotule."),
-    E("Le serveur pressé", "genou", 2, ["un livre léger", "un couloir dégagé"], "40 secondes",
-      "Un livre posé à plat sur la main, bras plié comme un serveur qui porte un plateau. Avance en fentes, une jambe après l'autre, sans faire tomber le livre.",
-      "Le buste reste droit, le livre ne bouge pas.", "On ne regarde pas le livre : on regarde devant.",
-      "Fentes en marchant avec un défi d'équilibre en plus. Plus dur : un verre d'eau en plastique à la place du livre.", "Arrêt si douleur au genou ou perte d'équilibre.")
+    E("Fentes en marchant, bras au ciel", "genou", 3, ["2 bouteilles d'eau ou 2 haltères légers", "un couloir dégagé"], "40 secondes",
+      "Une bouteille d'eau ou un haltère dans chaque main, bras tendus au-dessus de la tête. Avance en fentes, une jambe après l'autre, en gardant les bras bien tendus en haut pendant tout l'exercice.",
+      "Bras tendus à la verticale, ventre serré, buste droit.", "On ne cambre pas le dos et on ne laisse pas les bras retomber vers l'avant.",
+      "Le poids en hauteur oblige le genou et le tronc à contrôler chaque pas. Plus facile : sans poids, mains sur la tête. Plus dur : un haltère plus lourd tenu à deux mains.", "Arrêt si douleur au genou, à l'épaule ou au bas du dos.")
   ];
   if (window.KineBiblio && KineBiblio.extend) KineBiblio.extend(F);
   var U = function (s2, e) { return { s: s2, e: e }; };
@@ -361,7 +359,7 @@
     "La marche du canard": U("Le genou travaille en flexion profonde, en charge, comme quand on s'accroupit pour longtemps.", ["S'accroupir pour jardiner", "Jouer avec des enfants au sol", "Bricoler accroupi"]),
     "Le kangourou": U("Bondir et retomber pieds joints : puissance des jambes et réception contrôlée.", ["Sauter par-dessus une flaque", "Reprendre le sport", "Courir et sauter"]),
     "La chaise qui récite l'alphabet": U("Le quadriceps tient sans bouger, souvent bien supporté par le genou, et parler oblige à respirer.", ["Rester debout longtemps", "Faire du ski", "Monter les escaliers"]),
-    "Le serveur pressé": U("Des fentes en marchant, avec un défi d'équilibre : le genou travaille pendant que l'attention est ailleurs.", ["Marcher en portant quelque chose", "Monter les escaliers les bras chargés", "Garder l'équilibre en mouvement"])
+    "Fentes en marchant, bras au ciel": U("Des fentes en marchant avec les bras en l'air : le genou travaille pendant que tout le corps doit rester gainé et stable.", ["Monter les escaliers les bras chargés", "Ranger quelque chose en hauteur", "Garder l'équilibre en mouvement"])
   };
   document.addEventListener("DOMContentLoaded", function () { if (window.KineIdees && KineIdees.USAGE) for (var k in USE) if (!KineIdees.USAGE[k]) KineIdees.USAGE[k] = USE[k]; });
   window.KineGenouEx = { names: F.map(function (f) { return f.name; }) };
