@@ -466,8 +466,16 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
   await page.evaluate(() => KineCabinet.bilan());
   await expect(page.locator("#kcb-sheet #kcb-bd")).toHaveCount(1);
-  await page.evaluate(() => KineCabinet.qSend("saut"));
-  await expect(page.locator("#kcb-sheet .kq-item.pend")).toHaveCount(1);
+  await page.evaluate(() => { window.__lg = []; const L = (m) => window.__lg.push(m);
+    const g = fbCab.get, qs = fbCab.questSend, st = window.showToast;
+    fbCab.get = function (pid) { L("get"); return g.apply(this, arguments).then(p => { L("got " + (p && p.quest ? p.quest.length : "x")); return p; }); };
+    fbCab.questSend = function () { L("send"); return qs.apply(this, arguments).then(r => { L("sent"); return r; }, e => { L("senterr " + e); throw e; }); };
+    window.showToast = function () { L("toast"); try { return st.apply(this, arguments); } catch (e) { L("toasterr " + e); throw e; } };
+    window.addEventListener("unhandledrejection", e => L("unh " + (e.reason && e.reason.stack || e.reason)));
+    KineCabinet.qSend("saut"); });
+  await page.waitForTimeout(1500);
+  const lg = await page.evaluate(() => window.__lg.join(" | ") + " || pend=" + document.querySelectorAll("#kcb-sheet .kq-item.pend").length);
+  if (!/pend=1/.test(lg)) expect(lg).toBe("");
   await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
