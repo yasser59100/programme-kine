@@ -6254,5 +6254,29 @@
  {
   "t": "Comme pour le mollet, mais genou arrière plié, talon au sol.",
   "g": "seance"
+ },
+ {
+  "t": "Gauche !",
+  "g": "seance"
+ },
+ {
+  "t": "Droite !",
+  "g": "seance"
+ },
+ {
+  "t": "Deux pieds !",
+  "g": "seance"
+ },
+ {
+  "t": "Saute !",
+  "g": "seance"
+ },
+ {
+  "t": "Enchaîne les sauts !",
+  "g": "seance"
+ },
+ {
+  "t": "Réception sur signal",
+  "g": "seance"
  }
 ]

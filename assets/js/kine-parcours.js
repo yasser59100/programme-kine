@@ -40,6 +40,10 @@ var KineParcours = (function () {
     heel:   { l: "Élévations du talon sur une jambe", u: "fois", s: 1, g: "Force", c: "Talons", how: "Sur une jambe, genou tendu, bout des doigts au mur, une montée par seconde environ, le plus haut possible, jusqu'à la fatigue ou la perte de hauteur. Repère : environ 25 chez l'adulte." },
     heelh:  { l: "Hauteur de l'élévation du talon", u: "cm", s: 1, g: "Force", c: "Hauteur du talon", how: "Hauteur maximale du talon en montant sur la pointe d'un pied (règle contre le talon). Après une rupture d'Achille, l'écart de hauteur reflète l'allongement du tendon." },
     hopside:{ l: "Side hop test", u: "s", s: 1, lo: 1, g: "Fonction", c: "Side hop", how: "Sur une jambe, 10 allers-retours par-dessus deux lignes espacées de 30 cm, le plus vite possible." },
+    cmj:    { l: "Saut vertical (CMJ)", c: "CMJ", u: "cm", n: 3, g: "Fonction", saut: "cmj", how: "Debout, flexion rapide puis saut le plus haut possible, mains contre la poitrine. Au téléphone : tenu contre la poitrine, la hauteur est calculée à partir du temps de vol. Meilleur de 3 essais." },
+    hopv:   { l: "Saut vertical sur une jambe", c: "Saut vertical", u: "cm", s: 1, n: 3, g: "Fonction", saut: "hopv", how: "Sur une jambe, saut le plus haut possible, réception sur la même jambe. Au téléphone : tenu contre la poitrine, hauteur calculée à partir du temps de vol. Meilleur de 3 essais." },
+    rsi:    { l: "Sauts répétés : indice de réactivité (RSI)", c: "RSI", s: 1, g: "Fonction", saut: "rsi", how: "10 sauts enchaînés sur une jambe, le plus haut possible en touchant le sol le moins longtemps possible. RSI = hauteur du saut (m) ÷ temps de contact (s), moyenne des 5 meilleurs sauts. Au téléphone : tenu contre la poitrine." },
+    tcs:    { l: "Sauts répétés : temps de contact au sol", c: "Contact au sol", u: "ms", s: 1, lo: 1, g: "Fonction", saut: "rsi", how: "Mesuré en même temps que le RSI : temps moyen passé au sol entre deux sauts, sur les 5 meilleurs sauts." },
     dmat:   { l: "Douleur aux premiers pas du matin", u: "/10", lo: 1, g: "Douleur", c: "Premiers pas", how: "Douleur sous le talon aux premiers pas du lever, de 0 à 10." },
     cait:   { l: "Score CAIT (instabilité de cheville)", u: "/30", g: "Questionnaire", c: "CAIT", how: "Cumberland Ankle Instability Tool : 30 = cheville stable. 25 ou moins : instabilité probable." },
     faam:   { l: "FAAM, activités quotidiennes", u: "%", g: "Questionnaire", c: "FAAM", how: "Foot and Ankle Ability Measure, sous-score des activités de la vie quotidienne : 100 % = aucune gêne." },
@@ -1377,6 +1381,11 @@ var KineParcours = (function () {
                "hanche", "coxarthrose", "pth", "tendino_fess", "cfa", "pubalgie",
                "dos", "sciatique", "cervicalgie", "nevralgie_cb"];
   // Les questionnaires remplis par le patient (note globale, activités choisies) sont proposés dans tous les parcours
+  // Tests de saut au téléphone : hauteur, réactivité et symétrie, dans les parcours qui reprennent les sauts
+  var SAUTS = { lca_op: ["hopv", "rsi", "tcs"], lca_cons: ["hopv", "rsi", "tcs"], suture_men: ["hopv"], menisectomie: ["hopv", "rsi"], lcm: ["hopv", "rsi"],
+                sfp: ["cmj"], tendino_rot: ["cmj", "hopv"], genou: ["cmj", "hopv"], cheville: ["hopv", "rsi"], entorse: ["hopv", "rsi"], instab: ["hopv", "rsi", "tcs"],
+                achille: ["hopv", "rsi", "tcs"], rupt_achille: ["hopv", "rsi"], fract_cheville: ["hopv"], cfa: ["cmj"], pubalgie: ["cmj", "hopv"] };
+  Object.keys(SAUTS).forEach(function (id) { if (P[id]) SAUTS[id].forEach(function (m) { if (P[id].mes.indexOf(m) < 0) P[id].mes.push(m); }); });
   ORDER.forEach(function (id) { ["sane", "psfs"].forEach(function (m) { if (P[id].mes.indexOf(m) < 0) P[id].mes.push(m); }); });
   /* Renforcement exigeant (lesté, excentrique lent, pliométrie) : ajouté à l'avant-dernière et à la dernière étape.
      Les parcours « arthrose, prothèse, fracture » reçoivent la version lestée sans pliométrie ni excentriques extrêmes. */
@@ -1401,6 +1410,10 @@ var KineParcours = (function () {
     var put = function (e, list) { list.forEach(function (x) { if (e.exos.indexOf(x) < 0) e.exos.push(x); }); };
     put(p.etapes[n - 1], force.concat(sport));
     if (n >= 3) put(p.etapes[n - 2], force.slice(0, 5));
+  });
+  // Réception sur signal (jambe annoncée pendant le saut) : dernière étape des parcours sportifs du genou, de la cheville et de la hanche
+  ["genou", "lca_op", "lca_cons", "menisectomie", "suture_men", "lcm", "sfp", "cheville", "entorse", "instab", "achille", "cfa", "pubalgie"].forEach(function (id) {
+    var e = P[id] && P[id].etapes[P[id].etapes.length - 1]; if (e && e.exos.indexOf("Réception sur signal") < 0) e.exos.push("Réception sur signal");
   });
   // Tendinopathie rotulienne : contractions statiques lourdes dès la première étape
   if (P.tendino_rot.etapes[0].exos.indexOf("Spanish squat tenu lourd") < 0) P.tendino_rot.etapes[0].exos.unshift("Spanish squat tenu lourd");
@@ -1461,7 +1474,7 @@ var KineParcours = (function () {
     }
     return null;
   }
-  function fmt(n) { if (n == null) return "–"; var r = Math.round(n * 10) / 10; return String(r).replace(".", ","); }
+  function fmt(n) { if (n == null) return "–"; var r = Math.abs(n) < 10 ? Math.round(n * 100) / 100 : Math.round(n * 10) / 10; return String(r).replace(".", ","); }
 
   // Exercices proposés pour une étape, en tenant compte des options du patient
   function exos(pid, i, opts) {

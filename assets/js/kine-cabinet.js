@@ -468,11 +468,12 @@ var KineCabinet = (function () {
       return "<div class='kcb-m'>" + head + "<div class='kf-chips kcb-ch'>" + d.ch.map(function (c, i) { return "<button type='button' data-m='" + m + "' data-s='a' data-ch='" + i + "' class='" + (r.a === i ? "sel" : "") + "' onclick='KineCabinet.ch(this)'>" + esc(c) + "</button>"; }).join("") + "</div>" + how + "</div>";
     }
     var n = d.n || 1, cols = function (sd) { var o = ""; for (var i = 0; i < n; i++) o += inp(sd, i); return o; };
-    var incl = function (sd) { return d.incl ? "<button type='button' class='kcb-incl' onclick='KineCabinet.incl(" + q(m) + "," + q(sd) + ")' aria-label='Mesurer avec le téléphone'>" + ICON.phone + "</button>" : ""; };
-    if (!d.s) return "<div class='kcb-m'>" + head + "<div class='kcb-grid' style='grid-template-columns:repeat(" + n + ",minmax(0,1fr))'>" + cols("a") + "</div>" + how + "</div>";
+    var ph = d.incl || (d.saut && window.KineSaut);
+    var incl = function (sd) { return ph ? "<button type='button' class='kcb-incl' onclick='KineCabinet." + (d.saut ? "saut" : "incl") + "(" + q(m) + "," + q(sd) + ")' aria-label='" + (d.saut ? "Mesurer le saut avec le téléphone" : "Mesurer avec le téléphone") + "'>" + ICON.phone + "</button>" : ""; };
+    if (!d.s) return "<div class='kcb-m'>" + head + "<div class='kcb-grid' style='grid-template-columns:repeat(" + n + ",minmax(0,1fr))" + (ph ? " 44px" : "") + "'>" + cols("a") + incl("a") + "</div>" + how + "</div>";
     return "<div class='kcb-m'>" + head +
-      "<div class='kcb-sides'><span>Atteint</span><div class='kcb-grid' style='grid-template-columns:repeat(" + n + ",minmax(0,1fr))" + (d.incl ? " 44px" : "") + "'>" + cols("a") + incl("a") + "</div>" +
-      "<span>Sain</span><div class='kcb-grid' style='grid-template-columns:repeat(" + n + ",minmax(0,1fr))" + (d.incl ? " 44px" : "") + "'>" + cols("s") + incl("s") + "</div></div>" + how + "</div>";
+      "<div class='kcb-sides'><span>Atteint</span><div class='kcb-grid' style='grid-template-columns:repeat(" + n + ",minmax(0,1fr))" + (ph ? " 44px" : "") + "'>" + cols("a") + incl("a") + "</div>" +
+      "<span>Sain</span><div class='kcb-grid' style='grid-template-columns:repeat(" + n + ",minmax(0,1fr))" + (ph ? " 44px" : "") + "'>" + cols("s") + incl("s") + "</div></div>" + how + "</div>";
   }
   function ch(b) { var on = b.classList.contains("sel"); [].forEach.call(b.parentNode.children, function (x) { x.classList.remove("sel"); }); if (!on) b.classList.add("sel"); }
   function collect() {
@@ -625,6 +626,13 @@ var KineCabinet = (function () {
     var el = sheet().querySelector("input[data-m='" + I.m + "'][data-s='" + I.sd + "'][data-i='0']");
     if (el) { el.value = String(I.res); live(); }
     inclClose();
+  }
+  // Test de saut au téléphone : les essais remplissent les cases (hauteur), ou le RSI et le temps de contact
+  function saut(m, sd) {
+    var d = KP.M[m]; if (!window.KineSaut) return;
+    var put = function (k, i, v) { var el = sheet().querySelector("input[data-m='" + k + "'][data-s='" + sd + "'][data-i='" + i + "']"); if (el) el.value = String(v).replace(".", ","); };
+    KineSaut.test({ mode: d.saut, title: d.saut === "rsi" ? "Sauts répétés" : d.l, side: d.s ? "côté " + (sd === "a" ? "atteint" : "sain") : "", n: d.n || 1,
+      onUse: function (v) { if (d.saut === "rsi") { put("rsi", 0, v.rsi); put("tcs", 0, v.tc); } else v.slice(0, d.n || 1).forEach(function (x, i) { put(m, i, x); }); live(); } });
   }
   function inclClose() { window.removeEventListener("deviceorientation", onOri); window.removeEventListener("devicemotion", onMot); var el = $("kcb-incl"); if (el) el.classList.remove("open"); I = null; }
 
@@ -817,7 +825,7 @@ var KineCabinet = (function () {
     fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
-    incl: incl, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
+    incl: incl, saut: saut, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
     guide: guide, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2
   };

@@ -412,3 +412,54 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   await shot(page, info, "9-nouvel-exercice");
   await clean(errs);
 });
+
+test("test de saut au téléphone et réception sur signal", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.addScriptTag({ path: require("path").join(__dirname, "saut-sim.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => { KineCabinet.setKine(); KineCabinet.nouveau(); });
+  await page.fill("#kcb-alias", "J.S.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.bilan());
+  await expect(page.locator("input[data-m=hopv][data-s=a][data-i='0']")).toHaveCount(1);
+  // saut vertical sur une jambe : 3 essais détectés, hauteur calculée à partir du temps de vol
+  await page.evaluate(() => { KineCabinet.saut("hopv", "a"); KineSaut.begin(); });
+  await expect(page.locator("#ks-test .kcb-ang")).toHaveText("Prêt");
+  for (const tf of [0.36, 0.4, 0.38]) {
+    await page.evaluate((tf) => { KineSaut._feed(sautSim([{ tf }])); }, tf);
+    await expect(page.locator("#ks-test .kcb-ang.big")).toContainText("cm");
+    if (tf !== 0.38) await page.evaluate(() => KineSaut.begin());
+  }
+  await shot(page, info, "40-test-saut");
+  await page.evaluate(() => KineSaut.use());
+  const v = await page.evaluate(() => [0, 1, 2].map(i => +document.querySelector("input[data-m=hopv][data-s=a][data-i='" + i + "']").value.replace(",", ".")));
+  expect(v[1]).toBeGreaterThan(19); expect(v[1]).toBeLessThan(21.5); expect(v[0]).toBeLessThan(v[1]);
+  // sauts répétés : RSI et temps de contact
+  await page.evaluate(() => { KineCabinet.saut("rsi", "a"); KineSaut.begin();
+    const js = []; for (let i = 0; i < 10; i++) js.push({ tf: 0.42, tc: 0.21, rebound: true });
+    KineSaut._feed(sautSim(js)); });
+  await expect(page.locator("#ks-test .ks-c")).toContainText("RSI");
+  await page.evaluate(() => KineSaut.use());
+  const r = await page.evaluate(() => ({ rsi: +document.querySelector("input[data-m=rsi][data-s=a][data-i='0']").value.replace(",", "."), tc: +document.querySelector("input[data-m=tcs][data-s=a][data-i='0']").value }));
+  expect(r.rsi).toBeGreaterThan(0.9); expect(r.rsi).toBeLessThan(1.25); expect(r.tc).toBeGreaterThan(180); expect(r.tc).toBeLessThan(250);
+  // réception sur signal : réglages, puis la jambe s'affiche pendant le saut
+  const lib = await page.evaluate(() => ({ e: !!(KineBiblio.find("Réception sur signal") || {}).reactif, lca: KineParcours.exos("lca_op", KineParcours.P.lca_op.etapes.length - 1, {}).indexOf("Réception sur signal") >= 0 }));
+  expect(lib).toEqual({ e: true, lca: true });
+  await page.evaluate(() => { document.querySelectorAll(".kf-sheet.open").forEach(e => e.classList.remove("open")); KineReactif.open("signal"); });
+  await expect(page.locator("#kr-sheet .kr-svg")).toBeVisible();
+  await page.waitForTimeout(1500);
+  await shot(page, info, "41-reception-signal");
+  await page.evaluate(() => { KineReactif._set("sig", "tot"); KineReactif.start(); });
+  await expect(page.locator("#kr-run .kr-sig")).toBeVisible({ timeout: 9000 });
+  await shot(page, info, "42-signal-en-cours");
+  await page.evaluate(() => KineReactif.stop());
+  await clean(errs);
+});

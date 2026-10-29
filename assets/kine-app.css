@@ -3346,3 +3346,19 @@ html.kf-typing .kf-me { display: none; }
 .kq-ans { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-top: 1px solid var(--border); }
 .kq-ans span { font-size: .85rem; color: var(--text2); line-height: 1.4; }
 .kq-ans b { font: 700 1rem var(--font); }
+/* Test de saut au téléphone */
+.ks-card p { margin: 0; line-height: 1.45; }
+.ks-fig { color: var(--text2); display: flex; justify-content: center; }
+.ks-note { font-size: .85rem; color: var(--text3); }
+.ks-c { text-align: center; color: var(--text2); font-size: .9rem; }
+.ks-count { text-align: center; font: 800 1.6rem/1 var(--lu-head); color: var(--text2); }
+.ks-trials { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+.ks-trials span { background: var(--card, rgba(127,127,127,.08)); border-radius: 14px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.ks-trials i { font-style: normal; font-size: .75rem; color: var(--text3); }
+.ks-trials b { font: 800 1.15rem/1.1 var(--lu-head); }
+.ks-trials small { font-size: .72rem; color: var(--text3); }
+#ks-stab { text-align: center; font-size: .85rem; color: var(--text3); }
+#ks-stab.ok { color: #0B6E59; font-weight: 700; }
+/* Réception sur signal */
+#kr-run .kr-sig { display: flex; flex-direction: column; align-items: center; gap: .1em; font-size: clamp(3rem, 17vw, 7rem); }
+#kr-run .kr-sig i { font-style: normal; font-size: 1.5em; line-height: .9; }

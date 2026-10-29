@@ -87,12 +87,40 @@
       action: "À chaque couleur, va toucher le plot de cette couleur avec le pied, puis repose le pied au centre.",
       cue: "Reste bien assis, le dos droit. Pour plus de difficulté, alterne les pieds.",
       spots: [[85, 70], [150, 40], [215, 70], [230, 130]], feet: "seat",
-      av: [[0.42, 0.36], [0, 0.56], [-0.42, 0.36], [-0.46, -0.02]] }
+      av: [[0.42, 0.36], [0, 0.56], [-0.42, 0.36], [-0.46, -0.02]] },
+    { id: "signal", name: "Réception sur signal", level: 3, sides: false, signal: true,
+      kit: "un sol dégagé et non glissant, et ton téléphone posé à hauteur des yeux, à 2 ou 3 mètres",
+      place: "Debout, pieds largeur de bassin, face au téléphone.",
+      action: "Au bip « Saute », saute bien haut sur tes deux pieds. Pendant le saut, l'écran et Yass t'annoncent ta réception : gauche, droite ou deux pieds. Atterris comme annoncé et tiens 3 secondes, immobile.",
+      cue: "Réception en douceur : genou fléchi et dans l'axe du pied, bassin bien horizontal. Commence avec le signal « Tôt », puis « En l'air » quand c'est facile.",
+      spots: [], feet: "both", av: [] }
   ];
+  /* Réception sur signal : la jambe de réception est annoncée pendant le saut */
+  var SIG = [
+    { id: "g", name: "Gauche", big: "GAUCHE", arrow: "←", hex: "#3D8EF0", ink: "#fff", say: "Gauche !", f: 520 },
+    { id: "d", name: "Droite", big: "DROITE", arrow: "→", hex: "#FF8A2B", ink: "#1a0f05", say: "Droite !", f: 1040 },
+    { id: "2", name: "Deux pieds", big: "DEUX PIEDS", arrow: "↓", hex: "#F4F6FA", ink: "#14181f", say: "Deux pieds !", f: 780 }
+  ];
+  var MOMENTS = [["tot", "Tôt", 0, "avec le bip"], ["pendant", "Pendant l'impulsion", 300, "0,3 s après le bip"], ["air", "En l'air", 600, "0,6 s après le bip"]];
+  var SCOUNTS = [6, 10, 15];
+  var SRYTHMES = [["calme", "Calme", 7000], ["soutenu", "Soutenu", 5000], ["rapide", "Rapide", 3500]];
+  // Ordre équilibré : autant de gauche que de droite, quelques « deux pieds », jamais trois fois la même de suite
+  function sigSeq(n, deux) {
+    var k2 = deux ? Math.max(1, Math.round(n * 0.2)) : 0, half = (n - k2) / 2, out = [], i;
+    for (i = 0; i < Math.floor(half); i++) out.push(0, 1);
+    if (out.length + k2 < n) out.push(Math.random() < 0.5 ? 0 : 1);
+    for (i = 0; i < k2; i++) out.push(2);
+    for (var tries = 0; tries < 200; tries++) {
+      for (i = out.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = out[i]; out[i] = out[j]; out[j] = t; }
+      var ok = true; for (i = 2; i < out.length; i++) if (out[i] === out[i - 1] && out[i] === out[i - 2]) ok = false;
+      if (ok) break;
+    }
+    return out;
+  }
   var LVL = { 1: ["vert", "Facile"], 2: ["orange", "Intermédiaire"], 3: ["rouge", "Difficile"] };
 
   function settings() {
-    var s = Object.assign({ exo: "fentes", count: 15, rythme: "soutenu", pieges: false }, jget("kf-reactif-set", {}));
+    var s = Object.assign({ exo: "fentes", count: 15, rythme: "soutenu", pieges: false, sig: "pendant", deux: true, scount: 10 }, jget("kf-reactif-set", {}));
     if (!Array.isArray(s.cols) || s.cols.length < 2) s.cols = ["rouge", "bleu", "jaune", "vert"].slice(0, Math.min(4, Math.max(2, s.ncol || 3)));
     if (!EXOS.some(function (e) { return e.id === s.exo; })) s.exo = "fentes";
     return s;
@@ -105,6 +133,11 @@
 
   /* ── Schéma de placement ── */
   function diagram(ex, cols) {
+    if (ex.signal) return "<svg class='kr-svg' viewBox='0 0 300 120' role='img' aria-label='Les trois signaux de réception'>" + SIG.map(function (g, i) {
+        var x = 55 + i * 95;
+        return "<rect x='" + (x - 42) + "' y='18' width='84' height='60' rx='12' fill='" + g.hex + "'/><text x='" + x + "' y='58' text-anchor='middle' font-size='28' font-weight='800' fill='" + g.ink + "'>" + g.arrow + "</text>" +
+          "<text x='" + x + "' y='102' text-anchor='middle' font-size='13' font-weight='700' fill='currentColor'>" + g.name + "</text>";
+      }).join("") + "</svg>";
     var cones = ex.spots.slice(0, cols.length).map(function (p, i) {
       var c = cols[i];
       return "<g><path d='M" + (p[0] - 11) + " " + (p[1] + 9) + " L" + p[0] + " " + (p[1] - 12) + " L" + (p[0] + 11) + " " + (p[1] + 9) + " Z' fill='" + c.hex + "' stroke='" + (c.ring ? "rgba(255,255,255,.75)" : "rgba(0,0,0,.35)") + "' stroke-width='1.5'/>" +
@@ -127,6 +160,7 @@
   /* ── Démonstration par l'avatar : Yass va toucher les plots de vos couleurs ── */
   function avDef(ex, cols) {
     var L = KineAvatar.lib, M = L.merge, n = cols.length;
+    if (ex.signal) return sigAv(L, M);
     var ARMS_BAL = { LA: { ang: [25, 30, 0, 25] }, RA: { ang: [25, 30, 0, 25] } };
     var base = ex.id === "assis" ? M({ pelvis: { p: [0, 0.53, -0.36], r: [0, 0, 0] }, spine: [6, 0, 0], head: 0,
                  L: { foot: { at: [0.14, 0, 0.14], yaw: 6 } }, R: { foot: { at: [-0.14, 0, 0.14], yaw: -6 } }, LA: { ang: [6, 14, 0, 50] }, RA: { ang: [6, 14, 0, 50] } }, {})
@@ -197,6 +231,34 @@
              props: ex.id === "assis" || ex.id === "bulgare" ? ["chair"] : undefined, chair: ex.id === "bulgare" ? { z: -0.14 } : undefined, noIso: true, start: "mid",
              cones: ex.av.slice(0, n).map(function (c, i) { return { at: c, hex: cols[i].hex }; }), poses: poses };
   }
+  // Réception sur signal : Yass se baisse, saute, puis atterrit sur la jambe annoncée (c0 gauche, c1 droite, c2 deux pieds)
+  function sigAv(L, M) {
+    var st = L.STAND(0.12, 6), arms = function (a) { return { LA: { ang: a.slice() }, RA: { ang: a.slice() } }; };
+    var tuck = function (x) { return { foot: { at: [x, 0.32, -0.14], yaw: 0, lift: 35 } }; };
+    return { camera: { yaw: Math.PI - 0.35, pitch: 0.3, dist: 4.4, ty: 0.85, tz: 0.05 }, noIso: true, start: "mid",
+      poses: {
+        mid: M(st, arms([10, 14, 0, 20])),
+        k: M(st, { pelvis: { p: [0, 0.74, -0.12], r: [30, 0, 0] }, spine: [14, 0, 0], head: -8 }, arms([-35, 12, 0, 12])),
+        j: M(st, { pelvis: { p: [0, 1.1, 0], r: [4, 0, 0] }, L: { foot: { at: [0.11, 0.18, 0.06], yaw: 6, lift: -20 } }, R: { foot: { at: [-0.11, 0.18, 0.06], yaw: -6, lift: -20 } } }, arms([150, 14, 0, 18])),
+        c0: M(st, { pelvis: { p: [0.07, 0.82, -0.05], r: [18, 0, 0] }, spine: [8, 0, 0], L: { foot: { at: [0.1, 0, 0.1], yaw: 6 } }, R: tuck(-0.12) }, arms([30, 42, 0, 30])),
+        c1: M(st, { pelvis: { p: [-0.07, 0.82, -0.05], r: [18, 0, 0] }, spine: [8, 0, 0], R: { foot: { at: [-0.1, 0, 0.1], yaw: -6 } }, L: tuck(0.12) }, arms([30, 42, 0, 30])),
+        c2: M(st, { pelvis: { p: [0, 0.76, -0.1], r: [26, 0, 0] }, spine: [10, 0, 0], L: { foot: { at: [0.12, 0, 0.12], yaw: 8 } }, R: { foot: { at: [-0.12, 0, 0.12], yaw: -8 } } }, arms([45, 16, 0, 30]))
+      } };
+  }
+  // Boucle de démonstration : « Saute », envol, signal, réception tenue
+  function sigLoop(A, tag, wait) {
+    var last = -1;
+    (function cycle() {
+      var i; do { i = Math.floor(Math.random() * 3); } while (i === last); last = i;
+      var g = SIG[i];
+      if (tag) { tag.textContent = "Saute"; tag.style.background = "#0E141F"; tag.style.color = "#fff"; tag.classList.add("on"); }
+      A.step({ pose: "k", dur: 0.4 });
+      wait(420, function () { A.step({ pose: "j", dur: 0.26 });
+        wait(260, function () { if (tag) { tag.textContent = g.name; tag.style.background = g.hex; tag.style.color = g.ink; }
+          A.step({ pose: "c" + i, dur: 0.24 });
+          wait(1500, function () { if (tag) tag.classList.remove("on"); A.step({ pose: "mid", dur: 0.6 }); wait(1100, cycle); }); }); });
+    })();
+  }
   var demoId = 0;
   function demo(stage, ex, cols) {
     if (!stage || !window.KineAvatar || !KineAvatar.register || !KineAvatar.lib) { if (stage) stage.remove(); return; }
@@ -206,6 +268,7 @@
     var id = ++demoId, tag = stage.querySelector(".kr-tag"), last = -1;
     var alive = function () { return id === demoId && stage.isConnected; };
     function wait(ms, f) { setTimeout(function () { if (alive()) f(); else if (id === demoId && stage.querySelector("canvas")) KineAvatar.hide(); }, ms); }
+    if (ex.signal) { sigLoop(KineAvatar, tag, wait); return; }
     (function cycle() {
       var i; do { i = Math.floor(Math.random() * cols.length); } while (i === last && cols.length > 1); last = i;
       var c = cols[i];
@@ -237,6 +300,7 @@
     if (!A.show(box, "__kr_mini")) return false;
     var last = -1;
     function wait(ms, f) { setTimeout(function () { if (alive()) f(); }, ms); }
+    if (ex.signal) { sigLoop(A, null, wait); return true; }
     (function cycle() {
       var i; do { i = Math.floor(Math.random() * cols.length); } while (i === last && cols.length > 1); last = i;
       if (avHop) {
@@ -262,14 +326,14 @@
     var ex = exoOf(s.exo), hist = jget("kf-reactif-hist", []), last = hist.filter(function (h) { return h.exo === ex.id; })[0];
     var chip = function (cls, val, cur, txt) { return "<button type='button' class='" + (val === cur ? "sel" : "") + "' onclick='KineReactif._set(\"" + cls + "\"," + JSON.stringify(val) + ")'>" + txt + "</button>"; };
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineReactif.close()' aria-label='Retour'>←</button>" +
-      "<div class='kf-h1'>Exercices réactifs</div><div class='kf-sub'>L'écran s'allume d'une couleur et Yass l'annonce : va toucher le plot de cette couleur, le plus vite possible, puis reviens.</div>" +
+      "<div class='kf-h1'>Exercices réactifs</div><div class='kf-sub'>" + (ex.signal ? "Tu sautes, et pendant le saut Yass t'annonce sur quelle jambe atterrir : à toi de réagir en l'air." : "L'écran s'allume d'une couleur et Yass l'annonce : va toucher le plot de cette couleur, le plus vite possible, puis reviens.") + "</div>" +
       (SESS ? "<p class='kr-sesstag'>Dans ta séance" + (SESS.serie ? " : série " + SESS.serie : "") + ". Règle la série, puis « C'est parti ».</p><div class='kr-exos' style='display:none'>" : "<div class='kr-exos'>") + EXOS.map(function (e) {
         return "<button type='button' class='kr-exo" + (e.id === ex.id ? " on" : "") + "' onclick='KineReactif._set(\"exo\",\"" + e.id + "\")'><i class='kb-dot c" + e.level + "'></i><b>" + esc(e.name) + "</b><span>" + LVL[e.level][1] + (e.sides ? ", des deux côtés" : "") + "</span></button>";
       }).join("") + "</div>" +
       "<div class='kr-place'>" + (window.KineAvatar && KineAvatar.lib ? "<div class='kr-demo'><div class='kr-stage'></div><span class='kr-tag'></span></div>" : "") + diagram(ex, mine(s)) +
-        "<p><strong>Mise en place.</strong> " + esc(ex.place) + "</p><p><strong>À chaque couleur.</strong> " + esc(ex.action) + "</p>" +
+        "<p><strong>Mise en place.</strong> " + esc(ex.place) + "</p><p><strong>" + (ex.signal ? "À chaque saut." : "À chaque couleur.") + "</strong> " + esc(ex.action) + "</p>" +
         "<p class='kr-cue'>" + esc(ex.cue) + "</p></div>" +
-      "<div class='kf-phase' style='color:var(--text2)'>Mes couleurs</div>" +
+      (ex.signal ? sigOpts(s, chip) : (      "<div class='kf-phase' style='color:var(--text2)'>Mes couleurs</div>" +
       "<p class='lx-muted kr-small'>Touche les couleurs de tes plots, de 2 à 4. Choisies : " + s.cols.length + ".</p>" +
       "<div class='kr-swatch kr-pick'>" + COLS.map(function (c) {
         var on = s.cols.indexOf(c.id) >= 0;
@@ -279,13 +343,21 @@
       "<div class='kf-phase' style='color:var(--text2)'>Couleurs par série" + (ex.sides ? " (pour chaque " + ex.sideWord + ")" : "") + "</div><div class='kf-chips'>" + COUNTS.map(function (n) { return chip("count", n, s.count, String(n)); }).join("") + "</div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Rythme</div><div class='kf-chips'>" + RYTHMES.map(function (r) { return chip("rythme", r[0], s.rythme, r[1] + " <small>· " + (r[2] / 1000).toString().replace(".", ",") + " s</small>"); }).join("") + "</div>" +
       "<div class='kf-phase' style='color:var(--text2)'>Pièges</div><div class='kf-chips'>" + chip("pieges", false, !!s.pieges, "Non") + chip("pieges", true, !!s.pieges, "Oui") + "</div>" +
-      "<p class='lx-muted kr-small'>Avec les pièges, l'écran affiche parfois « Pas le bleu » : il ne faut pas bouger. Ça entraîne l'attention et le contrôle.</p>" +
-      (last ? "<p class='lx-muted kr-small'>Dernière fois : " + last.n + " couleurs, rythme " + esc(last.r) + ", le " + esc(last.d) + ".</p>" : "") +
+      "<p class='lx-muted kr-small'>Avec les pièges, l'écran affiche parfois « Pas le bleu » : il ne faut pas bouger. Ça entraîne l'attention et le contrôle.</p>")) +
+      (last ? "<p class='lx-muted kr-small'>Dernière fois : " + last.n + (ex.signal ? " sauts" : " couleurs") + ", rythme " + esc(last.r) + ", le " + esc(last.d) + ".</p>" : "") +
       "<div class='kf-kit'><strong>Il te faut :</strong> " + esc(ex.kit) + ". Espace dégagé, sol non glissant. Arrête si une douleur atteint 5 sur 10, ou en cas de vertige.</div>" +
       "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineReactif.start()'>C'est parti</button></div>";
     el.classList.add("open");
     var dm = el.querySelector(".kr-demo"); if (dm) demo(dm, ex, mine(s));
     var st = el.querySelector(".kr-sesstag"); if (st && window.KineExplique) KineExplique.once("reactifSeance", st);
+  }
+  // Réglages propres à la réception sur signal
+  function sigOpts(s, chip) {
+    return "<div class='kf-phase' style='color:var(--text2)'>Moment du signal</div><div class='kf-chips'>" + MOMENTS.map(function (m) { return chip("sig", m[0], s.sig, m[1] + " <small>· " + m[3] + "</small>"); }).join("") + "</div>" +
+      "<p class='lx-muted kr-small'>Tôt : la jambe est annoncée avec le bip, tu as le temps de te préparer. En l'air : elle arrive pendant le vol, il faut réagir vite.</p>" +
+      "<div class='kf-phase' style='color:var(--text2)'>Sauts par série</div><div class='kf-chips'>" + SCOUNTS.map(function (n) { return chip("scount", n, s.scount, String(n)); }).join("") + "</div>" +
+      "<div class='kf-phase' style='color:var(--text2)'>Récupération entre deux sauts</div><div class='kf-chips'>" + SRYTHMES.map(function (r) { return chip("rythme", r[0], s.rythme, r[1] + " <small>· " + (r[2] / 1000).toString().replace(".", ",") + " s</small>"); }).join("") + "</div>" +
+      "<div class='kf-phase' style='color:var(--text2)'>Réception sur les deux pieds aussi</div><div class='kf-chips'>" + chip("deux", true, !!s.deux, "Oui") + chip("deux", false, !!s.deux, "Non") + "</div>";
   }
   function setOpt(k, v) { var s = settings(); s[k] = v; save(s); var el = $("kr-sheet"), top = el ? el.querySelector(".kf-sheet-body").scrollTop : 0; open(); if (el) el.querySelector(".kf-sheet-body").scrollTop = top; }
   function toggleCol(id) {
@@ -325,7 +397,8 @@
   function later(fn, ms) { run.t = setTimeout(function () { if (run && !run.paused) fn(); else if (run) run.resume = fn; }, ms); }
 
   function start() {
-    var s = settings(), ex = exoOf(s.exo), r = RYTHMES.filter(function (x) { return x[0] === s.rythme; })[0] || RYTHMES[1];
+    var s = settings(), ex = exoOf(s.exo), r = (ex.signal ? SRYTHMES : RYTHMES).filter(function (x) { return x[0] === s.rythme; })[0] || (ex.signal ? SRYTHMES : RYTHMES)[1];
+    if (ex.signal) s.count = s.scount;
     if (SESS) SESS.starting = true;
     close();
     if (SESS) SESS.starting = false;
@@ -338,6 +411,7 @@
     side();
   }
   function side() {
+    if (run.ex.signal) return sigSide();
     run.seq = sequence(run.s.count, run.cols.length).map(function (c, i) {
       return { c: c, trap: !!run.s.pieges && i >= 2 && Math.random() < 0.2 };
     });
@@ -369,6 +443,42 @@
     if (navigator.vibrate) { try { navigator.vibrate(60); } catch (e) {} }
     later(cue, run.every);
   }
+  /* ── Réception sur signal : bip-bip-« Saute », puis la jambe annoncée pendant le saut, réception tenue 3 s ── */
+  function sigSide() {
+    var mo = MOMENTS.filter(function (m) { return m[0] === run.s.sig; })[0] || MOMENTS[1];
+    run.delay = mo[2]; run.seq = sigSeq(run.s.count, !!run.s.deux); run.i = 0; run.cnt = [0, 0, 0]; run.sideTxt = "";
+    paint("#0E141F", "#fff", "Prêt ?", "Face au téléphone, pieds largeur de bassin. Deux bips, puis « Saute » : la jambe de réception s'affiche pendant le saut.", "");
+    say("Mets-toi en place.");
+    later(sigRep, 4000);
+  }
+  function sigRep() {
+    if (run.i >= run.seq.length) return finish(true);
+    var g = SIG[run.seq[run.i]], prog = (run.i + 1) + " / " + run.seq.length;
+    run.i++; run.calls = (run.calls || 0) + 1;
+    paint("#0E141F", "#fff", "Prêt", "Saut " + prog, prog); beep(660, 0.1, 0.22);
+    later(function () {
+      beep(660, 0.1, 0.22);
+      later(function () {
+        paint("#0E141F", "#fff", "Saute !", "", prog); beep(990, 0.16, 0.3);
+        var show = function () {
+          paint(g.hex, g.ink, "<span class='kr-sig'><i aria-hidden='true'>" + g.arrow + "</i>" + g.big + "</span>", "Tiens la réception", prog);
+          screen().classList.toggle("ring", g.id === "2");
+          say(g.say); beep(g.f, 0.12, 0.3); if (g.id === "2") setTimeout(function () { beep(g.f, 0.12, 0.3); }, 150);
+          if (navigator.vibrate) { try { navigator.vibrate(g.id === "2" ? [60, 60, 60] : 90); } catch (e) {} }
+          run.done++; run.cnt[run.seq[run.i - 1]]++;
+          var hold = 3;
+          later(function tick() {
+            var sm = screen().querySelector(".kr-small2");
+            if (hold > 0) { if (sm) sm.textContent = "Tiens… " + hold; hold--; later(tick, 1000); return; }
+            if (run.i >= run.seq.length) return finish(true);
+            paint("#0E141F", "#fff", "Reviens", "Pieds largeur de bassin, face au téléphone. Prochain saut dans un instant.", prog);
+            later(sigRep, Math.max(1500, run.every - 3000));
+          }, 600);
+        };
+        if (run.delay) later(show, run.delay); else show();
+      }, 500);
+    }, 500);
+  }
   function endSide() {
     run.si++;
     if (run.si < run.sides.length) {
@@ -393,7 +503,8 @@
       jset("kf-reactif-hist", h.slice(0, 30));
     }
     if (complete) {
-      paint("#0E141F", "#fff", "Bravo !", r.done + " couleurs touchées. Note si une douleur est apparue, et pense à boire un peu d'eau.", "");
+      paint("#0E141F", "#fff", "Bravo !", r.ex.signal ? r.done + " réceptions : " + r.cnt[0] + " à gauche, " + r.cnt[1] + " à droite" + (r.cnt[2] ? ", " + r.cnt[2] + " sur les deux pieds" : "") + ". Note si une réception a été difficile ou douloureuse, et pense à boire un peu d'eau."
+        : r.done + " couleurs touchées. Note si une douleur est apparue, et pense à boire un peu d'eau.", "");
       say("Série terminée, bravo !"); if (typeof playStartBeep === "function") playStartBeep();
       var el = screen();
       el.querySelector(".kr-btns").innerHTML = SESS ? "<button type='button' onclick='KineReactif.next()'>Continuer la séance</button>"
@@ -425,7 +536,7 @@
     var c = document.createElement("button");
     c.type = "button"; c.className = "kr-libcard";
     c.innerHTML = "<span class='kr-dots' aria-hidden='true'>" + COLS.slice(0, 3).map(function (x) { return "<i style='background:" + x.hex + "'></i>"; }).join("") + "</span>" +
-      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fentes, sauts, pas chassés, squat, équilibre, assis : va vers le plot de la couleur annoncée</small></span><span aria-hidden='true'>›</span>";
+      "<span class='kr-lt'><b>Exercices réactifs : les couleurs</b><small>Fentes, sauts, pas chassés, squat, équilibre, assis, réception sur signal : réagis à ce que Yass annonce</small></span><span aria-hidden='true'>›</span>";
     c.onclick = function () { open(); };
     chips.parentNode.insertBefore(c, chips.nextSibling);
   }
@@ -445,9 +556,9 @@
   function addToLibrary() {
     if (!window.KineBiblio || !KineBiblio.extend) return;
     KineBiblio.extend(EXOS.map(function (e, i) {
-      return { name: e.name, group: "reactif", color: e.level, kit: [e.kit], reactif: e.id, thumb: thumb([COLS[i % 4].hex, COLS[(i + 1) % 4].hex, COLS[(i + 2) % 4].hex]),
-               repsLabel: "15 couleurs" + (e.sides ? " par " + e.sideWord : ""), desc: e.place + " " + e.action, cue: e.cue,
-               tip: "Avant chaque série, choisis tes couleurs, le nombre de couleurs, le rythme et les pièges.",
+      return { name: e.name, group: "reactif", color: e.level, kit: [e.kit], reactif: e.id, thumb: thumb(e.signal ? SIG.map(function (g) { return g.hex; }) : [COLS[i % 4].hex, COLS[(i + 1) % 4].hex, COLS[(i + 2) % 4].hex]),
+               repsLabel: e.signal ? "10 sauts" : "15 couleurs" + (e.sides ? " par " + e.sideWord : ""), desc: e.place + " " + e.action, cue: e.cue,
+               tip: e.signal ? "Avant chaque série, choisis le moment du signal, le nombre de sauts et la récupération." : "Avant chaque série, choisis tes couleurs, le nombre de couleurs, le rythme et les pièges.",
                stop: "Arrêt si une douleur atteint 5 sur 10, en cas de vertige ou de perte d'équilibre." };
     }));
   }
