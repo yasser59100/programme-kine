@@ -78,6 +78,10 @@ await t("un autre téléphone ne répond pas", assertFails(setDoc(doc(intrus, "p
 await t("le patient répond", assertSucceeds(setDoc(doc(patient, "patients/p1/quest/q1"), { rep: { n: 70 }, score: 70, m: { sane: 70 }, fini: "2026-10-28", tf: serverTimestamp() }, { merge: true })));
 await t("pas de deuxième réponse au même envoi", assertFails(setDoc(doc(patient, "patients/p1/quest/q1"), { rep: { n: 90 }, score: 90, m: { sane: 90 }, fini: "2026-10-29", tf: serverTimestamp() }, { merge: true })));
 await t("le kiné lit la réponse", assertSucceeds(getDoc(doc(kine, "patients/p1/quest/q1"))));
+await t("le patient note qu'il a reçu sa fiche", assertSucceeds(setDoc(doc(patient, "patients/p1/membres/anonP"), { vu: serverTimestamp() }, { merge: true })));
+await t("accusé avec une date inventée refusé", assertFails(setDoc(doc(patient, "patients/p1/membres/anonP"), { vu: Timestamp.fromMillis(1) }, { merge: true })));
+await t("accusé qui change le code refusé", assertFails(setDoc(doc(patient, "patients/p1/membres/anonP"), { vu: serverTimestamp(), code: "X" }, { merge: true })));
+await t("pas d'accusé pour un autre téléphone", assertFails(setDoc(doc(intrus, "patients/p1/membres/anonP"), { vu: serverTimestamp() }, { merge: true })));
 await env.cleanup();
 console.log(ok + " réussis, " + ko + " échoués");
 process.exit(ko ? 1 : 0);

@@ -190,7 +190,7 @@ window.fbCab = {
   // Accepter : la fiche est créée en pseudonyme, le téléphone du patient est relié, le nom complet est effacé
   accept: async function (uid, data) {
     cabNeedKine();
-    data.kine = window.fbUser.uid; data.cree = serverTimestamp(); data.tee = cabTee();
+    data.kine = window.fbUser.uid; data.cree = serverTimestamp(); if (cabTee()) data.tee = cabTee();
     var r = await addDoc(collection(db, CAB), data);
     await setDoc(doc(db, CAB, r.id, "membres", uid), { code: "demande", t: serverTimestamp() });
     await setDoc(doc(db, "liens", uid), { pid: r.id, t: serverTimestamp() });
@@ -214,10 +214,15 @@ window.fbCab = {
       getDocs(collection(db, CAB, pid, "journal")).catch(function () { return { docs: [] }; }),
       getDocs(collection(db, CAB, pid, "quest")).catch(function () { return { docs: [] }; })]);
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]); o.journal = cabRows(r[5]); o.quest = cabRows(r[6]);
+    // Dernière fois que le téléphone du patient a reçu sa fiche (accusé de réception)
+    o.vu = 0; r[3].docs.forEach(function (m) { var v = m.data().vu; if (v && v.toMillis && v.toMillis() > o.vu) o.vu = v.toMillis(); });
+    o.quest.forEach(function (x) { if (x.t && x.t.toMillis) x.tms = x.t.toMillis(); });
     return o;
   },
-  create: async function (data) { cabNeedKine(); data.kine = window.fbUser.uid; data.cree = serverTimestamp(); data.tee = cabTee(); var r = await addDoc(collection(db, CAB), data); return r.id; },
-  save: async function (pid, data) { cabNeedKine(); data.maj = serverTimestamp(); data.tee = cabTee(); await setDoc(cabRef(pid), data, { merge: true }); },
+  create: async function (data) { cabNeedKine(); data.kine = window.fbUser.uid; data.cree = serverTimestamp(); if (cabTee()) data.tee = cabTee(); var r = await addDoc(collection(db, CAB), data); return r.id; },
+  save: async function (pid, data) { cabNeedKine(); data.maj = serverTimestamp(); if (cabTee()) data.tee = cabTee(); await setDoc(cabRef(pid), data, { merge: true }); },
+  // Nom du kiné sur le t-shirt : recopié tout de suite sur toutes les fiches (null : t-shirt neutre)
+  teeAll: async function (tee) { cabNeedKine(); var rows = await getDocs(collection(db, CAB)); await Promise.all(rows.docs.map(function (d) { return setDoc(d.ref, { tee: tee || null, maj: serverTimestamp() }, { merge: true }); })); },
   bilan: async function (pid, id, data) { cabNeedKine(); if (id) await setDoc(doc(db, CAB, pid, "bilans", id), data); else id = (await addDoc(collection(db, CAB, pid, "bilans"), data)).id; await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return id; },
   bilanDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "bilans", id)); },
   seance: async function (pid, data) { cabNeedKine(); var r = await addDoc(collection(db, CAB, pid, "seances"), data); await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return r.id; },
@@ -268,6 +273,8 @@ window.fbPat = {
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.quest = cabRows(r[2]);
     return o;
   },
+  // Accusé de réception : le téléphone du patient note qu'il a reçu sa fiche à jour
+  seen: async function (pid) { var u = await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "membres", u.uid), { vu: serverTimestamp() }, { merge: true }); },
   // Demande d'accès sans code : prénom, nom, un mot facultatif
   request: async function (data) { var u = await cabAnon(); await setDoc(doc(cabDb, "demandes", u.uid), { prenom: data.prenom, nom: data.nom, msg: data.msg || "", t: serverTimestamp() }); },
   cancel: async function () { var u = await cabAnon(); await deleteDoc(doc(cabDb, "demandes", u.uid)); },
@@ -651,6 +658,7 @@ window.fbGetStats = async function() {
 </div>
 
 <!-- PAGE COMMUNAUTÉ -->
+<div class="page" id="page-monkine"><div class="content" id="monkine-body"></div></div>
 <div class="page" id="page-community">
 <div class="content">
   <div class="community-header">
@@ -698,7 +706,7 @@ window.fbGetStats = async function() {
   <button class="bnav-btn" onclick="showPage('guide')" id="bn-guide"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg></span><span>Exercices</span></button>
   <button class="bnav-btn bnav-coach" onclick="showPage('mes');window.KineCompose&&KineCompose.tab()" id="bn-mes" aria-label="Ma séance"><span class="bnav-icon bnav-face" id="bn-mes-face"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></span><span>Ma séance</span></button>
   <button class="bnav-btn" onclick="showPage('suivi')" id="bn-suivi"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span><span>Progrès</span></button>
-  <button class="bnav-btn" onclick="showPage('community')" id="bn-community"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg></span><span>Communauté</span></button>
+  <button class="bnav-btn" onclick="showPage('monkine')" id="bn-monkine"><span class="bnav-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v6a4 4 0 0 0 8 0V3"/><path d="M10 13v2a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/></svg></span><span>Mon kiné</span></button>
 </nav>
 
 <div class="signature">Programme établi par <strong>Yasser Ladraa, Kinésithérapeute</strong>, Renforcement musculaire poids du corps, Cycle 4 semaines, Usage thérapeutique post-hospitalisation<span class="klg-foot">Ne remplace pas un avis médical. Arrête en cas de douleur vive. <button type="button" onclick="KineLegal.open('sante')">Santé et confidentialité</button></span></div>
@@ -730,7 +738,7 @@ function toggleDark(){
 })();
 
 // ══ NAVIGATION ══
-var pageMap={home:'bn-home',guide:'bn-guide',mes:'bn-mes',day0:null,day1:null,day2:null,day3:null,day4:null,suivi:'bn-suivi',community:'bn-community'};
+var pageMap={home:'bn-home',guide:'bn-guide',mes:'bn-mes',day0:null,day1:null,day2:null,day3:null,day4:null,suivi:'bn-suivi',community:null,monkine:'bn-monkine'};
 function showPage(id){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('active');});
@@ -738,6 +746,7 @@ function showPage(id){
   var bn=pageMap[id];
   if(bn) document.getElementById(bn).classList.add('active');
   window.scrollTo(0,0);
+  if(id==='monkine'&&window.KineMonSuivi&&KineMonSuivi.page) KineMonSuivi.page(true);
 }
 
 // ══ TIMER ══
@@ -1428,8 +1437,8 @@ var obSlides = [
   },
   {
     icon: "people",
-    title: "La communauté",
-    desc: "Dans l'onglet Communauté, partage tes séances et encourage les autres patients du cabinet. Crée un compte pour rejoindre le groupe."
+    title: "Mon kiné",
+    desc: "Dans l'onglet Mon kiné, retrouve ton suivi au cabinet : ton étape, tes bilans, la séance et les questionnaires que ton kiné t'envoie."
   }
 ];
 function showOb() {
@@ -3392,7 +3401,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-souple.js" defer></script>
 <script src="assets/js/kine-variantes.js" defer></script>
 <script src="assets/js/kine-reactif.js" defer></script>
-<script src="assets/js/kine-saut.js" defer></script>
 <script src="assets/js/kine-camsetup.js" defer></script>
 <script src="assets/js/kine-camera.js" defer></script>
 <script src="assets/js/kine-explique.js" defer></script>
@@ -3402,9 +3410,16 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-ludique.js" defer></script>
 <script src="assets/js/kine-stats.js" defer></script>
 <script src="assets/js/kine-legal.js" defer></script>
-<script src="assets/js/kine-parcours.js" defer></script>
-<script src="assets/js/kine-quest.js" defer></script>
-<script src="assets/js/kine-cabinet.js" defer></script>
+<script>
+// Espace kiné et suivi au cabinet : chargés seulement quand ils servent (kiné, ou patient relié à son kiné)
+window.kfNeed = function (g) {
+  var G = { suivi: ["kine-parcours", "kine-quest", "kine-saut", "kine-cabinet"] }, L = window.__kfL = window.__kfL || {};
+  if (L[g]) return L[g];
+  return L[g] = G[g].reduce(function (p, n) { return p.then(function () { return new Promise(function (ok) {
+    var e = document.createElement("script"); e.src = "assets/js/" + n + ".js"; e.onload = ok; e.onerror = ok; document.head.appendChild(e); }); }); }, Promise.resolve())
+    .then(function () { window.dispatchEvent(new Event("kf-" + g)); });
+};
+</script>
 <script src="assets/js/kine-monsuivi.js" defer></script>
 <script src="assets/js/kine-role.js" defer></script>
 </body>

@@ -180,6 +180,12 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.exp > request.time
           && request.resource.data.t == request.time;
       }
+      // Accusé de réception : le téléphone du patient note seulement l'heure à laquelle il a reçu sa fiche
+      match /membres/{uid} {
+        allow update: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['vu'])
+          && request.resource.data.vu == request.time;
+      }
     }
   }
 }

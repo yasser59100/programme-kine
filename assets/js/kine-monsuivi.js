@@ -4,7 +4,11 @@
    En retour, le téléphone envoie un résumé de la semaine (nombre de séances, douleur moyenne), rien d'autre. */
 var KineMonSuivi = (function () {
   "use strict";
-  var KP = window.KineParcours, KEY = "kf-cab", PUSHKEY = "kf-cab-push";
+  var KEY = "kf-cab", PUSHKEY = "kf-cab-push";
+  // Le parcours, les questionnaires et l'espace kiné ne sont chargés que pour un patient relié (ou le kiné)
+  var KP = { get: function () { return window.KineParcours ? KineParcours.get.apply(null, arguments) : null; } };
+  function kpReady() { if (window.KineParcours) KP = window.KineParcours; return !!window.KineParcours; }
+  function need() { return kpReady() ? Promise.resolve() : (window.kfNeed ? kfNeed("suivi").then(kpReady) : Promise.resolve()); }
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function jget(k, d) { try { var v = JSON.parse(localStorage.getItem(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
@@ -43,7 +47,7 @@ var KineMonSuivi = (function () {
   function refresh(force) {
     var s = state(); if (s && s.pending) return checkRequest(force);
     if (!s || !s.pid || !window.fbPat || busy) return Promise.resolve(s);
-    if (!force && s.at && Date.now() - s.at < 5 * 60000) return Promise.resolve(s);
+    if (!force && s.at && Date.now() - s.at < 60000) return Promise.resolve(s);
     busy = true;
     return fbPat.get(s.pid).then(function (d) {
       busy = false;
@@ -55,7 +59,9 @@ var KineMonSuivi = (function () {
       if (window.KineAvatar && KineAvatar.setShirt && !(window.KineRole && KineRole.role() === "kine")) KineAvatar.setShirt(d.tee || null);   // le t-shirt de Yass au nom de son kiné
       var ns = { pid: s.pid, d: d, at: Date.now() };
       jset(KEY, ns); syncSeance(d); pushHome(s.pid); slot(); journalSync(s.pid);
+      if (fbPat.seen) fbPat.seen(s.pid).catch(function () {});   // accusé de réception pour le kiné
       if ($("kms-sheet") && $("kms-sheet").classList.contains("open")) view();
+      page();
       return ns;
     }, function (e) { busy = false; console.log("Suivi cabinet indisponible", e); return s; });
   }
@@ -164,6 +170,7 @@ var KineMonSuivi = (function () {
   }
   function slot() {
     if (window.KineRole && KineRole.meButton) KineRole.meButton();
+    page();
     var box = $("suivi-v2"); if (!box) return;
     var el = $("kms-slot"); if (!el) return;
     var s = state();
@@ -183,6 +190,7 @@ var KineMonSuivi = (function () {
     var r2 = $("kms-join-row"); if (r2) r2.style.display = "none";
     if (s.lost) { el.innerHTML = "<button class='kms-card' onclick='KineMonSuivi.join()'><b>Suivi au cabinet</b><span>Ta fiche n'est plus disponible. Demande un nouveau code à ton kiné.</span></button>"; return; }
     var d = s.d; if (!d) { el.innerHTML = "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; refresh(true); return; }
+    if (!kpReady()) { el.innerHTML = "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; need().then(slot); return; }
     var P = KP.get(d.parcours), E = d.etape || 0, m = metric(d);
     el.innerHTML = (window.KineQuest ? KineQuest.patientCard(d, s.pid) : "") + "<button class='kms-card' onclick='KineMonSuivi.open()'><div class='kms-ck'><span>Suivi au cabinet</span><span>Étape " + (E + 1) + (P ? " sur " + P.etapes.length : "") + "</span></div>" +
       "<div class='kms-ct'>" + esc(P ? P.etapes[Math.min(E, P.etapes.length - 1)].nom : "Ton parcours") + "</div>" +
@@ -230,9 +238,34 @@ var KineMonSuivi = (function () {
   function preview(d) { PREV = d; view(); sheet().scrollTop = 0; }
   function view() {
     var s = PREV ? { d: PREV } : state(); if (!s || !s.d) { join(); return; }
-    var d = s.d, P = KP.get(d.parcours); if (!P) { show(back() + "<div class='kf-note'>Ton kiné prépare ton parcours.</div>"); return; }
+    if (!kpReady()) { need().then(view); return; }
+    var y = sheet().scrollTop; show(back() + (PREV ? "<div class='kms-prev'>Aperçu : ce que voit ton patient</div>" : "") + body(s, !!PREV, false)); sheet().scrollTop = y;
+  }
+  /* ════════ Onglet « Mon kiné » : le suivi au cabinet, sans ouvrir de fenêtre ════════ */
+  function page(force) {
+    var el = $("monkine-body"), pg = $("page-monkine"); if (!el || !pg || !pg.classList.contains("active")) return;
+    var s = state(), h = "<div class='kmk-head'><h1 class='lx-title'>Mon kiné</h1></div>";
+    if (s && s.pid && !kpReady()) { el.innerHTML = h + "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; need().then(function () { page(force); }); return; }
+    if (s && s.pid && s.d) h += body(s, false, true);
+    else if (s && s.pid) h += "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>";
+    else {
+      if (s && s.pending) { el.innerHTML = h + "<div class='kms-wait'><div class='kms-wh'><div><b>Demande envoyée</b><span>Ton kiné doit l'accepter</span></div></div><p>Dès qu'il l'accepte, ton suivi apparaît ici : ton étape, tes bilans et la séance qu'il t'a préparée.</p><button class='kcb-link' onclick='KineMonSuivi.cancelRequest()'>Annuler la demande</button></div>"; if (force) checkRequest(true); return; }
+      h += (s && s.refused ? "<div class='kms-wait'><div class='kms-wh'><div><b>Demande non acceptée</b><span>Parles-en à ton kiné au prochain rendez-vous</span></div></div></div>" : "") +
+        "<p class='lx-lede'>Relie ton appli à ton kiné : tu verras ton étape, tes bilans, la séance qu'il te prépare et ses questionnaires.</p>" +
+        "<div class='kmk-join'><button class='krl-row dark' onclick='KineMonSuivi.join()'><span class='krl-ic'>ABC</span><span class='krl-t'><b>J'ai un code de mon kiné</b><span>6 caractères, donnés au cabinet</span></span></button>" +
+        (window.KineRole ? "<button class='krl-row' onclick='KineRole.demande()'><span class='krl-ic soft'>?</span><span class='krl-t'><b>Demander un accès</b><span>Ton kiné reçoit ta demande et l'accepte</span></span></button>" +
+          "<button class='krl-row dash' onclick='KineRole.loginForm(\"restore\")'><span class='krl-ic grey'>↺</span><span class='krl-t'><b>J'avais déjà un suivi</b><span>Avec mon identifiant ou Google</span></span></button>" : "") + "</div>";
+    }
+    el.innerHTML = h;
+    if (force) refresh(true);
+  }
+  function body(s, prev, inline) {
+    var d = s.d, P = KP.get(d.parcours); if (!P) return "<div class='kf-note'>Ton kiné prépare ton parcours.</div>";
+    var PREV = prev;
     var E = Math.min(d.etape || 0, P.etapes.length - 1), m = metric(d), cx = ctx(d), B = d.bilans || [];
-    var html = back() + (PREV ? "<div class='kms-prev'>Aperçu : ce que voit ton patient</div>" : "") + "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>" + (!PREV && window.KineQuest ? KineQuest.patientCard(d, s.pid) : "");
+    var html = (inline ? "" : "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>") + (!PREV && window.KineQuest ? KineQuest.patientCard(d, s.pid) : "");
+    if (inline) html += "<div class='kms-card kmk-step'><div class='kms-ck'><span>" + esc(P.nom) + "</span><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span></div><div class='kms-ct'>" + esc(P.etapes[E].nom) + "</div>" +
+      (P.etapes[E].but ? "<div class='kms-cm'><span>" + esc(P.etapes[E].but) + "</span></div>" : "") + "</div>";
     if (m) {
       var pct = m.lsi ? Math.min(100, m.v) : null;
       html += "<div class='kcb-slab'><div class='kcb-slab-k'><span>" + esc(m.lab) + "</span></div><div class='kms-big'><b>" + KP.fmt(m.v) + m.u + "</b>" +
@@ -274,7 +307,7 @@ var KineMonSuivi = (function () {
     if (S.length > 1 && window.KineCabinet) html += "<div class='su-card'><div class='su-card-h'><b>" + esc(ref) + "</b><span>au cabinet</span></div>" + KineCabinet._bars(S) + "</div>";
     html += "<div class='kms-why'><b>Pourquoi passer au cabinet ?</b><span>Tes exercices ici sont tes devoirs entre deux séances. Au cabinet, ton kiné mesure ta force, corrige ton geste et décide quand tu passes à l'étape suivante.</span></div>" +
       (PREV ? "" : "<button class='kcb-link' onclick='KineMonSuivi.unlink()'>Délier ce téléphone</button>");
-    var y = sheet().scrollTop; show(html); sheet().scrollTop = y;
+    return html;
   }
   function go() {
     syncSeance((state() || {}).d || {});
@@ -287,8 +320,8 @@ var KineMonSuivi = (function () {
     jset("kf-custom", jget("kf-custom", []).filter(function (x) { return x.id !== "kine"; }));
     close(); slot();
   }
-  function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; }
+  function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; page(); }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();

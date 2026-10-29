@@ -6,7 +6,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
   function full(pid){ var p = D.patients[pid]; if(!p) return null; var o = JSON.parse(JSON.stringify(p.doc)); o.id = pid;
     o.bilans = Object.keys(p.bilans).map(function(k){ var b = JSON.parse(JSON.stringify(p.bilans[k])); b.id=k; return b; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; });
     o.seances = Object.keys(p.seances).map(function(k){ var b = JSON.parse(JSON.stringify(p.seances[k])); b.id=k; return b; }).sort(function(a,b){ return a.d < b.d ? 1 : (a.d > b.d ? -1 : (a.id < b.id ? 1 : -1)); });
-    o.maison = Object.keys(p.maison).map(function(k){ return p.maison[k]; }); o.membres = p.membres; o.journal = Object.keys(p.journal || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.journal[k])); x.id = k; return x; }); o.notes = Object.keys(p.notes).map(function(k){ var x=p.notes[k]; x.id=k; return x; }); o.quest = Object.keys(p.quest || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.quest[k])); x.id = k; return x; }); return o; }
+    o.maison = Object.keys(p.maison).map(function(k){ return p.maison[k]; }); o.membres = p.membres; o.journal = Object.keys(p.journal || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.journal[k])); x.id = k; return x; }); o.notes = Object.keys(p.notes).map(function(k){ var x=p.notes[k]; x.id=k; return x; }); o.quest = Object.keys(p.quest || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.quest[k])); x.id = k; return x; }); o.vu = p.vu || 0; return o; }
   var R = function(v){ return new Promise(function(r){ setTimeout(function(){ r(v); }, 30); }); };
   window.fbCab = {
     list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = JSON.parse(JSON.stringify(D.patients[k].doc)); o.id=k; o.maison = Object.keys(D.patients[k].maison).sort().reverse().slice(0,2).map(function(w){ return D.patients[k].maison[w]; }); return o; })); },
@@ -23,10 +23,12 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     note: function(pid, sid, d){ D.patients[pid].notes[sid] = d; return R(); },
     code: function(pid){ var c = "K7M2QX"; D.codes[c] = pid; D.patients[pid].doc.code = c; D.patients[pid].doc.codeExp = new Date(Date.now()+14*864e5).toISOString(); return R(c); },
     remove: function(pid){ delete D.patients[pid]; return R(); },
-    questSend: function(pid, d){ var k = id(); D.patients[pid].quest = D.patients[pid].quest || {}; D.patients[pid].quest[k] = JSON.parse(JSON.stringify(d)); return R(k); },
+    questSend: function(pid, d){ var k = id(); D.patients[pid].quest = D.patients[pid].quest || {}; D.patients[pid].quest[k] = JSON.parse(JSON.stringify(d)); D.patients[pid].quest[k].tms = Date.now(); return R(k); },
+    teeAll: function(t){ Object.keys(D.patients).forEach(function(k){ D.patients[k].doc.tee = t; }); return R(); },
     questDel: function(pid, k){ delete D.patients[pid].quest[k]; return R(); }
   };
   window.fbPat = {
+    seen: function(pid){ if (D.patients[pid]) D.patients[pid].vu = Date.now() + 1; return R(); },
     join: function(c){ var pid = D.codes[c]; if(!pid) return Promise.reject(new Error("code")); D.patients[pid].membres = 1; delete D.codes[c]; return R(pid); },
     get: function(pid){ var o = full(pid); if (o) { delete o.notes; } return R(o); },
     google: function(){ return D.google || null; },

@@ -15,19 +15,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: env.HAS_SA == 'true'
+      # Publication par l'API des règles (firebase-tools demandait des droits que le compte de service n'a pas)
       - name: Publier les regles Firestore
         if: env.HAS_SA == 'true'
         env:
           FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
         run: |
+          pip install -q google-auth requests >/dev/null 2>&1
           printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           set +e
-          npx -y firebase-tools@13 deploy --only firestore:rules --project programme-kine --non-interactive --debug > "$RUNNER_TEMP/log.txt" 2>&1
+          python3 - "$RUNNER_TEMP/sa.json" > /tmp/regles_log.txt 2>&1 <<'PY'
+          import sys, requests, google.auth.transport.requests
+          from google.oauth2 import service_account
+          c = service_account.Credentials.from_service_account_file(sys.argv[1], scopes=["https://www.googleapis.com/auth/cloud-platform"])
+          c.refresh(google.auth.transport.requests.Request()); h = {"Authorization": "Bearer " + c.token}
+          B = "https://firebaserules.googleapis.com/v1/projects/programme-kine"
+          loc = open("firestore.rules").read()
+          rs = requests.post(B + "/rulesets", headers=h, json={"source": {"files": [{"name": "firestore.rules", "content": loc}]}})
+          print("ruleset", rs.status_code, "" if rs.ok else rs.text[:400])
+          if not rs.ok: sys.exit(1)
+          up = requests.patch(B + "/releases/cloud.firestore", headers=h, json={"release": {"name": "projects/programme-kine/releases/cloud.firestore", "rulesetName": rs.json()["name"]}})
+          print("release", up.status_code, "" if up.ok else up.text[:400])
+          if not up.ok: sys.exit(1)
+          r2 = requests.get(B + "/releases/cloud.firestore", headers=h).json()
+          s2 = requests.get("https://firebaserules.googleapis.com/v1/" + r2["rulesetName"], headers=h).json()
+          same = "".join(f["content"] for f in s2["source"]["files"]).strip() == loc.strip()
+          print("en ligne identiques au fichier :", same)
+          sys.exit(0 if same else 1)
+          PY
           code=$?
           rm -f "$RUNNER_TEMP/sa.json"
-          # Journal sans secret, pour diagnostic (les journaux d'Actions ne sont pas lisibles depuis la session)
-          grep -v -i -E "private_key|token|authorization|bearer" "$RUNNER_TEMP/log.txt" | tail -80 > /tmp/regles_log.txt
           git config user.name "github-actions" && git config user.email "actions@github.com"
           git fetch -q origin diag || true
           git checkout -q -B diag

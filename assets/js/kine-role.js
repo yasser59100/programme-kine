@@ -12,6 +12,10 @@ var KineRole = (function () {
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
   function role() { return get(KEY); }
+  // Mode kiné : l'appli patient disparaît derrière l'espace kiné, jusqu'à la déconnexion
+  function mode() { document.body.classList.toggle("kf-kine", role() === "kine"); }
+  // L'espace kiné n'est chargé qu'à l'ouverture
+  function cab() { return (window.kfNeed ? kfNeed("suivi") : Promise.resolve()).then(function () { var ks = $("kcb-sheet"); if (window.KineCabinet && role() === "kine" && !(ks && ks.classList.contains("open"))) KineCabinet.open(); }); }
   var BACK = "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M15 18l-6-6 6-6'/></svg>";
   var NEXT = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' aria-hidden='true'><path d='M9 6l6 6-6 6'/></svg>";
 
@@ -33,6 +37,7 @@ var KineRole = (function () {
 
   /* ════════ 1. Le choix ════════ */
   function choose() {
+    set(KEY, null); mode();
     show("<div class='krl-brand'>Kiné<span>Force</span></div>" +
       "<div class='krl-hero' id='krl-hero'><i></i><u></u><img src='assets/lumiere/yass-salut.webp' alt='Yass, le coach de l&#39;appli, te salue'></div>" +
       "<div><h1 class='kf-h1 kcb-h1'>Bienvenue.<br>Tu es…</h1><p class='kf-sub krl-sub'>L'appli s'adapte à ton rôle. Tu pourras changer plus tard.</p></div>" +
@@ -50,7 +55,8 @@ var KineRole = (function () {
 
   /* ════════ 2. Côté patient ════════ */
   function patient() {
-    set(KEY, "patient");
+    set(KEY, "patient"); mode();
+    var c0 = cabState(); if (c0 && c0.pid) { home(); return; }   // déjà relié à son kiné : directement dans l'appli
     show(back("KineRole.choose()") +
       "<div class='krl-hero table'><i></i><em></em><img src='assets/lumiere/yass-salut.webp' alt=''><span>Ta rééducation commence ici</span></div>" +
       "<h1 class='kf-h1 kcb-h1'>Ton kiné utilise KinéForce ?</h1>" +
@@ -97,8 +103,8 @@ var KineRole = (function () {
   /* ════════ 3. Côté kiné ════════ */
   var waitAuth = null;
   function kine() {
-    set(KEY, "kine");
-    if (window.fbUser && fbUser.isAdmin) { close(); if (window.KineCabinet) KineCabinet.open(); return; }
+    set(KEY, "kine"); mode();
+    if (window.fbUser && fbUser.isAdmin) { close(); cab(); return; }
     var other = window.fbUser && !window.fbUser.isAdmin;
     show(back("KineRole.choose()") +
       "<div class='krl-hero kine'><i></i><u></u><img src='assets/lumiere/yass-salut.webp' alt=''></div>" +
@@ -108,11 +114,21 @@ var KineRole = (function () {
   }
   window.addEventListener("kf-auth", function () {
     var el = $("kf-role");
-    if (role() === "kine" && window.fbUser && fbUser.isAdmin) { if (el && el.classList.contains("open")) close(); if (waitAuth) { clearTimeout(waitAuth); waitAuth = null; } var ks = $("kcb-sheet"); if (window.KineCabinet && !(ks && ks.classList.contains("open"))) KineCabinet.open(); return; }
+    if (role() === "kine" && window.fbUser && fbUser.isAdmin) { if (el && el.classList.contains("open")) close(); if (waitAuth) { clearTimeout(waitAuth); waitAuth = null; } cab(); return; }
     if (el && el.classList.contains("open") && role() === "kine") kine();
+    // déconnecté alors qu'on était dans l'espace kiné : retour à la connexion, pas à l'appli patient
+    else if (role() === "kine" && !(window.fbUser && fbUser.isAdmin) && !waitAuth) { if (window.KineCabinet) KineCabinet.close(true); kine(); }
   });
   // Passer d'un rôle à l'autre (réglages)
-  function asPatient() { set(KEY, "patient"); if (window.KineCabinet) KineCabinet.close(); close(); if (typeof showPage === "function") showPage("home"); }
+  function asPatient() { set(KEY, "patient"); mode(); if (window.KineCabinet) KineCabinet.close(true); close(); if (typeof showPage === "function") showPage("home"); }
+  // Se déconnecter : on revient au portail « Kiné ou patient ». Le suivi du patient reste relié à ce téléphone.
+  function logout() {
+    var k = role() === "kine";
+    if (!confirm(k ? "Se déconnecter de l'espace kiné ? Tu reviendras à l'écran « Kiné ou patient »." : "Changer de profil ? Tu reviendras à l'écran « Kiné ou patient ». Ton suivi reste sur ce téléphone.")) return;
+    hubClose();
+    if (k) { if (window.KineCabinet) KineCabinet.close(true); if (window.fbSignOut && window.fbUser) try { fbSignOut(); } catch (e) {} }
+    choose();
+  }
 
   /* ════════ Mon espace : le bouton toujours visible en haut à droite ════════
      Mode patient ou kiné, lien avec son kiné (code, demande, suivi), compte de la Communauté, réglages. */
@@ -132,9 +148,6 @@ var KineRole = (function () {
   function hubClose() { var el = $("kf-hub"); if (el) el.classList.remove("open"); meButton(); }
   function hub() {
     var r = role() || "patient", c = cabState(), u = window.fbUser, admin = !!(u && u.isAdmin);
-    var seg = "<div class='khb-seg' role='group' aria-label='Mode'>" +
-      "<button class='" + (r !== "kine" ? "on" : "") + "' onclick='KineRole.hubMode(\"patient\")' aria-pressed='" + (r !== "kine") + "'>Patient</button>" +
-      "<button class='" + (r === "kine" ? "on" : "") + "' onclick='KineRole.hubMode(\"kine\")' aria-pressed='" + (r === "kine") + "'>Kiné</button></div>";
     var kine = "";
     if (r !== "kine") {
       if (c && c.pid) {
@@ -159,15 +172,14 @@ var KineRole = (function () {
     } else {
       kine = "<div class='khb-h'>Espace kiné</div><button class='krl-row dark' onclick='KineRole.hubClose();KineRole.kine()'><span class='krl-ic'>" + ME + "</span><span class='krl-t'><b>Mes patients</b><span>" + (admin ? "Connecté avec le compte kiné" : "Connexion avec ton compte Google de kiné") + "</span></span>" + NEXT + "</button>";
     }
-    var acc = "<div class='khb-h'>Compte de la Communauté</div><div class='su-card khb-acc'>" +
-      (u ? "<div><b>" + esc(u.name || "Connecté") + "</b><span>" + (admin ? "Compte kiné" : "Pour publier et encourager dans la Communauté") + "</span></div><button class='kcb-mode' onclick='KineRole.hubClose();fbSignOut()'>Se déconnecter</button>"
-         : "<div><b>Pas connecté</b><span>Pour publier et encourager les autres patients dans la Communauté.</span></div><button class='kcb-mode' onclick='KineRole.hubClose();signInWithGoogle()'>Se connecter</button>") + "</div>";
+    var acc = r === "kine" ? "<div class='khb-h'>Compte</div><div class='su-card khb-acc'><div><b>" + esc(u && u.name || "Pas connecté") + "</b><span>" + (admin ? "Compte kiné" : "Connecte-toi avec ton compte Google de kiné") + "</span></div></div>" : "";
     var more = "<div class='v2-other'>" +
-      (window.KineLumiere ? "<button class='v2-row' onclick='KineRole.hubClose();KineLumiere.settings()'><b>Réglages</b><span>›</span></button>" : "") +
-      (admin ? "<button class='v2-row' onclick='KineRole.hubClose();KineRole.choose()'><b>Revoir l'écran de bienvenue</b><span>›</span></button>" : "") + "</div>";
+      (r === "kine" && window.KineCabinet ? "<button class='v2-row' onclick='KineRole.hubClose();KineCabinet.tee()'><b>Mon nom sur le t-shirt de Yass</b><span>›</span></button>" : "") +
+      (window.KineLumiere ? "<button class='v2-row' onclick='KineRole.hubClose();KineLumiere.settings()'><b>Réglages de l'appli</b><span>›</span></button>" : "") +
+      "<button class='v2-row khb-out' onclick='KineRole.logout()'><b>" + (r === "kine" ? "Se déconnecter" : "Changer de profil (kiné ou patient)") + "</b><span>›</span></button></div>";
     var el = hubSheet();
     el.innerHTML = "<div class='kf-sheet-body'><div class='kcb-top'><button class='kf-back' onclick='KineRole.hubClose()' aria-label='Fermer'>" + BACK + "</button><span></span><i></i></div>" +
-      "<div><h1 class='kf-h1 kcb-h1'>Mon espace</h1></div><div class='khb-h'>Je suis</div>" + seg + kine + acc + more + "</div>";
+      "<div><h1 class='kf-h1 kcb-h1'>" + (r === "kine" ? "Réglages" : "Mon espace") + "</h1></div>" + (r === "kine" ? "" : kine) + acc + more + "</div>";
     el.classList.add("open"); el.scrollTop = 0;
   }
   function hubSay(t) { var m = $("khb-msg"); if (m) m.textContent = t; }
@@ -231,20 +243,22 @@ var KineRole = (function () {
   }
   function hubMode(m) {
     if (m === "kine") { hubClose(); kine(); return; }
-    set(KEY, "patient"); if (window.KineCabinet) KineCabinet.close(); hub();
+    asPatient(); hub();
   }
 
   function init() {
-    meButton();
+    meButton(); mode();
     var r = role();
     if (!r) { if (isNew()) choose(); else set(KEY, "patient"); return; }
+    var c = cabState(); if (r !== "kine" && c && (c.pid || c.pending) && window.kfNeed) setTimeout(function () { kfNeed("suivi").then(function () { if (window.KineMonSuivi) KineMonSuivi.slot(); }); }, 1200);
     if (r === "kine") {
-      if (window.fbUser && fbUser.isAdmin) { if (window.KineCabinet) KineCabinet.open(); return; }
+      if (window.fbUser && fbUser.isAdmin) { cab(); return; }
+      if (window.kfNeed) kfNeed("suivi");   // pendant que la connexion se rétablit
       // la connexion Google se rétablit en général en une seconde ou deux
       waitAuth = setTimeout(function () { waitAuth = null; if (!(window.fbUser && fbUser.isAdmin)) kine(); }, 2500);
     }
   }
   document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 400); });
 
-  return { loginForm: loginForm, loginGo: loginGo, saveGoogle: saveGoogle, restoreGoogle: restoreGoogle, hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
+  return { logout: logout, loginForm: loginForm, loginGo: loginGo, saveGoogle: saveGoogle, restoreGoogle: restoreGoogle, hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
 })();

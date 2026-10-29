@@ -73,7 +73,11 @@ var KineCabinet = (function () {
     if (!isKine()) { if (window.KineCompose) KineCompose.kine(); return; }
     if (!window.fbCab) { loading("Connexion en cours…"); setTimeout(open, 800); return; }
     view = "list"; loading();
-    Promise.all([fbCab.list(), fbCab.demandes ? fbCab.demandes().catch(function () { return []; }) : Promise.resolve([])]).then(function (r) { L = r[0]; D = r[1]; nDem = D.length; list(); }, fail);
+    Promise.all([fbCab.list(), fbCab.demandes ? fbCab.demandes().catch(function () { return []; }) : Promise.resolve([])]).then(function (r) {
+      L = r[0]; D = r[1]; nDem = D.length;
+      // nouveau téléphone du kiné : on reprend le nom du t-shirt déjà envoyé aux patients
+      if (window.KineAvatar && KineAvatar.shirt && !KineAvatar.shirt()) { var w = (L || []).filter(function (p) { return p.tee && p.tee.length; })[0]; if (w) KineAvatar.setShirt(w.tee); }
+      list(); }, fail);
   }
   var D = [];
   function initials(a) { return String(a || "?").replace(/[^A-Za-zÀ-ÿ ]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join("") || "?"; }
@@ -118,9 +122,12 @@ var KineCabinet = (function () {
   }
   function teeSave(neutral) {
     var a = neutral ? "" : ($("kcb-tee1").value || "").trim(), b = neutral ? "" : ($("kcb-tee2").value || "").trim();
-    if (window.KineAvatar && KineAvatar.setShirt) KineAvatar.setShirt(a || b ? [a, b] : null);
-    say(a || b ? "C'est enregistré : Yass porte ton nom." : "Yass porte le t-shirt neutre.");
-    open();
+    var t = a || b ? [a.slice(0, 14), b.slice(0, 14)] : null;
+    if (window.KineAvatar && KineAvatar.setShirt) KineAvatar.setShirt(t);
+    loading("Envoi à tes patients…");
+    (fbCab.teeAll ? fbCab.teeAll(t) : Promise.resolve()).then(function () {
+      say(t ? "C'est enregistré : Yass porte ton nom, chez tous tes patients." : "Yass porte le t-shirt neutre, chez tous tes patients."); open();
+    }, fail);
   }
   function setKine() { try { localStorage.setItem("kf-role", "kine"); } catch (e) {} list(); }
 
@@ -293,7 +300,7 @@ var KineCabinet = (function () {
   }
   function fiche(pid) {
     view = "fiche"; loading();
-    fbCab.get(pid).then(function (p) { if (!p) { open(); return; } C = p; sel = null; ficheView(); }, fail);
+    fbCab.get(pid).then(function (p) { if (!p) { open(); return; } C = p; sel = null; exEdit = false; ficheView(); }, fail);
   }
   function ficheView() {
     var P = KP.get(C.parcours); if (!P) { reglages(); return; }
@@ -322,6 +329,12 @@ var KineCabinet = (function () {
     if (window.KineQuest) html += KineQuest.card(C, P, "fiche");
     // exercices proposés
     var ex = KP.exos(C.parcours, E, C.opts), sent = C.exos || [];
+    if (sent.length && !exEdit) {
+      // séance déjà envoyée : un résumé, et l'accusé de réception du téléphone du patient
+      html += "<div class='su-card kcb-sent'><div class='su-card-h'><b>Séance envoyée</b><span>" + (C.exosD ? "le " + dfr(C.exosD) : "") + "</span></div>" +
+        "<div class='kcb-sentl'>" + sent.map(function (n) { return "<span><i class='kb-dot c" + (window.KineBiblio ? KineBiblio.color(n) : 0) + "' aria-hidden='true'></i>" + esc(n) + "</span>"; }).join("") + "</div>" + recu(C.exosAt) +
+        "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.exEdit(1)'>Modifier</button><button class='seq-btn-main' onclick='KineCabinet.exEdit(0)'>Nouvelle séance</button></div></div>";
+    } else {
     if (!sel) sel = sent.length ? sent.slice() : [];
     html += "<div class='su-card'><div class='su-card-h'><b>Exercices proposés</b><span>étape " + (E + 1) + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
       ex.map(function (n) {
@@ -330,7 +343,9 @@ var KineCabinet = (function () {
           "<button class='kcb-demo' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir l&#39;exercice'>" + ICON.play + "</button></div>";
       }).join("") +
       (sel.filter(function (n) { return ex.indexOf(n) < 0; }).length ? "<div class='kf-sub'>Aussi envoyés : " + esc(sel.filter(function (n) { return ex.indexOf(n) < 0; }).join(", ")) + "</div>" : "") +
-      "<button class='seq-btn-secondary' onclick='KineCabinet.sendExos()'>" + (same(sel, sent) && sent.length ? "Séance envoyée (" + sent.length + " exercices)" : "Envoyer au patient (" + sel.length + ")") + "</button></div>";
+      "<button class='seq-btn-main' onclick='KineCabinet.sendExos()'" + (sel.length ? "" : " disabled") + ">Envoyer au patient (" + sel.length + ")</button>" +
+      (sent.length ? "<button class='kcb-link' onclick='KineCabinet.exCancel()'>Annuler, garder la séance envoyée</button>" : "") + "</div>";
+    }
     // à la maison
     var w = (C.maison || [])[0];
     html += "<div class='su-card'><div class='su-card-h'><b>À la maison</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
@@ -423,7 +438,20 @@ var KineCabinet = (function () {
     fbCab.save(C.id, { etape: n, hist: hist }).then(ficheView, fail);
   }
   function pick(n) { var i = sel.indexOf(n); if (i >= 0) sel.splice(i, 1); else if (sel.length < 10) sel.push(n); else { say("10 exercices au maximum."); return; } var y = sheet().scrollTop; ficheView(); sheet().scrollTop = y; }
-  function sendExos() { var y = sheet().scrollTop; C.exos = sel.slice(); fbCab.save(C.id, { exos: C.exos }).then(function () { ficheView(); sheet().scrollTop = y; say(C.exos.length ? "Séance envoyée au patient." : "Séance retirée."); }, fail); }
+  var exEdit = false;
+  function sendExos() {
+    var y = sheet().scrollTop, data = { exos: sel.slice(), exosD: iso(), exosAt: Date.now() };
+    fbCab.save(C.id, data).then(function () { C.exos = data.exos; C.exosD = data.exosD; C.exosAt = data.exosAt; exEdit = false; sel = null; ficheView(); sheet().scrollTop = y; say("Séance envoyée au patient."); }, fail);
+  }
+  // Modifier la séance envoyée (cases déjà cochées) ou en préparer une nouvelle (cases vides)
+  function exEditGo(keep) { exEdit = true; sel = keep ? (C.exos || []).slice() : []; var y = sheet().scrollTop; ficheView(); sheet().scrollTop = y; }
+  function exCancel() { exEdit = false; sel = null; var y = sheet().scrollTop; ficheView(); sheet().scrollTop = y; }
+  // Accusé de réception : le téléphone du patient a-t-il reçu sa fiche depuis l'envoi ?
+  function recu(at) {
+    if (!C.membres) return "<div class='kcb-recu no'>Téléphone pas encore relié : il la verra dès qu'il sera relié.</div>";
+    if (at && C.vu && C.vu >= at) { var d = new Date(C.vu); return "<div class='kcb-recu ok'>" + ICON.ok + "Reçue sur son téléphone le " + dfr(iso(d)) + " à " + d.getHours() + "h" + ("0" + d.getMinutes()).slice(-2) + "</div>"; }
+    return "<div class='kcb-recu'>Pas encore reçue : elle arrivera à sa prochaine ouverture de l'appli.</div>";
+  }
   function saveMsg() {
     var t = ($("kcb-msg").value || "").trim().slice(0, 160), nx = $("kcb-next").value || "";
     var data = { next: nx, msg: t ? { t: t, d: iso() } : null };
@@ -818,7 +846,8 @@ var KineCabinet = (function () {
     if (gFor) { loading(); fbCab.save(gFor, { parcours: pid, etape: 0, done: {}, exos: [] }).then(function () { fiche(gFor); }, fail); }
   }
 
-  function close() { var el = $("kcb-sheet"); if (el) el.classList.remove("open"); }
+  // En mode kiné, l'espace kiné ne se ferme pas (seulement à la déconnexion : close(true))
+  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); }
   // Aperçu de ce que voit le patient (sans les notes du kiné)
   function asPatient() {
     var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, next: C.next, ref: C.ref, hist: C.hist,
@@ -828,7 +857,7 @@ var KineCabinet = (function () {
 
   return {
     open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, saveMsg: saveMsg,
+    fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
     incl: incl, saut: saut, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,

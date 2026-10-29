@@ -3363,3 +3363,16 @@ html.kf-typing .kf-me { display: none; }
 #kr-run .kr-sig { display: flex; flex-direction: column; align-items: center; gap: .1em; font-size: clamp(3rem, 17vw, 7rem); }
 #kr-run .kr-sig i { font-style: normal; font-size: 1.5em; line-height: .9; }
 .kq-skip { margin-top: 18px; }
+/* Portail : en mode kiné, l'appli patient n'apparaît plus */
+body.kf-kine .bottom-nav, body.kf-kine #kf-me, body.kf-kine .kf-masc, body.kf-kine #kf-masc { display: none !important; }
+/* Onglet Mon kiné */
+.kmk-head { margin-bottom: 6px; }
+.kmk-join { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.kmk-step { cursor: default; }
+/* Séance envoyée et accusé de réception */
+.kcb-sentl { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; }
+.kcb-sentl span { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.kcb-recu { font-size: .85rem; color: var(--text3); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.kcb-recu.ok { color: #0B6E59; font-weight: 700; }
+.kcb-sent .kcb-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.khb-out b { color: #C2410C; }

@@ -23,7 +23,7 @@ async function clean(errs) { const real = errs.filter(e => !IGNORE.test(e)); exp
 test("accueil et ouverture", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.goto("index.html");
-  await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await expect(page.locator(".lu-slab, .lu-hello").first()).toBeVisible();
   await navOk(page); await page.waitForTimeout(1200); await shot(page, info, "1-accueil");
   await page.evaluate(() => window.scrollBy(0, 1400)); await page.waitForTimeout(900); await shot(page, info, "2-accueil-bas");
@@ -32,7 +32,7 @@ test("accueil et ouverture", async ({ page }, info) => {
 
 test("onglets", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   const tabs = await page.locator(".bottom-nav button, .bottom-nav a").all();
   expect(tabs.length).toBeGreaterThanOrEqual(5);
   for (let i = 0; i < tabs.length; i++) {
@@ -45,7 +45,7 @@ test("onglets", async ({ page }, info) => {
 
 test("exercices : recherche et bibliothèque", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await page.evaluate(() => { showPage("guide"); KineLumiere.tab && KineLumiere.tab("lib"); });
   await page.waitForTimeout(1200);
   const q = page.locator("#lu-lib .kf-search input"); await expect(q).toBeVisible();
@@ -63,7 +63,7 @@ test("exercices : recherche et bibliothèque", async ({ page }, info) => {
 test("vrai ou faux", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   // l'accueil peut se redessiner juste après l'ouverture : on réessaie si le bloc a été remplacé
   for (let i = 0; i < 4; i++) { try { await page.locator("#ki-vf").scrollIntoViewIfNeeded({ timeout: 3000 }); break; } catch (e) { await page.waitForTimeout(500); } }
   await page.waitForTimeout(2500);
@@ -78,7 +78,7 @@ test("vrai ou faux", async ({ page }, info) => {
 
 test("caméra, bilan et réglages", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await page.evaluate(() => KineCamera.open()); await page.waitForTimeout(1500); await shot(page, info, "7-camera");
   await page.evaluate(() => KineCamera.bilan()); await page.waitForTimeout(800); await shot(page, info, "8-bilan");
   await page.evaluate(() => KineCamera.close());
@@ -91,7 +91,7 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   // sans Firebase : le programme réellement publié par le kiné ne doit pas fausser le test
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   // masqués par défaut : un patient ne voit aucun programme ciblé
   expect(await page.evaluate(() => KineTheme.available())).toEqual([]);
   // le kiné en rend un visible (programme publié), le patient le choisit
@@ -114,7 +114,7 @@ test("programmes ciblés et journal de course", async ({ page }, info) => {
 test("mode salle de sport : charge, séries et progression", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   const r = await page.evaluate(() => {
     KineOfficiel.themes = () => ({ salle: 1, sgenou: 1, sepaule: 1, sdos: 1 });
     const miss = [];
@@ -154,7 +154,7 @@ test("mode salle de sport : charge, séries et progression", async ({ page }, in
 test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   // contenu : chaque exercice proposé existe dans la bibliothèque, chaque mesure et source existe
   const miss = await page.evaluate(() => {
     const m = [];
@@ -226,7 +226,7 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
 test("questionnaires : envoi depuis le bilan, réponse du patient, retour dans la fiche", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
   await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
@@ -251,7 +251,14 @@ test("questionnaires : envoi depuis le bilan, réponse du patient, retour dans l
   await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
   await page.evaluate(() => KineMonSuivi.consent(0));
   await expect(page.locator("#kms-sheet .kq-pcard")).toBeVisible();
-  await page.locator("#kms-sheet .kq-pcard").click();
+  // l'onglet Mon kiné montre le même suivi, et le téléphone a envoyé son accusé de réception
+  await page.evaluate(() => { KineMonSuivi.close(); showPage("monkine"); });
+  await expect(page.locator("#monkine-body .kq-pcard")).toBeVisible();
+  await expect(page.locator("#monkine-body .kmk-step")).toBeVisible();
+  expect(await page.evaluate(() => Object.values(window.__db.patients)[0].vu > 0)).toBe(true);
+  await page.waitForTimeout(900);
+  await shot(page, info, "53-mon-kine-relie");
+  await page.locator("#monkine-body .kq-pcard").click();
   await expect(page.locator("#kq-sheet.open .kq-intro")).toBeVisible();
   await page.locator("#kq-sheet .seq-btn-main").click();
   await expect(page.locator("#kq-sheet .kq-q")).toContainText("ton épaule");
@@ -274,7 +281,7 @@ test("kiné ou patient : premier lancement, demande d'accès et acceptation", as
   const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
   await page.addInitScript(() => { localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-masc-off", "1"); sessionStorage.setItem("kf-ressenti-later", "1"); });
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   // nouveau téléphone : l'écran de choix s'ouvre
   await expect(page.locator("#kf-role.open .krl-card")).toHaveCount(2, { timeout: 8000 });
   await shot(page, info, "22-role-choix");
@@ -310,12 +317,13 @@ test("kiné ou patient : premier lancement, demande d'accès et acceptation", as
 test("mon espace : bouton toujours visible, code du kiné dans Progrès", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await expect(page.locator("#kf-me")).toBeVisible();
   await page.evaluate(() => showPage("suivi"));
   await expect(page.locator("#page-suivi #kms-join-row")).toBeVisible();
   await page.locator("#kf-me").click();
-  await expect(page.locator("#kf-hub.open .khb-seg button")).toHaveCount(2);
+  await expect(page.locator("#kf-hub.open .khb-seg")).toHaveCount(0);
+  await expect(page.locator("#kf-hub.open .khb-out")).toContainText("Changer de profil");
   await shot(page, info, "23-mon-espace");
   await clean(errs);
 });
@@ -323,7 +331,7 @@ test("mon espace : bouton toujours visible, code du kiné dans Progrès", async 
 test("sauvegarde : identifiant, journal des séances à la maison et récupération", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
   // le kiné crée la fiche et le code, le patient se relie et accepte la sauvegarde des séances
   await page.evaluate(async () => { window.fbUser = { uid: "k1", isAdmin: true }; const id = await fbCab.create({ alias: "S.B.", parcours: "genou", etape: 0, cote: "D", date0: "2026-10-01" }); await fbCab.code(id); window.fbUser = null; KineMonSuivi.join(); });
@@ -355,7 +363,7 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
 test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   const ok = await page.evaluate(() => ["Rentrer le menton", "Pendulaire de Codman", "Spanish squat à l'élastique", "Pied court", "Planche Copenhague", "Copenhague dynamique genou", "Extension en appui sur les mains", "Reverse Nordic", "Coquillage à l'élastique", "Torsion de serviette", "Se relever du sol", "Regard fixe en tournant la tête"]
     .every(n => KineBiblio.find(n) && KineAvatar.supports(n)));
   expect(ok).toBe(true);
@@ -416,7 +424,7 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
 test("test de saut au téléphone et réception sur signal", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
-  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
   await page.addScriptTag({ path: require("path").join(__dirname, "saut-sim.js") });
   await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
@@ -497,5 +505,51 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await page.evaluate(() => KineCabinet.bilan());
   const hv = await page.evaluate(() => ["a", "s"].map(sd => +document.querySelector("#kcb-sheet input[data-m=hopv][data-s=" + sd + "][data-i='0']").value.replace(",", ".")));
   expect(hv[0]).toBeGreaterThan(hv[1]);
+  await clean(errs);
+});
+
+test("portail : invité sans espace kiné, onglet Mon kiné, mode kiné permanent", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  await page.waitForTimeout(1500);
+  // patient sans kiné : l'espace kiné et le suivi ne sont pas chargés
+  expect(await page.evaluate(() => [!!window.KineCabinet, !!window.KineParcours])).toEqual([false, false]);
+  await expect(page.locator("#bn-community")).toHaveCount(0);
+  await page.locator("#bn-monkine").click();
+  await expect(page.locator("#monkine-body .kmk-join")).toBeVisible();
+  await page.waitForTimeout(900);
+  await shot(page, info, "50-mon-kine-invite");
+  // le kiné : l'espace kiné reste ouvert, la fermeture ramène à la liste
+  await page.evaluate(() => kfNeed("suivi"));
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { localStorage.setItem("kf-role", "kine"); window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; document.body.classList.add("kf-kine"); KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.close());
+  await expect(page.locator("#kcb-sheet.open")).toHaveCount(1);
+  await expect(page.locator(".bottom-nav")).toBeHidden();
+  await page.evaluate(() => KineRole.hub());
+  await expect(page.locator("#kf-hub .khb-out")).toContainText("Se déconnecter");
+  await expect(page.locator("#kf-hub .khb-seg")).toHaveCount(0);
+  await page.waitForTimeout(900);
+  await shot(page, info, "51-reglages-kine");
+  // séance envoyée : la liste se referme, accusé de réception
+  await page.evaluate(() => { KineRole.hubClose(); KineCabinet.nouveau(); });
+  await page.fill("#kcb-alias", "A.B.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "entorse"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
+  await page.locator("#kcb-sheet .kcb-exck").nth(0).click();
+  await page.locator("#kcb-sheet .kcb-exck").nth(1).click();
+  await page.evaluate(() => KineCabinet.sendExos());
+  await expect(page.locator("#kcb-sheet .kcb-sent")).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-exck")).toHaveCount(0);
+  await page.evaluate(() => document.querySelector("#kcb-sheet .kcb-sent").scrollIntoView());
+  await page.waitForTimeout(900);
+  await shot(page, info, "52-seance-envoyee");
+  await page.evaluate(() => KineCabinet.exEdit(0));
+  await expect(page.locator("#kcb-sheet .kcb-exck.on")).toHaveCount(0);
   await clean(errs);
 });
