@@ -469,7 +469,11 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   const dbg = await page.evaluate(() => ({ pend: document.querySelectorAll("#kcb-sheet .kq-item.pend").length, db: JSON.stringify(window.__db.patients).slice(0, 600),
     items: [...document.querySelectorAll("#kcb-sheet .kq-item")].map(e => e.className + ":" + e.textContent.slice(0, 30)), h1: (document.querySelector("#kcb-sheet .kcb-h1") || {}).textContent,
     open: [...document.querySelectorAll(".open")].map(e => e.id || e.className).join(","), toast: (document.querySelector(".kf-toast, #kf-toast") || {}).textContent }));
-  if (dbg.pend !== 1) expect(JSON.stringify({ errs, open: dbg.open })).toBe("");
+  if (dbg.pend !== 1) {
+    const d2 = await page.evaluate(async () => { const out = {}; try { const p = await fbCab.get(Object.keys(__db.patients)[0]); out.q = JSON.stringify(p.quest); out.L = JSON.stringify(KineQuest.conseils(p, KineParcours.get(p.parcours)).map(x => [x.id, !!x.pend])); } catch (e) { out.e1 = String(e && e.stack || e); }
+      try { KineCabinet.bilan(); out.pend = document.querySelectorAll("#kcb-sheet .kq-item.pend").length; } catch (e) { out.e2 = String(e && e.stack || e); } return out; });
+    expect(JSON.stringify(d2)).toBe("");
+  }
   await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
