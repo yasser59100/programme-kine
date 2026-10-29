@@ -29,7 +29,14 @@ jobs:
               src = "".join(f["content"] for f in s["source"]["files"])
               loc = open("firestore.rules").read()
               print("identiques", src.strip() == loc.strip())
-              for k in ["match /quest/", "'tee'", "match /journal/", "match /maison/"]: print(k, k in src)
+              for k in ["match /quest/", "match /journal/", "match /maison/"]: print(k, k in src)
+              if src.strip() != loc.strip():
+                  # Publication par l'API des règles (sans firebase-tools)
+                  rs = requests.post(B + "/rulesets", headers=h, json={"source": {"files": [{"name": "firestore.rules", "content": loc}]}}); print("ruleset", rs.status_code, rs.text[:200] if not rs.ok else "")
+                  if rs.ok:
+                      up = requests.patch(B + "/releases/cloud.firestore", headers=h, json={"release": {"name": "projects/programme-kine/releases/cloud.firestore", "rulesetName": rs.json()["name"]}}); print("release maj", up.status_code, up.text[:200] if not up.ok else "")
+                      r2 = requests.get(B + "/releases/cloud.firestore", headers=h).json(); s2 = requests.get("https://firebaserules.googleapis.com/v1/" + r2["rulesetName"], headers=h).json()
+                      print("apres : identiques", "".join(f["content"] for f in s2["source"]["files"]).strip() == loc.strip())
           else: print(r.text[:300])
           PY
           rm -f "$RUNNER_TEMP/sa.json"
