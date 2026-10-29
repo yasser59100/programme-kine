@@ -13,7 +13,13 @@ var KineCabinet = (function () {
   var MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
   function dfr(s) { if (!s) return ""; var p = String(s).slice(0, 10).split("-"); return (+p[2]) + " " + MOIS[+p[1] - 1]; }
   function isKine() { return !!(window.fbUser && window.fbUser.isAdmin); }
-  function say(t) { if (window.showToast) showToast(t); else alert(t); }
+  // Message bref en bas de l'écran (au lieu d'une alerte qui bloque)
+  function say(t) {
+    if (window.showToast) { showToast(t); return; }
+    var el = document.createElement("div"); el.className = "ko-toast"; el.setAttribute("role", "status"); el.textContent = t;
+    document.body.appendChild(el); setTimeout(function () { el.classList.add("on"); }, 30);
+    setTimeout(function () { el.classList.remove("on"); setTimeout(function () { el.remove(); }, 400); }, 3500);
+  }
   var ICON = {
     back: "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M15 18l-6-6 6-6'/></svg>",
     plus: "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' aria-hidden='true'><path d='M12 5v14M5 12h14'/></svg>",
