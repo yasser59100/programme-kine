@@ -1378,6 +1378,32 @@ var KineParcours = (function () {
                "dos", "sciatique", "cervicalgie", "nevralgie_cb"];
   // Les questionnaires remplis par le patient (note globale, activités choisies) sont proposés dans tous les parcours
   ORDER.forEach(function (id) { ["sane", "psfs"].forEach(function (m) { if (P[id].mes.indexOf(m) < 0) P[id].mes.push(m); }); });
+  /* Renforcement exigeant (lesté, excentrique lent, pliométrie) : ajouté à l'avant-dernière et à la dernière étape.
+     Les parcours « arthrose, prothèse, fracture » reçoivent la version lestée sans pliométrie ni excentriques extrêmes. */
+  var RENFO = {
+    genou: { force: ["Squat bulgare lesté", "Squat bulgare, descente en 4 secondes", "Descente de marche lestée, en 4 secondes", "Fente avant lestée, descente en 4 secondes", "Chaise contre le mur lestée", "Soulevé de terre roumain unipodal lesté", "Pont des ischios sur une jambe, talon sur la chaise", "Leg curl serviette, retour en 5 secondes", "Rotation de hanche vers l'extérieur à l'élastique, assis", "Nordic curl complet", "Leg extension à une jambe, descente en 4 secondes", "Presse à une jambe, descente en 4 secondes", "Leg curl assis, retour en 4 secondes", "Squat à la barre, descente en 3 secondes", "Copenhague dynamique, descente en 4 secondes"],
+             sport: ["Squat sur une jambe complet (pistol)", "Reverse Nordic, descente en 5 secondes", "Squat sauté", "Saut en contrebas puis rebond (drop jump)", "Sauts répétés sur une jambe (pogo)"] },
+    cheville: { force: ["Élévation du talon lestée sur une marche", "Mollet assis lourd, descente en 3 secondes", "Éversion à l'élastique, retour en 4 secondes", "Inversion à l'élastique, retour en 4 secondes", "Marche sur la pointe des pieds lestée", "Marche sur les talons lestée", "Squat bulgare lesté"],
+                sport: ["Sauts répétés sur une jambe (pogo)", "Corde à sauter sur une jambe", "Saut en contrebas puis rebond (drop jump)", "Squat sauté"] },
+    epaule: { force: ["Rotation externe couché sur le côté, retour en 4 secondes", "Rotation interne à l'élastique, retour en 4 secondes", "Rotation externe à 90°, retour en 4 secondes", "Y-T-W lestés à plat ventre", "Développé épaules, descente en 4 secondes", "Élévation latérale, descente en 4 secondes", "Pompes, descente en 4 secondes", "Tirage inversé, descente en 4 secondes", "Dips sur chaise, descente en 4 secondes", "Marche avec une charge au-dessus de la tête"],
+              sport: ["Pompes plyométriques"] },
+    hanche: { force: ["Hip thrust sur une jambe", "Abduction debout, retour en 4 secondes", "Adduction couché sur le côté, jambe du dessous", "Rotation de hanche vers l'extérieur à l'élastique, assis", "Rotation de hanche vers l'intérieur à l'élastique, assis", "Fente latérale lestée", "Squat sumo lesté", "Planche latérale avec levée de la jambe", "Soulevé de terre roumain unipodal lesté", "Squat bulgare lesté", "Copenhague dynamique, descente en 4 secondes"],
+              sport: ["Squat sauté", "Saut en contrebas puis rebond (drop jump)"] },
+    rachis: { force: ["Soulevé de terre avec deux sacs, descente en 4 secondes", "Extension lombaire lestée au sol", "Dead bug lesté", "Planche latérale avec descentes du bassin", "Planche sur les mains, levée de jambe", "Hip thrust sur une jambe", "Roulette abdominale avec une serviette", "Y-T-W lestés à plat ventre", "Tirage inversé, descente en 4 secondes"], sport: [] },
+    cou: { force: ["Y-T-W lestés à plat ventre", "Tirage inversé, descente en 4 secondes", "Rotation externe couché sur le côté, retour en 4 secondes", "Planche sur les mains, levée de jambe", "Élévation latérale, descente en 4 secondes"], sport: [] }
+  };
+  var DOUX = ["gonarthrose", "ptg", "coxarthrose", "pth", "pte", "fx_humerus", "capsulite"];
+  var EXTREME = ["Nordic curl complet", "Reverse Nordic, descente en 5 secondes", "Squat sur une jambe complet (pistol)", "Copenhague dynamique, descente en 4 secondes", "Roulette abdominale avec une serviette", "Squat à la barre, descente en 3 secondes", "Marche avec une charge au-dessus de la tête", "Dips sur chaise, descente en 4 secondes", "Rotation externe à 90°, retour en 4 secondes"];
+  ORDER.forEach(function (id) {
+    var p = P[id], z = p.zone === "rachis" && /cervic|nevralgie/.test(id) ? "cou" : p.zone, R = RENFO[z]; if (!R) return;
+    var doux = DOUX.indexOf(id) >= 0, n = p.etapes.length;
+    var force = R.force.filter(function (x) { return !doux || EXTREME.indexOf(x) < 0; }), sport = doux ? [] : R.sport;
+    var put = function (e, list) { list.forEach(function (x) { if (e.exos.indexOf(x) < 0) e.exos.push(x); }); };
+    put(p.etapes[n - 1], force.concat(sport));
+    if (n >= 3) put(p.etapes[n - 2], force.slice(0, 5));
+  });
+  // Tendinopathie rotulienne : contractions statiques lourdes dès la première étape
+  if (P.tendino_rot.etapes[0].exos.indexOf("Spanish squat tenu lourd") < 0) P.tendino_rot.etapes[0].exos.unshift("Spanish squat tenu lourd");
   var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"], ["hanche", "Hanche"], ["rachis", "Dos et cou"]];
 
   /* ════════ Calculs ════════ */

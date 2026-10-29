@@ -398,6 +398,12 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
   });
   expect(h.miss).toEqual([]); expect(h.nb).toBe(22);
   expect([h.fess, h.cox, h.sci, h.ncb]).toEqual(["tendino_fess", "coxarthrose", "sciatique", "nevralgie_cb"]);
+  // Renforcement exigeant : 52 exercices animés, présents à la fin des parcours, sans pliométrie pour les parcours arthrose
+  const rf = await page.evaluate(() => ({ nb: KineRenfoEx.names.length, all: KineRenfoEx.all.length,
+    miss: KineRenfoEx.names.filter(n => !(KineBiblio.find(n) && KineIdees.USAGE[n])),
+    lca: KineParcours.exos("lca_op", 5, {}).indexOf("Saut en contrebas puis rebond (drop jump)") >= 0,
+    ptg: KineParcours.exos("ptg", 2, {}).filter(n => /Saut|pistol|Nordic/.test(n)).length }));
+  expect(rf.nb).toBe(52); expect(rf.all).toBe(52); expect(rf.miss).toEqual([]); expect(rf.lca).toBe(true); expect(rf.ptg).toBe(0);
   await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
   await expect(page.locator(".kf-sheet.open").getByText("Rentrer le menton").first()).toBeVisible();
   await page.evaluate(() => { document.querySelectorAll(".kf-sheet.open").forEach(e => e.classList.remove("open")); KineBiblio.demo("Rentrer le menton"); });
