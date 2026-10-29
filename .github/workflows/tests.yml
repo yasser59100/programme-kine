@@ -55,7 +55,7 @@ jobs:
         working-directory: tests
         env:
           SHOTS: captures
-        run: npx playwright test -c playwright.config.js
+        run: npx playwright test -c playwright.config.js --reporter=list,github
       - name: Publier captures et résultats (branche ci-captures)
         if: always()
         working-directory: tests
