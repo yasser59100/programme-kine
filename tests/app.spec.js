@@ -465,7 +465,11 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await page.evaluate((pid) => { KineReactif.close(); KineCabinet.fiche(pid); }, pid);
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
   await page.evaluate(() => { KineCabinet.bilan(); KineCabinet.qSend("saut"); });
-  await expect(page.locator("#kcb-sheet .kq-item.pend")).toHaveCount(1);
+  await page.waitForTimeout(1500);
+  const dbg = await page.evaluate(() => ({ pend: document.querySelectorAll("#kcb-sheet .kq-item.pend").length, db: JSON.stringify(window.__db.patients).slice(0, 600),
+    items: [...document.querySelectorAll("#kcb-sheet .kq-item")].map(e => e.className + ":" + e.textContent.slice(0, 30)), h1: (document.querySelector("#kcb-sheet .kcb-h1") || {}).textContent,
+    open: [...document.querySelectorAll(".open")].map(e => e.id || e.className).join(","), toast: (document.querySelector(".kf-toast, #kf-toast") || {}).textContent }));
+  expect(dbg).toMatchObject({ pend: 1 });
   await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
