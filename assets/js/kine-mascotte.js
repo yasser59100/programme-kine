@@ -620,8 +620,8 @@
       text: "Touche l'icône soleil ou lune en haut de l'accueil pour changer de thème.", action: "theme", actionLabel: "Changer maintenant" },
     { title: "Bouger 2 minutes avec moi", kw: "bouger pause active étirer étirements bureau assis dégourdir",
       text: "Quatre mouvements doux de 30 secondes, debout, à faire quand tu es resté assis longtemps. Je les fais avec toi.", action: "bouge", actionLabel: "On y va" },
-    { title: "La communauté", kw: "communauté messages autres patients encouragement forum",
-      text: "L'onglet Communauté permet d'échanger des encouragements avec les autres patients. Ne partage jamais d'informations médicales personnelles.", action: "communaute", actionLabel: "Ouvrir la communauté" }
+    { title: "Mon kiné", kw: "kiné suivi cabinet bilan questionnaire code relier étape",
+      text: "L'onglet Mon kiné, c'est ton suivi au cabinet : ton étape, tes bilans, la séance et les questionnaires que ton kiné t'envoie. Relie-toi avec le code donné au cabinet.", action: "communaute", actionLabel: "Ouvrir Mon kiné" }
   ];
   var STOP = {};
   ("le la les l un une des de du d et ou a au aux en je j tu te t il elle on nous vous mon ma mes ton ta tes son sa ses ce cet cette ces c ca qui que qu quoi est es suis sont etre pour par sur dans avec sans ne n pas se s y me m moi toi comment quand pourquoi quel quelle quels quelles faire fais fait faut peux peut puis dois doit plus tres trop bien si combien mais donc alors encore ai as avoir quoi svp stp bonjour salut merci exercice exercices exo exos apres pendant lors").split(" ").forEach(function (w) { STOP[w] = 1; });
@@ -781,7 +781,7 @@
       else if (p[0] === "savoir" && window.KineSavoir) KineSavoir.open(+p[1] || 0);
       else if (p[0] === "demo" && typeof openDemo === "function") openDemo(p[1], +p[2]);
       else if (p[0] === "programme" && typeof showPage === "function") showPage("guide");
-      else if (p[0] === "communaute" && typeof showPage === "function") showPage("community");
+      else if (p[0] === "communaute" && typeof showPage === "function") showPage("monkine");
       else if (p[0] === "theme" && typeof toggleDark === "function") toggleDark();
       else if (p[0] === "bouge") bouge();
     }, p[0] === "bouge" ? 500 : 60);

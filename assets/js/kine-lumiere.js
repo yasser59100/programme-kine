@@ -1,5 +1,5 @@
 /* ═══════════ KinéForce — refonte « claire et sportive » ═══════════
-   Cinq onglets simples : Aujourd'hui · Exercices · Yass · Progrès · Communauté.
+   Cinq onglets simples : Aujourd'hui · Exercices · Yass · Progrès · Mon kiné.
    - Exercices regroupe Programme, Bibliothèque et Mes séances (onglets en haut).
    - La Bibliothèque met en vitrine « Tester en vidéo » et marque d'un 📷 les exercices filmables.
    - Yass, au centre, ouvre l'aide (vidéo, question, bouger, ressenti, réglages).
@@ -330,9 +330,9 @@ var KineLumiere = (function () {
       { sel: ".lu-bars", text: "Ici, tes séances semaine par semaine.", gesture: "point" },
       { sel: "#suivi-v2 .lx-send", text: "Ce bouton envoie ton bilan à ton kiné, par message ou par e-mail.", gesture: "point" },
       { sel: ".lu-gear", text: "Et dans la petite roue, tes réglages : ma voix, la taille du texte, les animations.", gesture: "open" } ] },
-    community: { key: "kf-g-comm", steps: [
-      { sel: ".community-header", text: "La communauté : les séances des autres patients du cabinet, pour se motiver ensemble.", gesture: "wave" },
-      { sel: "#community-feed", text: "Connecte-toi pour partager tes séances, envoyer un message et encourager les autres.", gesture: "open" } ] }
+    monkine: { key: "kf-g-monkine", steps: [
+      { sel: "#monkine-body .kmk-head", text: "Mon kiné : ton suivi au cabinet, ton étape, tes bilans et ce que ton kiné t'envoie.", gesture: "wave" },
+      { sel: "#monkine-body .kmk-join, #monkine-body .kmk-step", text: "Relie-toi avec le code de ton kiné : ensuite, tout arrive ici tout seul.", gesture: "point" } ] }
   };
   // Revoir une explication, à la demande (bulle de Yass › « Tu n'as pas compris comment ça marche ? »)
   function explainMenu() {
@@ -343,7 +343,7 @@ var KineLumiere = (function () {
       o("KineLumiere.replay('lib')", "Exercices › Bibliothèque", "Tous les exercices, la vidéo") +
       o("KineLumiere.replay('mes')", "Ma séance", "Composer ta propre séance") +
       o("KineLumiere.replay('suivi')", "Progrès", "Tes chiffres, ton bilan, tes réglages") +
-      o("KineLumiere.replay('community')", "Communauté", "Les autres patients du cabinet") + "</div>");
+      o("KineLumiere.replay('monkine')", "Mon kiné", "Ton suivi au cabinet") + "</div>");
   }
   function replay(k) {
     var M = window.KineMascotte; if (!M || !M.replay) return;
@@ -361,7 +361,7 @@ var KineLumiere = (function () {
     try { if (!localStorage.getItem("kf-tour-v2")) return; } catch (e) { return; }   // la visite générale passe d'abord
     if (document.querySelector(".kf-sheet.open, #kf-masc.open, #rep-guide.open, #seq-overlay.open, #lu-sheet.open")) { explT = setTimeout(explain, 2500); return; }
     var act = document.querySelector(".page.active"), id = act ? act.id.replace("page-", "") : "";
-    var k = id === "guide" ? tabNow : id === "suivi" || id === "community" ? id : null, g = k && TABS[k];
+    var k = id === "guide" ? tabNow : id === "suivi" || id === "monkine" ? id : null, g = k && TABS[k];
     if (!g) return;
     try { if (localStorage.getItem(g.key)) return; } catch (e) { return; }
     window.scrollTo(0, 0);
