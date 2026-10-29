@@ -24,6 +24,9 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     code: function(pid){ var c = "K7M2QX"; D.codes[c] = pid; D.patients[pid].doc.code = c; D.patients[pid].doc.codeExp = new Date(Date.now()+14*864e5).toISOString(); return R(c); },
     remove: function(pid){ delete D.patients[pid]; return R(); },
     questSend: function(pid, d){ var k = id(); D.patients[pid].quest = D.patients[pid].quest || {}; D.patients[pid].quest[k] = JSON.parse(JSON.stringify(d)); D.patients[pid].quest[k].tms = Date.now(); return R(k); },
+    photo: function(pid, d){ var k = id(); var P0 = D.patients[pid]; P0.photos = P0.photos || {}; P0.photos[k] = JSON.parse(JSON.stringify(d)); return R(k); },
+    photos: function(pid){ var P0 = D.patients[pid].photos || {}; return R(Object.keys(P0).map(function(k){ var x = JSON.parse(JSON.stringify(P0[k])); x.id = k; return x; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; })); },
+    photoDel: function(pid, k){ delete (D.patients[pid].photos || {})[k]; return R(); },
     teeAll: function(t){ Object.keys(D.patients).forEach(function(k){ D.patients[k].doc.tee = t; }); return R(); },
     questDel: function(pid, k){ delete D.patients[pid].quest[k]; return R(); }
   };

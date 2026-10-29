@@ -182,9 +182,18 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await page.fill("input[data-m=flex][data-s=a][data-i='0']", "115");
   await page.fill("input[data-m=ext][data-s=a][data-i='0']", "-2");
   await page.fill("input[data-m=ext][data-s=s][data-i='0']", "0");
-  await page.evaluate(() => KineCabinet.saveBilan());
-  await expect(page.locator("#kcb-sheet .kcb-obj.done")).toHaveCount(2);
+  await page.evaluate(() => KineCabinet.bCheck());
+  await expect(page.locator("#kcb-bsum.open .kcb-sumr")).toHaveCount(2);
+  await expect(page.locator("#kcb-bsum.open .kcb-ok")).toContainText("Objectif");
+  await page.locator("#kcb-bsum .seq-btn-main").click();
+  await expect(page.locator("#kcb-sheet .kcb-brow")).toHaveCount(1);
+  await page.evaluate(() => KineCabinet.etapes());
+  await expect(page.locator("#kcb-sheet .kcb-et.now .kcb-obj.done")).toHaveCount(2);
+  await expect(page.locator("#kcb-sheet .kcb-et.now .kcb-why").first()).toContainText("côté sain");
   await shot(page, info, "20-cabinet-fiche");
+  // guide, vue complète (le mode rapide a son propre test)
+  await page.evaluate(() => localStorage.setItem("kf-guide-mode", "complet"));
+  await page.evaluate(() => KineCabinet.gMode("complet"));
   // guide : description d'un test (appui long)
   await page.evaluate(() => { KineCabinet.guide(null); KineCabinet.testInfo("lachman"); });
   await expect(page.locator("#kcb-tinfo .kgd-ib.pos")).toBeVisible();
@@ -211,7 +220,7 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await page.evaluate(() => { KineCabinet.pick("Pont de hanche"); KineCabinet.pick("Équilibre unipodal"); KineCabinet.sendExos(); });
   await page.waitForTimeout(300);
   // côté patient
-  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
   await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
@@ -237,15 +246,20 @@ test("questionnaires : envoi depuis le bilan, réponse du patient, retour dans l
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   // le bilan propose les questionnaires, les conseillés en premier
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.questView());
   await expect(page.locator("#kcb-sheet .kq-card")).toBeVisible();
   await page.evaluate(() => KineCabinet.bilan());
-  await expect(page.locator("#kcb-sheet .kq-item.sug").first()).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-qline")).toBeVisible();
   await expect(page.locator("#kcb-sheet .kcb-tag").first()).toBeVisible();
+  await page.evaluate(() => KineCabinet.qOv());
+  await expect(page.locator("#kcb-qov .kq-item.sug").first()).toBeVisible();
   await shot(page, info, "23-bilan-questionnaires");
   await page.evaluate(() => KineCabinet.qSend("sane"));
-  await expect(page.locator("#kcb-sheet .kq-item.pend")).toHaveCount(1);
+  await expect(page.locator("#kcb-qov .kq-item.pend")).toHaveCount(1);
+  await page.evaluate(() => document.getElementById("kcb-qov").classList.remove("open"));
   // le patient se relie, voit la carte, répond
-  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
   await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
@@ -270,6 +284,8 @@ test("questionnaires : envoi depuis le bilan, réponse du patient, retour dans l
   await page.locator("#kq-sheet .seq-btn-main").click();
   // retour automatique dans la fiche du kiné et dans le bilan suivant
   await page.evaluate((pid) => { KineMonSuivi.close(); window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.fiche(pid); }, pid);
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.questView());
   await expect(page.locator("#kcb-sheet .kq-card")).toContainText("Note globale : 70/100");
   await page.evaluate(() => KineCabinet.bilan());
   await expect(page.locator("#kcb-sheet input[data-m=sane][data-s=a][data-i='0']")).toHaveValue("70");
@@ -303,7 +319,7 @@ test("kiné ou patient : premier lancement, demande d'accès et acceptation", as
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
   expect(await page.evaluate(() => Object.keys(window.__db.demandes).length)).toBe(0);
   // le téléphone du patient se relie tout seul
-  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; return KineMonSuivi.refresh(true); });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true); });
   expect(await page.evaluate(() => !!JSON.parse(localStorage.getItem("kf-cab") || "{}").pid)).toBe(true);
   // sauvegarde avec Google, puis on le retrouve après avoir « supprimé » l'appli
   const pid = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-cab")).pid);
@@ -347,9 +363,11 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
   await expect(page.locator("#kf-hub .kcb-ok")).toContainText("samir.b");
   // le kiné voit le détail
   await page.evaluate(() => { KineRole.hubClose(); window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.fiche(Object.keys(window.__db.patients)[0]); });
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.maison());
   await expect(page.locator("#kcb-sheet .kcb-jh")).toBeVisible();
   // nouveau téléphone : tout est effacé, puis retrouvé avec l'identifiant
-  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; ["kf-cab", "kf-sessions", "kf-cab-jh"].forEach(k => localStorage.removeItem(k)); sessions = []; KineRole.loginForm("restore"); });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; ["kf-cab", "kf-sessions", "kf-cab-jh"].forEach(k => localStorage.removeItem(k)); sessions = []; KineRole.loginForm("restore"); });
   await page.fill("#kl-id", "samir.b"); await page.fill("#kl-pw", "mauvais1");
   await page.evaluate(() => KineRole.loginGo("restore"));
   await expect(page.locator("#kf-hub .kcb-alert")).toContainText("incorrect");
@@ -474,10 +492,11 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
   await page.evaluate(() => KineCabinet.bilan());
   await expect(page.locator("#kcb-sheet #kcb-bd")).toHaveCount(1);
+  await page.evaluate(() => KineCabinet.qOv());
   await page.evaluate(() => KineCabinet.qSend("saut"));
-  await expect(page.locator("#kcb-sheet .kq-item.pend")).toHaveCount(1);
+  await expect(page.locator("#kcb-qov .kq-item.pend")).toHaveCount(1);
   await expect(page.locator(".ko-toast")).toContainText("Envoyé");
-  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
   await page.evaluate(() => KineMonSuivi.consent(0));
@@ -501,6 +520,8 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await expect(page.locator("#kq-sheet .kq-sum b")).toContainText("Symétrie");
   await page.locator("#kq-sheet .seq-btn-main").click();
   await page.evaluate((pid) => { KineMonSuivi.close(); window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.fiche(pid); }, pid);
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.questView());
   await expect(page.locator("#kcb-sheet .kq-card")).toContainText("Test de saut : Symétrie");
   await page.evaluate(() => KineCabinet.bilan());
   const hv = await page.evaluate(() => ["a", "s"].map(sd => +document.querySelector("#kcb-sheet input[data-m=hopv][data-s=" + sd + "][data-i='0']").value.replace(",", ".")));
@@ -541,6 +562,7 @@ test("portail : invité sans espace kiné, onglet Mon kiné, mode kiné permanen
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.maison());
   await page.locator("#kcb-sheet .kcb-exck").nth(0).click();
   await page.locator("#kcb-sheet .kcb-exck").nth(1).click();
   await page.evaluate(() => KineCabinet.sendExos());
@@ -551,5 +573,85 @@ test("portail : invité sans espace kiné, onglet Mon kiné, mode kiné permanen
   await shot(page, info, "52-seance-envoyee");
   await page.evaluate(() => KineCabinet.exEdit(0));
   await expect(page.locator("#kcb-sheet .kcb-exck.on")).toHaveCount(0);
+  await clean(errs);
+});
+
+test("fiche : raccourcis, étapes expliquées, bilan par familles et photos gardées", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => kfNeed("suivi"));
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.nouveau());
+  await page.fill("#kcb-alias", "L.M.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.set("date0", "2026-09-01", 1); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-tile")).toHaveCount(4);
+  await page.waitForTimeout(600);
+  await shot(page, info, "60-fiche-raccourcis");
+  await page.evaluate(() => KineCabinet.etapes());
+  await expect(page.locator("#kcb-sheet .kcb-et")).toHaveCount(6);
+  await page.waitForTimeout(400);
+  await shot(page, info, "61-etapes-expliquees");
+  // bilan : raccourcis par famille, recherche
+  await page.evaluate(() => KineCabinet.bilan());
+  const vis = () => page.evaluate(() => [...document.querySelectorAll("#kcb-sheet .kcb-mw")].filter(e => e.style.display !== "none").length);
+  const nNeed = await vis();
+  expect(nNeed).toBeGreaterThan(1); expect(nNeed).toBeLessThan(8);
+  await page.locator("#kcb-sheet .kcb-fam button[data-k='Force']").click();
+  expect(await page.evaluate(() => [...document.querySelectorAll("#kcb-sheet .kcb-mw")].filter(e => e.style.display !== "none").every(e => e.getAttribute("data-f") === "Force"))).toBe(true);
+  await page.fill("#kcb-ms", "lachman");
+  expect(await vis()).toBe(0);
+  await page.fill("#kcb-ms", "perimetre");
+  expect(await vis()).toBeGreaterThan(0);
+  await page.fill("#kcb-ms", "");
+  await page.locator("#kcb-sheet .kcb-fam button[data-k='need']").click();
+  await page.waitForTimeout(500);
+  await shot(page, info, "62-bilan-familles");
+  // angle sur photo : la photo annotée est gardée avec le bilan
+  const png = "data:image/png;base64," + require("fs").readFileSync(require("path").join(__dirname, "..", "assets", "lumiere", "yass-salut.webp")).toString("base64");
+  await page.evaluate((src) => KineCabinet._photoTest(src.replace("image/png", "image/webp"), "flex", "a"), png);
+  await expect(page.locator("#kcb-photo .kph-val b")).toBeVisible();
+  await page.evaluate(() => KineCabinet.photoUse());
+  await expect(page.locator("#kcb-php figure")).toHaveCount(1);
+  await page.fill("input[data-m=ext][data-s=a][data-i='0']", "-3");
+  await page.evaluate(() => KineCabinet.bCheck());
+  await expect(page.locator("#kcb-bsum.open")).toContainText("1 photo");
+  await page.locator("#kcb-bsum .seq-btn-main").click();
+  await expect(page.locator("#kcb-sheet #kcb-phg figure")).toHaveCount(1, { timeout: 20000 });
+  await page.waitForTimeout(500);
+  await shot(page, info, "63-bilans-photos");
+  expect(await page.evaluate((pid) => Object.keys(window.__db.patients[pid].photos || {}).length, pid)).toBe(1);
+  await clean(errs);
+});
+
+test("guide rapide : une question par écran, test suivant proposé, pistes", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => kfNeed("suivi"));
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.guide(null); });
+  await expect(page.locator("#kcb-sheet .kgq-q")).toHaveText("Où est le problème ?");
+  await page.locator("#kcb-sheet .kgq-tile", { hasText: "Genou" }).click();
+  await expect(page.locator("#kcb-sheet .kgq-q")).toHaveText("Un de ces signes ?");
+  await page.locator("#kcb-sheet .kf-sheet-foot .seq-btn-main").click();
+  // interrogatoire : un choix passe tout seul à la question suivante, « Passer » partout
+  const q1 = await page.locator("#kcb-sheet .kgq-q").textContent();
+  await page.locator("#kcb-sheet .kgq-tile").first().click();
+  await expect(page.locator("#kcb-sheet .kgq-q")).not.toHaveText(q1);
+  await page.waitForTimeout(500);
+  await shot(page, info, "70-guide-rapide-question");
+  for (let i = 0; i < 8; i++) { if (await page.locator("#kcb-sheet .kgq-pn").count()) break; const sk = page.locator("#kcb-sheet .kgq-skip").first(); if (await sk.count()) await sk.click(); else await page.locator("#kcb-sheet .kf-sheet-foot .seq-btn-main").click(); }
+  await expect(page.locator("#kcb-sheet .kgq-pn")).toBeVisible();
+  await page.waitForTimeout(400);
+  await shot(page, info, "71-guide-rapide-test");
+  await page.locator("#kcb-sheet .kgq-pn .pos").click();
+  await page.locator("#kcb-sheet .kgq-live").click();
+  await expect(page.locator("#kcb-sheet .kgd-p.first")).toBeVisible();
+  await page.waitForTimeout(400);
+  await shot(page, info, "72-guide-rapide-pistes");
   await clean(errs);
 });

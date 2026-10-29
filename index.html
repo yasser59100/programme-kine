@@ -242,9 +242,13 @@ window.fbCab = {
   // Questionnaires envoyés au patient : il y répond sur son téléphone, les réponses reviennent dans la fiche
   questSend: async function (pid, data) { cabNeedKine(); data.t = serverTimestamp(); var r = await addDoc(collection(db, CAB, pid, "quest"), data); await setDoc(cabRef(pid), { maj: serverTimestamp() }, { merge: true }); return r.id; },
   questDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "quest", id)); },
+  // Photos des bilans (angles annotés, cicatrice, œdème…) : réduites, gardées dans la fiche, vues seulement par le kiné
+  photo: async function (pid, data) { cabNeedKine(); data.t = serverTimestamp(); var r = await addDoc(collection(db, CAB, pid, "photos"), data); return r.id; },
+  photos: async function (pid) { cabNeedKine(); return cabRows(await getDocs(query(collection(db, CAB, pid, "photos"), orderBy("d", "desc"), limit(60)))); },
+  photoDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "photos", id)); },
   remove: async function (pid) {
     cabNeedKine();
-    for (const sub of ["bilans", "seances", "maison", "membres", "notes", "journal", "quest"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
+    for (const sub of ["bilans", "seances", "maison", "membres", "notes", "journal", "quest", "photos"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
     var p = await getDoc(cabRef(pid)); if (p.exists() && p.data().code) { try { await deleteDoc(doc(db, "codes", p.data().code)); } catch (e) {} }
     await deleteDoc(cabRef(pid));
   }

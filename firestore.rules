@@ -131,6 +131,10 @@ service cloud.firestore {
       match /notes/{id} {
         allow read, write: if isAdmin();
       }
+      // Photos des bilans : seulement le kiné
+      match /photos/{id} {
+        allow read, write: if isAdmin();
+      }
       // Journal des séances faites à la maison (avec l'accord du patient) : écrit par son téléphone, lu par lui et son kiné
       match /journal/{id} {
         allow read, write: if isAdmin();

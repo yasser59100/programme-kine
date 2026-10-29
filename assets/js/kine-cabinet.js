@@ -311,23 +311,86 @@ var KineCabinet = (function () {
     var states = et.obj.map(objState), nDone = states.filter(function (s) { return s.done; }).length;
     var html = top("KineCabinet.open()", "Mes patients", "<button class='kf-back' onclick='KineCabinet.reglages()' aria-label='Réglages'><svg width='18' height='18' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><circle cx='5' cy='12' r='1.9'/><circle cx='12' cy='12' r='1.9'/><circle cx='19' cy='12' r='1.9'/></svg></button>") +
       "<div><div class='kf-h1 kcb-h1'>" + esc(C.alias) + "</div><div class='kf-sub'>" + esc(P.long) + (C.cote && C.cote !== "2" ? ", " + (C.cote === "D" ? "droit" : "gauche") : "") + (when ? " · " + when : "") + "</div></div>" +
-      "<div class='kcb-slab'><div class='kcb-slab-k'><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span><span>" + nDone + "/" + et.obj.length + " objectifs</span></div>" +
+      "<button class='kcb-slab kcb-slab-b' onclick='KineCabinet.etapes()'><div class='kcb-slab-k'><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span><span>" + nDone + "/" + et.obj.length + " objectifs ›</span></div>" +
         "<div class='kcb-slab-t'>" + esc(et.nom) + "</div><div class='kcb-bars'>" + bars + "</div>" +
         (km ? "<div class='kcb-slab-m'><div><b>" + KP.fmt(km.v) + km.u + "</b><span>" + esc(P.key.l) + "</span></div>" + (km.next ? "<em>Objectif " + km.next.v + (P.key.lsi ? " %" : km.u) + "<br>étape " + (km.next.e + 1) + "</em>" : "") + "</div>"
-            : "<div class='kcb-slab-m'><span>Premier bilan à faire</span></div>") + "</div>" +
-      "<div class='kcb-two'><button class='kcb-cta' onclick='KineCabinet.bilan()'>" + ICON.plus + "Nouveau bilan</button><button class='kcb-cta alt' onclick='KineCabinet.seance()'>Noter la séance</button></div>";
-    // objectifs
-    html += "<div class='su-card'><div class='su-card-h'><b>Pour passer à l'étape " + (E + 2 <= P.etapes.length ? E + 2 : E + 1) + "</b><span>" + nDone + " sur " + et.obj.length + "</span></div><div class='kf-sub'>" + esc(et.but) + "</div>" +
-      et.obj.map(function (o, i) {
-        var s = states[i], a = s.auto;
-        return "<button class='kcb-obj" + (s.done ? " done" : "") + "' onclick='KineCabinet.tick(" + q(o.id) + ")' aria-pressed='" + s.done + "'><i>" + (s.done ? ICON.ok : "") + "</i><span>" + esc(o.t) + "</span>" +
-          (a ? "<em class='" + (a.ok ? "ok" : a.ok === false ? "no" : "") + "'>" + esc(a.v) + "</em>" : s.man ? "<em class='ok'>validé</em>" : "") + "</button>";
-      }).join("") +
-      (E < P.etapes.length - 1 ? "<button class='" + (nDone === et.obj.length ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.etape(1)'>" + (nDone === et.obj.length ? "Débloquer l'étape " + (E + 2) + " : " + esc(P.etapes[E + 1].nom) : "Débloquer l'étape " + (E + 2) + " quand même") + "</button>" : "<div class='kcb-ok'>" + ICON.ok + "Dernière étape du parcours.</div>") +
-      (E > 0 ? "<button class='kcb-link' onclick='KineCabinet.etape(-1)'>Revenir à l'étape " + E + "</button>" : "") + "</div>";
-    // questionnaires du patient
-    if (window.KineQuest) html += KineQuest.card(C, P, "fiche");
-    // exercices proposés
+            : "<div class='kcb-slab-m'><span>Premier bilan à faire</span></div>") + "</button>";
+    // le prochain objectif à atteindre, en une ligne
+    var todo = et.obj.filter(function (o, i) { return !states[i].done; });
+    if (todo.length && E < P.etapes.length - 1) html += "<button class='kcb-nexto' onclick='KineCabinet.etapes()'><span>Prochain objectif</span><b>" + esc(todo[0].t) + "</b>" + (todo.length > 1 ? "<em>et " + (todo.length - 1) + " autre" + (todo.length > 2 ? "s" : "") + "</em>" : "") + "</button>";
+    else if (E < P.etapes.length - 1) html += "<button class='kcb-nexto ok' onclick='KineCabinet.etapes()'><span>Objectifs atteints</span><b>Débloquer l'étape " + (E + 2) + " : " + esc(P.etapes[E + 1].nom) + "</b></button>";
+    // les 4 raccourcis
+    var B = C.bilans || [], Q = (C.quest || []), qPend = Q.filter(function (x) { return !x.fini; }).length, qCons = window.KineQuest ? KineQuest.conseils(C, P).filter(function (x) { return x.conseil; }).length : 0;
+    var lastS = (C.seances || [])[0], sent = C.exos || [];
+    var tile = function (fn, ic, t, sub, cls) { return "<button class='kcb-tile" + (cls ? " " + cls : "") + "' onclick='KineCabinet." + fn + "'><i aria-hidden='true'>" + ic + "</i><b>" + t + "</b><span>" + sub + "</span></button>"; };
+    html += "<div class='kcb-tiles'>" +
+      tile("bilans()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19V9M10 19V5M16 19v-7M22 19H2'/></svg>", "Bilan",
+        B.length ? "Dernier le " + dfr(B[0].d) : "Premier bilan à faire", BNEEDF(P, E) ? "hot" : "") +
+      tile("seance()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12'/></svg>", "Séance au cabinet",
+        lastS ? "Dernière le " + dfr(lastS.d) : "Noter la charge et la douleur") +
+      tile("maison()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11l9-7 9 7v9H3z'/><path d='M9 20v-6h6v6'/></svg>", "Exercices à la maison",
+        sent.length ? sent.length + " exercices envoyés" + (C.exosAt && C.vu >= C.exosAt ? ", reçus" : "") : "Aucune séance envoyée", sent.length ? "" : "hot") +
+      tile("questView()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4h6l1 2h3v14H5V6h3z'/><path d='M9 12l2 2 4-4'/></svg>", "Questionnaires et tests",
+        qPend ? qPend + " en attente de réponse" : qCons ? qCons + " conseillé" + (qCons > 1 ? "s" : "") : "Envoyer au patient", qCons && !qPend ? "hot" : "") + "</div>";
+    // pour le patient
+    html += "<div class='su-card'><div class='su-card-h'><b>Pour le patient</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div><label class='kcb-field'><span class='kcb-lab'>Un mot (il le voit dans l'appli)</span><input class='kcb-in' id='kcb-msg' maxlength='160' value='" + esc(C.msg && C.msg.t || "") + "' placeholder='Belle séance, on vise 80 % dans 2 semaines.'></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Prochain bilan</span><input class='kcb-in' id='kcb-next' type='date' value='" + esc(C.next || "") + "'></label><button class='seq-btn-secondary' onclick='KineCabinet.saveMsg()'>Enregistrer</button>" +
+      "<div class='kcb-links'><button class='kcb-link' onclick='KineCabinet.code(" + q(C.id) + ")'>" + (C.membres ? "Code du patient" : "Afficher le code à donner au patient") + "</button>" +
+      (window.KineMonSuivi ? "<button class='kcb-link' onclick='KineCabinet.asPatient()'>Voir comme mon patient</button>" : "") + "</div></div>";
+    // repères cliniques
+    html += "<details class='kf-acc kcb-acc'><summary>Repères cliniques du parcours</summary><ul>" + (P.notes || []).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
+      "<b>Signes d'alerte</b><ul>" + KP.alertes(C.parcours).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
+      "<b>Sources</b><ul class='kcb-src'>" + P.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul><p class='kcb-hint'>Les seuils sont des repères issus de ces travaux : à adapter à chaque patient.</p></details>";
+    sub = null; show(html);
+  }
+  // Une mesure d'objectif de l'étape reste à faire (pour signaler la tuile Bilan)
+  function BNEEDF(P, E) { return P.etapes[E].obj.some(function (o) { return o.a && o.a.m && !objState(o).done && !KP.lastWith(allB(), o.a.m); }); }
+  var sub = null;   // sous-écran de la fiche ouvert
+  function reView() { var y = sheet().scrollTop; if (sub === "etapes") etapes(); else if (sub === "maison") maison(); else if (sub === "quest") questView(); else if (sub === "bilans") bilans(); else ficheView(); sheet().scrollTop = y; }
+  function back2() { return top("KineCabinet.fiche(" + q(C.id) + ")", C.alias); }
+
+  /* ── Les étapes, expliquées pour un kiné qui découvre le parcours ── */
+  function why(o) {
+    var a = o.a, M = a && a.m && KP.M[a.m];
+    if (!a) return "Critère clinique : c'est toi qui le valides au cabinet, en touchant la case.";
+    if (a.j) return "Délai minimal de cicatrisation depuis le début (J" + a.j + ", environ " + Math.round(a.j / 7) + " semaines) : même avec de bons chiffres, on attend ce délai.";
+    if (a.hops) return "Tests de saut sur une jambe (simple, triple, 6 m chronométré) comparés au côté sain. Repère de Noyes : un écart de plus de 10 à 15 % signale un déficit fonctionnel.";
+    if (a.dou != null) return "Douleur notée pendant les 3 dernières séances au cabinet (tuile « Séance au cabinet »). Tant qu'elle reste faible, la charge peut augmenter.";
+    if (!M) return "";
+    if (a.lsi) return "Symétrie = côté atteint ÷ côté sain × 100, mesurée au bilan (" + M.l + "). Un écart persistant est associé à plus de récidives : on attend " + a.lsi + " % avant de passer à la suite.";
+    if (a.def != null) return "Écart d'extension avec le côté sain (" + M.l + "), au goniomètre, au téléphone ou sur photo. Un flessum gêne la marche et surcharge l'articulation.";
+    if (a.diff != null) return "Écart entre les deux côtés (" + M.l + ") : " + a.diff + " " + (M.u || "") + " au plus.";
+    if (a.min != null) return "Valeur à atteindre au bilan, côté atteint (" + M.l + ") : " + a.min + (M.u ? " " + M.u : "") + " au moins.";
+    if (a.max != null) return "Valeur à ne pas dépasser au bilan (" + M.l + ").";
+    return "Mesuré au bilan : " + M.l + ".";
+  }
+  function etapes() {
+    var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1);
+    var html = back2() + "<div class='kf-h1 kcb-h1'>Les étapes</div><div class='kf-sub'>" + esc(P.long) + "</div>" +
+      "<div class='kcb-explain'><b>Comment ça marche</b><span>Les étapes avancent sur critères, pas sur le calendrier : on passe à la suivante quand les objectifs sont atteints. Ils se cochent tout seuls à partir des bilans, ou c'est toi qui les coches. Les délais indiqués sont des minimums. Touche un objectif pour le valider à la main.</span></div>";
+    P.etapes.forEach(function (et, i) {
+      var st = et.obj.map(objState), nd = st.filter(function (s) { return s.done; }).length, j = et.obj.filter(function (o) { return o.a && o.a.j; }).map(function (o) { return o.a.j; })[0];
+      var ex = KP.exos(C.parcours, i, C.opts);
+      var body = "<p class='kcb-et-but'>" + esc(et.but) + "</p>" + (j ? "<p class='kcb-et-j'>Pas avant J" + j + " (environ " + Math.round(j / 7) + " semaines)</p>" : "") +
+        "<div class='kcb-et-h'>" + (i < P.etapes.length - 1 ? "Pour passer à l'étape " + (i + 2) : "Objectifs de fin de parcours") + "</div>" +
+        et.obj.map(function (o, k) {
+          var s = st[k], a = s.auto, now = i === E;
+          return "<div class='kcb-objw'><button class='kcb-obj" + (s.done ? " done" : "") + "'" + (now ? " onclick='KineCabinet.tick(" + q(o.id) + ")' aria-pressed='" + s.done + "'" : " disabled") + "><i>" + (s.done ? ICON.ok : "") + "</i><span>" + esc(o.t) + "</span>" +
+            (a ? "<em class='" + (a.ok ? "ok" : a.ok === false ? "no" : "") + "'>" + esc(a.v) + "</em>" : s.man ? "<em class='ok'>validé</em>" : "") + "</button><p class='kcb-why'>" + esc(why(o)) + "</p></div>";
+        }).join("") +
+        "<div class='kcb-et-h'>Exercices de l'étape</div><p class='kcb-et-ex'>" + esc(ex.slice(0, 8).join(" · ")) + (ex.length > 8 ? " · et " + (ex.length - 8) + " autres" : "") + "</p>";
+      if (i === E) body += (i < P.etapes.length - 1 ? "<button class='" + (nd === et.obj.length ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.etape(1)'>" + (nd === et.obj.length ? "Débloquer l'étape " + (i + 2) : "Débloquer l'étape " + (i + 2) + " quand même") + "</button>" : "<div class='kcb-ok'>" + ICON.ok + "Dernière étape du parcours.</div>") +
+        (i > 0 ? "<button class='kcb-link' onclick='KineCabinet.etape(-1)'>Revenir à l'étape " + i + "</button>" : "");
+      html += "<details class='kcb-et" + (i < E ? " done" : i === E ? " now" : "") + "'" + (i === E ? " open" : "") + "><summary><i>" + (i < E ? ICON.ok : i + 1) + "</i><span><b>" + esc(et.nom) + "</b><em>" + (i < E ? "validée" : i === E ? "en cours · " + nd + "/" + et.obj.length + " objectifs" : "à venir") + "</em></span></summary>" + body + "</details>";
+    });
+    html += "<details class='kf-acc kcb-acc'><summary>Sources du parcours</summary><ul class='kcb-src'>" + P.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul></details>";
+    sub = "etapes"; var y = sheet().scrollTop, again = sheet().querySelector(".kcb-et"); show(html); if (again) sheet().scrollTop = y;
+  }
+
+  /* ── Exercices à la maison : la séance envoyée, puis ce que le patient fait chez lui ── */
+  function maison() {
+    var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1);
+    var html = back2() + "<div class='kf-h1 kcb-h1'>Exercices à la maison</div>";
     var ex = KP.exos(C.parcours, E, C.opts), sent = C.exos || [];
     if (sent.length && !exEdit) {
       // séance déjà envoyée : un résumé, et l'accusé de réception du téléphone du patient
@@ -335,42 +398,42 @@ var KineCabinet = (function () {
         "<div class='kcb-sentl'>" + sent.map(function (n) { return "<span><i class='kb-dot c" + (window.KineBiblio ? KineBiblio.color(n) : 0) + "' aria-hidden='true'></i>" + esc(n) + "</span>"; }).join("") + "</div>" + recu(C.exosAt) +
         "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.exEdit(1)'>Modifier</button><button class='seq-btn-main' onclick='KineCabinet.exEdit(0)'>Nouvelle séance</button></div></div>";
     } else {
-    if (!sel) sel = sent.length ? sent.slice() : [];
-    html += "<div class='su-card'><div class='su-card-h'><b>Exercices proposés</b><span>étape " + (E + 1) + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
-      ex.map(function (n) {
-        var on = sel.indexOf(n) >= 0, c = window.KineBiblio ? KineBiblio.color(n) : 0;
-        return "<div class='kcb-ex'><button class='kcb-exck" + (on ? " on" : "") + "' onclick='KineCabinet.pick(" + q(n) + ")' aria-pressed='" + on + "'><i>" + (on ? ICON.ok : "") + "</i><span>" + "<i class='kb-dot c" + c + "' aria-hidden='true'></i>" + esc(n) + "</span></button>" +
-          "<button class='kcb-demo' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir l&#39;exercice'>" + ICON.play + "</button></div>";
-      }).join("") +
-      (sel.filter(function (n) { return ex.indexOf(n) < 0; }).length ? "<div class='kf-sub'>Aussi envoyés : " + esc(sel.filter(function (n) { return ex.indexOf(n) < 0; }).join(", ")) + "</div>" : "") +
-      "<button class='seq-btn-main' onclick='KineCabinet.sendExos()'" + (sel.length ? "" : " disabled") + ">Envoyer au patient (" + sel.length + ")</button>" +
-      (sent.length ? "<button class='kcb-link' onclick='KineCabinet.exCancel()'>Annuler, garder la séance envoyée</button>" : "") + "</div>";
+      if (!sel) sel = sent.length ? sent.slice() : [];
+      html += "<div class='su-card'><div class='su-card-h'><b>Exercices de l'étape " + (E + 1) + "</b><span>" + sel.length + " choisi" + (sel.length > 1 ? "s" : "") + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient (10 au plus) : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
+        ex.map(function (n) {
+          var on = sel.indexOf(n) >= 0, c = window.KineBiblio ? KineBiblio.color(n) : 0;
+          return "<div class='kcb-ex'><button class='kcb-exck" + (on ? " on" : "") + "' onclick='KineCabinet.pick(" + q(n) + ")' aria-pressed='" + on + "'><i>" + (on ? ICON.ok : "") + "</i><span>" + "<i class='kb-dot c" + c + "' aria-hidden='true'></i>" + esc(n) + "</span></button>" +
+            "<button class='kcb-demo' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir l&#39;exercice'>" + ICON.play + "</button></div>";
+        }).join("") +
+        (sel.filter(function (n) { return ex.indexOf(n) < 0; }).length ? "<div class='kf-sub'>Aussi envoyés : " + esc(sel.filter(function (n) { return ex.indexOf(n) < 0; }).join(", ")) + "</div>" : "") +
+        (sent.length ? "<button class='kcb-link' onclick='KineCabinet.exCancel()'>Annuler, garder la séance envoyée</button>" : "") + "</div>";
     }
     // à la maison
     var w = (C.maison || [])[0];
-    html += "<div class='su-card'><div class='su-card-h'><b>À la maison</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
+    html += "<div class='su-card'><div class='su-card-h'><b>Ce qu'il fait chez lui</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
       (w ? "<div class='kcb-3'><div><b>" + w.n + "</b><span>séance" + (w.n > 1 ? "s" : "") + " sem. " + esc(String(w.w).split("-W")[1] || "") + "</span></div><div><b>" + (w.dou != null ? KP.fmt(w.dou) + "/10" : "–") + "</b><span>douleur moyenne</span></div><div><b>" + (w.der ? dfr(w.der) : "–") + "</b><span>dernière séance</span></div></div>"
          : "<div class='kf-sub'>" + (C.membres ? "Aucune séance faite à la maison cette semaine." : "Donne le code au patient pour voir ses séances à la maison.") + "</div>") +
-      journalHtml(4) +
-      "<button class='kcb-link' onclick='KineCabinet.code(" + q(C.id) + ")'>" + (C.membres ? "Code du patient" : "Afficher le code à donner au patient") + "</button>" +
-      (window.KineMonSuivi ? "<button class='kcb-link' onclick='KineCabinet.asPatient()'>Voir comme mon patient</button>" : "") + "</div>";
-    // bilans
-    var B = C.bilans || [];
-    html += "<div class='su-card'><div class='su-card-h'><b>Bilans</b><span>" + B.length + "</span></div>" + (km && km.hist.length > 1 ? curve(km.hist, P.key.lsi ? [km.next ? km.next.v : null, 90] : []) : "") +
-      (B.length ? B.slice(0, 8).map(function (b) { return "<button class='kcb-brow' onclick='KineCabinet.bilan(" + q(b.id) + ")'><b>" + dfr(b.d) + "</b><span>" + esc(summary(b, P)) + "</span><em>›</em></button>"; }).join("") : "<div class='kf-sub'>Aucun bilan pour l'instant.</div>") + "</div>";
-    // séances au cabinet
-    var ref = C.ref || P.ref, S = (C.seances || []).filter(function (s) { return s.ex === ref && s.kg != null; }).slice().reverse();
-    html += "<div class='su-card'><div class='su-card-h'><b>Séances au cabinet</b><span>" + (C.seances || []).length + "</span></div><div class='kf-sub'>Exercice de référence : " + esc(ref) + "</div>" +
-      (S.length ? bars2(S) : "<div class='kf-sub'>La progression de la charge s'affichera ici.</div>") +
-      (C.seances || []).slice(0, 5).map(function (x) { var n = (C.notes || []).filter(function (k) { return k.id === x.id; })[0]; return "<div class='kcb-srow'><b>" + dfr(x.d) + "</b><span>" + esc(x.ex) + " : " + (x.series || "") + " × " + (x.reps || "") + (x.kg ? " à " + KP.fmt(x.kg) + " kg" : "") + ", douleur " + x.dou + "/10" + (n ? "<br><i>" + esc(n.t) + "</i>" : "") + "</span></div>"; }).join("") + "</div>";
-    // mot + prochain bilan
-    html += "<div class='su-card'><b>Pour le patient</b><label class='kcb-field'><span class='kcb-lab'>Un mot (il le voit dans l'appli)</span><input class='kcb-in' id='kcb-msg' maxlength='160' value='" + esc(C.msg && C.msg.t || "") + "' placeholder='Belle séance, on vise 80 % dans 2 semaines.'></label>" +
-      "<label class='kcb-field'><span class='kcb-lab'>Prochain bilan</span><input class='kcb-in' id='kcb-next' type='date' value='" + esc(C.next || "") + "'></label><button class='seq-btn-secondary' onclick='KineCabinet.saveMsg()'>Enregistrer</button></div>";
-    // repères cliniques
-    html += "<details class='kf-acc kcb-acc'><summary>Repères cliniques du parcours</summary><ul>" + (P.notes || []).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
-      "<b>Signes d'alerte</b><ul>" + KP.alertes(C.parcours).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
-      "<b>Sources</b><ul class='kcb-src'>" + P.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul><p class='kcb-hint'>Les seuils sont des repères issus de ces travaux : à adapter à chaque patient.</p></details>";
-    show(html);
+      journalHtml(4) + "</div>";
+    sub = "maison";
+    var y = sheet().scrollTop, stay = sheet().querySelector(".kcb-ex, .kcb-sent");
+    show(html, !(sent.length && !exEdit) ? "<button class='seq-btn-main' onclick='KineCabinet.sendExos()'" + (sel.length ? "" : " disabled") + ">Envoyer au patient (" + sel.length + ")</button>" : "");
+    if (stay) sheet().scrollTop = y;
+  }
+  /* ── Questionnaires et tests ── */
+  function questView() {
+    var P = KP.get(C.parcours);
+    sub = "quest"; show(back2() + "<div class='kf-h1 kcb-h1'>Questionnaires et tests</div>" + (window.KineQuest ? KineQuest.card(C, P, "fiche") : ""));
+  }
+  /* ── Les bilans : courbe, historique, photos, nouveau bilan ── */
+  function bilans() {
+    var P = KP.get(C.parcours), km = keyMetric(P), B = C.bilans || [];
+    var html = back2() + "<div class='kf-h1 kcb-h1'>Bilans</div>" +
+      (km && km.hist.length > 1 ? "<div class='su-card'><div class='su-card-h'><b>" + esc(P.key.l) + "</b><span>" + KP.fmt(km.v) + km.u + "</span></div>" + curve(km.hist, P.key.lsi ? [km.next ? km.next.v : null, 90] : []) + "</div>" : "") +
+      "<div class='su-card'><div class='su-card-h'><b>Historique</b><span>" + B.length + "</span></div>" +
+      (B.length ? B.slice(0, 20).map(function (b) { return "<button class='kcb-brow' onclick='KineCabinet.bilan(" + q(b.id) + ")'><b>" + dfr(b.d) + "</b><span>" + esc(summary(b, P)) + (b.ph ? " · " + b.ph + " photo" + (b.ph > 1 ? "s" : "") : "") + "</span><em>›</em></button>"; }).join("") : "<div class='kf-sub'>Aucun bilan pour l'instant.</div>") + "</div>" +
+      "<div id='kcb-phg'></div>";
+    sub = "bilans"; show(html, "<button class='seq-btn-main' onclick='KineCabinet.bilan()'>" + ICON.plus + " Nouveau bilan</button>");
+    photosGallery($("kcb-phg"), null);
   }
   /* Journal des séances faites à la maison (si le patient a accepté de le sauvegarder) */
   function jdata() {
@@ -428,24 +491,24 @@ var KineCabinet = (function () {
     var s = o ? objState(o) : null; if (!s) return;
     if (s.auto && s.auto.ok === true && !s.man) { say("Atteint d'après le dernier bilan."); return; }
     var done = Object.assign({}, C.done || {}); if (done[id]) delete done[id]; else done[id] = iso();
-    C.done = done; ficheView(); fbCab.save(C.id, { done: done }).catch(fail);
+    C.done = done; reView(); fbCab.save(C.id, { done: done }).catch(fail);
   }
   function etape(dir) {
     var P = KP.get(C.parcours), n = Math.max(0, Math.min(P.etapes.length - 1, (C.etape || 0) + dir));
     if (dir > 0 && !confirm("Débloquer l'étape " + (n + 1) + " : " + P.etapes[n].nom + " ? Le patient le verra sur son téléphone.")) return;
     var hist = (C.hist || []).concat([{ e: n, d: iso() }]);
     C.etape = n; C.hist = hist; sel = null;
-    fbCab.save(C.id, { etape: n, hist: hist }).then(ficheView, fail);
+    fbCab.save(C.id, { etape: n, hist: hist }).then(reView, fail);
   }
-  function pick(n) { var i = sel.indexOf(n); if (i >= 0) sel.splice(i, 1); else if (sel.length < 10) sel.push(n); else { say("10 exercices au maximum."); return; } var y = sheet().scrollTop; ficheView(); sheet().scrollTop = y; }
+  function pick(n) { if (!sel) sel = (C.exos || []).slice(); var i = sel.indexOf(n); if (i >= 0) sel.splice(i, 1); else if (sel.length < 10) sel.push(n); else { say("10 exercices au maximum."); return; } var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
   var exEdit = false;
   function sendExos() {
     var y = sheet().scrollTop, data = { exos: sel.slice(), exosD: iso(), exosAt: Date.now() };
-    fbCab.save(C.id, data).then(function () { C.exos = data.exos; C.exosD = data.exosD; C.exosAt = data.exosAt; exEdit = false; sel = null; ficheView(); sheet().scrollTop = y; say("Séance envoyée au patient."); }, fail);
+    fbCab.save(C.id, data).then(function () { C.exos = data.exos; C.exosD = data.exosD; C.exosAt = data.exosAt; exEdit = false; sel = null; reView(); sheet().scrollTop = y; say("Séance envoyée au patient."); }, fail);
   }
   // Modifier la séance envoyée (cases déjà cochées) ou en préparer une nouvelle (cases vides)
-  function exEditGo(keep) { exEdit = true; sel = keep ? (C.exos || []).slice() : []; var y = sheet().scrollTop; ficheView(); sheet().scrollTop = y; }
-  function exCancel() { exEdit = false; sel = null; var y = sheet().scrollTop; ficheView(); sheet().scrollTop = y; }
+  function exEditGo(keep) { exEdit = true; sel = keep ? (C.exos || []).slice() : []; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
+  function exCancel() { exEdit = false; sel = null; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
   // Accusé de réception : le téléphone du patient a-t-il reçu sa fiche depuis l'envoi ?
   function recu(at) {
     if (!C.membres) return "<div class='kcb-recu no'>Téléphone pas encore relié : il la verra dès qu'il sera relié.</div>";
@@ -459,9 +522,12 @@ var KineCabinet = (function () {
   }
 
   /* ════════ Bilan ════════ */
+  function nrm(t) { return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+  var FAM = ["Douleur", "Amplitude", "Périmètre", "Force", "Fonction", "Questionnaire"];
   function bilan(id) {
     var P = KP.get(C.parcours);
     bilanEdit = id ? (C.bilans || []).filter(function (b) { return b.id === id; })[0] : null;
+    PHOTOS = [];
     var prev = (C.bilans || []).filter(function (b) { return !bilanEdit || b.id !== bilanEdit.id; })[0] || null;
     var cur = bilanEdit || { d: iso(), m: {} }, fromQ = [];
     if (!bilanEdit && window.KineQuest) KineQuest.asBilans(C.quest).sort(function (a, b) { return a.d < b.d ? -1 : 1; }).forEach(function (x) {
@@ -471,23 +537,76 @@ var KineCabinet = (function () {
     // Mesures utiles maintenant : celles des objectifs de l'étape en cours et de la suivante, et la mesure clé du parcours
     var E = C.etape || 0, need = [P.key.m];
     P.etapes.slice(E, E + 2).forEach(function (e) { e.obj.forEach(function (o) { if (o.a && o.a.m) need.push(o.a.m); if (o.a && o.a.hops) need.push("hop1", "hop3", "hop6"); }); });
-    var mes = P.mes.filter(function (m) { return need.indexOf(m) >= 0 || (cur.m && cur.m[m]); });
+    need = need.filter(function (m, i, a) { return KP.M[m] && a.indexOf(m) === i && P.mes.indexOf(m) >= 0; });
     var needNow = need.filter(function (m) { return P.etapes[Math.min(E, P.etapes.length - 1)].obj.some(function (o) { return o.a && o.a.m === m && !objState(o).done; }); });
-    if (mes.length < 3) mes = P.mes.slice(0, 4);
-    var others = P.mes.filter(function (m) { return mes.indexOf(m) < 0; }).concat(Object.keys(KP.M).filter(function (m) { return P.mes.indexOf(m) < 0; }));
+    var others = Object.keys(KP.M).filter(function (m) { return P.mes.indexOf(m) < 0; });
     var side = C.cote === "G" ? "gauche" : C.cote === "D" ? "droit" : "";
-    var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) +
-      "<div><div class='kf-h1 kcb-h1'>Bilan</div><div class='kf-sub'>" + (side ? "Côté atteint : <b>" + side + "</b>. " : "") + (prev ? "En gris : le bilan du " + dfr(prev.d) + "." : "Premier bilan.") + "</div></div>" +
-      "<label class='kcb-field'><span class='kcb-lab'>Date</span><input class='kcb-in' type='date' id='kcb-bd' value='" + esc(cur.d) + "'></label>" +
-      (fromQ.length ? "<div class='kcb-ok'>" + ICON.ok + "Déjà rempli par le patient : " + esc(fromQ.map(function (k) { return KP.M[k].c || KP.M[k].l; }).join(", ")) + ".</div>" : "") +
-      (window.KineQuest && !bilanEdit ? KineQuest.card(C, P, "bilan") : "");
     BNEED = needNow; BFROMQ = fromQ;
-    var groups = {};
-    mes.forEach(function (m) { var g = KP.M[m].g; (groups[g] = groups[g] || []).push(m); });
-    Object.keys(groups).forEach(function (g) { html += "<div class='su-card kcb-mcard'><b class='kcb-g'>" + esc(g) + "</b>" + groups[g].map(function (m) { return mrow(m, cur, prev); }).join("") + "</div>"; });
-    html += "<details class='kf-acc kcb-acc'><summary>Autres mesures</summary><div class='kcb-mcard'>" + others.map(function (m) { return mrow(m, cur, prev); }).join("") + "</div></details>";
-    show(html, "<button class='seq-btn-main' onclick='KineCabinet.saveBilan()'>Enregistrer le bilan</button>" + (bilanEdit ? "<button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.delBilan()'>Supprimer ce bilan</button>" : ""));
+    var fams = FAM.filter(function (f) { return P.mes.some(function (m) { return KP.M[m].g === f; }); }).concat(Object.keys(P.mes.reduce(function (o, m) { if (FAM.indexOf(KP.M[m].g) < 0) o[KP.M[m].g] = 1; return o; }, {})));
+    var first = bilanEdit ? "tout" : need.length ? "need" : "tout";
+    var chip = function (k, t, n) { return "<button type='button' data-k='" + esc(k) + "' class='" + (k === first ? "on" : "") + "' onclick='KineCabinet.bF(this)'>" + esc(t) + (n ? " <i>" + n + "</i>" : "") + "</button>"; };
+    var qL = window.KineQuest && !bilanEdit ? KineQuest.conseils(C, P) : [], qc = qL.filter(function (x) { return x.conseil; }).length, qp = qL.filter(function (x) { return x.pend; }).length;
+    var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) +
+      "<div><div class='kf-h1 kcb-h1'>" + (bilanEdit ? "Bilan du " + dfr(cur.d) : "Nouveau bilan") + "</div><div class='kf-sub'>" + (side ? "Côté atteint : <b>" + side + "</b>. " : "") + (prev ? "En gris : le bilan du " + dfr(prev.d) + "." : "Premier bilan.") + "</div></div>" +
+      "<label class='kcb-field kcb-bdate'><span class='kcb-lab'>Date</span><input class='kcb-in' type='date' id='kcb-bd' value='" + esc(cur.d) + "'></label>" +
+      (fromQ.length ? "<div class='kcb-ok'>" + ICON.ok + "Déjà rempli par le patient : " + esc(fromQ.map(function (k) { return KP.M[k].c || KP.M[k].l; }).join(", ")) + ".</div>" : "") +
+      (qL.length ? "<button class='kcb-qline' onclick='KineCabinet.qOv()'><span><b>Questionnaires et tests à envoyer</b><em>" + (qp ? qp + " en attente" + (qc ? ", " : "") : "") + (qc ? qc + " conseillé" + (qc > 1 ? "s" : "") : qp ? "" : "le patient répond sur son téléphone") + "</em></span>" + (qc ? "<u class='kf-hop'>Conseillé</u>" : "<i>›</i>") + "</button>" : "") +
+      "<div class='kcb-fam' role='tablist' aria-label='Familles de mesures'>" + (need.length ? chip("need", "À mesurer", need.length) : "") + chip("tout", "Tout") + fams.map(function (f) { return chip(f, f); }).join("") + chip("autres", "Autres") + "</div>" +
+      "<input class='kcb-in kcb-msearch' id='kcb-ms' type='search' placeholder='Chercher une mesure (ex. : force, Lachman, saut)' oninput='KineCabinet.bS(this.value)' aria-label='Chercher une mesure'>" +
+      "<div id='kcb-mlist'>";
+    P.mes.concat(others).forEach(function (m) {
+      var d = KP.M[m], inP = P.mes.indexOf(m) >= 0;
+      html += "<div class='kcb-mw' data-f='" + esc(inP ? d.g : "autres") + "' data-need='" + (need.indexOf(m) >= 0 ? 1 : 0) + "' data-p='" + (inP ? 1 : 0) + "' data-has='" + (cur.m[m] ? 1 : 0) + "' data-t='" + esc(nrm(d.l + " " + (d.c || "") + " " + d.g + " " + (d.how || ""))) + "'>" +
+        "<span class='kcb-mfam'>" + esc(d.g) + "</span>" + mrow(m, cur, prev) + "</div>";
+    });
+    html += "</div><div class='su-card kcb-phcard'><div class='su-card-h'><b>Photos du bilan</b><span>gardées dans la fiche</span></div><div id='kcb-phb'></div><div id='kcb-php'></div>" +
+      "<button class='seq-btn-secondary' onclick='KineCabinet.phAdd()'>Ajouter une photo (cicatrice, œdème, posture…)</button><p class='kcb-hint'>Les angles mesurés sur photo y sont ajoutés tout seuls, avec les repères dessinés. Le patient ne les voit pas.</p></div>";
+    show(html, "<button class='seq-btn-main' onclick='KineCabinet.bCheck()'>Vérifier et enregistrer</button>" + (bilanEdit ? "<button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.delBilan()'>Supprimer ce bilan</button>" : ""));
+    bFilter(first, "");
     live();
+    if (bilanEdit) photosGallery($("kcb-phb"), bilanEdit.id);
+  }
+  // Raccourcis par famille et recherche : on cache les mesures sans les retirer (les valeurs saisies restent)
+  var BF = "tout";
+  function bFilter(k, t) {
+    BF = k; t = nrm(t || "").trim();
+    var n = 0;
+    [].forEach.call(sheet().querySelectorAll(".kcb-mw"), function (el) {
+      var ok = t ? el.getAttribute("data-t").indexOf(t) >= 0
+        : k === "need" ? el.getAttribute("data-need") === "1" : k === "tout" ? el.getAttribute("data-p") === "1" || el.getAttribute("data-has") === "1" : k === "autres" ? el.getAttribute("data-f") === "autres" : el.getAttribute("data-f") === k && el.getAttribute("data-p") === "1";
+      el.style.display = ok ? "" : "none"; if (ok) n++;
+      var fam = el.querySelector(".kcb-mfam"); if (fam) fam.style.display = k === "need" || k === "tout" || t ? "" : "none";
+    });
+    [].forEach.call(sheet().querySelectorAll(".kcb-fam button"), function (b) { b.classList.toggle("on", !t && b.getAttribute("data-k") === k); });
+    var L0 = $("kcb-mlist"); if (L0) L0.setAttribute("data-empty", n ? "" : "Aucune mesure ici.");
+  }
+  function bF(b) { var s = $("kcb-ms"); if (s) s.value = ""; bFilter(b.getAttribute("data-k"), ""); var l = $("kcb-mlist"); if (l) sheet().scrollTo({ top: Math.max(0, l.offsetTop - 120), behavior: "smooth" }); }
+  function bS(t) { bFilter(BF, t); }
+  // Avant d'enregistrer : ce qui a été saisi, les symétries, et les objectifs atteints grâce à ce bilan
+  function bCheck() {
+    var m = collect(), P = KP.get(C.parcours), keys = Object.keys(m);
+    if (!keys.length && !PHOTOS.length) { say("Aucune mesure saisie."); return; }
+    var nb = { d: $("kcb-bd").value || iso(), m: m }, before = ctx(), after = { bilans: [nb].concat(allB()), seances: C.seances || [], date0: C.date0 };
+    var E = Math.min(C.etape || 0, P.etapes.length - 1), gained = P.etapes[E].obj.filter(function (o) {
+      if (!o.a || (C.done && C.done[o.id])) return false; var a0 = KP.evalObj(o.a, before), a1 = KP.evalObj(o.a, after); return a1 && a1.ok === true && !(a0 && a0.ok === true); });
+    var rows = keys.map(function (k) {
+      var d = KP.M[k], b = { m: {} }; b.m[k] = m[k];
+      var a = d.ch ? d.ch[m[k].a] : KP.fmt(KP.val(b, k, "a")) + (d.u ? " " + d.u : ""), s = d.s && m[k].s != null ? KP.fmt(KP.val(b, k, "s")) + (d.u ? " " + d.u : "") : null, l = d.s ? KP.lsi(b, k) : null;
+      return "<div class='kcb-sumr'><span>" + esc(d.c || d.l) + "</span><b>" + esc(a) + (s ? " <i>/ " + esc(s) + "</i>" : "") + "</b>" + (l != null && k !== "ext" ? "<em>" + l + " %</em>" : "") + "</div>";
+    }).join("");
+    var el = ov("kcb-bsum"); el.setAttribute("aria-label", "Vérifier le bilan");
+    el.innerHTML = "<div class='kcb-incl-card'><div class='kcb-mh'><span>Bilan du " + esc(dfr(nb.d)) + "</span><button class='kf-back' onclick='document.getElementById(\"kcb-bsum\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" +
+      "<div class='kcb-sum'>" + (rows || "<p class='kf-sub'>Photos seulement.</p>") + "</div>" + (PHOTOS.length ? "<p class='kf-sub'>" + PHOTOS.length + " photo" + (PHOTOS.length > 1 ? "s" : "") + " avec ce bilan.</p>" : "") +
+      (gained.length ? "<div class='kcb-ok'>" + ICON.ok + "<span>Objectif" + (gained.length > 1 ? "s" : "") + " atteint" + (gained.length > 1 ? "s" : "") + " avec ce bilan : " + esc(gained.map(function (o) { return o.t; }).join(" ; ")) + "</span></div>" : "") +
+      "<button class='seq-btn-main' onclick='document.getElementById(\"kcb-bsum\").classList.remove(\"open\");KineCabinet.saveBilan()'>Enregistrer le bilan</button><button class='seq-btn-secondary' onclick='document.getElementById(\"kcb-bsum\").classList.remove(\"open\")'>Corriger</button></div>";
+    el.classList.add("open");
+  }
+  // Questionnaires depuis le bilan : dans une fenêtre, pour ne pas perdre les mesures en cours de saisie
+  function qOv() {
+    var P = KP.get(C.parcours), el = ov("kcb-qov"); el.setAttribute("aria-label", "Questionnaires et tests");
+    el.onclick = function (e) { if (e.target === el) el.classList.remove("open"); };
+    el.innerHTML = "<div class='kcb-incl-card kcb-qcard'><div class='kcb-mh'><span>Questionnaires et tests</span><button class='kf-back' onclick='document.getElementById(\"kcb-qov\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" + KineQuest.card(C, P, "bilan") + "</div>";
+    el.classList.add("open");
   }
   function mrow(m, cur, prev) {
     var d = KP.M[m], r = cur.m[m] || {}, pr = prev && prev.m[m] || {};
@@ -535,10 +654,14 @@ var KineCabinet = (function () {
   }
   function saveBilan() {
     var m = collect();
-    if (!Object.keys(m).length) { say("Aucune mesure saisie."); return; }
+    if (!Object.keys(m).length && !PHOTOS.length) { say("Aucune mesure saisie."); return; }
     var d = $("kcb-bd").value || iso();
     loading("Enregistrement du bilan…");
-    fbCab.bilan(C.id, bilanEdit ? bilanEdit.id : null, { d: d, m: m }).then(function () { fiche(C.id); }, fail);
+    var ph = PHOTOS.slice(), data = { d: d, m: m };
+    if (ph.length || (bilanEdit && bilanEdit.ph)) data.ph = (bilanEdit && bilanEdit.ph || 0) + ph.length;
+    fbCab.bilan(C.id, bilanEdit ? bilanEdit.id : null, data).then(function (bid) {
+      return Promise.all(ph.map(function (x) { return fbCab.photo(C.id, { b: bid, d: d, m: x.m || null, sd: x.sd || null, v: x.v != null ? x.v : null, cap: x.cap || null, img: x.img }); }));
+    }).then(function () { PHOTOS = []; PHC = { pid: null, list: null }; return fbCab.get(C.id); }).then(function (p) { C = p; sel = null; bilans(); }, fail);
   }
   var BNEED = [], BFROMQ = [];
   /* ════════ Questionnaires ════════ */
@@ -546,13 +669,15 @@ var KineCabinet = (function () {
     var P = KP.get(C.parcours), inBilan = !!sheet().querySelector("#kcb-bd");
     fbCab.questSend(C.id, { q: id, env: iso(), cote: C.cote || "D", zone: P.zone === "rachis" && /cervic|nevralgie/.test(C.parcours) ? "cou" : P.zone }).then(function () {
       say(C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié.");
-      return fbCab.get(C.id).then(function (p) { C = p; if (inBilan) bilan(); else ficheView(); });
+      return fbCab.get(C.id).then(function (p) { C = p; if (qOpen()) qOv(); else if (inBilan) bilan(); else reView(); });
     }, fail);
   }
   function qCancel(docId) {
     if (!confirm("Annuler ce questionnaire ? Le patient ne le verra plus.")) return;
     var inBilan = !!sheet().querySelector("#kcb-bd");
-    fbCab.questDel(C.id, docId).then(function () { return fbCab.get(C.id).then(function (p) { C = p; if (inBilan) bilan(); else ficheView(); }); }, fail);
+    fbCab.questDel(C.id, docId).then(function () { return fbCab.get(C.id).then(function (p) { C = p; if (qOpen()) qOv(); else if (inBilan) bilan(); else reView(); }); }, fail);
+  }
+  function qOpen() { var e = $("kcb-qov"); return !!(e && e.classList.contains("open"));
   }
   function qView(docId) {
     var x = (C.quest || []).filter(function (y) { return y.id === docId; })[0]; if (!x) return;
@@ -581,6 +706,10 @@ var KineCabinet = (function () {
       "<div class='kcb-two'>" + step("kg", 0.5, "Charge", "kg") + step("reps", 1, "Répétitions", "par série") + "</div>" + step("series", 1, "Séries", "") + "</div>" +
       "<div class='su-card'><span class='kcb-lab'>Douleur pendant la séance</span><div class='kcb-pain'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button class='" + (S.dou === v ? "sel" : "") + "' onclick='KineCabinet.sd(" + v + ")'>" + v + "</button>"; }).join("") + "</div></div>" +
       "<label class='su-card kcb-field'><span class='kcb-lab'>Note pour toi (le patient ne la voit pas)</span><input class='kcb-in' id='kcb-snote' maxlength='200'></label>";
+    // historique des séances au cabinet
+    var ref = C.ref || P.ref, SS = (C.seances || []).filter(function (x) { return x.ex === ref && x.kg != null; }).slice().reverse();
+    if ((C.seances || []).length) html += "<div class='su-card'><div class='su-card-h'><b>Séances précédentes</b><span>" + C.seances.length + "</span></div>" + (SS.length > 1 ? "<div class='kf-sub'>Charge sur l'exercice de référence : " + esc(ref) + "</div>" + bars2(SS) : "") +
+      C.seances.slice(0, 8).map(function (x) { var n = (C.notes || []).filter(function (k) { return k.id === x.id; })[0]; return "<div class='kcb-srow'><b>" + dfr(x.d) + "</b><span>" + esc(x.ex) + " : " + (x.series || "") + " × " + (x.reps || "") + (x.kg ? " à " + KP.fmt(x.kg) + " kg" : "") + (x.dou != null ? ", douleur " + x.dou + "/10" : "") + (n ? "<br><i>" + esc(n.t) + "</i>" : "") + "</span></div>"; }).join("") + "</div>";
     show(html, "<button class='seq-btn-main' onclick='KineCabinet.saveSeance()'>Valider la séance</button>");
   }
   function st(k, d) { var step = k === "kg" ? (S.kg >= 20 ? 2.5 : S.kg >= 10 ? 1 : 0.5) : 1; S[k] = Math.max(0, Math.round((S[k] + (d > 0 ? step : -step)) * 10) / 10); if (k !== "kg" && S[k] < 1) S[k] = 1; var y = sheet().scrollTop; seanceView(); sheet().scrollTop = y; }
@@ -751,22 +880,84 @@ var KineCabinet = (function () {
   function photoUse() {
     var el = sheet().querySelector("input[data-m='" + PH.m + "'][data-s='" + PH.sd + "'][data-i='0']");
     if (el) { el.value = String(photoValue()); live(); }
-    photoClose();
+    // la photo est gardée avec le bilan, annotée (points, traits et angle), réduite et compressée
+    var v = photoValue(), img = annotated(PH, v);
+    PHOTOS = PHOTOS.filter(function (x) { return !(x.m === PH.m && x.sd === PH.sd); });
+    if (img) PHOTOS.push({ m: PH.m, sd: PH.sd, v: v, img: img });
+    photoClose(); phPending();
+  }
+  // Image réduite (900 px au plus) avec les repères et l'angle dessinés, en JPEG
+  function annotated(ph, v) {
+    try {
+      var k = Math.min(1, 900 / Math.max(ph.w, ph.h)), W = Math.round(ph.w * k), H = Math.round(ph.h * k), c = document.createElement("canvas"); c.width = W; c.height = H;
+      var g = c.getContext("2d"); g.drawImage(ph.img, 0, 0, W, H);
+      if (ph.pts) {
+        var P = ph.pts.map(function (p) { return [p.x * W, p.y * H]; }), lw = Math.max(3, W / 160);
+        g.strokeStyle = "#7CF0D6"; g.lineWidth = lw; g.beginPath(); g.moveTo(P[0][0], P[0][1]); g.lineTo(P[1][0], P[1][1]); g.lineTo(P[2][0], P[2][1]); g.stroke();
+        P.forEach(function (p) { g.beginPath(); g.arc(p[0], p[1], lw * 2.2, 0, 7); g.stroke(); });
+      }
+      if (v != null) { var fs = Math.round(W / 9); g.font = "800 " + fs + "px sans-serif"; g.fillStyle = "rgba(0,0,0,.55)"; g.fillRect(0, H - fs * 1.5, W, fs * 1.5); g.fillStyle = "#fff"; g.fillText(v + "°", fs * 0.4, H - fs * 0.4); }
+      return c.toDataURL("image/jpeg", 0.62);
+    } catch (e) { return null; }
+  }
+  /* ════════ Photos du bilan : angles mesurés, ou photo libre (cicatrice, œdème, posture) ════════ */
+  var PHOTOS = [];   // photos du bilan en cours, enregistrées avec lui
+  function phPending() {
+    var el = $("kcb-php"); if (!el) return;
+    el.innerHTML = PHOTOS.length ? "<div class='kcb-phgrid'>" + PHOTOS.map(function (x, i) { return "<figure><img src='" + x.img + "' alt=''><figcaption>" + esc(phCap(x)) + "</figcaption><button class='kcb-phx' onclick='KineCabinet.phDrop(" + i + ")' aria-label='Retirer la photo'>×</button></figure>"; }).join("") + "</div>" : "";
+  }
+  function phCap(x) { return x.m && KP.M[x.m] ? (KP.M[x.m].c || KP.M[x.m].l) + (x.sd ? ", " + (x.sd === "a" ? "atteint" : "sain") : "") + (x.v != null ? ", " + x.v + "°" : "") : (x.cap || "Photo"); }
+  function phAdd() {
+    var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
+    inp.onchange = function () { var f = inp.files && inp.files[0]; if (!f) return; var r = new FileReader(); r.onload = function () { var im = new Image(); im.onload = function () {
+      var img = annotated({ img: im, w: im.naturalWidth, h: im.naturalHeight, pts: null }, null), cap = (prompt("Légende de la photo (facultatif)", "") || "").slice(0, 60);
+      if (img) { PHOTOS.push({ m: null, img: img, cap: cap || "Photo" }); phPending(); } }; im.src = r.result; }; r.readAsDataURL(f); };
+    inp.click();
+  }
+  function phDrop(i) { PHOTOS.splice(i, 1); phPending(); }
+  var PHC = { pid: null, list: null };
+  function photosLoad() {
+    if (PHC.pid === C.id && PHC.list) return Promise.resolve(PHC.list);
+    if (!fbCab.photos) return Promise.resolve([]);
+    return fbCab.photos(C.id).then(function (l) { PHC = { pid: C.id, list: l }; return l; }, function () { return []; });
+  }
+  // Galerie : toutes les photos du patient (ou celles d'un bilan), de la plus récente à la plus ancienne
+  function photosGallery(el, bid) {
+    if (!el) return;
+    photosLoad().then(function (l) {
+      var L0 = l.filter(function (x) { return !bid || x.b === bid; }); if (!el.isConnected) return;
+      el.innerHTML = L0.length ? "<div class='su-card'><div class='su-card-h'><b>Photos</b><span>" + L0.length + "</span></div><div class='kcb-phgrid'>" + L0.map(function (x) {
+        return "<figure onclick='KineCabinet.phView(" + q(x.id) + ")'><img src='" + x.img + "' alt='' loading='lazy'><figcaption>" + esc(dfr(x.d) + " · " + phCap(x)) + "</figcaption></figure>"; }).join("") + "</div></div>" : "";
+    });
+  }
+  function phView(id) {
+    var x = (PHC.list || []).filter(function (p) { return p.id === id; })[0]; if (!x) return;
+    var el = ov("kcb-phv"); el.setAttribute("aria-label", "Photo du bilan"); el.onclick = function (e) { if (e.target === el) el.classList.remove("open"); };
+    el.innerHTML = "<div class='kcb-incl-card'><div class='kcb-mh'><span>" + esc(dfr(x.d) + " · " + phCap(x)) + "</span><button class='kf-back' onclick='document.getElementById(\"kcb-phv\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div><img class='kcb-phbig' src='" + x.img + "' alt=''>" +
+      "<button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.phDel(" + q(x.id) + ")'>Supprimer cette photo</button></div>";
+    el.classList.add("open");
+  }
+  function phDel(id) {
+    if (!confirm("Supprimer cette photo ?")) return;
+    fbCab.photoDel(C.id, id).then(function () { PHC.list = (PHC.list || []).filter(function (p) { return p.id !== id; }); var el = $("kcb-phv"); if (el) el.classList.remove("open"); reView(); }, fail);
   }
   function photoClose() { var el = $("kcb-photo"); if (el) { el.classList.remove("open"); el.innerHTML = ""; } PH = null; }
 
   /* ════════ Guide d'orientation du genou ════════ */
   function guide(forWho) {
+    if (forWho !== gFor) gStep = 0;
     if (forWho !== gFor || !gAns) {   // zone de départ : celle du parcours en cours
       var cur = forWho === "new" ? draft && KP.P[draft.parcours] : forWho && C ? KP.P[C.parcours] : null;
       if (cur && cur.zone && cur.zone !== gZone) { gZone = cur.zone; gAns = null; }
     }
     gFor = forWho; gAns = gAns || { alertes: [] };
+    if (gMode === "rapide") { guideQuick(); return; }
     var GZ = KP.GUIDES[gZone], G = GZ.g, r = KP.guide(gAns, gZone), Q = {}; G.q.forEach(function (x) { Q[x.id] = x; });
     var nAl = gAns.alertes.length, sugT = (r.suggest || []).map(function (x) { return x.t; });
     var html = top(forWho === "new" ? "KineCabinet.nouveau()" : forWho ? "KineCabinet.fiche(" + q(forWho) + ")" : "KineCabinet.open()", "Guide d'orientation") +
       "<div class='kc-seg kgd-zone' role='group' aria-label='Zone'>" + KP.ZONES.map(function (z) { return "<button type='button' class='" + (gZone === z[0] ? "on" : "") + "' aria-pressed='" + (gZone === z[0]) + "' onclick='KineCabinet.gZ(" + q(z[0]) + ")'>" + esc(z[1]) + "</button>"; }).join("") + "</div>" +
-      "<div><div class='kf-h1 kcb-h1'>" + esc(GZ.titre) + "</div><div class='kf-sub'>Coche ce que tu observes : le guide classe les pistes et explique pourquoi. Une aide au raisonnement, pas un diagnostic.</div></div>";
+      "<div><div class='kf-h1 kcb-h1'>" + esc(GZ.titre) + "</div><div class='kf-sub'>Coche ce que tu observes : le guide classe les pistes et explique pourquoi. Une aide au raisonnement, pas un diagnostic.</div></div>" +
+      "<button class='kgq-modeb' onclick='KineCabinet.gMode(\"rapide\")'>Mode rapide : une question par écran ›</button>";
     // 1. alertes
     html += "<section class='kgd-sec" + (nAl ? " alert" : "") + "'><div class='kgd-h'><i>1</i><b>Signes d'alerte</b><span>" + (nAl ? nAl + " coché" + (nAl > 1 ? "s" : "") : "à écarter d'abord") + "</span></div>" +
       G.alertes.map(function (a) { var on = gAns.alertes.indexOf(a.id) >= 0; return "<button class='kgd-al" + (on ? " on" : "") + "' onclick='KineCabinet.gA(" + q(a.id) + ")' aria-pressed='" + on + "'><i>" + (on ? "!" : "") + "</i><span>" + esc(a.t) + "</span></button>"; }).join("") + "</section>";
@@ -808,6 +999,96 @@ var KineCabinet = (function () {
     sheet().scrollTop = y;
     holdWire();
   }
+  /* ════════ Guide, mode rapide : une question par écran, de grosses tuiles, « Passer » partout ════════
+     Le guide propose le test suivant au fur et à mesure ; les pistes se mettent à jour en bas. */
+  var gMode = (function () { try { return localStorage.getItem("kf-guide-mode") || "rapide"; } catch (e) { return "rapide"; } })(), gStep = 0;
+  function gModeSet(m) { gMode = m; try { localStorage.setItem("kf-guide-mode", m); } catch (e) {} gStep = 0; guide(gFor); sheet().scrollTop = 0; }
+  function gSteps() {
+    var G = KP.GUIDES[gZone].g;
+    return [{ k: "zone" }, { k: "alertes" }].concat(G.q.filter(function (x) { return x.id !== "tests"; }).map(function (x) { return { k: "q", id: x.id }; })).concat([{ k: "tests" }, { k: "res" }]);
+  }
+  function nextTest(r) {
+    var done = (gAns.tests || []).concat(gAns.neg || [], gAns.skipT || []);
+    return (r.suggest || []).filter(function (x) { return done.indexOf(x.t) < 0; })[0] || null;
+  }
+  function guideQuick() {
+    var GZ = KP.GUIDES[gZone], G = GZ.g, r = KP.guide(gAns, gZone), S = gSteps();
+    if (gStep >= S.length) gStep = S.length - 1;
+    var st = S[gStep], body = "", foot = "", nQ = S.length - 1;
+    var hd = "<div class='kgq-top'><button class='kf-back' onclick='KineCabinet.gqBack()' aria-label='Retour'>" + ICON.back + "</button><div class='kgq-prog' aria-hidden='true'><u style='width:" + Math.round(gStep / nQ * 100) + "%'></u></div>" +
+      "<button class='kgq-mode' onclick='KineCabinet.gMode(\"complet\")'>Vue complète</button></div>";
+    var tiles = function (ch, isOn, fn) { return "<div class='kgq-tiles'>" + ch.map(function (c) { var on = isOn(c[0]); return "<button class='kgq-tile" + (on ? " on" : "") + "' aria-pressed='" + on + "' onclick='" + fn(c[0]) + "'>" + esc(c[1]) + "</button>"; }).join("") + "</div>"; };
+    var skip = "<button class='kgq-skip' onclick='KineCabinet.gqNext()'>Passer</button>";
+    if (st.k === "zone") {
+      body = "<div class='kgq-k'>Zone</div><div class='kgq-q'>Où est le problème ?</div>" + tiles(KP.ZONES, function (z) { return z === gZone; }, function (z) { return "KineCabinet.gqZone(" + q(z) + ")"; });
+      foot = "<button class='seq-btn-main' onclick='KineCabinet.gqNext()'>Continuer avec « " + esc((KP.ZONES.filter(function (z) { return z[0] === gZone; })[0] || ["", ""])[1]) + " »</button>";
+    } else if (st.k === "alertes") {
+      var nA = gAns.alertes.length;
+      body = "<div class='kgq-k'>Signes d'alerte</div><div class='kgq-q'>Un de ces signes ?</div><div class='kf-sub'>À écarter d'abord. Touche ceux qui sont présents.</div>" +
+        "<div class='kgq-list'>" + G.alertes.map(function (a) { var on = gAns.alertes.indexOf(a.id) >= 0; return "<button class='kgq-al" + (on ? " on" : "") + "' aria-pressed='" + on + "' onclick='KineCabinet.gqA(" + q(a.id) + ")'><i>" + (on ? "!" : "") + "</i><span>" + esc(a.t) + "</span></button>"; }).join("") + "</div>";
+      foot = "<button class='seq-btn-main' onclick='KineCabinet.gqNext()'>" + (nA ? "Continuer (" + nA + " signe" + (nA > 1 ? "s" : "") + " d'alerte)" : "Aucun, on continue") + "</button>";
+    } else if (st.k === "q") {
+      var x = G.q.filter(function (y) { return y.id === st.id; })[0], v = gAns[x.id];
+      body = "<div class='kgq-k'>Interrogatoire</div><div class='kgq-q'>" + esc(x.t) + "</div>" + (x.multi ? "<div class='kf-sub'>Plusieurs réponses possibles.</div>" : "") +
+        tiles(x.ch, function (c) { return x.multi ? (v || []).indexOf(c) >= 0 : v === c; }, function (c) { return "KineCabinet.gqC(" + q(x.id) + "," + q(c) + "," + (x.multi ? 1 : 0) + ")"; });
+      foot = (x.multi && v && v.length ? "<button class='seq-btn-main' onclick='KineCabinet.gqNext()'>Suivant</button>" : "") + skip;
+    } else if (st.k === "tests") {
+      var t = nextTest(r), T = t && KP.TESTS[t.t], asked = (gAns.tests || []).length + (gAns.neg || []).length;
+      if (t) {
+        body = "<div class='kgq-k'>Examen clinique · test " + (asked + 1) + "</div><div class='kgq-q'>" + esc(t.nom) + "</div><div class='kf-sub'>Pour départager : " + esc(t.pour) + "</div>" +
+          (T ? "<div class='kgq-how'><b>Comment</b><p>" + esc(T.how) + "</p><button class='kcb-link' onclick='KineCabinet.testInfo(" + q(t.t) + ")'>Positif, négatif, ce qu'il vaut</button></div>" : "") +
+          "<div class='kgq-pn'><button class='pos' onclick='KineCabinet.gqT(" + q(t.t) + ",1)'>Positif</button><button class='neg' onclick='KineCabinet.gqT(" + q(t.t) + ",0)'>Négatif</button></div>";
+        foot = "<button class='kgq-skip' onclick='KineCabinet.gqT(" + q(t.t) + ",-1)'>Pas fait, test suivant</button><button class='kgq-skip' onclick='KineCabinet.gqNext()'>Voir les pistes</button>";
+      } else {
+        var TQ = G.q.filter(function (y) { return y.id === "tests"; })[0];
+        body = "<div class='kgq-k'>Examen clinique</div><div class='kgq-q'>" + (asked ? "Plus de test à proposer" : "Des tests positifs ?") + "</div><div class='kf-sub'>Ajoute d'autres tests positifs si besoin.</div>" +
+          tiles(TQ.ch, function (c) { return (gAns.tests || []).indexOf(c) >= 0; }, function (c) { return "KineCabinet.gqC(\"tests\"," + q(c) + ",1)"; });
+        foot = "<button class='seq-btn-main' onclick='KineCabinet.gqNext()'>Voir les pistes</button>";
+      }
+    } else {
+      body = "<div class='kgq-k'>Résultat</div><div class='kgq-q'>Les pistes</div>" + pistesHtml(r, GZ) +
+        "<button class='kcb-link' onclick='KineCabinet.gqGo(0)'>Revoir les réponses</button>";
+      foot = "<button class='seq-btn-secondary' onclick='KineCabinet.gReset()'>Nouveau patient, tout effacer</button>";
+    }
+    // les pistes en direct, en bas de chaque écran
+    var p0 = r.pistes[0], live = st.k === "res" ? "" : "<button class='kgq-live' onclick='KineCabinet.gqGo(" + (S.length - 1) + ")'><span>" + (r.alertes.length ? "Signe d'alerte" : p0 ? "Piste principale" : "Pistes") + "</span><b>" + esc(r.alertes.length ? "Avis médical d'abord" : p0 ? p0.nom : "à compléter") + "</b><i>›</i></button>";
+    show(hd + "<div class='kgq-body'>" + body + "</div>", foot + live, gFor ? null : "guide");
+    sheet().scrollTop = 0;
+  }
+  // Pistes classées (vue complète et résultat du mode rapide)
+  function pistesHtml(r, GZ) {
+    var html = "";
+    if (r.alertes.length) html += r.alertes.map(function (a) { return "<div class='kcb-alert'><b>" + esc(a.d) + "</b><span>" + esc(a.t) + "</span></div>"; }).join("");
+    if (!r.pistes.length) html += "<div class='kgd-empty'><b>Pas encore de piste</b><span>Renseigne l'interrogatoire et les tests. Sans piste claire, le parcours « " + esc(KP.P[GZ.def].nom) + " » permet de commencer.</span></div>";
+    var mx = r.pistes.length ? r.pistes[0].score : 1;
+    html += r.pistes.map(function (p, i) {
+      return "<div class='kgd-p" + (i === 0 ? " first" : "") + "'><div class='kgd-ph'><i>" + (i + 1) + "</i><div><b>" + esc(p.nom) + "</b><span>" + (i === 0 ? "Piste principale" : "Autre piste") + "</span></div></div>" +
+        "<div class='kgd-bar'><u style='width:" + Math.round(p.score / mx * 100) + "%'></u></div>" +
+        "<div class='kgd-why'>" + p.why.map(function (w) { return "<span>" + esc(w) + "</span>"; }).join("") + "</div>" +
+        "<div class='kgd-note'>" + esc(p.note) + "</div>" +
+        (KP.P[p.parcours] ? "<div class='kgd-mes'><b>Au premier bilan :</b> " + esc([KP.P[p.parcours].key.m].concat(KP.P[p.parcours].mes).filter(function (m, i, a) { return a.indexOf(m) === i && KP.M[m] && KP.M[m].g !== "Questionnaire"; }).slice(0, 4).map(function (m) { return KP.M[m].c || KP.M[m].l; }).join(", ")) + "</div>" : "") +
+        (gFor ? "<button class='" + (i === 0 ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.gUse(" + q(p.parcours) + ")'>Parcours « " + esc(KP.P[p.parcours].nom) + " »</button>" : "") + "</div>";
+    }).join("");
+    if (gFor) html += "<button class='v2-row' onclick='KineCabinet.gUse(" + q(GZ.def) + ")'><b>" + esc(GZ.defNom) + "</b><span>›</span></button>";
+    html += "<details class='kf-acc kcb-acc'><summary>Sources</summary><ul class='kcb-src'>" + GZ.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul></details>";
+    return html;
+  }
+  function gqNext() { gStep++; guideQuick(); }
+  function gqBack() { if (gStep > 0) { gStep--; guideQuick(); return; } if (gFor === "new") nouveau(); else if (gFor) fiche(gFor); else open(); }
+  function gqGo(i) { gStep = i; guideQuick(); }
+  function gqZone(z) { if (z !== gZone) { gZone = z; gAns = { alertes: [] }; } gStep = 1; guideQuick(); }
+  function gqA(id) { var a = gAns.alertes, i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id); guideQuick(); }
+  function gqC(k, v, multi) {
+    if (multi) { var a = gAns[k] = gAns[k] || [], i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); guideQuick(); return; }
+    gAns[k] = gAns[k] === v ? null : v; guideQuick();
+    if (gAns[k]) setTimeout(function () { if (gMode === "rapide") gqNext(); }, 220);   // un seul choix : on passe tout seul à la suite
+  }
+  function gqT(t, res) {
+    if (res === 1) { gAns.tests = gAns.tests || []; if (gAns.tests.indexOf(t) < 0) gAns.tests.push(t); }
+    else if (res === 0) { gAns.neg = gAns.neg || []; if (gAns.neg.indexOf(t) < 0) gAns.neg.push(t); }
+    else { gAns.skipT = gAns.skipT || []; gAns.skipT.push(t); }
+    guideQuick();
+  }
   function gGo() { var el = $("kgd-res"); if (el) sheet().scrollTo({ top: el.offsetTop - 12, behavior: "smooth" }); }
   // Appui long sur un test : sa description, ce qui le rend positif ou négatif, sa valeur diagnostique
   var holdT = null, held = false;
@@ -839,15 +1120,15 @@ var KineCabinet = (function () {
     if (multi) { var a = gAns[k] = gAns[k] || [], i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else a.push(v); } else gAns[k] = gAns[k] === v ? null : v; guide(gFor);
   }
   function gN(t) { var a = gAns.neg = gAns.neg || [], i = a.indexOf(t); if (i >= 0) a.splice(i, 1); else { a.push(t); var p = (gAns.tests || []).indexOf(t); if (p >= 0) gAns.tests.splice(p, 1); } guide(gFor); }
-  function gReset() { gAns = { alertes: [] }; guide(gFor); }
-  function gZ(z) { if (z === gZone) return; gZone = z; gAns = { alertes: [] }; guide(gFor); sheet().scrollTop = 0; }
+  function gReset() { gAns = { alertes: [] }; gStep = 0; guide(gFor); }
+  function gZ(z) { if (z === gZone) return; gZone = z; gAns = { alertes: [] }; gStep = 0; guide(gFor); sheet().scrollTop = 0; }
   function gUse(pid) {
     if (gFor === "new") { nouveau(pid); return; }
     if (gFor) { loading(); fbCab.save(gFor, { parcours: pid, etape: 0, done: {}, exos: [] }).then(function () { fiche(gFor); }, fail); }
   }
 
   // En mode kiné, l'espace kiné ne se ferme pas (seulement à la déconnexion : close(true))
-  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); }
+  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
   // Aperçu de ce que voit le patient (sans les notes du kiné)
   function asPatient() {
     var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, next: C.next, ref: C.ref, hist: C.hist,
@@ -858,10 +1139,11 @@ var KineCabinet = (function () {
   return {
     open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
-    bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan,
+    bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
+    etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
     incl: incl, saut: saut, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
-    guide: guide, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
+    guide: guide, gMode: gModeSet, gqNext: gqNext, gqBack: gqBack, gqGo: gqGo, gqZone: gqZone, gqA: gqA, gqC: gqC, gqT: gqT, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2
   };
 })();
