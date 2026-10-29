@@ -3362,3 +3362,4 @@ html.kf-typing .kf-me { display: none; }
 /* Réception sur signal */
 #kr-run .kr-sig { display: flex; flex-direction: column; align-items: center; gap: .1em; font-size: clamp(3rem, 17vw, 7rem); }
 #kr-run .kr-sig i { font-style: normal; font-size: 1.5em; line-height: .9; }
+.kq-skip { margin-top: 18px; }

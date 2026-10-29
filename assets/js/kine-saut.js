@@ -61,6 +61,15 @@
     rsi: { t: "Sauts répétés", place: "Debout sur la jambe testée (ou sur les deux pieds), le patient tient le téléphone à deux mains contre la poitrine, bras serrés.",
            go: "Au bip, il enchaîne 10 sauts sur la pointe du pied, le plus haut possible en touchant le sol le moins longtemps possible, genou presque tendu, comme un ressort.", say: "Enchaîne les sauts !" }
   };
+  // Le patient fait le test seul : mêmes consignes, en le tutoyant
+  var MODES_P = {
+    cmj: { t: "Saut vertical", place: "Debout sur tes deux pieds, tiens le téléphone à deux mains contre ta poitrine, bras serrés.",
+           go: "Au bip, fléchis et saute le plus haut possible, puis atterris sur la pointe des pieds, jambes presque tendues, avant d'amortir.", say: "Saute !" },
+    hopv: { t: "Saut vertical", place: "Debout sur la jambe testée, tiens le téléphone à deux mains contre ta poitrine, bras serrés.",
+           go: "Au bip, saute le plus haut possible sur la même jambe, atterris sur la pointe du pied, jambe presque tendue, puis amortis et tiens la réception.", say: "Saute !" },
+    rsi: { t: "Sauts répétés", place: "Debout sur la jambe testée, tiens le téléphone à deux mains contre ta poitrine, bras serrés.",
+           go: "Au bip, enchaîne 10 sauts sur la pointe du pied, le plus haut possible en touchant le sol le moins longtemps possible, genou presque tendu, comme un ressort.", say: "Enchaîne les sauts !" }
+  };
   var T = null;
   function ov() {
     var el = $("ks-test");
@@ -69,7 +78,8 @@
   }
   function test(o) {
     stop();
-    T = { o: o, md: MODES[o.mode] || MODES.cmj, trials: [], ph: "intro", jumps: [], det: null };
+    var MM = o.patient ? MODES_P : MODES;
+    T = { o: o, md: MM[o.mode] || MM.cmj, trials: [], ph: "intro", jumps: [], det: null };
     view(); ov().classList.add("open");
   }
   function begin() {
@@ -95,7 +105,7 @@
     T.got = true; T.det.feed(t, mag);
     if (T.ph === "wait") {
       var ok = T.det.still(), b = $("ks-stab");
-      if (b) { b.className = ok ? "ok" : ""; b.textContent = ok ? "Immobile, attention au bip…" : "Le patient reste immobile, téléphone contre la poitrine"; }
+      if (b) { b.className = ok ? "ok" : ""; b.textContent = ok ? "Immobile, attention au bip…" : T.o.patient ? "Reste immobile, téléphone contre la poitrine" : "Le patient reste immobile, téléphone contre la poitrine"; }
       if (ok) { T.stillSince = T.stillSince || t; if (t - T.stillSince > 0.8) cueGo(t); } else T.stillSince = 0;
     } else if (T.ph === "go") {
       var last = T.jumps.length ? T.jumps[T.jumps.length - 1].down : T.goT;
@@ -118,12 +128,14 @@
     }
     T.ph = "res"; T.trials.push({ h: j.h * 100, tf: j.tf });
     beep(660, 0.1, 0.2); setTimeout(view, 500);
+    if (T.o.patient) setTimeout(function () { say(Math.round(j.h * 100) + " centimètres"); }, 900);
   }
   function endRsi() {
     if (!T || T.ph !== "go") return;
     var r = reactive(T.jumps);
     T.ph = r ? "res" : "none"; if (r) T.trials = [r];
     beep(660, 0.1, 0.2); view();
+    if (r && T.o.patient) say("Terminé, bravo !");
   }
   function view() {
     var el = ov(); if (!T) return;
@@ -132,23 +144,23 @@
       return "<span><i>Essai " + (i + 1) + "</i><b>" + f1(x.h) + " cm</b><small>vol " + Math.round(x.tf * 1000) + " ms</small></span>"; }).join("") + "</div>" : "";
     if (T.ph === "intro") body = "<div class='ks-fig' aria-hidden='true'>" + fig(o.mode) + "</div>" +
       "<p><strong>Mise en place.</strong> " + esc(md.place) + "</p><p><strong>Le saut.</strong> " + esc(md.go) + "</p>" +
-      "<p class='ks-note'>Le téléphone mesure le temps passé en l'air. Les mains restent contre la poitrine pendant tout le saut, sinon la mesure est faussée.</p>" +
+      "<p class='ks-note'>Le téléphone mesure le temps passé en l'air. " + (o.patient ? "Garde les mains contre ta poitrine pendant tout le saut, sinon la mesure est faussée." : "Les mains restent contre la poitrine pendant tout le saut, sinon la mesure est faussée.") + "</p>" +
       "<button class='seq-btn-main' onclick='KineSaut.begin()'>Commencer</button>";
     else if (T.ph === "err") body = "<p>" + (T.err === 2 ? "L'accès aux capteurs a été refusé. Tu peux l'autoriser dans les réglages du navigateur, ou mesurer le saut autrement et saisir la valeur." : "L'accéléromètre ne répond pas sur cet appareil. Fais le test avec un téléphone, ou saisis la valeur mesurée autrement.") + "</p><button class='seq-btn-main' onclick='KineSaut.close()'>Fermer</button>";
-    else if (T.ph === "wait") body = list + "<div class='kcb-ang'>Prêt</div><div id='ks-stab'>Le patient reste immobile, téléphone contre la poitrine</div>" +
-      "<p class='ks-note'>Dès qu'il est immobile, le téléphone bipe : c'est le signal pour sauter.</p>";
+    else if (T.ph === "wait") body = list + "<div class='kcb-ang'>Prêt</div><div id='ks-stab'>" + (o.patient ? "Reste immobile, téléphone contre la poitrine" : "Le patient reste immobile, téléphone contre la poitrine") + "</div>" +
+      "<p class='ks-note'>" + (o.patient ? "Dès que tu es immobile, le téléphone bipe : c'est le signal pour sauter." : "Dès qu'il est immobile, le téléphone bipe : c'est le signal pour sauter.") + "</p>";
     else if (T.ph === "go") body = list + "<div class='kcb-ang big'>" + "Saute !" + "</div>" + (o.mode === "rsi" ? "<div id='ks-count' class='ks-count'>0 / 10</div>" : "<div id='ks-stab' class='ok'>En attente du saut…</div>");
     else if (T.ph === "none") body = list + "<p>Aucun saut détecté. Vérifie que le téléphone est bien tenu contre la poitrine, puis recommence.</p><button class='seq-btn-main' onclick='KineSaut.begin()'>Recommencer</button>";
     else if (o.mode === "rsi") {
       var r = T.trials[0];
       body = "<div class='kcb-ang big'>" + f1(r.rsi, 2) + "</div><p class='ks-c'>Indice de réactivité (RSI), moyenne des " + r.used + " meilleurs sauts</p>" +
         "<div class='ks-trials'><span><i>Contact au sol</i><b>" + Math.round(r.tc * 1000) + " ms</b></span><span><i>Hauteur</i><b>" + f1(r.h * 100) + " cm</b></span><span><i>Sauts</i><b>" + r.n + "</b></span></div>" +
-        "<button class='seq-btn-main' onclick='KineSaut.use()'>Utiliser ces valeurs</button><button class='seq-btn-secondary' onclick='KineSaut.begin()'>Recommencer</button>";
+        "<button class='seq-btn-main' onclick='KineSaut.use()'>" + (o.patient ? "Valider" : "Utiliser ces valeurs") + "</button><button class='seq-btn-secondary' onclick='KineSaut.begin()'>Recommencer</button>";
     } else {
       var x = T.trials[T.trials.length - 1], n = o.n || 1;
       body = "<div class='kcb-ang big'>" + f1(x.h) + " cm</div><p class='ks-c'>Essai " + T.trials.length + (n > 1 ? " sur " + n : "") + ", temps de vol " + Math.round(x.tf * 1000) + " ms</p>" + list +
-        (T.trials.length < n ? "<button class='seq-btn-main' onclick='KineSaut.begin()'>Essai suivant</button><button class='seq-btn-secondary' onclick='KineSaut.use()'>Utiliser " + (T.trials.length > 1 ? "ces " + T.trials.length + " essais" : "cet essai") + "</button>"
-          : "<button class='seq-btn-main' onclick='KineSaut.use()'>Utiliser ces valeurs</button><button class='seq-btn-secondary' onclick='KineSaut.redo()'>Tout recommencer</button>");
+        (T.trials.length < n ? "<button class='seq-btn-main' onclick='KineSaut.begin()'>Essai suivant</button><button class='seq-btn-secondary' onclick='KineSaut.use()'>" + (o.patient ? "Arrêter là et valider" : "Utiliser " + (T.trials.length > 1 ? "ces " + T.trials.length + " essais" : "cet essai")) + "</button>"
+          : "<button class='seq-btn-main' onclick='KineSaut.use()'>" + (o.patient ? "Valider" : "Utiliser ces valeurs") + "</button><button class='seq-btn-secondary' onclick='KineSaut.redo()'>Tout recommencer</button>");
     }
     el.innerHTML = "<div class='kcb-incl-card ks-card'><div class='kcb-mh'><span>" + head + "</span><button class='kf-back' onclick='KineSaut.close()' aria-label='Fermer'>×</button></div>" + body + "</div>";
   }

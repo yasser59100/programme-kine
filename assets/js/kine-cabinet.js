@@ -510,7 +510,7 @@ var KineCabinet = (function () {
   /* ════════ Questionnaires ════════ */
   function qSend(id) {
     var P = KP.get(C.parcours), inBilan = !!sheet().querySelector("#kcb-bd");
-    fbCab.questSend(C.id, { q: id, env: iso(), zone: P.zone === "rachis" && /cervic|nevralgie/.test(C.parcours) ? "cou" : P.zone }).then(function () {
+    fbCab.questSend(C.id, { q: id, env: iso(), cote: C.cote || "D", zone: P.zone === "rachis" && /cervic|nevralgie/.test(C.parcours) ? "cou" : P.zone }).then(function () {
       say(C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié.");
       return fbCab.get(C.id).then(function (p) { C = p; if (inBilan) bilan(); else ficheView(); });
     }, fail);

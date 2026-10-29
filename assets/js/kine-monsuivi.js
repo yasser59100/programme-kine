@@ -50,7 +50,7 @@ var KineMonSuivi = (function () {
       if (!d) { jset(KEY, { pid: s.pid, lost: 1 }); slot(); return state(); }
       d.bilans = (d.bilans || []).map(function (b) { return { d: b.d, m: b.m }; });
       d.seances = (d.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; });
-      d.quest = (d.quest || []).map(function (x) { return { id: x.id, q: x.q, env: x.env, zone: x.zone, fini: x.fini || null, score: x.score, m: x.m, rep: x.rep }; });
+      d.quest = (d.quest || []).map(function (x) { return { id: x.id, q: x.q, env: x.env, zone: x.zone, cote: x.cote, fini: x.fini || null, score: x.score, m: x.m, rep: x.rep }; });
       ["maj", "cree", "codeExp"].forEach(function (k) { delete d[k]; });
       if (window.KineAvatar && KineAvatar.setShirt && !(window.KineRole && KineRole.role() === "kine")) KineAvatar.setShirt(d.tee || null);   // le t-shirt de Yass au nom de son kiné
       var ns = { pid: s.pid, d: d, at: Date.now() };

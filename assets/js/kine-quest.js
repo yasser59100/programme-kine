@@ -39,9 +39,22 @@ var KineQuest = (function () {
       calc: function (r) { return { score: +r.g, m: { groc: +r.g } }; }, u: "", fmt: function (v) { return ["Beaucoup moins bien", "Moins bien", "Un peu moins bien", "Pareil", "Un peu mieux", "Mieux", "Beaucoup mieux"][(+v) + 3] || ""; } },
     dmat: { nom: "Premiers pas du matin", court: "La douleur sous le talon au lever, de 0 à 10", dur: "10 secondes", only: "dmat",
       items: function () { return [{ id: "n", type: "scale", t: "Ce matin, aux premiers pas du lever, quelle douleur as-tu eue sous le talon ?", lo: "0 : aucune", hi: "10 : la pire imaginable" }]; },
-      calc: function (r) { return { score: +r.n, m: { dmat: +r.n } }; }, u: "/10" }
+      calc: function (r) { return { score: +r.n, m: { dmat: +r.n } }; }, u: "/10" },
+    /* Test de saut au téléphone, fait par le patient : saut vertical puis sauts répétés, jambe droite puis gauche.
+       Score = symétrie du saut vertical (côté atteint ÷ côté sain) ; -1 si elle ne peut pas être calculée. */
+    saut: { nom: "Test de saut", court: "Saut vertical et sauts répétés sur chaque jambe, avec son téléphone", dur: "5 minutes", only: "hopv", saut: true,
+      items: function () { return [["hD", "Saut vertical, jambe droite (cm)"], ["hG", "Saut vertical, jambe gauche (cm)"], ["rD", "Sauts répétés, jambe droite (RSI)"], ["rG", "Sauts répétés, jambe gauche (RSI)"],
+        ["cD", "Contact au sol, jambe droite (ms)"], ["cG", "Contact au sol, jambe gauche (ms)"]].map(function (x) { return { id: x[0], type: "num", t: x[1] }; }); },
+      calc: function (r, cote) {
+        var A = cote === "G" ? "G" : "D", S = A === "G" ? "D" : "G", m = {}, put = function (k, v) { if (v != null && isFinite(v)) m[k] = +v; };
+        put("hopv", r["h" + A]); put("hopv_s", r["h" + S]); put("rsi", r["r" + A]); put("rsi_s", r["r" + S]);
+        var a = r["h" + A], b = r["h" + S];
+        return { score: a && b ? Math.round(a / b * 100) : -1, m: m };
+      }, fmt: function (v) { return v == null || v < 0 ? "Fait" : "Symétrie " + v + " %"; } }
   };
-  var ORDER = ["sane", "psfs", "dou", "groc", "dmat"];
+  var ORDER = ["sane", "psfs", "dou", "groc", "dmat", "saut"];
+  // Les étapes du test de saut côté patient
+  var SAUT_STEPS = [["hopv", "D"], ["hopv", "G"], ["rsi", "D"], ["rsi", "G"]];
   function fmtScore(q, v) { var d = Q[q]; if (!d || v == null) return "–"; if (d.fmt) return d.fmt(v); return String(Math.round(v * 10) / 10).replace(".", ",") + (d.u || ""); }
 
   /* ════════ Conseils pour le kiné ════════ */
@@ -57,6 +70,7 @@ var KineQuest = (function () {
       if (id === "dou") c = (objM.indexOf("dnu") >= 0 || objM.indexOf("dou") >= 0) && age > 7 ? "Objectif de l'étape : la douleur" : null;
       if (id === "groc") c = start >= 21 && age > 21 ? "Pour juger l'évolution depuis le début" : null;
       if (id === "dmat") c = objM.indexOf("dmat") >= 0 && age > 7 ? "Objectif de l'étape : les premiers pas" : null;
+      if (id === "saut") c = objM.some(function (m) { return /^(hop|rsi|tcs|cmj)/.test(m); }) && age > 14 ? "Objectif de l'étape : les sauts" : null;
       return { id: id, conseil: !pend && c ? c : null, pend: pend, last: ld };
     });
     var n = 0; out.forEach(function (x) { if (x.conseil && ++n > 2) x.conseil = null; });
@@ -64,7 +78,11 @@ var KineQuest = (function () {
   }
   // Les questionnaires remplis deviennent des « mini-bilans » : objectifs, courbe et bilan suivant les voient
   function asBilans(list) {
-    return (list || []).filter(function (x) { return x.fini && x.m; }).map(function (x) { var m = {}; Object.keys(x.m).forEach(function (k) { if (x.m[k] != null && isFinite(x.m[k])) m[k] = { a: +x.m[k] }; }); return { d: x.fini, m: m, q: x.q }; });
+    // « hopv_s » : côté sain de la mesure « hopv »
+    return (list || []).filter(function (x) { return x.fini && x.m; }).map(function (x) { var m = {}; Object.keys(x.m).forEach(function (k) {
+      if (x.m[k] == null || !isFinite(x.m[k])) return;
+      var sd = /_s$/.test(k) ? "s" : "a", b = k.replace(/_s$/, ""); m[b] = m[b] || {}; m[b][sd] = +x.m[k];
+    }); return { d: x.fini, m: m, q: x.q }; });
   }
   function merge(bilans, list) { return (bilans || []).concat(asBilans(list)).sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : (a.q ? 1 : -1); }); }
 
@@ -109,17 +127,20 @@ var KineQuest = (function () {
     var rep = {}; try { rep = JSON.parse(localStorage.getItem("kf-quest-" + doc.id) || "null") || {}; } catch (e) {}
     if (doc.q === "psfs" && !rep.acts && prevActs) rep.acts = prevActs.slice(0, 3);
     F = { pid: pid, doc: doc, q: doc.q, Z: zw(doc.zone), rep: rep, i: -1 };
+    if (d.saut) F.i = -1;
     render(); sheet().classList.add("open");
   }
-  function items() { return Q[F.q].items(F.Z, F.rep); }
+  function items() { return Q[F.q].saut ? SAUT_STEPS : Q[F.q].items(F.Z, F.rep); }
   function save() { try { localStorage.setItem(draftKey(), JSON.stringify(F.rep)); } catch (e) {} }
   function render() {
     var d = Q[F.q], L = items(), el = sheet(), body, foot, i = F.i;
-    var top = "<div class='kcb-top'><button class='kf-back' onclick='KineQuest.back()' aria-label='Retour'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M15 18l-6-6 6-6'/></svg></button><span class='kcb-tl'>Questionnaire de ton kiné</span></div>";
+    var top = "<div class='kcb-top'><button class='kf-back' onclick='KineQuest.back()' aria-label='Retour'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M15 18l-6-6 6-6'/></svg></button><span class='kcb-tl'>" + (d.saut ? "Test de ton kiné" : "Questionnaire de ton kiné") + "</span></div>";
     if (F.done) {
       body = top + "<div class='kq-end'><i aria-hidden='true'><svg width='34' height='34' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg></i><b>Merci, c'est envoyé</b><span>Ton kiné a tes réponses dans ta fiche.</span>" +
         "<div class='kq-sum'><b>" + esc(fmtScore(F.q, F.done.score)) + "</b><span>" + esc(d.nom) + (F.prev != null ? " · la dernière fois : " + esc(fmtScore(F.q, F.prev)) : "") + "</span></div></div>";
       foot = "<button class='seq-btn-main' onclick='KineQuest.close()'>Terminer</button>";
+    } else if (d.saut) {
+      var tx = sautScreen(i); body = top + tx[0]; foot = tx[1];
     } else if (i < 0) {
       body = top + "<div class='kq-intro'><span>" + esc(d.dur) + "</span><div class='kf-h1 kcb-h1'>" + esc(d.nom) + "</div><div class='kf-sub'>" + esc(L.length > 1 ? L.length + " questions sur " + F.Z.art + ". Il n'y a pas de bonne ou de mauvaise réponse : réponds selon ce que tu ressens." : "Une seule question sur " + F.Z.art + ".") + "</div>" +
         "<p class='kcb-hint'>Tes réponses vont seulement à ton kiné. Tu peux t'arrêter et reprendre plus tard.</p></div>";
@@ -139,6 +160,34 @@ var KineQuest = (function () {
     }
     el.innerHTML = "<div class='kf-sheet-body'>" + body + "</div><div class='kf-sheet-foot'>" + foot + "</div>";
   }
+  // Test de saut : une page de consignes, puis un écran par test (vertical puis répétés, droite puis gauche)
+  function sautScreen(i) {
+    if (i < 0) return ["<div class='kq-intro'><span>" + esc(Q.saut.dur) + "</span><div class='kf-h1 kcb-h1'>Test de saut</div><div class='kf-sub'>Ton téléphone mesure tes sauts : leur hauteur et ta réactivité, sur chaque jambe. Ton kiné voit si tes deux jambes sont au même niveau.</div>" +
+        "<div class='kf-kit'><strong>Avant de commencer :</strong> échauffe-toi 5 minutes (marche rapide, petits sauts sur deux pieds). Chaussures de sport, sol non glissant, espace dégagé. Arrête si une douleur atteint 5 sur 10, ou si ton genou ou ta cheville lâche.</div>" +
+        "<p class='kcb-hint'>Pendant chaque saut, tiens le téléphone à deux mains contre ta poitrine. Le téléphone bipe quand tu es immobile : c'est le signal pour sauter.</p></div>",
+      "<button class='seq-btn-main' onclick='KineQuest.next()'>Commencer</button>"];
+    var st = SAUT_STEPS[i], leg = st[1] === "D" ? "droite" : "gauche", k = (st[0] === "hopv" ? "h" : "r") + st[1], v = F.rep[k];
+    var pr = "<div class='kq-prog' aria-hidden='true'><u style='width:" + Math.round((i + 1) / SAUT_STEPS.length * 100) + "%'></u></div><div class='kq-n'>Test " + (i + 1) + " sur " + SAUT_STEPS.length + "</div>";
+    var t = st[0] === "hopv" ? "Saut vertical sur la jambe " + leg : "Sauts répétés sur la jambe " + leg;
+    var how = st[0] === "hopv" ? "Trois sauts, le plus haut possible, sur la jambe " + leg + ". Atterris sur la pointe du pied, puis amortis et tiens la réception." : "Dix sauts enchaînés sur la jambe " + leg + ", sur la pointe du pied, comme un ressort : le plus haut possible en touchant le sol le moins longtemps possible.";
+    var res = v != null ? "<div class='kq-sum'><b>" + (st[0] === "hopv" ? String(v).replace(".", ",") + " cm" : "RSI " + String(v).replace(".", ",")) + "</b><span>Mesuré</span></div>" : "";
+    return [pr + "<div class='kq-q'>" + esc(t) + "</div><div class='kf-sub'>" + esc(how) + "</div>" + res +
+      (v != null ? "<button class='seq-btn-secondary kq-skip' onclick='KineQuest.sautGo()'>Refaire ce test</button>" : "<button class='seq-btn-secondary kq-skip' onclick='KineQuest.sautSkip()'>Je ne peux pas faire ce test</button>"),
+      "<button class='seq-btn-main' id='kq-next' onclick='KineQuest." + (v != null ? "next" : "sautGo") + "()'>" + (v != null ? (i === SAUT_STEPS.length - 1 ? "Envoyer à mon kiné" : "Suivant") : "Lancer le test") + "</button>"];
+  }
+  function sautGo() {
+    var st = SAUT_STEPS[F.i], leg = st[1] === "D" ? "droite" : "gauche"; if (!window.KineSaut) return;
+    KineSaut.test({ mode: st[0], patient: true, side: "jambe " + leg, n: st[0] === "hopv" ? 3 : 1, onUse: function (v) {
+      if (!F) return;
+      if (st[0] === "hopv") F.rep["h" + st[1]] = Math.max.apply(null, v);
+      else { F.rep["r" + st[1]] = v.rsi; F.rep["c" + st[1]] = v.tc; }
+      save(); render();
+    } });
+  }
+  function sautSkip() {
+    var st = SAUT_STEPS[F.i], k = st[0] === "hopv" ? "h" : "r"; delete F.rep[k + st[1]]; if (k === "r") delete F.rep["c" + st[1]];
+    save(); if (F.i < SAUT_STEPS.length - 1) { F.i++; render(); } else submit();
+  }
   function set(id, v, auto) {
     F.rep[id] = v; save();
     var b = $("kq-big"); if (b) b.textContent = v;
@@ -155,7 +204,7 @@ var KineQuest = (function () {
   function back() { if (F && !F.done && F.i >= 0) { F.i--; render(); return; } close(); }
   function close() { var el = $("kq-sheet"); if (el) el.classList.remove("open"); var w = F && F.done; F = null; if (w && window.KineMonSuivi && KineMonSuivi.refresh) KineMonSuivi.refresh(true); }
   function submit() {
-    var d = Q[F.q], r = d.calc(F.rep), rep = {};
+    var d = Q[F.q], r = d.calc(F.rep, F.doc.cote), rep = {};
     Object.keys(F.rep).forEach(function (k) { var v = F.rep[k]; if (k === "acts") rep.acts = (v || []).filter(function (x) { return String(x || "").trim(); }).slice(0, 3).map(function (x) { return String(x).slice(0, 60); }); else if (typeof v === "number") rep[k] = v; });
     var data = { rep: rep, score: r.score, m: r.m, fini: iso() };
     var nx = $("kq-next"); if (nx) { nx.disabled = true; nx.textContent = "Envoi…"; }
@@ -171,7 +220,7 @@ var KineQuest = (function () {
     if (!P.length) return "";
     var x = P[0], dq = Q[x.q];
     return "<button class='kq-pcard' onclick='KineQuest.start(" + JSON.stringify(x.id).replace(/'/g, "&#39;") + ")'><i aria-hidden='true'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4h6l1 2h3v14H5V6h3z'/><path d='M9 12l2 2 4-4'/></svg></i>" +
-      "<span><b>Ton kiné t'a envoyé " + (P.length > 1 ? P.length + " questionnaires" : "un questionnaire") + "</b><em>" + esc(dq.nom) + " · " + esc(dq.dur) + "</em></span><u class='kf-hop'>Répondre</u></button>";
+      "<span><b>Ton kiné t'a envoyé " + (P.length > 1 ? P.length + " questionnaires" : dq.saut ? "un test de saut" : "un questionnaire") + "</b><em>" + esc(dq.nom) + " · " + esc(dq.dur) + "</em></span><u class='kf-hop'>Répondre</u></button>";
   }
   function start(docId) {
     var s = window.KineMonSuivi && KineMonSuivi.state ? KineMonSuivi.state() : null; if (!s || !s.d) return;
@@ -181,5 +230,5 @@ var KineQuest = (function () {
     if (F) F.prev = prev ? prev.score : null;
   }
   return { Q: Q, ORDER: ORDER, conseils: conseils, card: card, detail: detail, asBilans: asBilans, merge: merge, fmt: fmtScore, patientCard: patientCard, start: start, fill: fill,
-    set: set, acts: acts, next: next, back: back, close: close, zw: zw };
+    set: set, acts: acts, next: next, sautGo: sautGo, sautSkip: sautSkip, back: back, close: close, zw: zw };
 })();

@@ -461,5 +461,38 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await expect(page.locator("#kr-run .kr-sig")).toBeVisible({ timeout: 9000 });
   await shot(page, info, "42-signal-en-cours");
   await page.evaluate(() => KineReactif.stop());
+  // le kiné envoie le test de saut ; le patient le fait chez lui ; les hauteurs reviennent dans le bilan avec la symétrie
+  await page.evaluate((pid) => { KineReactif.close(); KineCabinet.fiche(pid); }, pid);
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
+  await page.evaluate(() => { KineCabinet.bilan(); KineCabinet.qSend("saut"); });
+  await expect(page.locator("#kcb-sheet .kq-item.pend")).toHaveCount(1);
+  await page.evaluate(() => { KineCabinet.close(); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.fill("#kms-code", "K7M2QX");
+  await page.evaluate(() => KineMonSuivi.doJoin());
+  await page.evaluate(() => KineMonSuivi.consent(0));
+  await expect(page.locator("#kms-sheet .kq-pcard")).toContainText("test de saut");
+  await page.locator("#kms-sheet .kq-pcard").click();
+  await expect(page.locator("#kq-sheet.open .kq-intro")).toBeVisible();
+  await shot(page, info, "43-saut-patient-intro");
+  await page.locator("#kq-sheet .seq-btn-main").click();
+  for (const tf of [[0.4, 0.42], [0.36, 0.38]]) {   // jambe droite (atteinte) puis gauche
+    await expect(page.locator("#kq-sheet .kq-q")).toContainText("Saut vertical");
+    await page.locator("#kq-next").click();
+    for (const t of tf) { await page.evaluate((t) => { KineSaut.begin(); KineSaut._feed(sautSim([{ tf: t }])); }, t); await expect(page.locator("#ks-test .kcb-ang.big")).toContainText("cm"); }
+    await page.evaluate(() => KineSaut.use());
+    await expect(page.locator("#kq-sheet .kq-sum b")).toContainText("cm");
+    if (tf[0] === 0.4) await shot(page, info, "44-saut-patient-mesure");
+    await page.locator("#kq-next").click();
+  }
+  await page.locator("#kq-sheet .kq-skip").click();
+  await page.locator("#kq-sheet .kq-skip").click();
+  await expect(page.locator("#kq-sheet .kq-end")).toBeVisible();
+  await expect(page.locator("#kq-sheet .kq-sum b")).toContainText("Symétrie");
+  await page.locator("#kq-sheet .seq-btn-main").click();
+  await page.evaluate((pid) => { KineMonSuivi.close(); window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.fiche(pid); }, pid);
+  await expect(page.locator("#kcb-sheet .kq-card")).toContainText("Test de saut : Symétrie");
+  await page.evaluate(() => KineCabinet.bilan());
+  const hv = await page.evaluate(() => ["a", "s"].map(sd => +document.querySelector("#kcb-sheet input[data-m=hopv][data-s=" + sd + "][data-i='0']").value.replace(",", ".")));
+  expect(hv[0]).toBeGreaterThan(hv[1]);
   await clean(errs);
 });
