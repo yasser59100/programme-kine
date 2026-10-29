@@ -1,0 +1,38 @@
+name: Diag regles en ligne
+on:
+  push:
+    branches: [diag-regles]
+permissions:
+  contents: write
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comparer les regles en ligne avec firestore.rules
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          pip install -q google-auth requests >/dev/null 2>&1
+          printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
+          python3 - "$RUNNER_TEMP/sa.json" > /tmp/diag.txt 2>&1 <<'PY' || true
+          import sys, json, requests, google.auth.transport.requests
+          from google.oauth2 import service_account
+          c = service_account.Credentials.from_service_account_file(sys.argv[1], scopes=["https://www.googleapis.com/auth/cloud-platform"])
+          c.refresh(google.auth.transport.requests.Request()); h = {"Authorization": "Bearer " + c.token}
+          B = "https://firebaserules.googleapis.com/v1/projects/programme-kine"
+          r = requests.get(B + "/releases/cloud.firestore", headers=h); print("release", r.status_code)
+          if r.ok:
+              rel = r.json(); print("maj", rel.get("updateTime"))
+              s = requests.get("https://firebaserules.googleapis.com/v1/" + rel["rulesetName"], headers=h).json()
+              src = "".join(f["content"] for f in s["source"]["files"])
+              loc = open("firestore.rules").read()
+              print("identiques", src.strip() == loc.strip())
+              for k in ["match /quest/", "'tee'", "match /journal/", "match /maison/"]: print(k, k in src)
+          else: print(r.text[:300])
+          PY
+          rm -f "$RUNNER_TEMP/sa.json"
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git fetch -q origin diag || true; git checkout -q -B diag
+          cp /tmp/diag.txt tools/diag_regles.txt && git add tools/diag_regles.txt && git commit -q -m "Diag regles [skip ci]" && git push -q -f origin diag
