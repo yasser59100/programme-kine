@@ -983,7 +983,7 @@ if('serviceWorker' in navigator) {
   if(isGitHubPages) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function(reg) {
-        reg.update();
+        try { var u = reg.update(); if (u && u.catch) u.catch(function () {}); } catch (e) {}   // réseau coupé : on réessaiera plus tard
       }).catch(function(err) {
         console.log('SW registration failed:', err);
       });
