@@ -66,7 +66,7 @@
   if (document.readyState === "complete") setTimeout(start, 0); else window.addEventListener("load", function () { setTimeout(start, 0); });
 
   /* ── Lecture pour le kiné : un tableau de bord simple ── */
-  var LBL = { home: "Aujourd'hui", guide: "Exercices", mes: "Ma séance", progress: "Progrès", community: "Communauté" };
+  var LBL = { home: "Aujourd'hui", guide: "Exercices", mes: "Ma séance", progress: "Progrès", monkine: "Mon kiné" };
   function top(o, n) { return Object.keys(o).map(function (k) { return [k, o[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, n || 5); }
   function list(t, rows, unit) {
     if (!rows.length) return "<div class='kst-blk'><h3>" + t + "</h3><p class='kst-none'>Rien pour l'instant</p></div>";

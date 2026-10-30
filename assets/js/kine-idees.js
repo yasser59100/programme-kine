@@ -144,11 +144,6 @@
   function usage(name) { return USAGE[name] || null; }
   function low(t) { return t.charAt(0).toLowerCase() + t.slice(1); }
   var USE_ICON = "<svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 12l2-2 7-7 7 7 2 2'/><path d='M5 10v10h14V10'/></svg>";
-  // Version courte (listes) : les exemples du quotidien
-  function usageShort(name) {
-    var u = usage(name); if (!u) return "";
-    return "<span class='ki-use'>" + USE_ICON + "<span>Utile pour " + esc(u.e.map(low).join(", ")) + ".</span></span>";
-  }
   // Version complète (fiche, tuto, page du programme) : l'explication, puis les exemples
   function usageFull(name) {
     var u = usage(name); if (!u) return "";

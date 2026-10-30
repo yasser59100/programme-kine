@@ -26,12 +26,11 @@
     ul([
       "<b>Statistiques anonymes d'utilisation</b>, pour améliorer l'appli : écrans ouverts, séance commencée ou terminée, exercice passé, bouton « J'ai mal » touché (avec le nom de l'exercice), type de téléphone et version de l'appli. Tu es représenté par un numéro tiré au hasard et renouvelé chaque mois, sans nom ni compte. Conservées 13 mois au plus. <b>Tu peux les couper</b> dans les réglages.",
       "<b>Rapports d'erreurs</b>, pour corriger les bugs : message d'erreur technique, modèle de navigateur, taille d'écran, version de l'appli, écran concerné. Si tu utilises « Signaler un souci », le texte que tu écris est aussi envoyé (évite d'y mettre des informations sur ta santé). Conservés 12 mois au plus.",
-      "<b>Compteur de séances terminées</b> : un simple total, sans aucune information sur toi.",
       "<b>Notifications</b>, si tu les actives : l'adresse technique d'envoi fournie par ton navigateur et l'heure choisie. Supprimées quand tu les désactives.",
-      "<b>Communauté</b>, seulement si tu te connectes avec Google : ton nom, ta photo de profil et un identifiant technique. Les messages que tu publies sont visibles par les autres utilisateurs. Tu peux supprimer tes messages à tout moment ; pour supprimer ton compte, écris-nous."
+      "<b>Suivi avec ton kiné</b>, seulement si tu relies ton appli avec le code ou la demande d'accès : ta fiche (initiales, parcours, étape), tes bilans et séances au cabinet, les questionnaires et tests que tu remplis, le nombre de séances faites à la maison et ta douleur moyenne, et, si tu l'acceptes, le détail de tes séances à la maison. Seuls toi et ton kiné y avez accès. Les photos prises au bilan ne sont visibles que par ton kiné. Tout est supprimé quand ton kiné supprime ta fiche ; tu peux le lui demander à tout moment."
     ]) +
     "<h4>Bases légales</h4>" +
-    p("Les statistiques, les rapports d'erreurs et le compteur reposent sur notre intérêt légitime à faire fonctionner et améliorer l'appli ; la Communauté et les notifications, sur ton choix de les utiliser.") +
+    p("Les statistiques et les rapports d'erreurs reposent sur notre intérêt légitime à faire fonctionner et améliorer l'appli ; le suivi avec ton kiné et les notifications, sur ton accord, que tu donnes en les activant et que tu peux retirer.") +
     "<h4>Prestataires</h4>" +
     p("L'appli est hébergée par GitHub (GitHub, Inc., États-Unis). Les données envoyées sont stockées chez Google Firebase (Google Ireland Ltd). La bibliothèque d'affichage 3D est fournie par Cloudflare (cdnjs). Ces prestataires peuvent traiter des données techniques (comme l'adresse IP) hors de l'Union européenne, dans le cadre des garanties prévues par le RGPD (clauses contractuelles types, cadre de protection des données UE–États-Unis).") +
     "<h4>Tes droits</h4>" +
@@ -63,7 +62,7 @@
       sec("sante", "Avant de commencer : ta santé", SANTE) +
       sec("vie", "Confidentialité", VIE) +
       sec("mentions", "Mentions légales", MENTIONS) +
-      "<section class='klg-sec'><h3>Effacer mes données</h3>" + p("Efface tes séances, ta progression, tes réglages et le bilan enregistrés sur ce téléphone. Tes messages de la Communauté ne sont pas touchés.") +
+      "<section class='klg-sec'><h3>Effacer mes données</h3>" + p("Efface tes séances, ta progression, tes réglages et le bilan enregistrés sur ce téléphone. Ta fiche chez ton kiné n'est pas touchée : demande-lui de la supprimer si tu le souhaites.") +
       "<button class='klg-del' id='klg-del'>Effacer les données de ce téléphone</button></section></div>";
     el.classList.add("open");
     $("klg-del").onclick = wipe;

@@ -176,10 +176,11 @@ var KineRole = (function () {
     var more = "<div class='v2-other'>" +
       (r === "kine" && window.KineCabinet ? "<button class='v2-row' onclick='KineRole.hubClose();KineCabinet.tee()'><b>Mon nom sur le t-shirt de Yass</b><span>›</span></button>" : "") +
       (window.KineLumiere ? "<button class='v2-row' onclick='KineRole.hubClose();KineLumiere.settings()'><b>Réglages de l'appli</b><span>›</span></button>" : "") +
+      (admin && window.fbPurgeOld ? "<button class='v2-row' onclick='KineRole.purge()'><b>Effacer les anciens messages de la Communauté</b><span>›</span></button>" : "") +
       "<button class='v2-row khb-out' onclick='KineRole.logout()'><b>" + (r === "kine" ? "Se déconnecter" : "Changer de profil (kiné ou patient)") + "</b><span>›</span></button></div>";
     var el = hubSheet();
     el.innerHTML = "<div class='kf-sheet-body'><div class='kcb-top'><button class='kf-back' onclick='KineRole.hubClose()' aria-label='Fermer'>" + BACK + "</button><span></span><i></i></div>" +
-      "<div><h1 class='kf-h1 kcb-h1'>" + (r === "kine" ? "Réglages" : "Mon espace") + "</h1></div>" + (r === "kine" ? "" : kine) + acc + more + "</div>";
+      "<div><h1 class='kf-h1 kcb-h1'>" + (r === "kine" ? "Réglages" : "Mon espace") + "</h1></div>" + (r === "kine" ? "" : kine) + acc + more + (r === "kine" ? "<p class='kcb-hint' id='khb-msg'></p>" : "") + "</div>";
     el.classList.add("open"); el.scrollTop = 0;
   }
   function hubSay(t) { var m = $("khb-msg"); if (m) m.textContent = t; }
@@ -260,5 +261,10 @@ var KineRole = (function () {
   }
   document.addEventListener("DOMContentLoaded", function () { setTimeout(init, 400); });
 
-  return { logout: logout, loginForm: loginForm, loginGo: loginGo, saveGoogle: saveGoogle, restoreGoogle: restoreGoogle, hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
+  function purge() {
+    if (!confirm("Effacer définitivement tous les anciens messages de la Communauté et l'ancien compteur de séances ?")) return;
+    hubSay("Effacement…");
+    fbPurgeOld().then(function (n) { hubSay(n ? n + " élément" + (n > 1 ? "s effacés." : " effacé.") : "Il n'y avait plus rien à effacer."); }, function () { hubSay("L'effacement n'a pas marché. Réessaie."); });
+  }
+  return { purge: purge, logout: logout, loginForm: loginForm, loginGo: loginGo, saveGoogle: saveGoogle, restoreGoogle: restoreGoogle, hub: hub, hubClose: hubClose, hubMode: hubMode, meButton: meButton, choose: choose, pick: pick, patient: patient, seul: seul, code: code, demande: demande, send: send, kine: kine, close: close, asPatient: asPatient, role: role, isNew: isNew };
 })();

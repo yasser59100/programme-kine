@@ -77,14 +77,13 @@
       return "<button class='lx-item' onclick=\"openPreview('" + id + "')\"><span class='lx-j'>" + codeOf(id) + "</span><span>" + esc(cap(nameOf(id))) + "</span><span class='lx-t'>" + minutes(id) + " min</span></button>";
     }).join("");
     var nWork = SEQ_DAYS[target].exercises.filter(function (e) { return e.phase === "work"; }).length;
-    var h = now.getHours(), who = typeof currentUser !== "undefined" && currentUser && currentUser.name ? String(currentUser.name).split(" ")[0] : "";
+    var h = now.getHours(), who = "";
     var hello = (h >= 18 || h < 4 ? "Bonsoir" : "Bonjour") + (who ? "<br>" + esc(cap(who)) : "");
     var xd = window.KineIdees && KineIdees.defineExpress ? KineIdees.defineExpress(target) : null;
     var ICAM = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round' aria-hidden='true'><path d='M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><circle cx='12' cy='13' r='3.5'/></svg>";
     var IZAP = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round' aria-hidden='true'><path d='M13 2 4 14h7l-1 8 9-12h-7z'/></svg>";
     box.innerHTML =
-      "<div class='lu-top'><p class='lx-date'>" + cap(WD[dow]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" +
-        "<button class='lu-me' onclick='handleAuthClick()' aria-label='" + (who ? "Mon compte" : "Connexion") + "'>" + (who ? esc(who.charAt(0).toUpperCase()) : "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21a8 8 0 0 1 16 0'/></svg>") + "</button></div>" +
+      "<div class='lu-top'><p class='lx-date'>" + cap(WD[dow]) + " " + now.getDate() + " " + MO[now.getMonth()] + "</p>" + "</div>" +
       "<h1 class='lu-hello'>" + hello + "</h1>" +
       (window.KineTheme && KineTheme.homeSwitchHtml ? KineTheme.homeSwitchHtml() : "") +
       "<div class='lu-days'>" + days + "</div>" + banner +
@@ -296,26 +295,6 @@
   }
   var PTH = {}, progTry = 0;
 
-  // Séances composées par le patient (« Ma séance »)
-  function mineHtml() {
-    if (!window.KineCompose) return "";
-    var q = function (s) { return JSON.stringify(s).replace(/'/g, "&#39;"); };
-    var rows = KineCompose.saved().map(function (s) {
-      var reds = window.KineBiblio ? s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length : 0;
-      return "<div class='lx-mine'><button class='lx-srow' onclick='KineCompose.start(" + q(s.id) + ")'><span class='lx-j'>★</span><span class='lx-n'>" + esc(s.name) +
-        "<small>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small></span></button>" +
-        "<button class='kc-mini' aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button>" +
-        "<button class='kc-mini' aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div>";
-    }).join("");
-    return "<h2 class='lx-section'>Mes séances</h2><div class='lx-list'>" + rows +
-      "<button class='lx-srow' onclick='KineCompose.open()'><span class='lx-j'>＋</span><span class='lx-n'>Créer ma séance<small>Choisis tes exercices, par couleur de difficulté</small></span></button></div>";
-  }
-  function libHtml() {
-    if (!window.KineBiblio) return "";
-    var n = KineBiblio.all().length;
-    return "<h2 class='lx-section'>Bibliothèque</h2><div class='lx-list'><button class='lx-srow' onclick='KineBiblio.open(\"\")'><span class='lx-j'>" + n + "</span>" +
-      "<span class='lx-n'>Bibliothèque d'exercices<small>Tous les exercices, classés par groupe musculaire</small></span><span aria-hidden='true'>›</span></button></div>";
-  }
 
   /* ════════ Écran d'exercice : réorganisation ════════ */
   function arrangeGuide() {

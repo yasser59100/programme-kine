@@ -15,21 +15,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Communauté : lecture pour tous ; on publie seulement sous son propre compte ;
-    // on supprime ses propres messages, le kiné peut tout modérer
+    // Ancienne Communauté (retirée) et ancien compteur : plus rien n'y est écrit, seul le kiné peut lire et effacer
     match /messages/{msgId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-      allow update: if isAdmin();
-      allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow read, delete: if isAdmin();
     }
-
-    // Compteur anonyme des séances terminées
     match /completions/{id} {
-      allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['j', 'timestamp'])
-        && request.resource.data.j is string && request.resource.data.j.size() < 20;
-      allow update, delete: if isAdmin();
+      allow read, delete: if isAdmin();
     }
 
     // Notifications du jour : clé publique publiée par l'envoyeur

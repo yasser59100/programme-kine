@@ -55,7 +55,7 @@ html.kf-boot body{visibility:hidden}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, linkWithPopup, signInWithCredential, linkWithCredential, EmailAuthProvider, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getCountFromServer, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, limit, serverTimestamp, getDocs, where, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCI7fwNeTl-2kYNnlpjr0IatLvQbppsUgg",
@@ -118,30 +118,13 @@ window.fbSignOut = async function() {
   await signOut(auth);
 };
 
-// ── POST MESSAGE ──
-window.fbPostMessage = async function(text, extra) {
-  if (!window.fbUser) return;
-  var data = Object.assign({
-    text: text,
-    uid: window.fbUser.uid,
-    name: window.fbUser.name,
-    photo: window.fbUser.photo || "",
-    timestamp: serverTimestamp()   // pas d'adresse e-mail : les messages sont publics
-  }, extra || {});
-  await addDoc(collection(db, "messages"), data);
+// Anciennes données de la Communauté retirée (messages publiés, compteur de séances) : le kiné peut tout effacer
+window.fbPurgeOld = async function () {
+  if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("admin");
+  var n = 0;
+  for (const c of ["messages", "completions"]) { var snap = await getDocs(collection(db, c)); for (const d of snap.docs) { await deleteDoc(d.ref); n++; } }
+  return n;
 };
-
-window._fbAddMessage = async function(data) {
-  data.timestamp = serverTimestamp();
-  await addDoc(collection(db, "messages"), data);
-};
-
-// ── DELETE MESSAGE (admin) ──
-window.fbDeleteMessage = async function(docId) {
-  if (!window.fbUser || !window.fbUser.isAdmin) return;
-  await deleteDoc(doc(db, "messages", docId));
-};
-
 // ── PROGRAMME OFFICIEL : contenu des exercices, publié par le kiné, lu par tous (aucune donnée patient) ──
 window.fbGetProgramme = async function() {
   var snap = await getDoc(doc(db, "programme", "officiel"));
@@ -331,46 +314,7 @@ window.fbPat = {
 };
 window.dispatchEvent(new Event("kf-fb-ready"));
 
-// ── COMPTEUR ANONYME DES SÉANCES TERMINÉES (aucune donnée personnelle : ni compte, ni nom) ──
-window.fbCountSession = async function(j) {
-  try { await addDoc(collection(db, "completions"), { j: j || "", timestamp: serverTimestamp() }); } catch (e) { console.log("Compteur indisponible", e); }
-};
 
-// ── RETIRER SES PUBLICATIONS (patient) ──
-window.fbDeleteMine = async function() {
-  if (!window.fbUser) return 0;
-  var snap = await getDocs(query(collection(db, "messages"), where("uid", "==", window.fbUser.uid)));
-  var n = 0;
-  for (const d of snap.docs) { await deleteDoc(doc(db, "messages", d.id)); n++; }
-  return n;
-};
-
-// ── LISTEN FEED ──
-window.fbListenFeed = function(callback) {
-  var q = query(collection(db, "messages"), orderBy("timestamp", "desc"), limit(50));
-  return onSnapshot(q, function(snap) {
-    var msgs = [];
-    snap.forEach(function(d) { msgs.push({ id: d.id, ...d.data() }); });
-    callback(msgs);
-  });
-};
-
-// ── COMMUNITY STATS ──
-window.fbGetStats = async function() {
-  try {
-    var usersSnap = await getDocs(collection(db, "messages"));
-    var uids = new Set();
-    usersSnap.forEach(function(d) { uids.add(d.data().uid); });
-    var now = new Date();
-    var mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay()+6)%7)); mon.setHours(0,0,0,0);
-    var total = 0, week = 0;
-    try {
-      total = (await getCountFromServer(collection(db, "completions"))).data().count;
-      week = (await getCountFromServer(query(collection(db, "completions"), where("timestamp", ">=", mon)))).data().count;
-    } catch (e2) { console.log("Compteur indisponible", e2); }
-    return { members: uids.size, total: total, week: week };
-  } catch(e) { return { members: 0, total: 0, week: 0 }; }
-};
 </script>
 
 
@@ -448,10 +392,6 @@ window.fbGetStats = async function() {
   <div class="topbar-spacer"></div>
   <div class="topbar-actions">
     <button class="icon-btn" id="dark-btn" onclick="toggleDark()" aria-label="Changer de thème"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
-    <button class="auth-btn" id="auth-btn" onclick="handleAuthClick()">
-  <span id="auth-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
-  <span id="auth-label">Connexion</span>
-</button>
   </div>
 </div>
 
@@ -473,27 +413,6 @@ window.fbGetStats = async function() {
   <div class="timer-controls">
     <button class="t-ctrl primary" id="t-pause" onclick="togglePause()" aria-label="Pause"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button>
     <button class="t-ctrl" onclick="closeTimer()">✕ Fermer</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="auth-modal">
-  <div class="modal">
-    <h2 id="modal-title">Connexion</h2>
-    <p id="modal-sub">Accède à ton suivi et à la communauté</p>
-    <div class="modal-error" id="modal-error"></div>
-    <div class="modal-row" id="modal-name-row" style="display:none"><div class="modal-label">Prénom</div><input type="text" class="modal-input" id="modal-name" placeholder="Ton prénom"></div>
-    <div class="modal-row"><div class="modal-label">Email</div><input type="email" class="modal-input" id="modal-email" placeholder="vous@email.com"></div>
-    <div class="modal-row"><div class="modal-label">Mot de passe</div><input type="password" class="modal-input" id="modal-password" placeholder="••••••••"></div>
-    <button onclick="signInWithGoogle()" style="width:100%;padding:11px;border-radius:var(--r-md);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;margin-bottom:12px;transition:all 0.15s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border2)'">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
-      Continuer avec Google
-    </button>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><div style="flex:1;height:1px;background:var(--border)"></div><span style="font-size:0.78rem;color:var(--text3)">ou</span><div style="flex:1;height:1px;background:var(--border)"></div></div>
-    <div class="modal-footer">
-      <button class="btn-primary" style="flex:1" onclick="submitAuth()" id="modal-submit">Se connecter</button>
-      <button class="btn-secondary" onclick="closeAuth()">Annuler</button>
-    </div>
-    <div style="text-align:center;margin-top:12px"><button onclick="toggleAuthMode()" style="background:none;border:none;color:var(--blue);font-size:0.75rem;font-family:var(--font);cursor:pointer" id="modal-switch">Pas encore de compte ? S'inscrire</button></div>
   </div>
 </div>
 
@@ -661,48 +580,7 @@ window.fbGetStats = async function() {
 <div class="content" id="mes-root"></div>
 </div>
 
-<!-- PAGE COMMUNAUTÉ -->
 <div class="page" id="page-monkine"><div class="content" id="monkine-body"></div></div>
-<div class="page" id="page-community">
-<div class="content">
-  <div class="community-header">
-    <h1 class="lx-title">Communauté</h1>
-    <p class="lx-lede">Les séances des patients du cabinet. Motivez-vous les uns les autres.</p>
-    <div class="community-stats">
-      <div class="cs"><div class="cs-val" id="cs-members">—</div><div class="cs-lbl">Membres</div></div>
-      <div class="cs"><div class="cs-val" id="cs-seances">—</div><div class="cs-lbl">Séances totales</div></div>
-      <div class="cs"><div class="cs-val" id="cs-week">—</div><div class="cs-lbl">Cette semaine</div></div>
-    </div>
-  </div>
-
-  <div id="login-prompt-wrap">
-    <div class="login-prompt" id="login-prompt">
-      <h3>Rejoins la communauté</h3>
-      <p>Connecte-toi pour partager tes séances, encourager les autres patients et recevoir leurs messages de soutien. Tes données sont privées et sécurisées.</p>
-      <button class="btn-primary" onclick="signInWithGoogle()" style="display:flex;align-items:center;gap:8px">
-  <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
-  Continuer avec Google
-</button>
-    </div>
-  </div>
-
-  <div class="msg-composer" id="msg-composer" style="display:none">
-    <h3>Partager un message avec la communauté</h3>
-    <textarea class="msg-textarea" id="msg-input" placeholder="Partage ton ressenti, encourage les autres patients..." maxlength="300"></textarea>
-    <div class="msg-footer">
-      <span class="msg-char"><span id="msg-count">0</span>/300</span>
-      <button class="btn-primary" onclick="postMessage()">Publier</button>
-    </div>
-  </div>
-
-  <h2 class="lx-section">Fil d'activité</h2>
-  <div id="community-feed">
-    <div id="feed-loading" class="cm-empty">Chargement des messages…</div>
-  </div>
-
-
-</div>
-</div>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
@@ -742,7 +620,7 @@ function toggleDark(){
 })();
 
 // ══ NAVIGATION ══
-var pageMap={home:'bn-home',guide:'bn-guide',mes:'bn-mes',day0:null,day1:null,day2:null,day3:null,day4:null,suivi:'bn-suivi',community:null,monkine:'bn-monkine'};
+var pageMap={home:'bn-home',guide:'bn-guide',mes:'bn-mes',day0:null,day1:null,day2:null,day3:null,day4:null,suivi:'bn-suivi',monkine:'bn-monkine'};
 function showPage(id){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('active');});
@@ -805,12 +683,6 @@ function closeTimer(){
 var exState={};
 function loadExState(){try{var s=localStorage.getItem('kf-ex');if(s)exState=JSON.parse(s);}catch(e){}}
 function saveExState(){try{localStorage.setItem('kf-ex',JSON.stringify(exState));}catch(e){}}
-function toggleEx(day,idx){
-  var key=day+'-'+idx;
-  exState[key]=!exState[key];
-  saveExState();
-  renderDay(day);
-}
 function renderDay(day){
   var total=7,done=0;
   for(var i=0;i<total;i++){
@@ -835,25 +707,6 @@ var sessions=[],borgVal=null;
 var borgLabels=['','Très léger','Léger','Modéré','Difficile','Très difficile'];
 function loadSessions(){try{var s=localStorage.getItem('kf-sessions');if(s)sessions=JSON.parse(s);}catch(e){}}
 function saveSessions(){try{localStorage.setItem('kf-sessions',JSON.stringify(sessions));}catch(e){}}
-function selBorg(n){
-  borgVal=n;
-  document.querySelectorAll('.borg-btn').forEach(function(b,i){b.classList.toggle('sel',i+1===n);});
-}
-function saveSession(){
-  var date=document.getElementById('s-date').value;
-  var seance=document.getElementById('s-seance').value;
-  if(!date||!seance){alert('Renseigne au minimum la date et la séance.');return;}
-  sessions.unshift({id:Date.now(),date:date,seance:seance,semaine:document.getElementById('s-semaine').value,borg:borgVal,completion:document.getElementById('s-completion').value,notes:document.getElementById('s-notes').value,ts:Date.now()});
-  saveSessions();
-  document.getElementById('s-seance').value='';
-  document.getElementById('s-semaine').value='';
-  document.getElementById('s-completion').value='';
-  document.getElementById('s-notes').value='';
-  borgVal=null;
-  document.querySelectorAll('.borg-btn').forEach(function(b){b.classList.remove('sel');});
-  renderAll();
-  checkBadges();
-}
 function clearSessions(){if(confirm('Effacer toutes les séances enregistrées ?')){sessions=[];saveSessions();renderAll();}}
 function fmtDate(d){try{return new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});}catch(e){return d;}}
 
@@ -927,7 +780,6 @@ function renderStreak(){
   kfTxt('stat-streak',n);
   var latestSem=sessions.length&&sessions[0].semaine?sessions[0].semaine.replace('Semaine ','S').split(' ')[0]:'S1';
   kfTxt('stat-semaine',window.KineProgress ? "S" + KineProgress.week() : latestSem);
-  if(currentUser) kfTxt('hero-name',currentUser.name||'Mon programme');
 }
 
 // ══ BADGES ══
@@ -970,183 +822,9 @@ function renderBadges(){
   if(bs)bs.innerHTML=html;
 }
 
-// ══ COMMUNITY ══
-function toggleLike(btn){
-  btn.classList.toggle('liked');
-  var n=parseInt(btn.textContent.replace(/\D/g,''))||0;
-  btn.innerHTML=KFI.heart+' '+(btn.classList.contains('liked')?(n+1):Math.max(0,n-1));
-}
-async function postMessage(){
-  var txt=document.getElementById("msg-input").value.trim();
-  if(!txt)return;
-  if(!window.fbUser){alert("Connecte-toi pour publier.");return;}
-  if(window.KineShare && !KineShare.allowed()){ KineShare.ask(function(){ postMessage(); }); return; }
-  if(txt.length>300){alert("Message trop long (300 caractères max).");return;}
-  var btn = document.querySelector(".msg-composer .btn-primary");
-  if(btn){btn.disabled=true;btn.textContent="Publication...";}
-  try {
-    await window.fbPostMessage(txt);
-    document.getElementById("msg-input").value="";
-    document.getElementById("msg-count").textContent="0";
-  } catch(e) {
-    alert("Erreur lors de la publication. Réessaie.");
-    console.error(e);
-  } finally {
-    if(btn){btn.disabled=false;btn.textContent="Publier";}
-  }
-}
-document.addEventListener('DOMContentLoaded',function(){
-  var mi=document.getElementById('msg-input');
-  if(mi)mi.addEventListener('input',function(){document.getElementById('msg-count').textContent=this.value.length;});
-});
-
-// ══ AUTH (Firebase-ready) ══
-var currentUser=null,authMode='login';
-var ADMIN_EMAIL='yasser59100@gmail.com';
-function openAuth(){
-  authMode='login';
-  document.getElementById('modal-title').textContent='Connexion';
-  document.getElementById('modal-sub').textContent='Accède à ton suivi et à la communauté';
-  document.getElementById('modal-submit').textContent='Se connecter';
-  document.getElementById('modal-switch').textContent="Pas encore de compte ? S'inscrire";
-  document.getElementById('modal-name-row').style.display='none';
-  document.getElementById('modal-error').style.display='none';
-  document.getElementById('auth-modal').classList.add('open');
-}
-function closeAuth(){document.getElementById('auth-modal').classList.remove('open');}
-function toggleAuthMode(){
-  authMode=authMode==='login'?'register':'login';
-  var isReg=authMode==='register';
-  document.getElementById('modal-title').textContent=isReg?'Créer un compte':'Connexion';
-  document.getElementById('modal-sub').textContent=isReg?'Rejoins la communauté':'Accède à ton suivi';
-  document.getElementById('modal-submit').textContent=isReg?"S'inscrire":'Se connecter';
-  document.getElementById('modal-switch').textContent=isReg?'Déjà un compte ? Se connecter':"Pas encore de compte ? S'inscrire";
-  document.getElementById('modal-name-row').style.display=isReg?'block':'none';
-  document.getElementById('modal-error').style.display='none';
-}
-function submitAuth(){
-  var email=document.getElementById('modal-email').value.trim();
-  var pass=document.getElementById('modal-password').value;
-  var name=document.getElementById('modal-name').value.trim();
-  var errEl=document.getElementById('modal-error');
-  if(!email||!pass){errEl.textContent='Email et mot de passe requis.';errEl.style.display='block';return;}
-  if(authMode==='register'&&!name){errEl.textContent='Prénom requis.';errEl.style.display='block';return;}
-
-  // ─── Firebase stub ───
-  // Pour activer Firebase, remplacez ce bloc par :
-  // import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-  // const auth = getAuth();
-  // if (authMode === 'login') {
-  //   signInWithEmailAndPassword(auth, email, pass)
-  //     .then(cred => { currentUser = { uid: cred.user.uid, name: cred.user.displayName, email: cred.user.email, isAdmin: cred.user.email === ADMIN_EMAIL }; onLogin(); closeAuth(); })
-  //     .catch(err => { errEl.textContent = err.message; errEl.style.display='block'; });
-  // } else {
-  //   createUserWithEmailAndPassword(auth, email, pass)
-  //     .then(cred => { updateProfile(cred.user, { displayName: name }); currentUser = { uid: cred.user.uid, name, email, isAdmin: email === ADMIN_EMAIL }; onLogin(); closeAuth(); })
-  //     .catch(err => { errEl.textContent = err.message; errEl.style.display='block'; });
-  // }
-
-  // Demo mode (localStorage)
-  if(authMode==='login'){
-    var stored=null;try{stored=JSON.parse(localStorage.getItem('kf-user'));}catch(e){}
-    if(!stored||stored.email!==email){errEl.textContent='Compte introuvable. Crée un compte.';errEl.style.display='block';return;}
-    currentUser=stored;
-  } else {
-    currentUser={uid:Date.now()+'',name:name,email:email,isAdmin:email===ADMIN_EMAIL};
-    try{localStorage.setItem('kf-user',JSON.stringify(currentUser));}catch(e){}
-  }
-  onLogin();
-  closeAuth();
-}
-function onLogin(){
-  var u = window.fbUser || currentUser;
-  if(!u) return;
-  currentUser = u;
-  var btn=document.getElementById("auth-btn");
-  btn.classList.add("logged");
-  // Show photo if available
-  if(u.photo) {
-    document.getElementById("auth-icon").innerHTML = "<img src=\""+u.photo+"\" style=\"width:22px;height:22px;border-radius:50%;object-fit:cover\">";
-  } else {
-    document.getElementById("auth-icon").innerHTML=KFI.userok;
-  }
-  var firstName = (u.name||"").split(" ")[0] || "Connecté";
-  document.getElementById("auth-label").textContent=firstName;
-  document.getElementById("login-prompt").style.display="none";
-  document.getElementById("msg-composer").style.display="block";
-  kfTxt("hero-name",u.name||"Mon programme");
-  loadFirebaseFeed();
-  loadCommunityStats();
-}
-
-function onFbLogin(){ onLogin(); closeAuth(); }
-function onFbLogout(){
-  currentUser=null;
-  var btn=document.getElementById("auth-btn");
-  btn.classList.remove("logged");
-  document.getElementById("auth-icon").innerHTML=KFI.user;
-  document.getElementById("auth-label").textContent="Connexion";
-  document.getElementById("login-prompt").style.display="block";
-  document.getElementById("msg-composer").style.display="none";
-  kfTxt("hero-name","Mon programme");
-}
-
-function handleAuthClick(){
-  if(window.fbUser){ fbSignOut(); } else { openAuth(); }
-}
-
-var feedUnsubscribe = null;
-function loadFirebaseFeed(){
-  if(feedUnsubscribe) feedUnsubscribe();
-  feedUnsubscribe = window.fbListenFeed(function(msgs){
-    renderFeed(msgs);
-  });
-}
-
-function loadCommunityStats(){
-  if(!window.fbGetStats) return;
-  window.fbGetStats().then(function(stats){
-    if (!stats) return;
-    document.getElementById("cs-members").textContent = stats.members || 0;
-    document.getElementById("cs-seances").textContent = stats.total || 0;
-    document.getElementById("cs-week").textContent = stats.week || 0;
-    var row = document.querySelector("#page-community .community-stats"); if (row) row.classList.add("on");   // les chiffres n'apparaissent qu'une fois connus
-  });
-}
-
-function renderFeed(msgs){
-  var feed = document.getElementById("community-feed");
-  if(!msgs || !msgs.length){
-    feed.innerHTML = "<p class=\"cm-empty\">Aucun message pour l'instant. Sois le premier !</p>";
-    return;
-  }
-  var isAdmin = window.fbUser && window.fbUser.isAdmin;
-  var myUid = window.fbUser ? window.fbUser.uid : null;
-  feed.innerHTML = msgs.map(function(m){
-    var initials = (m.name||"?").split(" ").map(function(w){return w[0];}).join("").toUpperCase().slice(0,2);
-    var colors = ["#3d8ef0","#2dd4bf","#a78bfa","#f59e0b","#34d399","#f87171"];
-    var color = colors[Math.abs(m.uid.charCodeAt(0)) % colors.length];
-    var ts = m.timestamp ? new Date(m.timestamp.seconds*1000).toLocaleString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : "À l'instant";
-    var avatar = m.photo
-      ? "<img src=\""+m.photo+"\" style=\"width:36px;height:36px;border-radius:10px;object-fit:cover\">"
-      : "<div class=\"fi-avatar\" style=\"background:"+color+"\">"+initials+"</div>";
-    var deleteBtn = (isAdmin || m.uid === myUid)
-      ? "<button class=\"fi-delete-btn\" onclick=\"deleteFeedMsg('"+m.id+"')\" title=\"Supprimer\" aria-label=\"Supprimer\">"+KFI.trash+"</button>"
-      : "";
-    return "<div class=\"feed-item\" id=\"msg-"+m.id+"\">"
-      +"<div class=\"fi-top\">"+avatar
-      +"<div><div class=\"fi-name\">"+m.name+"</div><div class=\"fi-time\">"+ts+"</div></div></div>"
-      +"<div class=\"fi-body\">"+m.text+"</div>"
-      +"<div class=\"fi-actions\"><button class=\"fi-like-btn\" onclick=\"toggleLike(this)\">"+KFI.heart+" 0</button>"+deleteBtn+"</div>"
-      +"</div>";
-  }).join("");
-}
-
-async function deleteFeedMsg(id){
-  if(!confirm("Supprimer ce message ?")) return;
-  try { await window.fbDeleteMessage(id); }
-  catch(e){ alert("Erreur suppression."); }
-}
+// ══ CONNEXION (compte Google du kiné seulement) ══
+function onFbLogin(){}
+function onFbLogout(){}
 
 // ══ EXPORT ══
 function buildSummary(){
@@ -1162,13 +840,6 @@ function buildSummary(){
     l.push('');
   });
   return l.join('\n');
-}
-function copyToNotes(){
-  var text=buildSummary();
-  var fb=document.getElementById('copy-fb');
-  var done=function(){fb.style.display='block';setTimeout(function(){fb.style.display='none';},8000);};
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(function(){fallback(text,done);});}
-  else{fallback(text,done);}
 }
 function fallback(text,cb){
   var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
@@ -1187,7 +858,6 @@ function renderAll(){
 document.addEventListener('DOMContentLoaded',function(){
   try{document.getElementById('s-date').valueAsDate=new Date();}catch(e){}
   loadSessions();loadExState();
-  try{var u=JSON.parse(localStorage.getItem('kf-user'));if(u){currentUser=u;onLogin();}}catch(e){}
   renderAll();
   document.getElementById('t-fg').style.strokeDasharray=C;
   document.getElementById('t-fg').style.strokeDashoffset=0;
@@ -1445,11 +1115,6 @@ var obSlides = [
     desc: "Dans l'onglet Mon kiné, retrouve ton suivi au cabinet : ton étape, tes bilans, la séance et les questionnaires que ton kiné t'envoie."
   }
 ];
-function showOb() {
-  var el = document.getElementById('onboarding');
-  el.style.display = 'flex';
-  renderOb();
-}
 function renderOb() {
   var s = obSlides[obStep];
   document.getElementById('ob-icon').innerHTML = KFI[s.icon] || KFI.activity;
@@ -1481,8 +1146,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Onboarding au premier lancement
   // L'ancienne présentation en diapositives est remplacée par la visite guidée de la mascotte
   try { localStorage.setItem('kf-onboarded', '1'); } catch (e) {}
-  // Sans connexion, le fil ne se charge jamais : on le dit au lieu de laisser « Chargement… »
-  setTimeout(function () { var l = document.getElementById('feed-loading'); if (l) l.textContent = "Les messages n'ont pas pu se charger. Vérifie ta connexion internet, puis rouvre l'appli."; }, 12000);
   checkNotifPrompt();
   scheduleReminderCheck();
 });
@@ -2427,10 +2090,6 @@ function qlConfirm() {
   saveSessions();
   renderAll();
   checkBadges();
-  // Auto-post to community feed
-  if (window.fbUser) {
-    postSessionToFeed(s);
-  }
   // Success screen
   for (var i = 1; i <= 4; i++) {
     var el = document.getElementById('ql-step-' + i);
@@ -2515,8 +2174,7 @@ var rgState = {
   onSerieComplete: null
 };
 
-// ── ARROW DISPLAY (clean, no SVG complexity) ──
-function getRepSVG(phase) { return ""; } // unused
+ // unused
 
 function updateRepImage(phase) {
   var container = document.getElementById("rg-image-container");
@@ -3097,270 +2755,6 @@ seqSkipExercise = function() {
   seqCircuitNext(true);
 };
 
-// ═══════════════════════════════════════════════════════
-// COMMUNITY — ENCOURAGEMENTS + COMMENTAIRES
-// ═══════════════════════════════════════════════════════
-
-function renderFeed(msgs) {
-  var feed = document.getElementById("community-feed");
-  if (!msgs || !msgs.length) {
-    feed.innerHTML = "<p class='cm-empty'>Aucune activité pour l'instant. Termine une séance pour apparaître ici !</p>";
-    return;
-  }
-
-  var isAdmin = window.fbUser && window.fbUser.isAdmin;
-  var myUid = window.fbUser ? window.fbUser.uid : null;
-
-  feed.innerHTML = "";
-
-  msgs.forEach(function(m) {
-    var shown = m.pseudo || "Membre";
-    var initials = shown.charAt(0).toUpperCase();
-    var colors = ["#3d8ef0","#2dd4bf","#a78bfa","#f59e0b","#34d399","#f87171"];
-    var color = colors[Math.abs((m.uid || "x").charCodeAt(0)) % colors.length];
-    var ts = m.timestamp ? new Date(m.timestamp.seconds * 1000).toLocaleString("fr-FR", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }) : "À l'instant";
-
-    var item = document.createElement("div");
-    item.className = "feed-item";
-    item.id = "msg-" + m.id;
-
-    // Header
-    var topDiv = document.createElement("div");
-    topDiv.className = "fi-top";
-
-    var avatar = document.createElement("div");
-    avatar.className = "fi-avatar";
-    avatar.style.background = color;
-    avatar.textContent = initials;
-    topDiv.appendChild(avatar);
-
-    var nameBlock = document.createElement("div");
-    var nameEl = document.createElement("div");
-    nameEl.className = "fi-name";
-    nameEl.textContent = shown;
-    var timeEl = document.createElement("div");
-    timeEl.className = "fi-time";
-    timeEl.textContent = ts;
-    nameBlock.appendChild(nameEl);
-    nameBlock.appendChild(timeEl);
-    topDiv.appendChild(nameBlock);
-
-    if (m.seanceType) {
-      var tag = document.createElement("div");
-      tag.className = "fi-seance-tag";
-      tag.textContent = m.seanceType;
-      topDiv.appendChild(tag);
-    }
-    item.appendChild(topDiv);
-
-    // Seance result (if auto-post from session)
-    if (m.isSessionPost && m.sessionData) {
-      var sd = m.sessionData;
-      var resultDiv = document.createElement("div");
-      resultDiv.className = "fi-seance-result";
-      var borgEmojis = ["","","","","",""];
-      resultDiv.innerHTML = ""
-        + (sd.borg ? "<span>" + (borgEmojis[sd.borg]||"") + " Effort : " + sd.borg + "/5</span>" : "")
-        + (sd.completion ? "<span>" + sd.completion + "</span>" : "");
-      item.appendChild(resultDiv);
-    }
-
-    // Message body
-    var body = document.createElement("div");
-    body.className = "fi-body";
-    body.textContent = m.text || "";
-    item.appendChild(body);
-
-    // Actions row
-    var actions = document.createElement("div");
-    actions.className = "fi-actions";
-
-    var encourageCount = m.encouragements ? Object.keys(m.encouragements).length : 0;
-    var iEncourage = myUid && m.encouragements && m.encouragements[myUid];
-
-    var encBtn = document.createElement("button");
-    encBtn.className = "fi-encourage-btn" + (iEncourage ? " active" : "");
-    encBtn.innerHTML = KFI.thumb + " " + (encourageCount > 0 ? encourageCount : "Encourager");
-    encBtn.onclick = (function(msgId, btn) {
-      return function() { toggleEncouragement(msgId, btn); };
-    })(m.id, encBtn);
-    actions.appendChild(encBtn);
-
-    if (isAdmin || m.uid === myUid) {
-      var delBtn = document.createElement("button");
-      delBtn.className = "fi-delete-btn";
-      delBtn.innerHTML = KFI.trash; delBtn.setAttribute("aria-label", "Supprimer");
-      delBtn.title = "Supprimer";
-      delBtn.onclick = (function(id) { return function() { deleteFeedMsg(id); }; })(m.id);
-      actions.appendChild(delBtn);
-    }
-    item.appendChild(actions);
-
-    // Comments section
-    var commentsSection = document.createElement("div");
-    commentsSection.className = "fi-comments";
-    commentsSection.id = "comments-" + m.id;
-
-    // Existing comments
-    if (m.comments && m.comments.length) {
-      m.comments.forEach(function(c) {
-        var cDiv = document.createElement("div");
-        cDiv.className = "fi-comment";
-        var cAvatar = document.createElement("div");
-        cAvatar.className = "fi-comment-avatar";
-        cAvatar.style.background = colors[Math.abs((c.uid||"x").charCodeAt(0)) % colors.length];
-        cAvatar.textContent = (c.name||"?")[0].toUpperCase();
-        cDiv.appendChild(cAvatar);
-        var cBody = document.createElement("div");
-        cBody.className = "fi-comment-body";
-        var cText = document.createElement("div");
-        cText.innerHTML = "<span class='fi-comment-name'>" + (c.name||"?") + "</span><span class='fi-comment-text'>" + c.text + "</span>";
-        var cTime = document.createElement("div");
-        cTime.className = "fi-comment-time";
-        cTime.textContent = c.time || "";
-        cBody.appendChild(cText);
-        cBody.appendChild(cTime);
-        cDiv.appendChild(cBody);
-        commentsSection.appendChild(cDiv);
-      });
-    }
-
-    // Comment input (if logged in)
-    if (myUid) {
-      var inputRow = document.createElement("div");
-      inputRow.className = "fi-comment-input";
-      var field = document.createElement("input");
-      field.type = "text";
-      field.className = "fi-comment-field";
-      field.placeholder = "Écrire un commentaire...";
-      field.maxLength = 140;
-      var sendBtn = document.createElement("button");
-      sendBtn.className = "fi-comment-send";
-      sendBtn.innerHTML = "→";
-      sendBtn.onclick = (function(msgId, f) {
-        return function() { submitComment(msgId, f); };
-      })(m.id, field);
-      field.onkeydown = (function(msgId, f) {
-        return function(e) { if (e.key === "Enter") submitComment(msgId, f); };
-      })(m.id, field);
-      inputRow.appendChild(field);
-      inputRow.appendChild(sendBtn);
-      commentsSection.appendChild(inputRow);
-    }
-
-    item.appendChild(commentsSection);
-    feed.appendChild(item);
-  });
-}
-
-// ── ENCOURAGEMENT (Firestore) ──
-async function toggleEncouragement(msgId, btn) {
-  if (!window.fbUser) { openAuth(); return; }
-  // Optimistic UI
-  var isActive = btn.classList.contains("active");
-  btn.classList.toggle("active", !isActive);
-  var currentCount = parseInt((btn.textContent.match(/\d+/) || ["0"])[0]) || 0;
-  var newCount = isActive ? Math.max(0, currentCount - 1) : currentCount + 1;
-  btn.innerHTML = KFI.thumb + " " + (newCount > 0 ? newCount : "Encourager");
-
-  // TODO: Firebase update
-  // import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
-  // await updateDoc(doc(db, "messages", msgId), {
-  //   ["encouragements." + window.fbUser.uid]: !isActive ? true : deleteField()
-  // });
-}
-
-// ── COMMENT SUBMIT ──
-async function submitComment(msgId, field) {
-  var text = field.value.trim();
-  if (!text || !window.fbUser) return;
-  field.value = "";
-
-  var comment = {
-    uid: window.fbUser.uid,
-    name: window.fbUser.name,
-    text: text,
-    time: new Date().toLocaleString("fr-FR", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" })
-  };
-
-  // Optimistic UI — add comment immediately
-  var commentsDiv = document.getElementById("comments-" + msgId);
-  if (commentsDiv) {
-    var inputRow = commentsDiv.querySelector(".fi-comment-input");
-    var cDiv = document.createElement("div");
-    cDiv.className = "fi-comment";
-    var colors = ["#3d8ef0","#2dd4bf","#a78bfa","#f59e0b","#34d399","#f87171"];
-    var cAvatar = document.createElement("div");
-    cAvatar.className = "fi-comment-avatar";
-    cAvatar.style.background = colors[Math.abs(window.fbUser.uid.charCodeAt(0)) % colors.length];
-    cAvatar.textContent = (window.fbUser.name || "?")[0].toUpperCase();
-    cDiv.appendChild(cAvatar);
-    var cBody = document.createElement("div");
-    cBody.className = "fi-comment-body";
-    cBody.innerHTML = "<div><span class='fi-comment-name'>" + window.fbUser.name + "</span><span class='fi-comment-text'>" + text + "</span></div><div class='fi-comment-time'>" + comment.time + "</div>";
-    cDiv.appendChild(cBody);
-    commentsDiv.insertBefore(cDiv, inputRow);
-  }
-
-  // TODO: Firebase
-  // await updateDoc(doc(db, "messages", msgId), {
-  //   comments: arrayUnion(comment)
-  // });
-}
-
-// ── AUTO-POST WHEN SESSION COMPLETED ──
-async function postSessionToFeed(sessionData) {
-  if (!window.fbUser) return;
-  // Rien n'est publié sans l'accord du patient ; on lui pose la question la première fois
-  if (window.KineShare && !KineShare.allowed()) {
-    if (KineShare.undecided()) KineShare.ask(function () { postSessionToFeed(sessionData); });
-    return;
-  }
-
-  var borgLabels = ["","Très facile","Facile","Modéré","Difficile","Épuisant"];
-  var seanceLabel = sessionData.seance || "Séance";
-  var jMatch = seanceLabel.match(/J(\d)/);
-  var jLabel = jMatch ? "J" + jMatch[1] : seanceLabel.slice(0, 2);
-
-  var text = "Séance " + seanceLabel + " terminée !";
-  if (sessionData.borg) text += " Effort " + sessionData.borg + "/5 — " + borgLabels[sessionData.borg] + ".";
-
-  try {
-    await window.fbPostMessage(text, {
-      isSessionPost: true,
-      seanceType: jLabel,
-      sessionData: {
-        borg: sessionData.borg,
-        completion: sessionData.completion ? sessionData.completion.split("—")[0].trim() : null
-      }
-    });
-  } catch(e) {
-    console.log("Feed post failed:", e);
-  }
-}
-
-// Override fbPostMessage to accept extra data
-var _origFbPostMessage = window.fbPostMessage;
-window.fbPostMessage = async function(text, extra) {
-  if (!window.fbUser) return;
-  if (!window.KineShare || !KineShare.allowed()) return;
-  var data = {
-    text: text,
-    uid: window.fbUser.uid,
-    pseudo: KineShare.pseudo(),
-    timestamp: { seconds: Math.floor(Date.now()/1000), nanoseconds: 0 }
-  };
-  if (extra) Object.assign(data, extra);
-  // Use Firebase if available, else store locally for feed
-  if (typeof addDoc !== "undefined") {
-    // Real Firebase path handled in module
-  }
-  // Trigger real Firebase via module function
-  if (window._fbAddMessage) {
-    await window._fbAddMessage(data);
-  }
-};
-
 </script>
 
 <div class="kf-sheet" id="seq-preview" role="dialog" aria-modal="true" aria-label="Aperçu de la séance"></div>
@@ -3371,7 +2765,6 @@ window.fbPostMessage = async function(text, extra) {
 <script src="assets/js/kine-routines.js" defer></script>
 <script src="assets/js/kine-recup.js" defer></script>
 <script src="assets/js/kine-suivi.js" defer></script>
-<script src="assets/js/kine-community.js" defer></script>
 <script src="assets/js/kine-programme.js" defer></script>
 <script src="assets/js/kine-ressenti.js" defer></script>
 <script src="assets/js/kine-layout.js" defer></script>
