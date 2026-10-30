@@ -655,3 +655,38 @@ test("guide rapide : une question par écran, test suivant proposé, pistes", as
   await shot(page, info, "72-guide-rapide-pistes");
   await clean(errs);
 });
+
+test("séance au cabinet : plusieurs exercices, notés un par un, progression proposée", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => kfNeed("suivi"));
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.nouveau());
+  await page.fill("#kcb-alias", "R.K.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.seance());
+  await expect(page.locator("#kcb-sheet .kss-rc").first()).toBeVisible();
+  await page.locator("#kcb-sheet .kss-add").nth(0).click();
+  await page.locator("#kcb-sheet .kss-add").nth(0).click();
+  await page.locator("#kcb-sheet .kss-add").nth(0).click();
+  await expect(page.locator("#kcb-sheet .kss-ex")).toHaveCount(3);
+  await page.evaluate(() => { KineCabinet.sl(0, "kg", 1); KineCabinet.sl(0, "kg", 1); KineCabinet.sr(0, "facile"); KineCabinet.sr(1, "ok"); KineCabinet.sr(2, "dou"); KineCabinet.sd("dou", 2); KineCabinet.sd("rpe", 6); KineCabinet.shome(true); });
+  await page.waitForTimeout(600);
+  await shot(page, info, "80-seance-cabinet");
+  await page.locator("#kcb-sheet .kf-sheet-foot .seq-btn-main").click();
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  const d = await page.evaluate((pid) => { const p = window.__db.patients[pid]; const x = Object.values(p.seances)[0]; return { n: x.list.length, dou: x.dou, rpe: x.rpe, exos: (p.doc.exos || []).length }; }, pid);
+  expect(d).toEqual({ n: 3, dou: 2, rpe: 6, exos: 3 });
+  // séance suivante : reprise de la précédente, charge augmentée sur l'exercice trop facile
+  await page.evaluate(() => KineCabinet.seance());
+  await expect(page.locator("#kcb-sheet .kss-ex")).toHaveCount(3);
+  await expect(page.locator("#kcb-sheet .kss-ex").nth(0).locator("em")).toContainText("trop facile");
+  await expect(page.locator("#kcb-sheet .kss-ex").nth(2).locator("em")).toContainText("Douloureux");
+  await clean(errs);
+});

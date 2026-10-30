@@ -689,37 +689,88 @@ var KineCabinet = (function () {
 
   /* ════════ Séance au cabinet ════════ */
   var S = null;
+  /* ════════ Séance au cabinet : plusieurs exercices, chacun noté en un appui, et la séance évaluée dans son ensemble ════════
+     La séance suivante reprend la précédente, avec la progression proposée (trop facile : on charge ; trop dur : on allège). */
+  var RATE = [["facile", "Trop facile"], ["ok", "Bien"], ["dur", "Trop dur"], ["dou", "Douloureux"]];
+  function sList(x) { return x && x.list && x.list.length ? x.list : x && x.ex ? [{ ex: x.ex, kg: x.kg, reps: x.reps, series: x.series }] : []; }
+  function kgStep(kg) { return kg >= 20 ? 2.5 : kg >= 10 ? 1 : 0.5; }
   function seance() {
-    var P = KP.get(C.parcours), ref = C.ref || P.ref;
-    var last = (C.seances || []).filter(function (s) { return s.ex === ref; })[0];
-    S = { ex: ref, kg: last && last.kg != null ? last.kg : 0, reps: last && last.reps || 10, series: last && last.series || 3, dou: null };
-    seanceView(last);
+    var last = (C.seances || [])[0];
+    S = { list: sList(last).map(function (e) {
+      var o = { ex: e.ex, kg: e.kg || 0, reps: e.reps || 10, series: e.series || 3, r: null, prev: e };
+      if (e.r === "facile") { if (o.kg > 0) { o.kg = Math.round((o.kg + kgStep(o.kg)) * 10) / 10; o.sug = "+" + KP.fmt(kgStep(e.kg)) + " kg : trop facile la dernière fois"; } else { o.reps += 2; o.sug = "+2 répétitions : trop facile la dernière fois"; } }
+      else if (e.r === "dur" || e.r === "dou") o.sug = (e.r === "dou" ? "Douloureux" : "Trop dur") + " la dernière fois : garder ou alléger";
+      return o; }), dou: null, rpe: null, home: false, all: false };
+    seanceView();
   }
-  function seanceView(last) {
-    if (last === undefined) last = (C.seances || []).filter(function (s) { return s.ex === S.ex; })[0];
-    var P = KP.get(C.parcours), sugg = [C.ref || P.ref].concat(KP.exos(C.parcours, C.etape || 0, C.opts)).filter(function (n, i, a) { return a.indexOf(n) === i; }).slice(0, 8);
-    var step = function (k, d, lab, u) { return "<div class='kcb-step'><span class='kcb-lab'>" + lab + "</span><div><button onclick='KineCabinet.st(" + q(k) + "," + (-d) + ")' aria-label='Moins'>−</button><b>" + KP.fmt(S[k]) + "</b><button onclick='KineCabinet.st(" + q(k) + "," + d + ")' aria-label='Plus'>+</button></div><span>" + u + "</span></div>"; };
-    var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) + "<div class='kf-h1 kcb-h1'>Séance du jour</div>" +
-      "<div class='su-card'><span class='kcb-lab'>Exercice de référence</span><div class='kf-chips'>" + sugg.map(function (n) { return "<button type='button' class='" + (S.ex === n ? "sel" : "") + "' onclick='KineCabinet.sx(" + q(n) + ")'>" + esc(n) + "</button>"; }).join("") + "</div>" +
-      "<input class='kcb-in' list='kcb-allex' placeholder='Autre exercice…' onchange='KineCabinet.sx(this.value)'>" + datalist() +
-      (last ? "<div class='kf-sub'>Dernière fois (" + dfr(last.d) + ") : " + (last.series || "") + " × " + (last.reps || "") + (last.kg ? " à " + KP.fmt(last.kg) + " kg" : "") + "</div>" : "") +
-      "<div class='kcb-two'>" + step("kg", 0.5, "Charge", "kg") + step("reps", 1, "Répétitions", "par série") + "</div>" + step("series", 1, "Séries", "") + "</div>" +
-      "<div class='su-card'><span class='kcb-lab'>Douleur pendant la séance</span><div class='kcb-pain'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button class='" + (S.dou === v ? "sel" : "") + "' onclick='KineCabinet.sd(" + v + ")'>" + v + "</button>"; }).join("") + "</div></div>" +
-      "<label class='su-card kcb-field'><span class='kcb-lab'>Note pour toi (le patient ne la voit pas)</span><input class='kcb-in' id='kcb-snote' maxlength='200'></label>";
-    // historique des séances au cabinet
-    var ref = C.ref || P.ref, SS = (C.seances || []).filter(function (x) { return x.ex === ref && x.kg != null; }).slice().reverse();
-    if ((C.seances || []).length) html += "<div class='su-card'><div class='su-card-h'><b>Séances précédentes</b><span>" + C.seances.length + "</span></div>" + (SS.length > 1 ? "<div class='kf-sub'>Charge sur l'exercice de référence : " + esc(ref) + "</div>" + bars2(SS) : "") +
-      C.seances.slice(0, 8).map(function (x) { var n = (C.notes || []).filter(function (k) { return k.id === x.id; })[0]; return "<div class='kcb-srow'><b>" + dfr(x.d) + "</b><span>" + esc(x.ex) + " : " + (x.series || "") + " × " + (x.reps || "") + (x.kg ? " à " + KP.fmt(x.kg) + " kg" : "") + (x.dou != null ? ", douleur " + x.dou + "/10" : "") + (n ? "<br><i>" + esc(n.t) + "</i>" : "") + "</span></div>"; }).join("") + "</div>";
-    show(html, "<button class='seq-btn-main' onclick='KineCabinet.saveSeance()'>Valider la séance</button>");
+  // Vignette de Yass : calculée une fois ; si la 3D n'est pas encore prête, elle est ajoutée dès qu'elle l'est
+  var SNAP = {};
+  function snap(n) { if (SNAP[n]) return SNAP[n]; try { var e = window.KineBiblio && KineBiblio.find(n), u = e && e.thumb || (window.KineAvatar && KineAvatar.supports(n) ? KineAvatar.snapshot(n, 160) : null); if (u) SNAP[n] = u; return u; } catch (er) { return null; } }
+  function imgOf(n) { var u = snap(n); return "<img data-n='" + esc(n) + "' alt=''" + (u ? " src='" + u + "'" : "") + ">"; }
+  function snapLater(tries) {
+    var miss = [].filter.call(sheet().querySelectorAll(".kss-im img[data-n]"), function (im) { return !im.getAttribute("src"); }); if (!miss.length || tries > 20) return;
+    setTimeout(function () { miss.forEach(function (im) { var u = snap(im.getAttribute("data-n")); if (u) im.src = u; }); snapLater(tries + 1); }, 500);
   }
-  function st(k, d) { var step = k === "kg" ? (S.kg >= 20 ? 2.5 : S.kg >= 10 ? 1 : 0.5) : 1; S[k] = Math.max(0, Math.round((S[k] + (d > 0 ? step : -step)) * 10) / 10); if (k !== "kg" && S[k] < 1) S[k] = 1; var y = sheet().scrollTop; seanceView(); sheet().scrollTop = y; }
-  function sx(n) { if (!n) return; S.ex = n; var last = (C.seances || []).filter(function (s) { return s.ex === n; })[0]; if (last) { S.kg = last.kg || 0; S.reps = last.reps || 10; S.series = last.series || 3; } seanceView(last || null); }
-  function sd(v) { S.dou = v; var y = sheet().scrollTop; seanceView(); sheet().scrollTop = y; }
+  function seanceView() {
+    var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1), inL = S.list.map(function (e) { return e.ex; });
+    var reco = [C.ref || P.ref].concat(KP.exos(C.parcours, E, C.opts)).filter(function (n, i, a) { return a.indexOf(n) === i && inL.indexOf(n) < 0; });
+    var stp = function (i, k, lab) { var v = S.list[i][k]; return "<div class='kss-st'><span>" + lab + "</span><div><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",-1)' aria-label='Moins'>−</button><b>" + KP.fmt(v) + "</b><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",1)' aria-label='Plus'>+</button></div></div>"; };
+    var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) + "<div><div class='kf-h1 kcb-h1'>Séance du jour</div><div class='kf-sub'>Étape " + (E + 1) + " : " + esc(P.etapes[E].nom) + "</div></div>";
+    // les exercices de la séance
+    html += "<div class='kcb-v2h'>Exercices de la séance" + (S.list.length ? " · " + S.list.length : "") + "</div>";
+    if (!S.list.length) html += "<div class='kf-note'>Ajoute les exercices de la séance ci-dessous : touche l'image pour voir Yass le faire, « + » pour l'ajouter.</div>";
+    html += S.list.map(function (e, i) {
+      var pv = e.prev;
+      return "<div class='kss-ex'><div class='kss-h'><button class='kss-im' onclick='KineBiblio.demo(" + q(e.ex) + ")' aria-label='Voir Yass faire l&#39;exercice'>" + imgOf(e.ex) + "<i>" + ICON.play + "</i></button>" +
+        "<div class='kss-t'><b>" + esc(e.ex) + "</b>" + (pv ? "<span>Dernière fois : " + (pv.series || "") + " × " + (pv.reps || "") + (pv.kg ? " à " + KP.fmt(pv.kg) + " kg" : "") + (pv.r ? ", " + esc((RATE.filter(function (r) { return r[0] === pv.r; })[0] || ["", ""])[1].toLowerCase()) : "") + "</span>" : "") +
+        (e.sug ? "<em>" + esc(e.sug) + "</em>" : "") + "</div><button class='kss-x' onclick='KineCabinet.srm(" + i + ")' aria-label='Retirer'>×</button></div>" +
+        "<div class='kss-sts'>" + stp(i, "series", "Séries") + stp(i, "reps", "Répét.") + stp(i, "kg", "Charge kg") + "</div>" +
+        "<div class='kss-r' role='group' aria-label='Comment ça s&#39;est passé'>" + RATE.map(function (r) { return "<button class='" + r[0] + (e.r === r[0] ? " on" : "") + "' aria-pressed='" + (e.r === r[0]) + "' onclick='KineCabinet.sr(" + i + "," + q(r[0]) + ")'>" + r[1] + "</button>"; }).join("") + "</div></div>";
+    }).join("");
+    // ajouter : les exercices recommandés pour l'étape, avec Yass
+    var shown = S.all ? reco : reco.slice(0, 6);
+    html += "<div class='su-card'><div class='su-card-h'><b>Recommandés pour l'étape " + (E + 1) + "</b><span>touche l'image : Yass le fait</span></div><div class='kss-reco'>" +
+      shown.map(function (n) { return "<div class='kss-rc'><button class='kss-im' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir Yass faire " + esc(n) + "'>" + imgOf(n) + "<i>" + ICON.play + "</i></button><span>" + esc(n) + "</span><button class='kss-add' onclick='KineCabinet.sadd(" + q(n) + ")' aria-label='Ajouter " + esc(n) + "'>+</button></div>"; }).join("") + "</div>" +
+      (reco.length > 6 ? "<button class='kcb-link' onclick='KineCabinet.sall()'>" + (S.all ? "Moins d'exercices" : "Voir les " + reco.length + " exercices de l'étape") + "</button>" : "") +
+      "<input class='kcb-in' list='kcb-allex' placeholder='Chercher un autre exercice…' onchange='KineCabinet.sadd(this.value);this.value=\"\"'>" + datalist() + "</div>";
+    // la séance dans son ensemble
+    var pain = function (k, v0) { return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button class='" + (S[k] === v ? "sel" : "") + "' onclick='KineCabinet.sd(" + q(k) + "," + v + ")'>" + v + "</button>"; }).join(""); };
+    html += "<div class='su-card'><b>La séance dans son ensemble</b><span class='kcb-lab'>Douleur pendant la séance (0 à 10)</span><div class='kcb-pain'>" + pain("dou") + "</div>" +
+      "<span class='kcb-lab'>Effort ressenti (0 : repos, 10 : maximal)</span><div class='kcb-pain kss-rpe'>" + pain("rpe") + "</div>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Note pour toi (le patient ne la voit pas)</span><input class='kcb-in' id='kcb-snote' maxlength='200' value='" + esc(S.note || "") + "' oninput='KineCabinet.snote(this.value)'></label>" +
+      (S.list.length ? "<label class='krl-ok'><input type='checkbox'" + (S.home ? " checked" : "") + " onchange='KineCabinet.shome(this.checked)'><span>Donner aussi ces exercices au patient, pour la maison</span></label>" : "") + "</div>";
+    // séances précédentes
+    var ref = C.ref || P.ref, SS = (C.seances || []).map(function (x) { var e = sList(x).filter(function (y) { return y.ex === ref && y.kg != null; })[0]; return e ? { d: x.d, kg: e.kg } : null; }).filter(Boolean).reverse();
+    if ((C.seances || []).length) html += "<div class='su-card'><div class='su-card-h'><b>Séances précédentes</b><span>" + C.seances.length + "</span></div>" + (SS.length > 1 ? "<div class='kf-sub'>Charge sur " + esc(ref) + "</div>" + bars2(SS) : "") +
+      C.seances.slice(0, 8).map(function (x) { var n = (C.notes || []).filter(function (k) { return k.id === x.id; })[0];
+        return "<div class='kcb-srow'><b>" + dfr(x.d) + "</b><span>" + sList(x).map(function (e) { return esc(e.ex) + " " + (e.series || "") + "×" + (e.reps || "") + (e.kg ? " " + KP.fmt(e.kg) + " kg" : "") + (e.r && e.r !== "ok" ? " (" + esc((RATE.filter(function (r) { return r[0] === e.r; })[0] || ["", ""])[1].toLowerCase()) + ")" : ""); }).join("<br>") +
+          "<br><i>Douleur " + (x.dou != null ? x.dou + "/10" : "–") + (x.rpe != null ? ", effort " + x.rpe + "/10" : "") + (n ? " · " + esc(n.t) : "") + "</i></span></div>"; }).join("") + "</div>";
+    var y = sheet().classList.contains("open") && sheet().querySelector(".kss-reco") ? sheet().scrollTop : 0;
+    show(html, "<button class='seq-btn-main' onclick='KineCabinet.saveSeance()'" + (S.list.length ? "" : " disabled") + ">Valider la séance" + (S.list.length ? " (" + S.list.length + " exercice" + (S.list.length > 1 ? "s" : "") + ")" : "") + "</button>");
+    sheet().scrollTop = y; snapLater(0);
+  }
+  function sl(i, k, d) { var e = S.list[i], st0 = k === "kg" ? kgStep(e.kg + (d < 0 ? -0.01 : 0)) : 1; e[k] = Math.max(k === "kg" ? 0 : 1, Math.round((e[k] + d * st0) * 10) / 10); e.sug = null; seanceView(); }
+  function sr(i, r) { S.list[i].r = S.list[i].r === r ? null : r; seanceView(); }
+  function srm(i) { S.list.splice(i, 1); seanceView(); }
+  function sadd(n) {
+    n = String(n || "").trim(); if (!n || S.list.some(function (e) { return e.ex === n; })) return;
+    var last = null; (C.seances || []).some(function (x) { last = sList(x).filter(function (e) { return e.ex === n; })[0] || null; return !!last; });
+    S.list.push({ ex: n, kg: last && last.kg || 0, reps: last && last.reps || 10, series: last && last.series || 3, r: null, prev: last });
+    seanceView();
+  }
+  function sd(k, v) { S[k] = S[k] === v ? null : v; seanceView(); }
   function saveSeance() {
+    if (!S.list.length) { say("Ajoute au moins un exercice."); return; }
     if (S.dou == null) { say("Indique la douleur pendant la séance."); return; }
-    var data = { d: iso(), ex: S.ex, kg: S.kg, reps: S.reps, series: S.series, dou: S.dou }, note = ($("kcb-snote").value || "").trim().slice(0, 200);
+    var P = KP.get(C.parcours), ref = C.ref || P.ref, list = S.list.map(function (e) { var o = { ex: e.ex, kg: e.kg, reps: e.reps, series: e.series }; if (e.r) o.r = e.r; return o; });
+    var main = list.filter(function (e) { return e.ex === ref; })[0] || list[0];
+    // ex, kg, reps, series : l'exercice de référence (ou le premier), pour la courbe de charge et les anciennes versions
+    var data = { d: iso(), ex: main.ex, kg: main.kg, reps: main.reps, series: main.series, dou: S.dou, list: list }, note = (S.note || "").trim().slice(0, 200);
+    if (S.rpe != null) data.rpe = S.rpe;
     loading("Enregistrement…");
-    fbCab.seance(C.id, data).then(function (id) { return note ? fbCab.note(C.id, id, { d: data.d, t: note }) : null; }).then(function () { fiche(C.id); }, fail);
+    fbCab.seance(C.id, data).then(function (id) { return note ? fbCab.note(C.id, id, { d: data.d, t: note }) : null; })
+      .then(function () { if (!S.home) return; var ex = list.map(function (e) { return e.ex; }).slice(0, 10), d2 = { exos: ex, exosD: iso(), exosAt: Date.now() }; return fbCab.save(C.id, d2).then(function () { C.exos = ex; C.exosD = d2.exosD; C.exosAt = d2.exosAt; }); })
+      .then(function () { say(S.home ? "Séance enregistrée, et envoyée au patient pour la maison." : "Séance enregistrée."); fiche(C.id); }, fail);
   }
 
   /* ════════ Inclinomètre : le téléphone mesure l'angle du genou ════════
@@ -1141,7 +1192,7 @@ var KineCabinet = (function () {
     fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
-    seance: seance, st: st, sx: sx, sd: sd, saveSeance: saveSeance,
+    seance: seance, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
     incl: incl, saut: saut, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
     guide: guide, gMode: gModeSet, gqNext: gqNext, gqBack: gqBack, gqGo: gqGo, gqZone: gqZone, gqA: gqA, gqC: gqC, gqT: gqT, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2
