@@ -549,6 +549,13 @@ test("portail : invité sans espace kiné, onglet Mon kiné, mode kiné permanen
   await page.evaluate(() => KineCabinet.close());
   await expect(page.locator("#kcb-sheet.open")).toHaveCount(1);
   await expect(page.locator(".bottom-nav")).toBeHidden();
+  // l'appli patient n'est jamais dessinée sous l'espace kiné
+  await page.evaluate(() => { KineRole.hubClose(); KineRole.kine(); });
+  expect(await page.evaluate(() => document.documentElement.classList.contains("kf-kmode"))).toBe(true);
+  await page.evaluate(() => document.getElementById("kcb-sheet").classList.remove("open"));
+  await expect(page.locator("#page-home")).toBeHidden();
+  await expect(page.locator(".topbar")).toBeHidden();
+  await page.evaluate(() => KineCabinet.open());
   await page.evaluate(() => KineRole.hub());
   await expect(page.locator("#kf-hub .khb-out")).toContainText("Se déconnecter");
   await expect(page.locator("#kf-hub .khb-seg")).toHaveCount(0);

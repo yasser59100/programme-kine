@@ -3394,3 +3394,8 @@ body.kf-kine .bottom-nav, body.kf-kine #kf-me, body.kf-kine .kf-masc, body.kf-ki
 .kss-rc .kss-im { width: 100%; height: auto; aspect-ratio: 1; }
 .kss-rc > span { font-size: .75rem; font-weight: 600; line-height: 1.2; }
 .kss-add { position: absolute; top: -6px; right: -6px; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--bg); background: var(--lu-ind2, #3341E0); color: #fff; font: 800 1.2rem var(--font); }
+/* Mode kiné : l'appli patient n'est jamais dessinée en dessous (même une fraction de seconde au retour) */
+html.kf-kmode .topbar, html.kf-kmode .page, html.kf-kmode .bottom-nav, html.kf-kmode .signature, html.kf-kmode #notif-bar,
+html.kf-kmode #kf-me, html.kf-kmode #kf-masc, html.kf-kmode .kf-masc, html.kf-kmode #rest-timer { display: none !important; }
+html.kf-kmode body { background: var(--bg); min-height: 100vh; }
+html.kf-kmode body::before { content: "Espace kiné"; position: fixed; inset: 0; display: grid; place-items: center; font: 800 1.1rem var(--font); color: var(--text3); }

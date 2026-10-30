@@ -13,7 +13,7 @@ var KineRole = (function () {
   function set(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
   function role() { return get(KEY); }
   // Mode kiné : l'appli patient disparaît derrière l'espace kiné, jusqu'à la déconnexion
-  function mode() { document.body.classList.toggle("kf-kine", role() === "kine"); }
+  function mode() { var k = role() === "kine"; document.body.classList.toggle("kf-kine", k); document.documentElement.classList.toggle("kf-kmode", k); }
   // L'espace kiné n'est chargé qu'à l'ouverture
   function cab() { return (window.kfNeed ? kfNeed("suivi") : Promise.resolve()).then(function () { var ks = $("kcb-sheet"); if (window.KineCabinet && role() === "kine" && !(ks && ks.classList.contains("open"))) KineCabinet.open(); }); }
   var BACK = "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M15 18l-6-6 6-6'/></svg>";

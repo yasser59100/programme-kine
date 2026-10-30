@@ -6,7 +6,7 @@
 /* Démarrage : thème appliqué tout de suite, et la page reste cachée derrière un écran de démarrage
    tant que la nouvelle interface n'est pas dessinée (sinon l'ancienne apparaît une fraction de seconde) */
 (function(){var d=document.documentElement;try{d.setAttribute('data-theme','light');d.classList.add('lu');}catch(e){}
-d.classList.add('kf-boot');window.__kfT0=Date.now();setTimeout(function(){d.classList.remove('kf-boot');},4000);})();
+d.classList.add('kf-boot');window.__kfT0=Date.now();try{if(localStorage.getItem('kf-role')==='kine')d.classList.add('kf-kmode');}catch(e){}setTimeout(function(){d.classList.remove('kf-boot');},4000);})();
 </script>
 <script src="assets/js/kine-fiable.js"></script>
 <style>
