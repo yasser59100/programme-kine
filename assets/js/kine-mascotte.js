@@ -377,14 +377,11 @@
 
   /* ════════ Visite guidée (premier lancement) ════════ */
   // Visite de la nouvelle appli : montrée une fois à tout le monde (nouveaux patients et anciens après la refonte)
+  // Visite de l'accueil, allégée à l'essentiel : la séance du jour, les onglets, Yass et « J'ai mal »
   var TOUR = [
-    { sel: "#today-card .lu-slab, #today-card .lx-cta", text: "Salut, je suis Yass, ton coach ! Ici, c'est ta séance du jour : touche Commencer et je te guide, mouvement par mouvement.", gesture: "wave" },
-    { sel: "#lu-video", text: "Tester en vidéo : tu te filmes avec le téléphone, je regarde ton mouvement, je te corrige à voix haute et je compte pour toi.", gesture: "point" },
-    { sel: "#ki-express", text: "Pas le temps ? La séance express dure une dizaine de minutes.", gesture: "point" },
-    { sel: "#bn-guide", text: "Dans Exercices, tu as ton programme sur quatre semaines et la bibliothèque. Fais défiler : je fais chaque exercice dans sa case.", gesture: "point" },
-    { sel: "#bn-mes", text: "Au centre, Ma séance : compose ta propre séance avec les exercices que tu veux.", gesture: "point" },
-    { sel: "#bn-suivi", text: "Dans Progrès, tu vois tes chiffres et ton objectif, et tu envoies ton bilan à ton kiné. Ton espace et les réglages sont sous le petit bonhomme, en haut à droite.", gesture: "point" },
-    { sel: null, text: "Et moi, je reste dans le coin de l'écran : touche ma tête pour une question, la vidéo ou les réglages. Si un exercice fait mal, appuie sur J'ai mal.", gesture: "open" }
+    { sel: "#today-card .lu-slab", text: "Salut, je suis Yass, ton coach ! Ici, c'est ta séance du jour : touche Commencer et je te guide, mouvement par mouvement.", gesture: "wave" },
+    { sel: ".bottom-nav", text: "En bas : Exercices pour ton programme et la bibliothèque, Ma séance pour composer la tienne, Progrès pour tes chiffres, et Mon kiné pour ton suivi au cabinet.", gesture: "point" },
+    { sel: null, text: "Et moi, je reste dans le coin de l'écran : touche ma tête pour une question ou une explication. Si un exercice fait mal, appuie sur J'ai mal.", gesture: "open" }
   ];
   var TOUR_MAIN = TOUR, TOUR_KEY = "kf-tour-v2";
   function guide(steps, key) { if (!steps || !steps.length) return false; TOUR = steps; TOUR_KEY = key || "kf-masc-guide"; return tour(0); }

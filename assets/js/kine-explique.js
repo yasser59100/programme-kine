@@ -25,8 +25,11 @@ var KineExplique = (function () {
   // Une bulle visible à l'écran (celles restées dans un écran fermé ne comptent pas)
   function current() { return [].filter.call(document.querySelectorAll(".kx-tip"), function (t) { return t.offsetParent !== null; })[0] || null; }
   // anchor : l'élément après lequel la bulle se place ; inside : la bulle se met dans l'élément, au début
+  // Allégé : seules restent les bulles qui demandent une décision (exercices difficiles, réglage d'une série réactive) ;
+  // le réglage du niveau et la caméra s'expliquent par leurs libellés à l'écran
+  var AUTO = { rouge: 1, reactifSeance: 1 };
   function once(k, anchor, inside) {
-    if (!T[k] || seen(k) || !anchor || !anchor.isConnected) return;
+    if (!T[k] || !AUTO[k] || seen(k) || !anchor || !anchor.isConnected) return;
     if (window.KineMascotte && KineMascotte.isOff && KineMascotte.isOff()) return;
     if (current()) { if (!pending.some(function (p) { return p.k === k; })) pending.push({ k: k, a: anchor, i: inside }); return; }
     mark(k);
