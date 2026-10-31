@@ -593,7 +593,7 @@
     { title: "Mettre des exercices réactifs dans ma séance", kw: "réactif couleurs plots ma séance ajouter",
       text: "Dans « Ma séance », les exercices réactifs sont dans le groupe « Réactivité ». Pendant la séance, avant chaque série, tu règles tes couleurs, le nombre, le rythme et les pièges." },
     { title: "Envoyer mes résultats à mon kiné", kw: "envoyer partager kiné bilan résumé message mail sms whatsapp transmettre",
-      text: "Dans l'onglet Suivi, touche « Envoyer à mon kiné ». Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.", action: "envoyer", actionLabel: "Ouvrir l'envoi" },
+      text: "Dans l'onglet Progrès, touche « Envoyer à mon kiné ». Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.", action: "envoyer", actionLabel: "Ouvrir l'envoi" },
     { title: "Noter mon ressenti du jour", kw: "ressenti humeur forme moral sommeil énergie noter journée",
       text: "Chaque jour, tu peux noter en quelques secondes ta douleur, ton énergie, ton sommeil et ton moral. Après une dizaine de jours, je te montre ce qui ressort.", action: "ressenti", actionLabel: "Noter maintenant" },
     { title: "Voir mon calendrier", kw: "calendrier agenda jours séances faites historique mois",
@@ -818,6 +818,12 @@
       window.showPage = function () { var r = base.apply(this, arguments); if (mode !== "bouge" && mode !== "tour") hide(); setTimeout(maybe, 1200); return r; };
       window.showPage.__masc = true;
     }
+    // Une séance qui démarre referme la bulle de Yass (elle ne reste pas par-dessus la séance)
+    ["launchSeq", "openPreview"].forEach(function (f) {
+      var b = window[f]; if (typeof b !== "function" || b.__masc) return;
+      window[f] = function () { if (mode && mode !== "bouge" && mode !== "tour") hide(); return b.apply(this, arguments); };
+      window[f].__masc = true;
+    });
   }
   if (document.readyState === "complete") init(); else window.addEventListener("load", init);
 })();

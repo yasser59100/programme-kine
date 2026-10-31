@@ -80,8 +80,11 @@ var KineMonSuivi = (function () {
     arr("kf-pain").forEach(function (x) { add(String(x.date || "").slice(0, 10), "p", x); });
     var R = obj("kf-checkin"); Object.keys(R).forEach(function (d) { add(d, "r", R[d]); });
     Object.keys(B).forEach(function (k) { B[k].s = B[k].s.slice(0, 300); B[k].p = B[k].p.slice(0, 300); });
-    // sorties de la reprise de course réglée par le kiné
-    arr("kf-runs").forEach(function (x) { var id = m(x.d); if (!x.rp || !/^\d{4}-\d{2}$/.test(id)) return; B[id] = B[id] || { s: [], p: [], r: {} }; (B[id].c = B[id].c || []).push(x); });
+    // sorties de course : celles de la reprise réglée par le kiné et celles du journal de course
+    arr("kf-runs").forEach(function (x) { var id = m(x.d); if (!/^\d{4}-\d{2}$/.test(id)) return; B[id] = B[id] || { s: [], p: [], r: {} }; B[id].c = B[id].c || []; if (B[id].c.length < 120) B[id].c.push(x); });
+    // réglages faits à la maison : variantes choisies (plus facile / plus difficile) et ajustements de temps ou de répétitions
+    var VL = arr("kf-variant-log"), SW = obj("kf-variant"), LV = window.KineLevel && KineLevel.summaryLines ? KineLevel.summaryLines().filter(function (l) { return /^• /.test(l); }).map(function (l) { return l.slice(2); }) : [];
+    if (VL.length || Object.keys(SW).length || LV.length) B.niveaux = { v: { log: VL.slice(0, 20), sw: Object.keys(SW).slice(0, 60).map(function (k) { return { a: k, b: SW[k] }; }), lv: LV.slice(0, 40) } };
     var G = obj("kf-salle-log"); if (Object.keys(G).length) B.salle = { g: G };
     return B;
   }

@@ -138,7 +138,9 @@
     cue.parentNode.insertBefore(el, cue.nextSibling);
     var gbtn = el.querySelector(".kv-gearbtn");
     if (gbtn) gbtn.onclick = function () { addGear(gb.gear); var up2 = el.querySelector(".kv-btn.up"); if (up2) up2.click(); };
-    if (window.KineExplique) KineExplique.once("niveau", el);
+    // L'explication seulement quand le réglage est visible (avant de démarrer), pas par-dessus le tutoriel ni pendant l'exercice
+    var rg = $("rep-guide");
+    if (window.KineExplique && rg && rg.getAttribute("data-state") === "ready" && !$("kf-tuto")) KineExplique.once("niveau", el);
     el.querySelectorAll(".kv-btn").forEach(function (b) {
       b.onclick = function () {
         var dir = +b.getAttribute("data-d"), p = plan(ex, dir);

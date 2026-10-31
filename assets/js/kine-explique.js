@@ -5,7 +5,7 @@ var KineExplique = (function () {
   "use strict";
   var KEY = "kf-explique";
   var T = {
-    niveau: "Trop facile ou trop dur ? Touche plus ou moins. Je passe à une variante voisine ou je change le nombre de répétitions, et je garde ton choix pour les prochaines séances.",
+    niveau: "Trop facile ou trop dur ? Touche plus ou moins. Plus ajoute du temps ou des répétitions, puis te montre une variante plus difficile : tu choisis de la prendre ou non. Je garde ton choix pour les prochaines séances.",
     camera: "Tu vois le bouton caméra ? Touche-le pour faire la série devant moi : je regarde ton mouvement, je te corrige à voix haute et je compte pour toi.",
     rouge: "Tu as fini ta rééducation ? Réponds à six questions. Si tout est bon, j'ouvre les exercices difficiles.",
     reactif: "Nouveau : les exercices réactifs avec les couleurs peuvent entrer dans ta séance. Tu les trouves dans le groupe Réactivité.",

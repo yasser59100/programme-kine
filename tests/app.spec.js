@@ -365,7 +365,13 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
   await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
-  await page.evaluate(() => { localStorage.setItem("kf-sessions", JSON.stringify([{ id: 11, ts: 11, date: "2026-10-27", seance: "J1 — Membres inférieurs", borg: 3, douleur: 2, duree: 30 }])); sessions = JSON.parse(localStorage.getItem("kf-sessions")); KineMonSuivi.consent(1); });
+  await page.evaluate(() => { localStorage.setItem("kf-sessions", JSON.stringify([{ id: 11, ts: 11, date: "2026-10-27", seance: "J1 — Membres inférieurs", borg: 3, douleur: 2, duree: 30 }])); sessions = JSON.parse(localStorage.getItem("kf-sessions"));
+    // réglages faits à la maison et sorties du journal de course
+    const d0 = new Date(), iso = (n) => { const z = new Date(d0); z.setDate(z.getDate() - n); return z.toISOString().slice(0, 10); };
+    localStorage.setItem("kf-variant", JSON.stringify({ "Chaise contre le mur": "Position du skieur" }));
+    localStorage.setItem("kf-variant-log", JSON.stringify([{ t: "Chaise contre le mur → Position du skieur", d: "30/10" }, { t: "Chaise contre le mur : 60 s", d: "29/10" }]));
+    localStorage.setItem("kf-runs", JSON.stringify([{ id: "a", d: iso(0), min: 40, pain: 1, next: 0 }, { id: "b", d: iso(8), min: 30, pain: 0, next: 0 }, { id: "c", d: iso(15), min: 30, pain: 2, next: 1 }]));
+    KineMonSuivi.consent(1); });
   await expect.poll(() => page.evaluate(() => { const p = Object.values(window.__db.patients)[0]; return p.journal && p.journal["2026-10"] && p.journal["2026-10"].s.length; })).toBe(1);
   // identifiant et mot de passe
   await page.evaluate(() => { KineMonSuivi.close(); KineRole.loginForm("create"); });
@@ -376,7 +382,12 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
   await page.evaluate(() => { KineRole.hubClose(); window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.fiche(Object.keys(window.__db.patients)[0]); });
   await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
   await page.evaluate(() => KineCabinet.maison());
-  await expect(page.locator("#kcb-sheet .kcb-jh")).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-jh").first()).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-niv .kcb-nv")).toContainText("Position du skieur");
+  await expect(page.locator("#kcb-sheet .kcb-run")).toContainText("3 sorties");
+  await expect(page.locator("#kcb-sheet .kcb-runmsg")).toContainText("40 min cette semaine");
+  await page.locator("#kcb-sheet .kcb-niv").scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
+  await shot(page, info, "101-reglages-maison-kine");
   // nouveau téléphone : tout est effacé, puis retrouvé avec l'identifiant
   await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; ["kf-cab", "kf-sessions", "kf-cab-jh"].forEach(k => localStorage.removeItem(k)); sessions = []; KineRole.loginForm("restore"); });
   await page.fill("#kl-id", "samir.b"); await page.fill("#kl-pw", "mauvais1");

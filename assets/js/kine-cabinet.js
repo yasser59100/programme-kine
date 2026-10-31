@@ -221,7 +221,7 @@ var KineCabinet = (function () {
     formPid = pid;
     var d = draft, P = KP.get(d.parcours);
     var chips = KP.ZONES.map(function (z) {
-      return "<span class='kcb-zone'>" + esc(z[1]) + "</span><div class='kf-chips'>" + KP.ORDER.filter(function (id) { return KP.P[id].zone === z[0]; }).map(function (id) { return "<button type='button' class='" + (d.parcours === id ? "sel" : "") + "' onclick='KineCabinet.set(\"parcours\"," + q(id) + ")'>" + esc(KP.P[id].nom) + "</button>"; }).join("") + "</div>";
+      return "<span class='kcb-zone'>" + esc(z[1]) + "</span><div class='kf-chips kcb-pchips'>" + KP.ORDER.filter(function (id) { return KP.P[id].zone === z[0]; }).map(function (id) { return "<button type='button' data-z='" + esc(z[1]) + "' class='" + (d.parcours === id ? "sel" : "") + "' onclick='KineCabinet.set(\"parcours\"," + q(id) + ")'>" + esc(KP.P[id].nom) + "</button>"; }).join("") + "</div>";
     }).join("");
     var opts = P && P.opts ? P.opts.map(function (o) {
       return "<div class='kcb-field'><span class='kcb-lab'>" + esc(o.l) + "</span><div class='kf-chips'>" + o.ch.map(function (c) {
@@ -232,7 +232,8 @@ var KineCabinet = (function () {
       (dem ? "<div><div class='kf-h1 kcb-h1'>" + esc(d.full) + "</div>" + (d.msg ? "<div class='kf-sub'>« " + esc(d.msg) + " »</div>" : "") + "</div>" : "<div class='kf-h1 kcb-h1'>" + (pid ? "Modifier la fiche" : "Nouveau patient") + "</div>") +
       "<label class='kcb-field'><span class='kcb-lab'>Pseudonyme ou initiales</span><input class='kcb-in' id='kcb-alias' maxlength='24' value='" + esc(d.alias) + "' placeholder='Par exemple : Samir B.' oninput='KineCabinet.set(\"alias\",this.value,1)'></label>" +
       "<p class='kcb-hint'>" + (dem ? "Le nom complet est effacé dès que tu acceptes : la fiche reste pseudonyme." : "Pas de nom complet : la fiche reste pseudonyme.") + "</p>" +
-      "<div class='kcb-field'><span class='kcb-lab'>Parcours</span>" + chips +
+      "<div class='kcb-field'><span class='kcb-lab'>Parcours</span>" + (P ? "<div class='kcb-pnow'>" + ICON.ok + "<b>" + esc(P.nom) + "</b></div>" : "") +
+      "<input class='kcb-in kcb-psearch' type='search' placeholder='Chercher : lombalgie, épaule, LCA…' oninput='KineCabinet.pfilter(this.value)' aria-label='Chercher un parcours'>" + chips +
       "<button type='button' class='kcb-link' onclick='KineCabinet.guide(\"new\")'>Pas de diagnostic ? Ouvrir le guide d'orientation</button></div>" +
       "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
         [["D", "Droit"], ["G", "Gauche"], ["2", "Les deux"]].map(function (c) { return "<button type='button' class='" + (d.cote === c[0] ? "sel" : "") + "' onclick='KineCabinet.set(\"cote\"," + q(c[0]) + ")'>" + c[1] + "</button>"; }).join("") + "</div></div>" +
@@ -249,8 +250,18 @@ var KineCabinet = (function () {
     var all = window.KineBiblio ? KineBiblio.all(true).map(function (e) { return e.name; }) : [];
     return "<datalist id='kcb-allex'>" + all.map(function (n) { return "<option value='" + esc(n) + "'></option>"; }).join("") + "</datalist>";
   }
-  function set(k, v, quiet) { draft[k] = v; if (k === "parcours") draft.opts = {}; if (!quiet) form(formPid); }
-  function opt(k, v) { draft.opts[k] = v; form(formPid); }
+  // On garde la position dans la page : choisir un parcours en bas de liste ne renvoie plus tout en haut
+  function reForm() { var y = sheet().scrollTop; form(formPid); sheet().scrollTop = y; }
+  function set(k, v, quiet) { draft[k] = v; if (k === "parcours") draft.opts = {}; if (!quiet) reForm(); }
+  function opt(k, v) { draft.opts[k] = v; reForm(); }
+  // Filtre des parcours (35) : on tape « lomb », « épaule », « LCA »…
+  function pfilter(t) {
+    t = nrm(t).trim();
+    [].forEach.call(sheet().querySelectorAll(".kcb-pchips"), function (box) {
+      var n = 0; [].forEach.call(box.querySelectorAll("button"), function (b) { var ok = !t || nrm(b.textContent + " " + (b.getAttribute("data-z") || "")).indexOf(t) >= 0; b.style.display = ok ? "" : "none"; if (ok) n++; });
+      box.style.display = n ? "" : "none"; var z = box.previousElementSibling; if (z && z.classList.contains("kcb-zone")) z.style.display = n ? "" : "none";
+    });
+  }
   function saveForm(pid) {
     var d = draft;
     if (!String(d.alias || "").trim()) { say("Indique un pseudonyme ou des initiales."); return; }
@@ -282,11 +293,22 @@ var KineCabinet = (function () {
         "<div class='kf-h1 kcb-h1'>" + (fresh ? "Fiche créée" : "Code du patient") + "</div>" +
         (C.membres ? "<div class='kcb-ok'>" + ICON.ok + "Le téléphone du patient est relié à cette fiche.</div>" : "") +
         (valid ? "<div class='kcb-code' aria-label='Code'>" + c.split("").map(function (x) { return "<b>" + esc(x) + "</b>"; }).join("") + "</div>" +
-          "<p class='kf-sub kcb-center'>Valable jusqu'au " + exp.getDate() + " " + MOIS[exp.getMonth()] + ", une seule fois.</p>" : "<div class='kf-note'>Aucun code valable. Crée-en un nouveau pour relier (ou relier à nouveau) le téléphone du patient.</div>") +
-        "<div class='su-card'><b>Pour le patient</b><div class='kf-sub'>Dans KinéForce, onglet Suivi : « J'ai un code de mon kiné », puis il tape ce code. Il voit alors ses étapes, ses bilans et ses courbes. Il ne peut rien modifier.</div></div>",
+          "<p class='kf-sub kcb-center'>Valable jusqu'au " + exp.getDate() + " " + MOIS[exp.getMonth()] + ", une seule fois.</p>" +
+          "<button class='kcb-share' onclick='KineCabinet.codeShare(" + q(c) + "," + q(exp.getDate() + " " + MOIS[exp.getMonth()]) + ")'>" + ICON_SHARE + "Envoyer le code au patient</button>" : "<div class='kf-note'>Aucun code valable. Crée-en un nouveau pour relier (ou relier à nouveau) le téléphone du patient.</div>") +
+        "<div class='su-card'><b>Pour le patient</b><div class='kf-sub'>Dans KinéForce, onglet Mon kiné : « J'ai un code de mon kiné », puis il tape ce code. Il voit alors ses étapes, ses bilans et ses courbes. Il ne peut rien modifier.</div></div>",
         "<button class='seq-btn-main' onclick='KineCabinet.fiche(" + q(pid) + ")'>Ouvrir la fiche</button><button class='seq-btn-secondary' onclick='KineCabinet.newCode(" + q(pid) + ")'>Nouveau code</button>");
     };
     loading(); fbCab.get(pid).then(function (p) { C = p; go(); }, fail);
+  }
+  // Le code part par message (SMS, WhatsApp, mail) avec le lien de l'appli ; sinon il est copié
+  var ICON_SHARE = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7'/><path d='M16 6l-4-4-4 4'/><path d='M12 2v14'/></svg>";
+  function codeShare(c, until) {
+    var url = location.origin + location.pathname.replace(/index\.html$/, "");
+    var t = "Bonjour, voici ton code pour relier KinéForce à ton suivi au cabinet : " + c + " (valable jusqu'au " + until + ", une seule fois).\n1. Ouvre KinéForce : " + url + "\n2. Onglet « Mon kiné », touche « J'ai un code de mon kiné »\n3. Tape le code.";
+    if (navigator.share) { navigator.share({ title: "Code KinéForce", text: t }).catch(function () {}); return; }
+    var done = function () { say("Message copié : colle-le dans un SMS ou un mail."); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { prompt("Copie ce message :", t); });
+    else prompt("Copie ce message :", t);
   }
   function newCode(pid) { loading("Nouveau code…"); fbCab.code(pid).then(function () { codeView(pid); }, fail); }
 
@@ -322,6 +344,8 @@ var KineCabinet = (function () {
     var states = et.obj.map(objState), nDone = states.filter(function (s) { return s.done; }).length;
     var html = top("KineCabinet.open()", "Mes patients", "<button class='kf-back' onclick='KineCabinet.reglages()' aria-label='Réglages'><svg width='18' height='18' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><circle cx='5' cy='12' r='1.9'/><circle cx='12' cy='12' r='1.9'/><circle cx='19' cy='12' r='1.9'/></svg></button>") +
       "<div><div class='kf-h1 kcb-h1'>" + esc(C.alias) + "</div><div class='kf-sub'>" + esc(P.long) + (C.cote && C.cote !== "2" ? ", " + (C.cote === "D" ? "droit" : "gauche") : "") + (when ? " · " + when : "") + "</div></div>" +
+      // téléphone pas encore relié : le code à envoyer, tout de suite visible
+      (!C.membres ? "<button class='kcb-relier' onclick='KineCabinet.code(" + q(C.id) + ")'><span><b>Son téléphone n'est pas encore relié</b><em>Envoie-lui le code pour qu'il reçoive ses exercices</em></span><i aria-hidden='true'>›</i></button>" : "") +
       "<button class='kcb-slab kcb-slab-b' onclick='KineCabinet.etapes()'><div class='kcb-slab-k'><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span><span>" + nDone + "/" + et.obj.length + " objectifs ›</span></div>" +
         "<div class='kcb-slab-t'>" + esc(et.nom) + "</div><div class='kcb-bars'>" + bars + "</div>" +
         (km ? "<div class='kcb-slab-m'><div><b>" + KP.fmt(km.v) + km.u + "</b><span>" + esc(P.key.l) + "</span></div>" + (km.next ? "<em>Objectif " + km.next.v + (P.key.lsi ? " %" : km.u) + "<br>étape " + (km.next.e + 1) + "</em>" : "") + "</div>"
@@ -432,7 +456,7 @@ var KineCabinet = (function () {
     html += "<div class='su-card'><div class='su-card-h'><b>Ce qu'il fait chez lui</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
       (w ? "<div class='kcb-3'><div><b>" + w.n + "</b><span>séance" + (w.n > 1 ? "s" : "") + " sem. " + esc(String(w.w).split("-W")[1] || "") + "</span></div><div><b>" + (w.dou != null ? KP.fmt(w.dou) + "/10" : "–") + "</b><span>douleur moyenne</span></div><div><b>" + (w.der ? dfr(w.der) : "–") + "</b><span>dernière séance</span></div></div>"
          : "<div class='kf-sub'>" + (C.membres ? "Aucune séance faite à la maison cette semaine." : "Donne le code au patient pour voir ses séances à la maison.") + "</div>") +
-      journalHtml(4) + "</div>" + (window.KineReprise ? KineReprise.kineCard(C) : "");
+      journalHtml(4) + "</div>" + niveauxHtml() + (window.KineReprise ? KineReprise.kineCard(C) : "") + courseHtml();
     sub = "maison";
     var y = sheet().scrollTop, stay = sheet().querySelector(".kcb-ex, .kcb-sent");
     if (!(sent.length && !exEdit)) html += whenPick("maison");
@@ -472,6 +496,41 @@ var KineCabinet = (function () {
     var J = jdata();
     return "<div class='kcb-jh'>Dernières séances à la maison</div>" + (J.S.slice(0, n).map(sesRow).join("") || "<div class='kf-sub'>Aucune séance enregistrée.</div>") +
       "<button class='kcb-link' onclick='KineCabinet.journal()'>Tout le journal (" + J.S.length + " séance" + (J.S.length > 1 ? "s" : "") + ", " + J.P.length + " douleur" + (J.P.length > 1 ? "s" : "") + " signalée" + (J.P.length > 1 ? "s" : "") + ")</button>";
+  }
+  /* Réglages faits par le patient à la maison : variantes prises, temps ou répétitions ajustés */
+  function niveauxHtml() {
+    var V = null; (C.journal || []).forEach(function (d) { if (d.v) V = d.v; }); if (!V) return "";
+    var sw = (V.sw || []).filter(function (x) { return x && x.a && x.b && x.a !== x.b; }), lv = V.lv || [], log = V.log || [];
+    if (!sw.length && !lv.length && !log.length) return "";
+    return "<div class='su-card kcb-niv'><div class='su-card-h'><b>Ses réglages à la maison</b><span>plus facile, plus difficile</span></div>" +
+      (sw.length ? "<div class='kcb-jh'>Variantes qu'il fait à la place</div>" + sw.slice(0, 8).map(function (x) { return "<div class='kcb-nv'><span>" + esc(x.a) + "</span><i aria-hidden='true'>→</i><b>" + esc(x.b) + "</b></div>"; }).join("") : "") +
+      (lv.length ? "<div class='kcb-jh'>Temps ou répétitions ajustés</div>" + lv.slice(0, 8).map(function (t) { return "<div class='kcb-srow'><span>" + esc(t) + "</span></div>"; }).join("") : "") +
+      (log.length ? "<details class='kcb-how'><summary>Derniers changements (" + log.length + ")</summary>" + log.slice(0, 12).map(function (x) { return "<div class='kcb-srow'><b>" + esc(x.d || "") + "</b><span>" + esc(x.t || "") + "</span></div>"; }).join("") + "</details>" : "") +
+      (sw.some(function (x) { return (C.exos || []).indexOf(x.a) >= 0 && KineBiblio.find(x.b); }) ? "<button class='seq-btn-secondary' onclick='KineCabinet.varTake()'>Mettre ces variantes dans sa séance</button>" : "") + "</div>";
+  }
+  // Reprend dans la séance à la maison les variantes que le patient fait déjà (à vérifier puis envoyer)
+  function varTake() {
+    var V = null; (C.journal || []).forEach(function (d) { if (d.v) V = d.v; }); if (!V) return;
+    exEdit = true; sel = (C.exos || []).slice(); var n = 0;
+    (V.sw || []).forEach(function (x) { var i = sel.indexOf(x.a); if (i >= 0 && KineBiblio.find(x.b) && sel.indexOf(x.b) < 0) { sel[i] = x.b; n++; } });
+    reView(); sheet().scrollTop = 0;
+    say(n ? n + " variante" + (n > 1 ? "s mises" : " mise") + " dans la séance : vérifie puis envoie." : "Rien à changer.");
+  }
+  /* Journal de course du patient (sorties libres) : minutes par semaine et dernières sorties */
+  function courseHtml() {
+    var R = []; (C.journal || []).forEach(function (d) { (d.c || []).forEach(function (r) { if (!r.rp) R.push(r); }); });
+    if (!R.length) return "";
+    R.sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : 0; });
+    var mon = function (s) { var p = String(s).split("-"), d = new Date(+p[0], +p[1] - 1, +p[2], 12); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; };
+    var now = mon(new Date().toISOString().slice(0, 10)), W = [];
+    for (var i = 5; i >= 0; i--) { var a = new Date(now); a.setDate(a.getDate() - 7 * i); W.push({ t: a.getTime(), min: 0, n: 0 }); }
+    R.forEach(function (r) { var t = mon(r.d).getTime(); W.forEach(function (w) { if (w.t === t) { w.min += +r.min || 0; w.n++; } }); });
+    var mx = Math.max.apply(null, W.map(function (w) { return w.min; }).concat([30])), cur = W[5], prev = W.slice(1, 5), avg = prev.reduce(function (s, w) { return s + w.min; }, 0) / 4;
+    var pct = avg > 0 ? Math.round((cur.min - avg) / avg * 100) : null, lvl = pct == null ? "" : pct > 30 ? "r" : pct > 10 ? "o" : "g";
+    return "<div class='su-card kcb-run'><div class='su-card-h'><b>Son journal de course</b><span>" + R.length + " sortie" + (R.length > 1 ? "s" : "") + "</span></div>" +
+      "<div class='kcb-runbars'>" + W.map(function (w, i) { return "<div><i style='height:" + Math.max(4, Math.round(w.min / mx * 64)) + "px'" + (i === 5 ? " class='cur'" : "") + "></i><span>" + (i === 5 ? "cette sem." : dfr(new Date(w.t).toISOString().slice(0, 10))) + "</span></div>"; }).join("") + "</div>" +
+      "<div class='kcb-runmsg " + lvl + "'>" + cur.min + " min cette semaine" + (pct != null ? ", " + (pct >= 0 ? "+" : "") + pct + " % par rapport aux 4 semaines d'avant" : "") + "</div>" +
+      R.slice(0, 4).map(function (r) { var p = Math.max(+r.pain || 0, r.next == null ? 0 : +r.next); return "<div class='kcb-srow'><b>" + dfr(r.d) + "</b><span>" + (+r.min || 0) + " min" + (r.km ? ", " + String(r.km).replace(".", ",") + " km" : "") + (r.pain != null ? " · douleur " + r.pain + (r.next != null ? " puis " + r.next + " au réveil" : "") : "") + (r.zone ? " (" + esc(String(r.zone).toLowerCase()) + ")" : "") + (p >= 4 ? " <em class='kcb-warn'>à surveiller</em>" : "") + "</span></div>"; }).join("") + "</div>";
   }
   function journal() {
     var J = jdata(), days = Object.keys(J.R).sort().reverse().slice(0, 30);
@@ -1354,7 +1413,7 @@ var KineCabinet = (function () {
   }
 
   return {
-    open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
