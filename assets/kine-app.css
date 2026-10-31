@@ -3485,3 +3485,5 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kpa-ex p { margin: 2px 0; font-size: 12.5px; } .kpa-cue { color: #0B6E59; } .kpa-stop { color: #B91C1C; }
 .kpa-grid { width: 100%; border-collapse: collapse; margin: 6px 0 8px; }
 .kpa-grid th, .kpa-grid td { border: 1px solid #bbb; text-align: center !important; height: 28px; font-size: 12px; }
+.kcb-mods { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.kcb-modadd { border-style: dashed !important; color: var(--lu-ind2, #3341E0) !important; }

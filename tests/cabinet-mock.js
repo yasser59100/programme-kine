@@ -28,6 +28,9 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     photoDel: function(pid, k){ delete (D.patients[pid].photos || {})[k]; return R(); },
     ping: function(pid, k){ D.patients[pid].doc.ping = { k: k, at: Date.now() }; return R(); },
     list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = full(k); o.qdone = (o.quest || []).filter(function(x){ return x.fini; }).map(function(x){ return { q: x.q, fini: x.fini, score: x.score, tf: x.tfm || 1 }; }); return o; })); },
+    modeles: function(){ var M = D.modeles || {}; return R(Object.keys(M).map(function(k){ var x = JSON.parse(JSON.stringify(M[k])); x.id = k; return x; })); },
+    modeleSave: function(d){ var k = id(); D.modeles = D.modeles || {}; D.modeles[k] = JSON.parse(JSON.stringify(d)); return R(k); },
+    modeleDel: function(k){ delete (D.modeles || {})[k]; return R(); },
     teeAll: function(t){ Object.keys(D.patients).forEach(function(k){ D.patients[k].doc.tee = t; }); return R(); },
     questDel: function(pid, k){ delete D.patients[pid].quest[k]; return R(); }
   };

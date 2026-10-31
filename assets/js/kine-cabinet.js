@@ -358,7 +358,7 @@ var KineCabinet = (function () {
   // Une mesure d'objectif de l'étape reste à faire (pour signaler la tuile Bilan)
   function BNEEDF(P, E) { return P.etapes[E].obj.some(function (o) { return o.a && o.a.m && !objState(o).done && !KP.lastWith(allB(), o.a.m); }); }
   var sub = null;   // sous-écran de la fiche ouvert
-  function reView() { var y = sheet().scrollTop; if (sub === "etapes") etapes(); else if (sub === "maison") maison(); else if (sub === "quest") questView(); else if (sub === "bilans") bilans(); else ficheView(); sheet().scrollTop = y; }
+  function reView() { var y = sheet().scrollTop; if (sub === "etapes") etapes(); else if (sub === "maison") maison(); else if (sub === "quest") questView(); else if (sub === "bilans") bilans(); else if (sub === "seance") seanceView(); else ficheView(); sheet().scrollTop = y; }
   function back2() { return top("KineCabinet.fiche(" + q(C.id) + ")", C.alias); }
 
   /* ── Les étapes, expliquées pour un kiné qui découvre le parcours ── */
@@ -421,6 +421,8 @@ var KineCabinet = (function () {
             "<button class='kcb-demo' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir l&#39;exercice'>" + ICON.play + "</button></div>";
         }).join("") +
         (sel.filter(function (n) { return ex.indexOf(n) < 0; }).length ? "<div class='kf-sub'>Aussi envoyés : " + esc(sel.filter(function (n) { return ex.indexOf(n) < 0; }).join(", ")) + "</div>" : "") +
+        "<input class='kcb-in' list='kcb-allex' placeholder='Ajouter un autre exercice…' onchange='KineCabinet.pickAdd(this.value);this.value=\"\"'>" + datalist() +
+        modRow("maison") +
         (sent.length ? "<button class='kcb-link' onclick='KineCabinet.exCancel()'>Annuler, garder la séance envoyée</button>" : "") + "</div>";
     }
     // à la maison
@@ -541,6 +543,35 @@ var KineCabinet = (function () {
   }
   // Prévient le téléphone du patient (s'il a activé les notifications de son kiné)
   function ping(k) { if (C && fbCab.ping) fbCab.ping(C.id, k).catch(function () {}); }
+  /* ── Modèles de séance : des listes d'exercices réutilisables d'un patient à l'autre ── */
+  var MOD = null;
+  function modLoad() { if (MOD || !fbCab.modeles) return; MOD = []; fbCab.modeles().then(function (l) { MOD = l; reView(); }, function () { MOD = null; }); }
+  function modRow(where) {
+    modLoad();
+    var cur = where === "cab" ? (S && S.list || []).map(function (e) { return e.ex; }) : (sel || []);
+    return "<div class='kcb-mods'><span class='kcb-lab'>Mes modèles</span><div class='kf-chips'>" + (MOD || []).map(function (m) {
+        return "<button type='button' onclick='KineCabinet.modUse(" + q(m.id) + "," + q(where) + ")'>" + esc(m.nom) + " <small>· " + (m.exos || []).length + "</small></button>"; }).join("") +
+      (cur.length ? "<button type='button' class='kcb-modadd' onclick='KineCabinet.modSave(" + q(where) + ")'>+ Enregistrer comme modèle</button>" : "") + "</div>" +
+      (MOD && MOD.length ? "<button class='kcb-link' onclick='KineCabinet.modGerer()'>Gérer mes modèles</button>" : "") + "</div>";
+  }
+  function modUse(id, where) {
+    var m = (MOD || []).filter(function (x) { return x.id === id; })[0]; if (!m) return;
+    if (where === "cab") { (m.exos || []).forEach(function (n) { if (!S.list.some(function (e) { return e.ex === n; })) sadd(n); }); return; }
+    sel = sel || []; (m.exos || []).forEach(function (n) { if (sel.indexOf(n) < 0 && sel.length < 10) sel.push(n); }); reView();
+  }
+  function modSave(where) {
+    var ex = where === "cab" ? S.list.map(function (e) { return e.ex; }) : (sel || []).slice(); if (!ex.length) return;
+    var nom = (prompt("Nom du modèle (par exemple : LCA semaine 6, cheville proprioception)", "") || "").trim().slice(0, 40); if (!nom) return;
+    fbCab.modeleSave({ nom: nom, exos: ex.slice(0, 15) }).then(function (id) { MOD = (MOD || []).concat([{ id: id, nom: nom, exos: ex.slice(0, 15) }]); say("Modèle enregistré : " + nom); if (where === "cab") seanceView(); else reView(); }, fail);
+  }
+  function modGerer() {
+    var el = ov("kcb-mod"); el.setAttribute("aria-label", "Mes modèles"); el.onclick = function (e) { if (e.target === el) el.classList.remove("open"); };
+    el.innerHTML = "<div class='kcb-incl-card kcb-qcard'><div class='kcb-mh'><span>Mes modèles de séance</span><button class='kf-back' onclick='document.getElementById(\"kcb-mod\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" +
+      (MOD || []).map(function (m) { return "<div class='kcb-srow'><b>" + esc(m.nom) + "</b><span>" + esc((m.exos || []).join(", ")) + "<br><button class='kcb-link kcb-danger' onclick='KineCabinet.modDel(" + q(m.id) + ")'>Supprimer</button></span></div>"; }).join("") + "</div>";
+    el.classList.add("open");
+  }
+  function modDel(id) { if (!confirm("Supprimer ce modèle ?")) return; fbCab.modeleDel(id).then(function () { MOD = (MOD || []).filter(function (m) { return m.id !== id; }); modGerer(); }, fail); }
+  function pickAdd(n) { n = String(n || "").trim(); if (!n || !(window.KineBiblio && KineBiblio.find(n))) return; if (!sel) sel = (C.exos || []).slice(); if (sel.indexOf(n) >= 0) return; if (sel.length >= 10) { say("10 exercices au maximum."); return; } sel.push(n); reView(); }
   function exUnplan() { fbCab.save(C.id, { exosNext: null, exosFrom: null }).then(function () { C.exosNext = null; C.exosFrom = null; reView(); }, fail); }
   // Modifier la séance envoyée (cases déjà cochées) ou en préparer une nouvelle (cases vides)
   function exEditGo(keep) { exEdit = true; sel = keep ? (C.exos || []).slice() : []; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
@@ -844,6 +875,7 @@ var KineCabinet = (function () {
     setTimeout(function () { miss.forEach(function (im) { var u = snap(im.getAttribute("data-n")); if (u) im.src = u; }); snapLater(tries + 1); }, 500);
   }
   function seanceView() {
+    sub = "seance";
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1), inL = S.list.map(function (e) { return e.ex; });
     var reco = [C.ref || P.ref].concat(KP.exos(C.parcours, E, C.opts)).filter(function (n, i, a) { return a.indexOf(n) === i && inL.indexOf(n) < 0; });
     var stp = function (i, k, lab) { var v = S.list[i][k]; return "<div class='kss-st'><span>" + lab + "</span><div><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",-1)' aria-label='Moins'>−</button><b>" + KP.fmt(v) + "</b><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",1)' aria-label='Plus'>+</button></div></div>"; };
@@ -864,7 +896,7 @@ var KineCabinet = (function () {
     html += "<div class='su-card'><div class='su-card-h'><b>Recommandés pour l'étape " + (E + 1) + "</b><span>touche l'image : Yass le fait</span></div><div class='kss-reco'>" +
       shown.map(function (n) { return "<div class='kss-rc'><button class='kss-im' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir Yass faire " + esc(n) + "'>" + imgOf(n) + "<i>" + ICON.play + "</i></button><span>" + esc(n) + "</span><button class='kss-add' onclick='KineCabinet.sadd(" + q(n) + ")' aria-label='Ajouter " + esc(n) + "'>+</button></div>"; }).join("") + "</div>" +
       (reco.length > 6 ? "<button class='kcb-link' onclick='KineCabinet.sall()'>" + (S.all ? "Moins d'exercices" : "Voir les " + reco.length + " exercices de l'étape") + "</button>" : "") +
-      "<input class='kcb-in' list='kcb-allex' placeholder='Chercher un autre exercice…' onchange='KineCabinet.sadd(this.value);this.value=\"\"'>" + datalist() + "</div>";
+      "<input class='kcb-in' list='kcb-allex' placeholder='Chercher un autre exercice…' onchange='KineCabinet.sadd(this.value);this.value=\"\"'>" + datalist() + modRow("cab") + "</div>";
     // la séance dans son ensemble
     var pain = function (k, v0) { return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button class='" + (S[k] === v ? "sel" : "") + "' onclick='KineCabinet.sd(" + q(k) + "," + v + ")'>" + v + "</button>"; }).join(""); };
     html += "<div class='su-card'><b>La séance dans son ensemble</b><span class='kcb-lab'>Douleur pendant la séance (0 à 10)</span><div class='kcb-pain'>" + pain("dou") + "</div>" +
@@ -1311,7 +1343,7 @@ var KineCabinet = (function () {
   }
 
   // En mode kiné, l'espace kiné ne se ferme pas (seulement à la déconnexion : close(true))
-  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo", "kcb-fip", "kcb-cr"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
+  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo", "kcb-fip", "kcb-cr", "kcb-mod"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
   // Aperçu de ce que voit le patient (sans les notes du kiné)
   function asPatient() {
     var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, conseil: C.conseil, next: C.next, ref: C.ref, hist: C.hist,
@@ -1321,7 +1353,7 @@ var KineCabinet = (function () {
 
   return {
     open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    when: whenSet, exUnplan: exUnplan, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sswap: sswap, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },

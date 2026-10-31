@@ -233,6 +233,10 @@ window.fbCab = {
   photo: async function (pid, data) { cabNeedKine(); data.t = serverTimestamp(); var r = await addDoc(collection(db, CAB, pid, "photos"), data); return r.id; },
   photos: async function (pid) { cabNeedKine(); return cabRows(await getDocs(query(collection(db, CAB, pid, "photos"), orderBy("d", "desc"), limit(60)))); },
   photoDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "photos", id)); },
+  // Modèles de séance du kiné (listes d'exercices réutilisables d'un patient à l'autre)
+  modeles: async function () { cabNeedKine(); return cabRows(await getDocs(collection(db, "modeles"))).sort(function (a, b) { return String(a.nom).localeCompare(String(b.nom), "fr"); }); },
+  modeleSave: async function (data) { cabNeedKine(); data.t = serverTimestamp(); var r = await addDoc(collection(db, "modeles"), data); return r.id; },
+  modeleDel: async function (id) { cabNeedKine(); await deleteDoc(doc(db, "modeles", id)); },
   // Signal pour la notification au patient (traité par l'envoi automatique, toutes les 15 minutes)
   ping: async function (pid, k) { cabNeedKine(); await setDoc(cabRef(pid), { ping: { k: k, at: Date.now() } }, { merge: true }); },
   remove: async function (pid) {

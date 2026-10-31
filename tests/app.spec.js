@@ -711,6 +711,10 @@ test("séance au cabinet : plusieurs exercices, notés un par un, progression pr
   await page.locator("#kcb-sheet .kss-add").nth(0).click();
   await page.locator("#kcb-sheet .kss-add").nth(0).click();
   await expect(page.locator("#kcb-sheet .kss-ex")).toHaveCount(3);
+  // modèle de séance : enregistré puis réutilisé
+  await page.evaluate(() => { window.prompt = () => "LCA semaine 6"; KineCabinet.modSave("cab"); });
+  await expect(page.locator("#kcb-sheet .kcb-mods button", { hasText: "LCA semaine 6" })).toBeVisible();
+  expect(await page.evaluate(() => Object.values(window.__db.modeles)[0].exos.length)).toBe(3);
   await page.evaluate(() => { KineCabinet.sl(0, "kg", 1); KineCabinet.sl(0, "kg", 1); KineCabinet.sr(0, "facile"); KineCabinet.sr(1, "ok"); KineCabinet.sr(2, "dou"); KineCabinet.sd("dou", 2); KineCabinet.sd("rpe", 6); KineCabinet.shome(true); });
   await page.waitForTimeout(600);
   await shot(page, info, "80-seance-cabinet");

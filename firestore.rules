@@ -93,6 +93,10 @@ service cloud.firestore {
       allow read, write: if isAdmin();
       allow get, delete: if request.auth != null && request.auth.uid == uid;
     }
+    // Modèles de séance du kiné : seulement le kiné
+    match /modeles/{id} {
+      allow read, write: if isAdmin();
+    }
     // Abonnements aux notifications du kiné (nouvelles demandes) : seulement le kiné
     match /kinepush/{id} {
       allow read, write: if isAdmin();
