@@ -3476,3 +3476,12 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kcb-news button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 14px; border: none; background: rgba(255,255,255,.14); color: #fff; text-align: left; font-family: var(--font); }
 .kcb-news button span { font-weight: 800; } .kcb-news button em { flex: 1; font-style: normal; font-size: .82rem; opacity: .9; } .kcb-news button i { font-style: normal; }
 .kcb-new { text-decoration: none; margin-left: 6px; padding: 2px 8px; border-radius: 8px; background: #FF6B4A; color: #fff; font-size: .72rem; font-weight: 800; vertical-align: middle; }
+/* Fiche d'exercices sur papier */
+.kpa-mot { margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: #F1F3FF; }
+.kpa-mot p { margin: 4px 0 0; }
+.kpa-ex { display: grid; grid-template-columns: 120px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid #e5e5e5; break-inside: avoid; page-break-inside: avoid; }
+.kpa-ex img, .kpa-noim { width: 120px; height: 120px; object-fit: cover; border-radius: 12px; background: #101826; }
+.kpa-ex b { font-size: 15px; } .kpa-ex em { display: block; font-style: normal; font-weight: 700; color: #3341E0; margin: 2px 0 4px; }
+.kpa-ex p { margin: 2px 0; font-size: 12.5px; } .kpa-cue { color: #0B6E59; } .kpa-stop { color: #B91C1C; }
+.kpa-grid { width: 100%; border-collapse: collapse; margin: 6px 0 8px; }
+.kpa-grid th, .kpa-grid td { border: 1px solid #bbb; text-align: center !important; height: 28px; font-size: 12px; }

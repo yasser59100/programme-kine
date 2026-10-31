@@ -757,6 +757,12 @@ test("envoi programmé : séance et questionnaire reçus à la date choisie", as
   await expect(page.locator("#kcb-sheet .kf-sheet-foot .seq-btn-main")).toContainText("Programmer pour le");
   await page.locator("#kcb-sheet .kf-sheet-foot .seq-btn-main").click();
   await expect(page.locator("#kcb-sheet .kcb-plan")).toBeVisible();
+  // fiche papier de la séance envoyée
+  await page.evaluate(() => KineCabinet.papier());
+  await expect(page.locator("#kcb-print .kpa-ex")).toHaveCount(1, { timeout: 15000 });
+  await page.waitForTimeout(300);
+  await shot(page, info, "96-fiche-papier");
+  await page.evaluate(() => KineCabinet.crClose());
   await page.waitForTimeout(600);
   await shot(page, info, "90-seance-programmee");
   // questionnaire programmé

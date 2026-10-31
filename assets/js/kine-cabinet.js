@@ -410,7 +410,8 @@ var KineCabinet = (function () {
       // séance déjà envoyée : un résumé, et l'accusé de réception du téléphone du patient
       html += "<div class='su-card kcb-sent'><div class='su-card-h'><b>Séance envoyée</b><span>" + (C.exosD ? "le " + dfr(C.exosD) : "") + "</span></div>" +
         "<div class='kcb-sentl'>" + sent.map(function (n) { return "<span><i class='kb-dot c" + (window.KineBiblio ? KineBiblio.color(n) : 0) + "' aria-hidden='true'></i>" + esc(n) + "</span>"; }).join("") + "</div>" + recu(C.exosAt) +
-        "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.exEdit(1)'>Modifier</button><button class='seq-btn-main' onclick='KineCabinet.exEdit(0)'>Nouvelle séance</button></div></div>";
+        "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.exEdit(1)'>Modifier</button><button class='seq-btn-main' onclick='KineCabinet.exEdit(0)'>Nouvelle séance</button></div>" +
+        "<button class='kcb-link' onclick='KineCabinet.papier()'>Imprimer la fiche d'exercices (papier ou PDF)</button></div>";
     } else {
       if (!sel) sel = sent.length ? sent.slice() : [];
       html += "<div class='su-card'><div class='su-card-h'><b>Exercices de l'étape " + (E + 1) + "</b><span>" + sel.length + " choisi" + (sel.length > 1 ? "s" : "") + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient (10 au plus) : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
@@ -603,6 +604,30 @@ var KineCabinet = (function () {
     pr.innerHTML = "<div class='kcr-bar'><button class='seq-btn-secondary' onclick='KineCabinet.crClose()'>Fermer</button><button class='seq-btn-main' onclick='window.print()'>Imprimer ou enregistrer en PDF</button></div>" + html;
     document.documentElement.classList.add("kf-printing"); pr.scrollTop = 0;
     $("kcb-cr").classList.remove("open");
+  }
+  /* ── Fiche d'exercices sur papier : les exercices envoyés, avec Yass, pour les patients sans téléphone ── */
+  function papier(tries) {
+    var list = (C.exos || []).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); }); if (!list.length) { say("Envoie d'abord une séance."); return; }
+    var need = window.KineAvatar && list.some(function (n) { return KineAvatar.supports(n); }) && !window.THREE;
+    if (need && (tries || 0) < 16) { if (!tries) { loading("Préparation de la fiche…"); try { KineAvatar.snapshot(list[0], 10); } catch (e) {} } setTimeout(function () { papier((tries || 0) + 1); }, 400); return; }
+    if (tries) maison();
+    var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1), sg = signGet();
+    var MF = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"], d0 = new Date();
+    var html = "<div class='kcr kpa'><header><div><b>Mes exercices à la maison</b><span>" + d0.getDate() + " " + MF[d0.getMonth()] + " " + d0.getFullYear() + "</span></div>" +
+      "<div class='kcr-to'>" + esc(C.alias || "") + " · " + esc(P.nom) + " · étape " + (E + 1) + " : " + esc(P.etapes[E].nom) + "</div></header>" +
+      (C.conseil || (C.msg && C.msg.t) ? "<div class='kpa-mot'><b>Le mot de ton kiné</b><p>" + esc(C.conseil || C.msg.t).replace(/\n/g, "<br>") + "</p></div>" : "") +
+      list.map(function (n, i) {
+        var e = KineBiblio.find(n), im = window.KineAvatar && KineAvatar.supports(n) && window.THREE ? KineAvatar.snapshot(n, 240) : (e.thumb || null);
+        return "<div class='kpa-ex'>" + (im ? "<img src='" + im + "' alt=''>" : "<div class='kpa-noim'></div>") + "<div><b>" + (i + 1) + ". " + esc(n) + "</b>" + (e.repsLabel ? "<em>" + esc(e.repsLabel) + "</em>" : "") +
+          (e.desc ? "<p>" + esc(e.desc) + "</p>" : "") + (e.cue ? "<p class='kpa-cue'>" + esc(e.cue) + "</p>" : "") + (e.stop ? "<p class='kpa-stop'>" + esc(e.stop) + "</p>" : "") + "</div></div>";
+      }).join("") +
+      "<section><h3>Coche chaque jour où tu as fait ta séance</h3><table class='kpa-grid'><tr>" + ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(function (j) { return "<th>" + j + "</th>"; }).join("") + "</tr>" +
+        [0, 1].map(function () { return "<tr>" + [0, 1, 2, 3, 4, 5, 6].map(function () { return "<td></td>"; }).join("") + "</tr>"; }).join("") + "</table>" +
+        "<p>Douleur pendant les exercices : jusqu'à 3 ou 4 sur 10, c'est acceptable si elle redescend dans les heures qui suivent. Au-delà, ou si elle augmente le lendemain, parles-en à ton kiné.</p></section>" +
+      "<footer><div><b>" + esc(sg.n || "") + "</b><span>" + esc(sg.p || "") + "</span></div></footer><p class='kcr-src'>Exercices montrés par Yass dans l'appli KinéForce.</p></div>";
+    var pr = $("kcb-print"); if (!pr) { pr = document.createElement("div"); pr.id = "kcb-print"; document.body.appendChild(pr); }
+    pr.innerHTML = "<div class='kcr-bar'><button class='seq-btn-secondary' onclick='KineCabinet.crClose()'>Fermer</button><button class='seq-btn-main' onclick='window.print()'>Imprimer ou enregistrer en PDF</button></div>" + html;
+    document.documentElement.classList.add("kf-printing"); pr.scrollTop = 0;
   }
   function crClose() { document.documentElement.classList.remove("kf-printing"); var pr = $("kcb-print"); if (pr) pr.innerHTML = ""; }
   // La fiche « Comprendre ma rééducation » telle que la voit le patient
@@ -1296,7 +1321,7 @@ var KineCabinet = (function () {
 
   return {
     open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    when: whenSet, exUnplan: exUnplan, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    when: whenSet, exUnplan: exUnplan, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sswap: sswap, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
