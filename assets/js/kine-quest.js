@@ -93,7 +93,7 @@ var KineQuest = (function () {
       "<div class='kf-sub'>Un appui pour l'envoyer : il le reçoit dans son suivi, et ses réponses arrivent ici toutes seules.</div><div class='kq-list'>";
     h += L.map(function (x) {
       var d = Q[x.id];
-      if (x.pend) return "<button class='kq-item pend' onclick='KineCabinet.qCancel(" + JSON.stringify(x.pend.id).replace(/'/g, "&#39;") + ")'><span><b>" + esc(d.nom) + "</b><em>Envoyé le " + esc(dfr(x.pend.env)) + " · " + (x.pend.tms && C.vu && C.vu >= x.pend.tms ? "reçu sur son téléphone, pas encore rempli" : C.membres ? "pas encore reçu sur son téléphone" : "téléphone pas encore relié") + "</em></span><i>Annuler</i></button>";
+      if (x.pend) return "<button class='kq-item pend' onclick='KineCabinet.qCancel(" + JSON.stringify(x.pend.id).replace(/'/g, "&#39;") + ")'><span><b>" + esc(d.nom) + "</b><em>Envoyé le " + esc(dfr(x.pend.env)) + " · " + (x.pend.des && x.pend.des > iso() ? "programmé, il le recevra le " + dfr(x.pend.des) : x.pend.tms && C.vu && C.vu >= x.pend.tms ? "reçu sur son téléphone, pas encore rempli" : C.membres ? "pas encore reçu sur son téléphone" : "téléphone pas encore relié") + "</em></span><i>Annuler</i></button>";
       return "<button class='kq-item" + (x.conseil ? " sug" : "") + "' onclick='KineCabinet.qSend(\"" + x.id + "\")'>" + (x.conseil ? "<u class='kf-hop'>Conseillé</u>" : "") +
         "<span><b>" + esc(d.nom) + "</b><em>" + esc(x.conseil || d.court) + " · " + esc(d.dur) + "</em>" + (x.last ? "<em class='kq-last'>Dernière réponse : " + esc(fmtScore(x.id, x.last.score)) + " le " + esc(dfr(x.last.fini)) + "</em>" : "") + "</span><i>Envoyer</i></button>";
     }).join("") + "</div>";
@@ -216,7 +216,7 @@ var KineQuest = (function () {
   }
   // Carte « ton kiné t'a envoyé un questionnaire » (Progrès et suivi)
   function patientCard(d, pid) {
-    var P = (d.quest || []).filter(function (x) { return !x.fini && Q[x.q]; });
+    var P = (d.quest || []).filter(function (x) { return !x.fini && Q[x.q] && !(x.des && x.des > iso()); });
     if (!P.length) return "";
     var x = P[0], dq = Q[x.q];
     return "<button class='kq-pcard' onclick='KineQuest.start(" + JSON.stringify(x.id).replace(/'/g, "&#39;") + ")'><i aria-hidden='true'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4h6l1 2h3v14H5V6h3z'/><path d='M9 12l2 2 4-4'/></svg></i>" +

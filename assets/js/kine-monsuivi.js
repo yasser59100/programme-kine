@@ -54,7 +54,7 @@ var KineMonSuivi = (function () {
       if (!d) { jset(KEY, { pid: s.pid, lost: 1 }); slot(); return state(); }
       d.bilans = (d.bilans || []).map(function (b) { return { d: b.d, m: b.m }; });
       d.seances = (d.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; });
-      d.quest = (d.quest || []).map(function (x) { return { id: x.id, q: x.q, env: x.env, zone: x.zone, cote: x.cote, fini: x.fini || null, score: x.score, m: x.m, rep: x.rep }; });
+      d.quest = (d.quest || []).map(function (x) { return { id: x.id, q: x.q, env: x.env, des: x.des || null, zone: x.zone, cote: x.cote, fini: x.fini || null, score: x.score, m: x.m, rep: x.rep }; });
       ["maj", "cree", "codeExp"].forEach(function (k) { delete d[k]; });
       if (window.KineAvatar && KineAvatar.setShirt && !(window.KineRole && KineRole.role() === "kine")) KineAvatar.setShirt(d.tee || null);   // le t-shirt de Yass au nom de son kiné
       var ns = { pid: s.pid, d: d, at: Date.now() };
@@ -132,8 +132,10 @@ var KineMonSuivi = (function () {
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") { var s = state(); if (s && s.pid) journalSync(s.pid); } });
 
   // La séance préparée par le kiné devient une séance de « Ma séance », toujours à jour
+  // Séance programmée par le kiné : elle remplace la séance en cours à partir de sa date
+  function effEx(d) { return d.exosNext && d.exosFrom && d.exosFrom <= iso() ? d.exosNext : (d.exos || []); }
   function syncSeance(d) {
-    var list = jget("kf-custom", []), ex = (d.exos || []).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
+    var list = jget("kf-custom", []), ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
     var cur = list.filter(function (x) { return x.id === "kine"; })[0];
     if (!ex.length) { if (cur) jset("kf-custom", list.filter(function (x) { return x.id !== "kine"; })); return; }
     if (cur && cur.ex.join("|") === ex.join("|")) return;
@@ -299,7 +301,7 @@ var KineMonSuivi = (function () {
         e.obj.map(function (o) { var a = o.a ? KP.evalObj(o.a, cx) : null, ok = !!(d.done && d.done[o.id]) || !!(a && a.ok); return "<div class='kms-o" + (ok ? " ok" : "") + "'><i>" + (ok ? ICON_OK : "") + "</i><span>" + esc(o.p || o.t) + "</span>" + (a && !ok && a.ok === false ? "<b>" + esc(a.v) + "</b>" : "") + "</div>"; }).join("") + "</div>";
     });
     // séance du kiné
-    var ex = (d.exos || []).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
+    var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
     if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<div class='kms-ex'>" + esc(n) + "</div>"; }).join("") +
       (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // charge au cabinet

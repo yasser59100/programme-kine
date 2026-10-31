@@ -300,7 +300,7 @@ var KineCabinet = (function () {
   }
   function fiche(pid) {
     view = "fiche"; loading();
-    fbCab.get(pid).then(function (p) { if (!p) { open(); return; } C = p; sel = null; exEdit = false; ficheView(); }, fail);
+    fbCab.get(pid).then(function (p) { if (!p) { open(); return; } C = p; sel = null; exEdit = false; dueExos(); ficheView(); }, fail);
   }
   function ficheView() {
     var P = KP.get(C.parcours); if (!P) { reglages(); return; }
@@ -392,6 +392,8 @@ var KineCabinet = (function () {
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1);
     var html = back2() + "<div class='kf-h1 kcb-h1'>Exercices à la maison</div>";
     var ex = KP.exos(C.parcours, E, C.opts), sent = C.exos || [];
+    if (C.exosNext && C.exosFrom && !exEdit) html += "<div class='su-card kcb-plan'><div class='su-card-h'><b>Séance programmée</b><span>le " + dfr(C.exosFrom) + "</span></div><div class='kcb-sentl'>" + C.exosNext.map(function (n) { return "<span><i class='kb-dot c" + (window.KineBiblio ? KineBiblio.color(n) : 0) + "' aria-hidden='true'></i>" + esc(n) + "</span>"; }).join("") + "</div>" +
+      "<div class='kf-sub'>Le patient la recevra à cette date ; d'ici là, il garde la séance actuelle.</div><button class='kcb-link' onclick='KineCabinet.exUnplan()'>Annuler la séance programmée</button></div>";
     if (sent.length && !exEdit) {
       // séance déjà envoyée : un résumé, et l'accusé de réception du téléphone du patient
       html += "<div class='su-card kcb-sent'><div class='su-card-h'><b>Séance envoyée</b><span>" + (C.exosD ? "le " + dfr(C.exosD) : "") + "</span></div>" +
@@ -416,13 +418,14 @@ var KineCabinet = (function () {
       journalHtml(4) + "</div>";
     sub = "maison";
     var y = sheet().scrollTop, stay = sheet().querySelector(".kcb-ex, .kcb-sent");
-    show(html, !(sent.length && !exEdit) ? "<button class='seq-btn-main' onclick='KineCabinet.sendExos()'" + (sel.length ? "" : " disabled") + ">Envoyer au patient (" + sel.length + ")</button>" : "");
+    if (!(sent.length && !exEdit)) html += whenPick("maison");
+    show(html, !(sent.length && !exEdit) ? "<button class='seq-btn-main' onclick='KineCabinet.sendExos()'" + (sel.length ? "" : " disabled") + ">" + (WHEN ? "Programmer pour le " + dfr(WHEN) : "Envoyer au patient") + " (" + sel.length + ")</button>" : "");
     if (stay) sheet().scrollTop = y;
   }
   /* ── Questionnaires et tests ── */
   function questView() {
     var P = KP.get(C.parcours);
-    sub = "quest"; show(back2() + "<div class='kf-h1 kcb-h1'>Questionnaires et tests</div>" + (window.KineQuest ? KineQuest.card(C, P, "fiche") : ""));
+    sub = "quest"; show(back2() + "<div class='kf-h1 kcb-h1'>Questionnaires et tests</div>" + whenPick("quest") + (window.KineQuest ? KineQuest.card(C, P, "fiche") : ""));
   }
   /* ── Les bilans : courbe, historique, photos, nouveau bilan ── */
   function bilans() {
@@ -502,10 +505,28 @@ var KineCabinet = (function () {
   }
   function pick(n) { if (!sel) sel = (C.exos || []).slice(); var i = sel.indexOf(n); if (i >= 0) sel.splice(i, 1); else if (sel.length < 10) sel.push(n); else { say("10 exercices au maximum."); return; } var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
   var exEdit = false;
-  function sendExos() {
-    var y = sheet().scrollTop, data = { exos: sel.slice(), exosD: iso(), exosAt: Date.now() };
-    fbCab.save(C.id, data).then(function () { C.exos = data.exos; C.exosD = data.exosD; C.exosAt = data.exosAt; exEdit = false; sel = null; reView(); sheet().scrollTop = y; say("Séance envoyée au patient."); }, fail);
+  /* ── Envoi programmé : « à partir du » ── */
+  var WHEN = null;   // date d'envoi choisie (null : aujourd'hui)
+  function plusJ(n) { var d = new Date(); d.setDate(d.getDate() + n); return iso(d); }
+  function whenPick(fn) {
+    var t = WHEN || iso(), o = [[iso(), "Aujourd'hui"], [plusJ(7), "Dans 1 semaine"], [plusJ(14), "Dans 2 semaines"]];
+    return "<div class='kcb-when'><span class='kcb-lab'>Le patient la reçoit</span><div class='kf-chips'>" + o.map(function (x) { return "<button type='button' class='" + (t === x[0] ? "sel" : "") + "' onclick='KineCabinet.when(" + q(x[0]) + "," + q(fn) + ")'>" + x[1] + "</button>"; }).join("") +
+      "<label class='kcb-whend'><input type='date' min='" + iso() + "' value='" + esc(o.some(function (x) { return x[0] === t; }) ? "" : t) + "' onchange='KineCabinet.when(this.value," + q(fn) + ")' aria-label='Autre date'></label></div></div>";
   }
+  function whenSet(d, fn) { WHEN = d && d > iso() ? d : null; var y = sheet().scrollTop; if (fn === "quest") { if (qOpen()) qOv(); else reView(); } else reView(); sheet().scrollTop = y; }
+  // Séance programmée dont la date est arrivée : elle devient la séance en cours
+  function dueExos() {
+    if (!C || !C.exosNext || !C.exosFrom || C.exosFrom > iso()) return;
+    var d = { exos: C.exosNext, exosD: C.exosFrom, exosAt: C.exosAtN || Date.now(), exosNext: null, exosFrom: null };
+    Object.keys(d).forEach(function (k) { C[k] = d[k]; }); fbCab.save(C.id, d).catch(function () {});
+  }
+  function sendExos() {
+    var y = sheet().scrollTop, later = WHEN && WHEN > iso();
+    var data = later ? { exosNext: sel.slice(), exosFrom: WHEN, exosAtN: Date.parse(WHEN + "T00:00:00") } : { exos: sel.slice(), exosD: iso(), exosAt: Date.now(), exosNext: null, exosFrom: null };
+    fbCab.save(C.id, data).then(function () { Object.keys(data).forEach(function (k) { C[k] = data[k]; }); exEdit = false; sel = null; WHEN = null; reView(); sheet().scrollTop = y;
+      say(later ? "Séance programmée : le patient la recevra le " + dfr(data.exosFrom) : "Séance envoyée au patient."); }, fail);
+  }
+  function exUnplan() { fbCab.save(C.id, { exosNext: null, exosFrom: null }).then(function () { C.exosNext = null; C.exosFrom = null; reView(); }, fail); }
   // Modifier la séance envoyée (cases déjà cochées) ou en préparer une nouvelle (cases vides)
   function exEditGo(keep) { exEdit = true; sel = keep ? (C.exos || []).slice() : []; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
   function exCancel() { exEdit = false; sel = null; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
@@ -605,7 +626,7 @@ var KineCabinet = (function () {
   function qOv() {
     var P = KP.get(C.parcours), el = ov("kcb-qov"); el.setAttribute("aria-label", "Questionnaires et tests");
     el.onclick = function (e) { if (e.target === el) el.classList.remove("open"); };
-    el.innerHTML = "<div class='kcb-incl-card kcb-qcard'><div class='kcb-mh'><span>Questionnaires et tests</span><button class='kf-back' onclick='document.getElementById(\"kcb-qov\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" + KineQuest.card(C, P, "bilan") + "</div>";
+    el.innerHTML = "<div class='kcb-incl-card kcb-qcard'><div class='kcb-mh'><span>Questionnaires et tests</span><button class='kf-back' onclick='document.getElementById(\"kcb-qov\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" + whenPick("quest") + KineQuest.card(C, P, "bilan") + "</div>";
     el.classList.add("open");
   }
   function mrow(m, cur, prev) {
@@ -667,8 +688,9 @@ var KineCabinet = (function () {
   /* ════════ Questionnaires ════════ */
   function qSend(id) {
     var P = KP.get(C.parcours), inBilan = !!sheet().querySelector("#kcb-bd");
-    fbCab.questSend(C.id, { q: id, env: iso(), cote: C.cote || "D", zone: P.zone === "rachis" && /cervic|nevralgie/.test(C.parcours) ? "cou" : P.zone }).then(function () {
-      say(C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié.");
+    var des = WHEN && WHEN > iso() ? WHEN : null; WHEN = null;
+    fbCab.questSend(C.id, { q: id, env: iso(), des: des, cote: C.cote || "D", zone: P.zone === "rachis" && /cervic|nevralgie/.test(C.parcours) ? "cou" : P.zone }).then(function () {
+      say(des ? "Programmé : le patient le recevra le " + dfr(des) : C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié.");
       return fbCab.get(C.id).then(function (p) { C = p; if (qOpen()) qOv(); else if (inBilan) bilan(); else reView(); });
     }, fail);
   }
@@ -1189,7 +1211,7 @@ var KineCabinet = (function () {
 
   return {
     open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    when: whenSet, exUnplan: exUnplan, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },

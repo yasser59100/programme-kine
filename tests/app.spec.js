@@ -697,3 +697,51 @@ test("séance au cabinet : plusieurs exercices, notés un par un, progression pr
   await expect(page.locator("#kcb-sheet .kss-ex").nth(2).locator("em")).toContainText("Douloureux");
   await clean(errs);
 });
+
+test("envoi programmé : séance et questionnaire reçus à la date choisie", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => kfNeed("suivi"));
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.nouveau());
+  await page.fill("#kcb-alias", "P.G.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "entorse"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  // séance de base envoyée aujourd'hui, puis une séance programmée dans une semaine
+  await page.evaluate(() => KineCabinet.maison());
+  await page.locator("#kcb-sheet .kcb-exck").nth(0).click();
+  await page.evaluate(() => KineCabinet.sendExos());
+  await expect(page.locator("#kcb-sheet .kcb-sent")).toBeVisible();
+  await page.evaluate(() => KineCabinet.exEdit(0));
+  await page.locator("#kcb-sheet .kcb-exck").nth(1).click();
+  await page.locator("#kcb-sheet .kcb-exck").nth(2).click();
+  await page.locator("#kcb-sheet .kcb-when button", { hasText: "Dans 1 semaine" }).click();
+  await expect(page.locator("#kcb-sheet .kf-sheet-foot .seq-btn-main")).toContainText("Programmer pour le");
+  await page.locator("#kcb-sheet .kf-sheet-foot .seq-btn-main").click();
+  await expect(page.locator("#kcb-sheet .kcb-plan")).toBeVisible();
+  await page.waitForTimeout(600);
+  await shot(page, info, "90-seance-programmee");
+  // questionnaire programmé
+  await page.evaluate(() => KineCabinet.questView());
+  await page.locator("#kcb-sheet .kcb-when button", { hasText: "Dans 2 semaines" }).click();
+  await page.evaluate(() => KineCabinet.qSend("sane"));
+  await expect(page.locator("#kcb-sheet .kq-item.pend")).toContainText("programmé");
+  // côté patient : ni la séance programmée, ni le questionnaire pour l'instant
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.fill("#kms-code", "K7M2QX");
+  await page.evaluate(() => KineMonSuivi.doJoin());
+  await page.evaluate(() => KineMonSuivi.consent(0));
+  await expect(page.locator("#kms-sheet .kms-et.now")).toBeVisible();
+  await expect(page.locator("#kms-sheet .kq-pcard")).toHaveCount(0);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine")[0].ex.length)).toBe(1);
+  // une semaine plus tard : la nouvelle séance arrive
+  await page.evaluate(() => { const D = window.__db.patients[Object.keys(window.__db.patients)[0]].doc; D.exosFrom = "2000-01-01"; });
+  await page.evaluate(() => KineMonSuivi.open());
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine")[0].ex.length)).toBe(2);
+  await clean(errs);
+});

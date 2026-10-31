@@ -3399,3 +3399,8 @@ html.kf-kmode .topbar, html.kf-kmode .page, html.kf-kmode .bottom-nav, html.kf-k
 html.kf-kmode #kf-me, html.kf-kmode #kf-masc, html.kf-kmode .kf-masc, html.kf-kmode #rest-timer { display: none !important; }
 html.kf-kmode body { background: var(--bg); min-height: 100vh; }
 html.kf-kmode body::before { content: "Espace kiné"; position: fixed; inset: 0; display: grid; place-items: center; font: 800 1.1rem var(--font); color: var(--text3); }
+/* Envoi programmé */
+.kcb-when { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border2); }
+.kcb-when .kf-chips { align-items: center; }
+.kcb-whend input { min-height: 38px; border-radius: 19px; border: 1px solid var(--border2); background: var(--bg); color: var(--text); padding: 0 10px; font: 600 .85rem var(--font); }
+.kcb-plan { border: 1.5px dashed var(--lu-ind2, #3341E0); }
