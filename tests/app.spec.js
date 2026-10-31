@@ -709,6 +709,14 @@ test("séance au cabinet : plusieurs exercices, notés un par un, progression pr
   await expect(page.locator("#kcb-sheet .kss-ex")).toHaveCount(3);
   await expect(page.locator("#kcb-sheet .kss-ex").nth(0).locator("em")).toContainText("trop facile");
   await expect(page.locator("#kcb-sheet .kss-ex").nth(2).locator("em")).toContainText("Douloureux");
+  // une variante d'une même famille est proposée quand l'exercice était trop facile
+  await page.evaluate(() => { KineCabinet.sadd("Squat bilatéral"); });
+  await page.evaluate(() => { KineCabinet.sr(3, "facile"); KineCabinet.sd("dou", 1); KineCabinet.saveSeance(); });
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.seance());
+  await expect(page.locator("#kcb-sheet .kss-alt")).toContainText("Plus dur : Goblet squat");
+  await page.locator("#kcb-sheet .kss-alt").click();
+  await expect(page.locator("#kcb-sheet .kss-ex").nth(3)).toContainText("Goblet squat");
   await clean(errs);
 });
 

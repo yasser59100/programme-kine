@@ -788,11 +788,19 @@ var KineCabinet = (function () {
       var o = { ex: e.ex, kg: e.kg || 0, reps: e.reps || 10, series: e.series || 3, r: null, prev: e };
       if (e.r === "facile") { if (o.kg > 0) { o.kg = Math.round((o.kg + kgStep(o.kg)) * 10) / 10; o.sug = "+" + KP.fmt(kgStep(e.kg)) + " kg : trop facile la dernière fois"; } else { o.reps += 2; o.sug = "+2 répétitions : trop facile la dernière fois"; } }
       else if (e.r === "dur" || e.r === "dou") o.sug = (e.r === "dou" ? "Douloureux" : "Trop dur") + " la dernière fois : garder ou alléger";
+      // variante plus difficile ou plus facile de la même famille d'exercices
+      if (e.r === "facile") o.alt = varOf(e.ex, 1); else if (e.r === "dur" || e.r === "dou") o.alt = varOf(e.ex, -1);
       return o; }), dou: null, rpe: null, home: false, all: false };
     seanceView();
   }
   // Vignette de Yass : calculée une fois ; si la 3D n'est pas encore prête, elle est ajoutée dès qu'elle l'est
   var SNAP = {};
+  function varOf(n, dir) {
+    var C0 = window.KineVariantes && KineVariantes.chains; if (!C0) return null;
+    for (var i = 0; i < C0.length; i++) { var k = C0[i].indexOf(n); if (k >= 0) { var t = C0[i][k + dir]; return t && window.KineBiblio && KineBiblio.find(t) ? { n: t, up: dir > 0 } : null; } }
+    return null;
+  }
+  function sswap(i) { var e = S.list[i]; if (!e || !e.alt) return; var n = e.alt.n; S.list[i] = { ex: n, kg: 0, reps: e.reps, series: e.series, r: null, prev: null, sug: (e.alt.up ? "Variante plus difficile de : " : "Variante plus facile de : ") + e.ex }; seanceView(); }
   function snap(n) { if (SNAP[n]) return SNAP[n]; try { var e = window.KineBiblio && KineBiblio.find(n), u = e && e.thumb || (window.KineAvatar && KineAvatar.supports(n) ? KineAvatar.snapshot(n, 160) : null); if (u) SNAP[n] = u; return u; } catch (er) { return null; } }
   function imgOf(n) { var u = snap(n); return "<img data-n='" + esc(n) + "' alt=''" + (u ? " src='" + u + "'" : "") + ">"; }
   function snapLater(tries) {
@@ -811,7 +819,7 @@ var KineCabinet = (function () {
       var pv = e.prev;
       return "<div class='kss-ex'><div class='kss-h'><button class='kss-im' onclick='KineBiblio.demo(" + q(e.ex) + ")' aria-label='Voir Yass faire l&#39;exercice'>" + imgOf(e.ex) + "<i>" + ICON.play + "</i></button>" +
         "<div class='kss-t'><b>" + esc(e.ex) + "</b>" + (pv ? "<span>Dernière fois : " + (pv.series || "") + " × " + (pv.reps || "") + (pv.kg ? " à " + KP.fmt(pv.kg) + " kg" : "") + (pv.r ? ", " + esc((RATE.filter(function (r) { return r[0] === pv.r; })[0] || ["", ""])[1].toLowerCase()) : "") + "</span>" : "") +
-        (e.sug ? "<em>" + esc(e.sug) + "</em>" : "") + "</div><button class='kss-x' onclick='KineCabinet.srm(" + i + ")' aria-label='Retirer'>×</button></div>" +
+        (e.sug ? "<em>" + esc(e.sug) + "</em>" : "") + (e.alt ? "<button class='kss-alt' onclick='KineCabinet.sswap(" + i + ")'>" + (e.alt.up ? "Plus dur : " : "Plus facile : ") + esc(e.alt.n) + " ›</button>" : "") + "</div><button class='kss-x' onclick='KineCabinet.srm(" + i + ")' aria-label='Retirer'>×</button></div>" +
         "<div class='kss-sts'>" + stp(i, "series", "Séries") + stp(i, "reps", "Répét.") + stp(i, "kg", "Charge kg") + "</div>" +
         "<div class='kss-r' role='group' aria-label='Comment ça s&#39;est passé'>" + RATE.map(function (r) { return "<button class='" + r[0] + (e.r === r[0] ? " on" : "") + "' aria-pressed='" + (e.r === r[0]) + "' onclick='KineCabinet.sr(" + i + "," + q(r[0]) + ")'>" + r[1] + "</button>"; }).join("") + "</div></div>";
     }).join("");
@@ -1280,7 +1288,7 @@ var KineCabinet = (function () {
     when: whenSet, exUnplan: exUnplan, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
-    seance: seance, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
+    seance: seance, sswap: sswap, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
     incl: incl, saut: saut, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
     guide: guide, gMode: gModeSet, gqNext: gqNext, gqBack: gqBack, gqGo: gqGo, gqZone: gqZone, gqA: gqA, gqC: gqC, gqT: gqT, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
     _curve: curve, _bars: bars2, _C: function () { return C; }, _ov: ov, _re: function () { reView(); }, _say: say
