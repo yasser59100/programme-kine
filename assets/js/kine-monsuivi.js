@@ -272,6 +272,13 @@ var KineMonSuivi = (function () {
       (P.etapes[E].but ? "<div class='kms-cm'><span>" + esc(P.etapes[E].but) + "</span></div>" : "") + "</div>";
     // Comprendre sa rééducation : la fiche du parcours et les conseils personnalisés du kiné
     if (window.KineReprise && d.course && !PREV) html += KineReprise.patientCard(d);
+    // séance du kiné
+    var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
+    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<div class='kms-ex'>" + esc(n) + "</div>"; }).join("") +
+      (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
+    // mot du kiné
+    if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
+    if (d.next) html += "<p class='kf-sub kcb-center'>Prochain bilan au cabinet : <b>" + dfr(d.next) + "</b></p>";
     if (!PREV && inline && window.KineNotifs && KineNotifs.supported && KineNotifs.supported() && !KineNotifs.kineState(s.pid) && !jget("kf-cab-notif-non", false))
       html += "<div class='kmk-notif'><div><b>Être prévenu par ton kiné</b><span>Une notification quand il t'envoie une séance, un questionnaire ou débloque une étape.</span><em id='kmk-nmsg'></em></div><div class='kcb-two'><button class='seq-btn-secondary' onclick='KineMonSuivi.notifNo()'>Non merci</button><button class='seq-btn-main' onclick='KineMonSuivi.notifOn()'>Activer</button></div></div>";
     if (window.KineFiches && (KineFiches.get(d.parcours) || d.conseil)) html += "<button class='kmk-fiche' onclick='KineMonSuivi.fiche()'><i aria-hidden='true'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z'/><path d='M8 7h6M8 11h6'/></svg></i><span><b>Comprendre ma rééducation</b><em>" + (d.conseil ? "Avec les conseils de ton kiné" : "Ce qui est normal, ce qui aide, quand appeler") + "</em></span><u>›</u></button>";
@@ -295,9 +302,6 @@ var KineMonSuivi = (function () {
       else { var a0 = f && f !== b ? KP.val(f, t[0], "a") : null; tiles.push([t[1], KP.fmt(a) + t[2], a0 != null && a > a0 ? "+" + KP.fmt(a - a0) + t[2] + " depuis le début" : ""]); }
     });
     if (tiles.length) html += "<div class='kcb-two'>" + tiles.map(function (t) { return "<div class='su-card kms-tile'><span>" + esc(t[0]) + "</span><b>" + esc(t[1]) + "</b><em>" + esc(t[2]) + "</em></div>"; }).join("") + "</div>";
-    // mot du kiné
-    if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
-    if (d.next) html += "<p class='kf-sub kcb-center'>Prochain bilan au cabinet : <b>" + dfr(d.next) + "</b></p>";
     // étapes
     html += "<div class='kcb-v2h'>Tes étapes</div>";
     var hist = d.hist || [];
@@ -307,10 +311,6 @@ var KineMonSuivi = (function () {
       html += "<div class='kms-et now'><div class='kms-eh'><i>" + (i + 1) + "</i><div><b>" + esc(e.nom) + "</b><span>En cours</span></div></div>" + (i < P.etapes.length - 1 ? "<div class='kms-k'>Pour passer à l'étape suivante</div>" : "") +
         e.obj.map(function (o) { var a = o.a ? KP.evalObj(o.a, cx) : null, ok = !!(d.done && d.done[o.id]) || !!(a && a.ok); return "<div class='kms-o" + (ok ? " ok" : "") + "'><i>" + (ok ? ICON_OK : "") + "</i><span>" + esc(o.p || o.t) + "</span>" + (a && !ok && a.ok === false ? "<b>" + esc(a.v) + "</b>" : "") + "</div>"; }).join("") + "</div>";
     });
-    // séance du kiné
-    var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
-    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<div class='kms-ex'>" + esc(n) + "</div>"; }).join("") +
-      (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // charge au cabinet
     var ref = d.ref || P.ref, S = (d.seances || []).filter(function (x) { return x.ex === ref && x.kg != null; }).slice().reverse();
     if (S.length > 1 && window.KineCabinet) html += "<div class='su-card'><div class='su-card-h'><b>" + esc(ref) + "</b><span>au cabinet</span></div>" + KineCabinet._bars(S) + "</div>";

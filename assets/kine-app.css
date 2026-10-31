@@ -3488,3 +3488,8 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kcb-mods { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
 .kcb-modadd { border-style: dashed !important; color: var(--lu-ind2, #3341E0) !important; }
 #kr-run .kr-arr i { font-size: 2em; }
+/* Mon kiné : l'étape en carte claire, pour laisser la couleur aux actions */
+.kms-card.kmk-step { background: var(--surface); color: var(--text); border: 1px solid var(--border2); box-shadow: none; }
+.kms-card.kmk-step .kms-ck, .kms-card.kmk-step .kms-cm span { color: var(--text3); opacity: 1; }
+.kms-card.kmk-step .kms-ct { color: var(--text); }
+#monkine-body { display: flex; flex-direction: column; gap: 12px; }
