@@ -394,6 +394,14 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
   await expect(page.locator("#kcb-sheet .kcb-runmsg")).toContainText("40 min cette semaine");
   await page.waitForTimeout(600); await page.evaluate(() => { const e = document.querySelector("#kcb-sheet .kcb-niv"); if (e) e.scrollIntoView({ block: "center" }); }); await page.waitForTimeout(300);
   await shot(page, info, "101-reglages-maison-kine");
+  // le kiné reprend la variante dans sa séance en un geste
+  await page.evaluate(async () => { const id = Object.keys(window.__db.patients)[0]; await fbCab.save(id, { exos: ["Chaise contre le mur", "Pont de hanche"] }); KineCabinet.fiche(id); });
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.maison());
+  await page.evaluate(() => KineCabinet.varTake());
+  await expect(page.locator("#kcb-sheet .seq-btn-main", { hasText: "Envoyer au patient (2)" })).toBeVisible();
+  await expect(page.locator("#kcb-sheet")).toContainText("Position du skieur");
+  expect(await page.evaluate(() => [...document.querySelectorAll("#kcb-sheet .kcb-exck.on")].some(b => /Chaise contre le mur/.test(b.textContent)))).toBe(false);
   // nouveau téléphone : tout est effacé, puis retrouvé avec l'identifiant
   await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; ["kf-cab", "kf-sessions", "kf-cab-jh"].forEach(k => localStorage.removeItem(k)); sessions = []; KineRole.loginForm("restore"); });
   await page.fill("#kl-id", "samir.b"); await page.fill("#kl-pw", "mauvais1");
