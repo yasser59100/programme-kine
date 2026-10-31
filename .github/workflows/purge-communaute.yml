@@ -1,0 +1,49 @@
+name: Purge Communaute
+on:
+  push:
+    branches: [purge-communaute]
+permissions:
+  contents: write
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      # Efface les anciennes données de la Communauté retirée (messages publiés, compteur de séances). Le journal ne contient que des nombres.
+      - name: Effacer messages et completions
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          pip install -q google-auth requests >/dev/null 2>&1
+          printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/sa.json"
+          set +e
+          python3 - "$RUNNER_TEMP/sa.json" > /tmp/purge_log.txt 2>&1 <<'PY'
+          import sys, requests, google.auth.transport.requests
+          from google.oauth2 import service_account
+          c = service_account.Credentials.from_service_account_file(sys.argv[1], scopes=["https://www.googleapis.com/auth/datastore"])
+          c.refresh(google.auth.transport.requests.Request()); h = {"Authorization": "Bearer " + c.token}
+          B = "https://firestore.googleapis.com/v1/projects/programme-kine/databases/(default)/documents/"
+          ok = True
+          for col in ["messages", "completions"]:
+              n = 0; err = 0
+              while True:
+                  r = requests.get(B + col, headers=h, params={"pageSize": 300, "mask.fieldPaths": "__name__"})
+                  if not r.ok: print(col, "lecture", r.status_code); ok = False; break
+                  docs = r.json().get("documents", [])
+                  if not docs: break
+                  for d in docs:
+                      x = requests.delete("https://firestore.googleapis.com/v1/" + d["name"], headers=h)
+                      if x.ok: n += 1
+                      else: err += 1
+                  if err: ok = False; break
+              print(col, "effaces", n, "erreurs", err)
+          sys.exit(0 if ok else 1)
+          PY
+          code=$?
+          rm -f "$RUNNER_TEMP/sa.json"
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git fetch -q origin diag || true
+          git checkout -q -B diag
+          mkdir -p tools && cp /tmp/purge_log.txt tools/purge_log.txt && git add tools/purge_log.txt && git commit -q -m "Journal purge [skip ci]" && git push -q -f origin diag || true
+          exit $code
