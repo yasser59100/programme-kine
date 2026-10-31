@@ -429,6 +429,7 @@ var KineCabinet = (function () {
   }
 
   /* ── Exercices à la maison : la séance envoyée, puis ce que le patient fait chez lui ── */
+  function gymOf(n) { var e = window.KineBiblio && KineBiblio.find(n); return !!(e && e.gym); }
   function maison() {
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1);
     var html = back2() + "<div class='kf-h1 kcb-h1'>Exercices à la maison</div>";
@@ -444,9 +445,10 @@ var KineCabinet = (function () {
     } else {
       if (!sel) sel = sent.length ? sent.slice() : [];
       html += "<div class='su-card'><div class='su-card-h'><b>Exercices de l'étape " + (E + 1) + "</b><span>" + sel.length + " choisi" + (sel.length > 1 ? "s" : "") + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient (10 au plus) : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
-        ex.map(function (n) {
-          var on = sel.indexOf(n) >= 0, c = window.KineBiblio ? KineBiblio.color(n) : 0;
-          return "<div class='kcb-ex'><button class='kcb-exck" + (on ? " on" : "") + "' onclick='KineCabinet.pick(" + q(n) + ")' aria-pressed='" + on + "'><i>" + (on ? ICON.ok : "") + "</i><span>" + "<i class='kb-dot c" + c + "' aria-hidden='true'></i>" + esc(n) + "</span></button>" +
+        // les exercices sur machine (salle ou cabinet) en fin de liste, signalés : le patient ne les a pas chez lui
+        ex.slice().sort(function (a, b) { return (gymOf(a) ? 1 : 0) - (gymOf(b) ? 1 : 0); }).map(function (n) {
+          var on = sel.indexOf(n) >= 0, c = window.KineBiblio ? KineBiblio.color(n) : 0, gy = gymOf(n);
+          return "<div class='kcb-ex'><button class='kcb-exck" + (on ? " on" : "") + "' onclick='KineCabinet.pick(" + q(n) + ")' aria-pressed='" + on + "'><i>" + (on ? ICON.ok : "") + "</i><span>" + "<i class='kb-dot c" + c + "' aria-hidden='true'></i>" + esc(n) + (gy ? " <u class='kcb-gym'>machine</u>" : "") + "</span></button>" +
             "<button class='kcb-demo' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir l&#39;exercice'>" + ICON.play + "</button></div>";
         }).join("") +
         (sel.filter(function (n) { return ex.indexOf(n) < 0; }).length ? "<div class='kf-sub'>Aussi envoyés : " + esc(sel.filter(function (n) { return ex.indexOf(n) < 0; }).join(", ")) + "</div>" : "") +
