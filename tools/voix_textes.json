@@ -1,5 +1,61 @@
 [
  {
+  "t": "Gauche !",
+  "g": "seance"
+ },
+ {
+  "t": "Droite !",
+  "g": "seance"
+ },
+ {
+  "t": "Deux pieds !",
+  "g": "seance"
+ },
+ {
+  "t": "Saute !",
+  "g": "seance"
+ },
+ {
+  "t": "Enchaîne les sauts !",
+  "g": "seance"
+ },
+ {
+  "t": "Marche vite pour t'échauffer.",
+  "g": "seance"
+ },
+ {
+  "t": "Marche.",
+  "g": "seance"
+ },
+ {
+  "t": "Cours, tranquille.",
+  "g": "seance"
+ },
+ {
+  "t": "Retour au calme, marche lentement.",
+  "g": "seance"
+ },
+ {
+  "t": "Encore 10 secondes.",
+  "g": "seance"
+ },
+ {
+  "t": "Séance terminée, bravo !",
+  "g": "seance"
+ },
+ {
+  "t": "Terminé, bravo !",
+  "g": "seance"
+ },
+ {
+  "t": "centimètres",
+  "g": "seance"
+ },
+ {
+  "t": "Réception sur signal",
+  "g": "seance"
+ },
+ {
   "t": "0",
   "g": "seance"
  },
@@ -6253,30 +6309,6 @@
  },
  {
   "t": "Comme pour le mollet, mais genou arrière plié, talon au sol.",
-  "g": "seance"
- },
- {
-  "t": "Gauche !",
-  "g": "seance"
- },
- {
-  "t": "Droite !",
-  "g": "seance"
- },
- {
-  "t": "Deux pieds !",
-  "g": "seance"
- },
- {
-  "t": "Saute !",
-  "g": "seance"
- },
- {
-  "t": "Enchaîne les sauts !",
-  "g": "seance"
- },
- {
-  "t": "Réception sur signal",
   "g": "seance"
  }
 ]
