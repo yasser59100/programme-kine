@@ -151,7 +151,7 @@ var KineQuest = (function () {
       var q = "<div class='kq-q'>" + esc(it.t) + "</div>" + (it.sub ? "<div class='kf-sub'>" + esc(it.sub) + "</div>" : "");
       var input = "";
       if (it.type === "scale") input = "<div class='kq-scale' role='radiogroup'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) { return "<button class='" + (v === n ? "on" : "") + "' role='radio' aria-checked='" + (v === n) + "' onclick='KineQuest.set(\"" + it.id + "\"," + n + ",1)'>" + n + "</button>"; }).join("") + "</div><div class='kq-lh'><span>" + esc(it.lo || "") + "</span><span>" + esc(it.hi || "") + "</span></div>";
-      if (it.type === "slider") { var sv = v == null ? it.def : v; input = "<div class='kq-big" + (v == null ? " none" : "") + "' id='kq-big'>" + (v == null ? "?" : sv) + "</div>" + (v == null ? "<p class='kq-slhint' id='kq-slhint'>Fais glisser le curseur jusqu'à ta note</p>" : "") + "<input type='range' class='kq-range' min='" + it.min + "' max='" + it.max + "' step='" + it.step + "' value='" + sv + "' oninput='KineQuest.set(\"" + it.id + "\",+this.value)' aria-label='" + esc(it.t) + "'><div class='kq-lh'><span>" + it.min + "</span><span>" + it.max + "</span></div>"; }
+      if (it.type === "slider") { var sv = v == null ? it.def : v; input = "<div class='kq-big" + (v == null ? " none" : "") + "' id='kq-big'>" + (v == null ? "?" : sv) + "</div>" + (v == null ? "<p class='kq-slhint' id='kq-slhint'>Fais glisser le curseur jusqu'à ta note</p>" : "") + "<input type='range' class='kq-range" + (v == null ? " none" : "") + "' min='" + it.min + "' max='" + it.max + "' step='" + it.step + "' value='" + sv + "' oninput='KineQuest.set(\"" + it.id + "\",+this.value)' aria-label='" + esc(it.t) + "'><div class='kq-lh'><span>" + it.min + "</span><span>" + it.max + "</span></div>"; }
       if (it.type === "choice") input = "<div class='kq-ch'>" + it.ch.map(function (c) { return "<button class='" + (v === c[1] ? "on" : "") + "' onclick='KineQuest.set(\"" + it.id + "\"," + c[1] + ",1)'>" + esc(c[0]) + "</button>"; }).join("") + "</div>";
       if (it.type === "acts") { var A = F.rep.acts || []; input = "<div class='kq-acts'>" + [0, 1, 2].map(function (k) { return "<input class='kcb-in' maxlength='60' id='kq-a" + k + "' value='" + esc(A[k] || "") + "' placeholder='Activité " + (k + 1) + (k ? " (facultatif)" : "") + "' oninput='KineQuest.acts()'>"; }).join("") + "</div>"; }
       body = top + pr + q + input;
@@ -190,7 +190,7 @@ var KineQuest = (function () {
   }
   function set(id, v, auto) {
     F.rep[id] = v; save();
-    var b = $("kq-big"); if (b) { b.textContent = v; b.classList.remove("none"); } var sh = $("kq-slhint"); if (sh) sh.remove();
+    var b = $("kq-big"); if (b) { b.textContent = v; b.classList.remove("none"); } var sh = $("kq-slhint"); if (sh) sh.remove(); var rg = document.querySelector("#kq-sheet .kq-range.none"); if (rg) rg.classList.remove("none");
     var nx = $("kq-next"); if (nx) nx.disabled = false;
     if (auto) { render(); setTimeout(function () { if (F && !F.done && items()[F.i] && items()[F.i].id === id) next(); }, 260); }
   }
