@@ -142,12 +142,12 @@ var KineMonSuivi = (function () {
   function syncSeance(d) {
     var list = jget("kf-custom", []), ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
     var cur = list.filter(function (x) { return x.id === "kine"; })[0];
-    if (!ex.length) { if (cur) jset("kf-custom", list.filter(function (x) { return x.id !== "kine"; })); return; }
+    if (!ex.length) { if (cur) { jset("kf-custom", list.filter(function (x) { return x.id !== "kine"; })); try { if (window.KineLayout && KineLayout.render) KineLayout.render(); } catch (e) {} } return; }
     if (cur && cur.ex.join("|") === ex.join("|")) return;
     list = list.filter(function (x) { return x.id !== "kine"; });
     list.unshift({ id: "kine", name: "La séance de mon kiné", ex: ex, at: Date.now(), kine: 1 });
     jset("kf-custom", list.slice(0, 12));
-    try { if (window.KineProgram) KineProgram.render(); if (window.KineCompose) KineCompose.page(); } catch (e) {}
+    try { if (window.KineProgram) KineProgram.render(); if (window.KineCompose) KineCompose.page(); if (window.KineLayout && KineLayout.render) KineLayout.render(); } catch (e) {}
   }
   // Résumé de la semaine pour le kiné : nombre de séances, douleur et effort moyens, date de la dernière
   function pushHome(pid) {

@@ -45,6 +45,16 @@
   }
 
   /* ════════ Accueil ════════ */
+  function kineSlab(k, ss, today) {
+    var done = ss.some(function (x) { return x.date === today && /kin[ée]/i.test(String(x.seance || "")); });
+    var IPLAY = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>";
+    return "<div class='lu-slab lu-" + (done ? "done" : "today") + " lu-kine'>" + yassHtml(done ? "done" : "today") +
+      "<p class='lu-k'>" + (done ? "Faite aujourd'hui, bravo !" : "La séance de ton kiné") + "</p>" +
+      "<h2 class='lu-t'>" + k.ex.length + " exercice" + (k.ex.length > 1 ? "s" : "") + " choisis pour toi</h2>" +
+      "<p class='lu-m'>" + esc(k.ex.slice(0, 3).join(", ") + (k.ex.length > 3 ? "…" : "")) + "</p>" +
+      "<button class='lx-cta lu-go' onclick=\"KineCompose.start('kine')\">" + IPLAY + (done ? "La refaire" : "Commencer") + "</button>" +
+      "<button class='lx-link lu-see' onclick=\"showPage('monkine')\">Voir mon suivi avec mon kiné</button></div>";
+  }
   function renderHome() {
     var box = $("today-card"); if (!box || typeof SEQ_DAYS === "undefined") return;
     var now = new Date(), dow = now.getDay(), map = dayMap(), todayId = map[dow];
@@ -83,6 +93,8 @@
       return "<button class='lx-item' onclick=\"openPreview('" + id + "')\"><span class='lx-j'>" + codeOf(id) + "</span><span>" + esc(cap(nameOf(id))) + "</span><span class='lx-t'>" + minutes(id) + " min</span></button>";
     }).join("");
     var nWork = SEQ_DAYS[target].exercises.filter(function (e) { return e.phase === "work"; }).length;
+    // Relié à son kiné avec une séance envoyée : c'est elle, la séance du jour
+    var kine = null; try { kine = (JSON.parse(localStorage.getItem("kf-custom") || "[]") || []).filter(function (x) { return x && x.id === "kine" && x.ex && x.ex.length; })[0] || null; } catch (e) {}
     var h = now.getHours(), who = "";
     var hello = (h >= 18 || h < 4 ? "Bonsoir" : "Bonjour") + (who ? "<br>" + esc(cap(who)) : "");
     var xd = window.KineIdees && KineIdees.defineExpress ? KineIdees.defineExpress(target) : null;
@@ -93,12 +105,13 @@
       "<h1 class='lu-hello'>" + hello + "</h1>" +
       (window.KineTheme && KineTheme.homeSwitchHtml ? KineTheme.homeSwitchHtml() : "") +
       "<div class='lu-days'>" + days + "</div>" + banner +
+      (kine ? kineSlab(kine, ss, today) + "<button class='lx-link lu-gen' onclick=\"openPreview('" + target + "')\">Ou faire le programme général</button>" :
       "<div class='lu-slab lu-" + state + "'>" + yassHtml(state) +
         "<p class='lu-k'>" + esc(kick) + "</p>" +
         "<h2 class='lu-t'>" + esc(cap(nameOf(target))) + "</h2>" +
         "<p class='lu-m'>" + (lede ? esc(lede) + ". " : "") + nWork + " exercices, " + minutes(target) + " minutes, " + kitText(target) + "</p>" +
         "<button class='lx-cta lu-go' onclick=\"openPreview('" + target + "')\"><svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>" + esc(cta) + "</button>" +
-        "<button class='lx-link lu-see' onclick=\"openExplain('" + target + "')\">Voir les exercices</button></div>" +
+        "<button class='lx-link lu-see' onclick=\"openExplain('" + target + "')\">Voir les exercices</button></div>") +
       "<div class='lu-duo'>" +
         (window.KineCamera ? "<button class='lu-blk lu-vid' id='lu-video' onclick='KineCamera.open()'><span class='lu-ic'>" + ICAM + "</span><b>Tester en vidéo</b><small>Yass regarde ton mouvement et te corrige</small></button>" : "") +
         (xd ? "<button class='lu-blk lu-exp' id='ki-express' onclick=\"KineIdees.express('" + target + "')\"><span class='lu-ic'>" + IZAP + "</span><b>" + (xd.minutes || 10) + " minutes</b><small>Séance express, pas le temps</small></button>" : "") +

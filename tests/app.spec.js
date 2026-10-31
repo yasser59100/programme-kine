@@ -229,6 +229,12 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await shot(page, info, "21-cabinet-patient");
   const custom = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine").map(x => x.ex.length)[0]);
   expect(custom).toBe(2);
+  // l'accueil propose la séance du kiné, le programme général reste accessible
+  await page.evaluate(() => { KineMonSuivi.close(); showPage("home"); });
+  await expect(page.locator("#today-card .lu-kine")).toContainText("La séance de ton kiné");
+  await expect(page.locator("#today-card .lu-kine .lu-t")).toContainText("2 exercices");
+  await page.locator("#today-card .lu-kine .lu-go").click();
+  await expect(page.locator("#seq-overlay.open, #kf-preview.open, .kf-sheet.open").first()).toBeVisible();
   await clean(errs);
 });
 
