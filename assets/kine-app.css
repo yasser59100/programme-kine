@@ -3568,3 +3568,5 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .lx-send2 { display: block; margin: 0 auto; }
 .kq-big.none { color: var(--text3, #9AA3B2); }
 .kq-slhint { margin: -4px 0 8px; text-align: center; font-size: .86rem; color: var(--text2); }
+/* Un élément marqué « hidden » reste caché, même si sa classe lui donne un affichage */
+[hidden] { display: none !important; }
