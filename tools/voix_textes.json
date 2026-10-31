@@ -1,5 +1,25 @@
 [
  {
+  "t": "Avant !",
+  "g": "seance"
+ },
+ {
+  "t": "Arrière !",
+  "g": "seance"
+ },
+ {
+  "t": "Avant gauche !",
+  "g": "seance"
+ },
+ {
+  "t": "Avant droite !",
+  "g": "seance"
+ },
+ {
+  "t": "Pas réactifs aux flèches",
+  "g": "seance"
+ },
+ {
   "t": "Gauche !",
   "g": "seance"
  },

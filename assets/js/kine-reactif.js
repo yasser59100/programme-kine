@@ -93,8 +93,17 @@
       place: "Debout, pieds largeur de bassin, face au téléphone.",
       action: "Au bip « Saute », saute bien haut sur tes deux pieds. Pendant le saut, l'écran et Yass t'annoncent ta réception : gauche, droite ou deux pieds. Atterris comme annoncé et tiens 3 secondes, immobile.",
       cue: "Réception en douceur : genou fléchi et dans l'axe du pied, bassin bien horizontal. Commence avec le signal « Tôt », puis « En l'air » quand c'est facile.",
-      spots: [], feet: "both", av: [] }
+      spots: [], feet: "both", av: [] },
+    { id: "fleches", name: "Pas réactifs aux flèches", level: 1, sides: false, arrows: true,
+      kit: "un peu d'espace autour de toi, sans matériel",
+      place: "Debout, face au téléphone posé à 2 ou 3 mètres, pieds largeur de bassin.",
+      action: "À chaque flèche, fais un grand pas dans sa direction (avant, gauche, droite, arrière, ou en diagonale), puis reviens au centre.",
+      cue: "Le genou reste dans l'axe du pied. Reviens toujours bien au centre avant la flèche suivante. Pour plus de difficulté : un rythme plus rapide, ou des fentes au lieu de pas.",
+      spots: [], feet: "both", av: [[0, 0.9], [0.9, 0.05], [-0.9, 0.05], [0, -0.8], [0.62, 0.66], [-0.62, 0.66]] }
   ];
+  // Flèches : dans l'ordre des positions de l'avatar (av) ci-dessus
+  var ARROWS = [{ g: "↑", name: "Avant" }, { g: "←", name: "Gauche" }, { g: "→", name: "Droite" }, { g: "↓", name: "Arrière" }, { g: "↖", name: "Avant gauche" }, { g: "↗", name: "Avant droite" }];
+  function arrowCols(s) { return ARROWS.slice(0, s.diag ? 6 : 4).map(function (a) { return { name: a.name, hex: "#0E141F", ink: "#fff" }; }); }
   /* Réception sur signal : la jambe de réception est annoncée pendant le saut */
   var SIG = [
     { id: "g", name: "Gauche", big: "GAUCHE", arrow: "←", hex: "#3D8EF0", ink: "#fff", say: "Gauche !", f: 520 },
@@ -133,7 +142,8 @@
 
   /* ── Schéma de placement ── */
   function diagram(ex, cols) {
-    if (ex.signal) return "<svg class='kr-svg' viewBox='0 0 300 120' role='img' aria-label='Les trois signaux de réception'>" + SIG.map(function (g, i) {
+    if (ex.arrows) return "<svg class='kr-svg' viewBox='0 0 300 120' role='img' aria-label='Les flèches'>" + ARROWS.slice(0, cols.length).map(function (a, i) { var x = 30 + i * (240 / Math.max(1, cols.length - 1)); return "<text x='" + x + "' y='70' text-anchor='middle' font-size='40' font-weight='800' fill='currentColor'>" + a.g + "</text><text x='" + x + "' y='104' text-anchor='middle' font-size='11' fill='currentColor' opacity='.7'>" + a.name + "</text>"; }).join("") + "</svg>";
+    if (ex.signal) return "<svg class='kr-svg' viewBox=''0 0 300 120' role='img' aria-label='Les trois signaux de réception'>" + SIG.map(function (g, i) {
         var x = 55 + i * 95;
         return "<rect x='" + (x - 42) + "' y='18' width='84' height='60' rx='12' fill='" + g.hex + "'/><text x='" + x + "' y='58' text-anchor='middle' font-size='28' font-weight='800' fill='" + g.ink + "'>" + g.arrow + "</text>" +
           "<text x='" + x + "' y='102' text-anchor='middle' font-size='13' font-weight='700' fill='currentColor'>" + g.name + "</text>";
@@ -176,7 +186,7 @@
       var x = c[0], z = c[1], d = Math.sqrt(x * x + z * z), ux = x / d, uz = z / d, th = Math.atan2(x, z) * 180 / Math.PI;
       var lead = x > 0.05 ? "L" : "R", other = lead === "L" ? "R" : "L", sg = lead === "L" ? 1 : -1, P;
       var keep = function (side) { return { foot: { at: [side === "L" ? 0.1 : -0.1, 0, 0.12], yaw: side === "L" ? 6 : -6, lift: 0 } }; };
-      if (ex.id === "fentes" || ex.id === "pas") {
+      if (ex.id === "fentes" || ex.id === "pas" || ex.arrows) {
         var deep = ex.id === "fentes", reach = d - 0.17;
         if (Math.abs(th) > 70) {        // fente latérale
           P = { pelvis: { p: [ux * reach * 0.45, deep ? 0.7 : 0.86, -0.06], r: [deep ? 28 : 10, 0, 0] }, spine: [6, 0, 0] };
@@ -229,7 +239,7 @@
                    : ex.id === "chasses" ? { yaw: Math.PI - 0.25, pitch: 0.5, dist: 5.6, ty: 0.75 }
                    : { yaw: Math.PI - 0.4, pitch: 0.48, dist: 4.6, ty: 0.8, tz: 0.2 },
              props: ex.id === "assis" || ex.id === "bulgare" ? ["chair"] : undefined, chair: ex.id === "bulgare" ? { z: -0.14 } : undefined, noIso: true, start: "mid",
-             cones: ex.av.slice(0, n).map(function (c, i) { return { at: c, hex: cols[i].hex }; }), poses: poses };
+             cones: ex.arrows ? [] : ex.av.slice(0, n).map(function (c, i) { return { at: c, hex: cols[i].hex }; }), poses: poses };
   }
   // Réception sur signal : Yass se baisse, saute, puis atterrit sur la jambe annoncée (c0 gauche, c1 droite, c2 deux pieds)
   function sigAv(L, M) {
@@ -330,10 +340,10 @@
       (SESS ? "<p class='kr-sesstag'>Dans ta séance" + (SESS.serie ? " : série " + SESS.serie : "") + ". Règle la série, puis « C'est parti ».</p><div class='kr-exos' style='display:none'>" : "<div class='kr-exos'>") + EXOS.map(function (e) {
         return "<button type='button' class='kr-exo" + (e.id === ex.id ? " on" : "") + "' onclick='KineReactif._set(\"exo\",\"" + e.id + "\")'><i class='kb-dot c" + e.level + "'></i><b>" + esc(e.name) + "</b><span>" + LVL[e.level][1] + (e.sides ? ", des deux côtés" : "") + "</span></button>";
       }).join("") + "</div>" +
-      "<div class='kr-place'>" + (window.KineAvatar && KineAvatar.lib ? "<div class='kr-demo'><div class='kr-stage'></div><span class='kr-tag'></span></div>" : "") + diagram(ex, mine(s)) +
+      "<div class='kr-place'>" + (window.KineAvatar && KineAvatar.lib ? "<div class='kr-demo'><div class='kr-stage'></div><span class='kr-tag'></span></div>" : "") + diagram(ex, ex.arrows ? arrowCols(s) : mine(s)) +
         "<p><strong>Mise en place.</strong> " + esc(ex.place) + "</p><p><strong>" + (ex.signal ? "À chaque saut." : "À chaque couleur.") + "</strong> " + esc(ex.action) + "</p>" +
         "<p class='kr-cue'>" + esc(ex.cue) + "</p></div>" +
-      (ex.signal ? sigOpts(s, chip) : (      "<div class='kf-phase' style='color:var(--text2)'>Mes couleurs</div>" +
+      (ex.arrows ? arrOpts(s, chip) : ex.signal ? sigOpts(s, chip) : (      "<div class='kf-phase' style='color:var(--text2)'>Mes couleurs</div>" +
       "<p class='lx-muted kr-small'>Touche les couleurs de tes plots, de 2 à 4. Choisies : " + s.cols.length + ".</p>" +
       "<div class='kr-swatch kr-pick'>" + COLS.map(function (c) {
         var on = s.cols.indexOf(c.id) >= 0;
@@ -348,8 +358,14 @@
       "<div class='kf-kit'><strong>Il te faut :</strong> " + esc(ex.kit) + ". Espace dégagé, sol non glissant. Arrête si une douleur atteint 5 sur 10, ou en cas de vertige.</div>" +
       "</div><div class='kf-sheet-foot'><button class='seq-btn-main' onclick='KineReactif.start()'>C'est parti</button></div>";
     el.classList.add("open");
-    var dm = el.querySelector(".kr-demo"); if (dm) demo(dm, ex, mine(s));
+    var dm = el.querySelector(".kr-demo"); if (dm) demo(dm, ex, ex.arrows ? arrowCols(s) : mine(s));
     var st = el.querySelector(".kr-sesstag"); if (st && window.KineExplique) KineExplique.once("reactifSeance", st);
+  }
+  // Réglages des flèches
+  function arrOpts(s, chip) {
+    return "<div class='kf-phase' style='color:var(--text2)'>Flèches par série</div><div class='kf-chips'>" + COUNTS.map(function (n) { return chip("count", n, s.count, String(n)); }).join("") + "</div>" +
+      "<div class='kf-phase' style='color:var(--text2)'>Rythme</div><div class='kf-chips'>" + RYTHMES.map(function (r) { return chip("rythme", r[0], s.rythme, r[1] + " <small>· " + (r[2] / 1000).toString().replace(".", ",") + " s</small>"); }).join("") + "</div>" +
+      "<div class='kf-phase' style='color:var(--text2)'>Diagonales</div><div class='kf-chips'>" + chip("diag", false, !!s.diag, "Non") + chip("diag", true, !!s.diag, "Oui") + "</div>";
   }
   // Réglages propres à la réception sur signal
   function sigOpts(s, chip) {
@@ -412,8 +428,9 @@
   }
   function side() {
     if (run.ex.signal) return sigSide();
+    if (run.ex.arrows) { run.cols = arrowCols(run.s); }
     run.seq = sequence(run.s.count, run.cols.length).map(function (c, i) {
-      return { c: c, trap: !!run.s.pieges && i >= 2 && Math.random() < 0.2 };
+      return { c: c, trap: !!run.s.pieges && !run.ex.arrows && i >= 2 && Math.random() < 0.2 };
     });
     for (var k = 1; k < run.seq.length; k++) if (run.seq[k].trap && run.seq[k - 1].trap) run.seq[k].trap = false;   // jamais deux pièges de suite
     run.i = 0;
@@ -437,6 +454,11 @@
       return;
     }
     run.done++;
+    if (run.ex.arrows) {
+      var a = ARROWS[it.c];
+      paint("#0E141F", "#fff", "<span class='kr-sig kr-arr'><i aria-hidden='true'>" + a.g + "</i>" + a.name.toUpperCase() + "</span>", "", run.i + " / " + run.seq.length);
+      say(a.name + " !"); beep(880, 0.06, 0.18); later(cue, run.every); return;
+    }
     paint(c.hex, c.ink, c.name, "", run.i + " / " + run.seq.length);
     screen().classList.toggle("ring", !!c.ring);
     say(c.name + " !"); beep(880, 0.06, 0.18);
@@ -557,8 +579,8 @@
     if (!window.KineBiblio || !KineBiblio.extend) return;
     KineBiblio.extend(EXOS.map(function (e, i) {
       return { name: e.name, group: "reactif", color: e.level, kit: [e.kit], reactif: e.id, thumb: thumb(e.signal ? SIG.map(function (g) { return g.hex; }) : [COLS[i % 4].hex, COLS[(i + 1) % 4].hex, COLS[(i + 2) % 4].hex]),
-               repsLabel: e.signal ? "10 sauts" : "15 couleurs" + (e.sides ? " par " + e.sideWord : ""), desc: e.place + " " + e.action, cue: e.cue,
-               tip: e.signal ? "Avant chaque série, choisis le moment du signal, le nombre de sauts et la récupération." : "Avant chaque série, choisis tes couleurs, le nombre de couleurs, le rythme et les pièges.",
+               repsLabel: e.signal ? "10 sauts" : e.arrows ? "15 flèches" : "15 couleurs" + (e.sides ? " par " + e.sideWord : ""), desc: e.place + " " + e.action, cue: e.cue,
+               tip: e.arrows ? "Avant chaque série, choisis le nombre de flèches, le rythme et les diagonales." : e.signal ? "Avant chaque série, choisis le moment du signal, le nombre de sauts et la récupération." : "Avant chaque série, choisis tes couleurs, le nombre de couleurs, le rythme et les pièges.",
                stop: "Arrêt si une douleur atteint 5 sur 10, en cas de vertige ou de perte d'équilibre." };
     }));
   }

@@ -1415,6 +1415,10 @@ var KineParcours = (function () {
   ["genou", "lca_op", "lca_cons", "menisectomie", "suture_men", "lcm", "sfp", "cheville", "entorse", "instab", "achille", "cfa", "pubalgie"].forEach(function (id) {
     var e = P[id] && P[id].etapes[P[id].etapes.length - 1]; if (e && e.exos.indexOf("Réception sur signal") < 0) e.exos.push("Réception sur signal");
   });
+  // Pas réactifs aux flèches (sans matériel) : étape d'équilibre et de contrôle des parcours cheville et genou
+  [["entorse", 1], ["instab", 0], ["cheville", 1], ["lca_cons", 2], ["lca_op", 2], ["lcm", 1], ["genou", 1]].forEach(function (x) {
+    var e = P[x[0]] && P[x[0]].etapes[x[1]]; if (e && e.exos.indexOf("Pas réactifs aux flèches") < 0) e.exos.push("Pas réactifs aux flèches");
+  });
   // Tendinopathie rotulienne : contractions statiques lourdes dès la première étape
   if (P.tendino_rot.etapes[0].exos.indexOf("Spanish squat tenu lourd") < 0) P.tendino_rot.etapes[0].exos.unshift("Spanish squat tenu lourd");
   var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"], ["hanche", "Hanche"], ["rachis", "Dos et cou"]];
