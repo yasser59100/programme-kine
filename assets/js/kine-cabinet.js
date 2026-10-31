@@ -418,7 +418,7 @@ var KineCabinet = (function () {
     html += "<div class='su-card'><div class='su-card-h'><b>Ce qu'il fait chez lui</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
       (w ? "<div class='kcb-3'><div><b>" + w.n + "</b><span>séance" + (w.n > 1 ? "s" : "") + " sem. " + esc(String(w.w).split("-W")[1] || "") + "</span></div><div><b>" + (w.dou != null ? KP.fmt(w.dou) + "/10" : "–") + "</b><span>douleur moyenne</span></div><div><b>" + (w.der ? dfr(w.der) : "–") + "</b><span>dernière séance</span></div></div>"
          : "<div class='kf-sub'>" + (C.membres ? "Aucune séance faite à la maison cette semaine." : "Donne le code au patient pour voir ses séances à la maison.") + "</div>") +
-      journalHtml(4) + "</div>";
+      journalHtml(4) + "</div>" + (window.KineReprise ? KineReprise.kineCard(C) : "");
     sub = "maison";
     var y = sheet().scrollTop, stay = sheet().querySelector(".kcb-ex, .kcb-sent");
     if (!(sent.length && !exEdit)) html += whenPick("maison");
@@ -1228,6 +1228,6 @@ var KineCabinet = (function () {
     seance: seance, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
     incl: incl, saut: saut, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
     guide: guide, gMode: gModeSet, gqNext: gqNext, gqBack: gqBack, gqGo: gqGo, gqZone: gqZone, gqA: gqA, gqC: gqC, gqT: gqT, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
-    _curve: curve, _bars: bars2
+    _curve: curve, _bars: bars2, _C: function () { return C; }, _ov: ov, _re: function () { reView(); }, _say: say
   };
 })();

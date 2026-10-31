@@ -131,7 +131,8 @@ service cloud.firestore {
         allow read, write: if isAdmin();
         allow read: if isMember(pid);
         allow create, update: if isMember(pid) && id.size() <= 8
-          && request.resource.data.keys().hasOnly(['s', 'p', 'r', 'g', 't'])
+          && request.resource.data.keys().hasOnly(['s', 'p', 'r', 'g', 'c', 't'])
+          && (!('c' in request.resource.data) || (request.resource.data.c is list && request.resource.data.c.size() <= 120))
           && (!('s' in request.resource.data) || (request.resource.data.s is list && request.resource.data.s.size() <= 300))
           && (!('p' in request.resource.data) || (request.resource.data.p is list && request.resource.data.p.size() <= 300))
           && (!('r' in request.resource.data) || request.resource.data.r is map)

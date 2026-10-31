@@ -80,6 +80,8 @@ var KineMonSuivi = (function () {
     arr("kf-pain").forEach(function (x) { add(String(x.date || "").slice(0, 10), "p", x); });
     var R = obj("kf-checkin"); Object.keys(R).forEach(function (d) { add(d, "r", R[d]); });
     Object.keys(B).forEach(function (k) { B[k].s = B[k].s.slice(0, 300); B[k].p = B[k].p.slice(0, 300); });
+    // sorties de la reprise de course réglée par le kiné
+    arr("kf-runs").forEach(function (x) { var id = m(x.d); if (!x.rp || !/^\d{4}-\d{2}$/.test(id)) return; B[id] = B[id] || { s: [], p: [], r: {} }; (B[id].c = B[id].c || []).push(x); });
     var G = obj("kf-salle-log"); if (Object.keys(G).length) B.salle = { g: G };
     return B;
   }
@@ -269,6 +271,7 @@ var KineMonSuivi = (function () {
     if (inline) html += "<div class='kms-card kmk-step'><div class='kms-ck'><span>" + esc(P.nom) + "</span><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span></div><div class='kms-ct'>" + esc(P.etapes[E].nom) + "</div>" +
       (P.etapes[E].but ? "<div class='kms-cm'><span>" + esc(P.etapes[E].but) + "</span></div>" : "") + "</div>";
     // Comprendre sa rééducation : la fiche du parcours et les conseils personnalisés du kiné
+    if (window.KineReprise && d.course && !PREV) html += KineReprise.patientCard(d);
     if (window.KineFiches && (KineFiches.get(d.parcours) || d.conseil)) html += "<button class='kmk-fiche' onclick='KineMonSuivi.fiche()'><i aria-hidden='true'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z'/><path d='M8 7h6M8 11h6'/></svg></i><span><b>Comprendre ma rééducation</b><em>" + (d.conseil ? "Avec les conseils de ton kiné" : "Ce qui est normal, ce qui aide, quand appeler") + "</em></span><u>›</u></button>";
     if (m) {
       var pct = m.lsi ? Math.min(100, m.v) : null;

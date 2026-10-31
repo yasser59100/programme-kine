@@ -778,3 +778,56 @@ test("fiches : une fiche par parcours, conseils du kiné, visibles dans Mon kin�
   await shot(page, info, "91-fiche-patient");
   await clean(errs);
 });
+
+test("reprise de course : réglée par le kiné, séance avec Yass, palier suivant selon la douleur", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => kfNeed("suivi"));
+  // la règle de progression
+  const r = await page.evaluate(() => { const c = { id: "x", d: 1, max: 3, f: 3 };
+    return [KineReprise.etat(c, []).palier, KineReprise.etat(c, [{ cid: "x", rp: 1, d: "2026-10-01", pain: 2, next: 2 }]).palier,
+      KineReprise.etat(c, [{ cid: "x", rp: 1, d: "2026-10-01", pain: 2, next: 2 }, { cid: "x", rp: 2, d: "2026-10-03", pain: 2, next: 5 }]).palier,
+      KineReprise.etat(c, [{ cid: "x", rp: 1, d: "2026-10-01", pain: 2, next: 3 }, { cid: "x", rp: 2, d: "2026-10-03", pain: 4, next: 2 }]).palier]; });
+  expect(r).toEqual([1, 2, 1, 1]);
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.nouveau());
+  await page.fill("#kcb-alias", "C.R.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "achille"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => { KineCabinet.maison(); KineReprise.edit(); });
+  await page.locator("#krp-ed .krp-mods button", { hasText: "Tendinopathie" }).click();
+  await expect(page.locator("#krp-ed .kf-chips button.sel").first()).toHaveText("3");
+  await page.waitForTimeout(400);
+  await shot(page, info, "92-reprise-kine");
+  await page.locator("#krp-ed .seq-btn-main").click();
+  await expect(page.locator("#kcb-sheet .krp-k .krp-pals")).toBeVisible();
+  // côté patient
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.fill("#kms-code", "K7M2QX");
+  await page.evaluate(() => KineMonSuivi.doJoin());
+  await page.evaluate(() => KineMonSuivi.consent(0));
+  await expect(page.locator("#kms-sheet .krp-p")).toContainText("Palier 3 sur 10");
+  await page.waitForTimeout(400);
+  await shot(page, info, "93-reprise-patient");
+  await page.evaluate(() => { KineMonSuivi.close(); KineReprise.go(); });
+  await expect(page.locator("#krp-run.open .krp-big b")).toHaveText("Marche vite");
+  await page.evaluate(() => KineReprise._skip());
+  await expect(page.locator("#krp-run .krp-big b")).toHaveText("Marche");
+  await page.evaluate(() => KineReprise._skip());
+  await expect(page.locator("#krp-run .krp-big b")).toHaveText("Cours");
+  await page.waitForTimeout(300);
+  await shot(page, info, "94-reprise-seance");
+  for (let i = 0; i < 12; i++) { if (await page.locator("#krp-run .krp-end").count()) break; await page.evaluate(() => KineReprise._skip()); }
+  await page.locator("#krp-run .krp-scale button", { hasText: "2" }).first().click();
+  // le lendemain : douleur au réveil, puis palier 4
+  await page.evaluate(() => { const a = JSON.parse(localStorage.getItem("kf-runs")); a.forEach(x => { x.d = "2026-01-01"; }); localStorage.setItem("kf-runs", JSON.stringify(a)); showPage("monkine"); KineMonSuivi.page(); });
+  await expect(page.locator("#monkine-body .krp-p")).toContainText("Ta douleur ce matin");
+  await page.locator("#monkine-body .krp-scale button", { hasText: "1" }).first().click();
+  await expect(page.locator("#monkine-body .krp-p")).toContainText("Palier 4 sur 10");
+  await clean(errs);
+});
