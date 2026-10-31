@@ -35,6 +35,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     questDel: function(pid, k){ delete D.patients[pid].quest[k]; return R(); }
   };
   window.fbPat = {
+    photos: function(pid){ return window.fbCab.photos(pid); },
     notifSave: function(pid, id, sub){ var P0 = D.patients[pid]; P0.notif = P0.notif || {}; P0.notif[id] = { sub: sub }; return R(); },
     notifDel: function(pid, id){ delete (D.patients[pid].notif || {})[id]; return R(); },
     seen: function(pid){ if (D.patients[pid]) D.patients[pid].vu = Date.now() + 1; return R(); },

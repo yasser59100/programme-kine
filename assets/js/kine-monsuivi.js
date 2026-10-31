@@ -261,7 +261,39 @@ var KineMonSuivi = (function () {
           "<button class='krl-row dash' onclick='KineRole.loginForm(\"restore\")'><span class='krl-ic grey'>↺</span><span class='krl-t'><b>J'avais déjà un suivi</b><span>Avec mon identifiant ou Google</span></span></button>" : "") + "</div>";
     }
     el.innerHTML = h;
+    if (s && s.pid && s.d) photos(s.pid);
     if (force) refresh(true);
+  }
+  /* ════════ Photos avant / après : la première et la dernière de chaque mesure, côte à côte ════════ */
+  var PHS = { pid: null, at: 0, list: null };
+  function phLab(x) { var M0 = x.m && KP.M && KP.M[x.m]; return M0 ? M0.l + (x.sd ? (x.sd === "a" ? ", côté opéré ou blessé" : ", autre côté") : "") : (x.cap || "Photo"); }
+  function phVal(x) { var M0 = x.m && KP.M && KP.M[x.m]; return x.v != null ? KP.fmt(x.v) + (M0 && M0.u || "") : ""; }
+  function photos(pid) {
+    var el = $("kmk-photos"); if (!el || !window.fbPat || !fbPat.photos) return;
+    if (PHS.pid === pid && PHS.list && Date.now() - PHS.at < 300000) { el.innerHTML = photosHtml(PHS.list); return; }
+    fbPat.photos(pid).then(function (l) { PHS = { pid: pid, at: Date.now(), list: l || [] }; var e2 = $("kmk-photos"); if (e2) e2.innerHTML = photosHtml(PHS.list); }, function () {});
+  }
+  function photosHtml(l) {
+    if (!l || !l.length) return "";
+    var G = {}, order = [];
+    l.slice().sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }).forEach(function (x) { var k = (x.m || "") + "|" + (x.sd || "") + "|" + (x.m ? "" : x.cap || ""); if (!G[k]) { G[k] = []; order.push(k); } G[k].push(x); });
+    var pairs = order.filter(function (k) { return G[k].length > 1; }), one = order.filter(function (k) { return G[k].length === 1; });
+    function fig(x, t) { return "<figure onclick='KineMonSuivi.phZoom(" + JSON.stringify(x.id) + ")'><img src='" + esc(x.img) + "' alt='' loading='lazy'><figcaption><b>" + t + "</b><span>" + esc(dfr(x.d)) + (phVal(x) ? " · " + esc(phVal(x)) : "") + "</span></figcaption></figure>"; }
+    var h = "<div class='su-card kmk-ph'><div class='su-card-h'><b>Tes photos, avant et après</b><span>prises au cabinet</span></div>";
+    pairs.forEach(function (k) {
+      var a = G[k][0], b = G[k][G[k].length - 1], dv = a.v != null && b.v != null ? b.v - a.v : null, M0 = a.m && KP.M && KP.M[a.m];
+      h += "<div class='kmk-ph-t'>" + esc(phLab(b)) + (dv ? "<em>" + (dv > 0 ? "+" : "−") + KP.fmt(Math.abs(dv)) + (M0 && M0.u || "") + "</em>" : "") + "</div><div class='kmk-ph-pair'>" + fig(a, "Avant") + fig(b, "Maintenant") + "</div>";
+    });
+    if (one.length) h += (pairs.length ? "<div class='kmk-ph-t'>Autres photos</div>" : "") + "<div class='kmk-ph-pair'>" + one.slice(-4).map(function (k) { return fig(G[k][0], esc(phLab(G[k][0]))); }).join("") + "</div>" +
+      (pairs.length ? "" : "<p class='kcb-hint'>Au prochain bilan, la nouvelle photo s'affichera à côté pour voir le chemin parcouru.</p>");
+    return h + "</div>";
+  }
+  function phZoom(id) {
+    var x = (PHS.list || []).filter(function (p) { return p.id === id; })[0]; if (!x) return;
+    var el = $("kmk-phz"); if (!el) { el = document.createElement("div"); el.id = "kmk-phz"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Photo"); document.body.appendChild(el); }
+    el.onclick = function () { el.classList.remove("open"); };
+    el.innerHTML = "<img src='" + esc(x.img) + "' alt=''><div><b>" + esc(phLab(x)) + "</b><span>" + esc(dfr(x.d)) + (phVal(x) ? " · " + esc(phVal(x)) : "") + "</span></div><button class='kf-back' aria-label='Fermer'>×</button>";
+    el.classList.add("open");
   }
   function body(s, prev, inline) {
     var d = s.d, P = KP.get(d.parcours); if (!P) return "<div class='kf-note'>Ton kiné prépare ton parcours.</div>";
@@ -302,6 +334,8 @@ var KineMonSuivi = (function () {
       else { var a0 = f && f !== b ? KP.val(f, t[0], "a") : null; tiles.push([t[1], KP.fmt(a) + t[2], a0 != null && a > a0 ? "+" + KP.fmt(a - a0) + t[2] + " depuis le début" : ""]); }
     });
     if (tiles.length) html += "<div class='kcb-two'>" + tiles.map(function (t) { return "<div class='su-card kms-tile'><span>" + esc(t[0]) + "</span><b>" + esc(t[1]) + "</b><em>" + esc(t[2]) + "</em></div>"; }).join("") + "</div>";
+    // photos avant / après (chargées à part : elles sont lourdes)
+    if (inline && !PREV) html += "<div id='kmk-photos'></div>";
     // étapes
     html += "<div class='kcb-v2h'>Tes étapes</div>";
     var hist = d.hist || [];
@@ -345,5 +379,5 @@ var KineMonSuivi = (function () {
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; page(); }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { phZoom: phZoom, _photosHtml: photosHtml, notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();

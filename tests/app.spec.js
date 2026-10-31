@@ -822,6 +822,10 @@ test("fiches : une fiche par parcours, conseils du kiné, visibles dans Mon kin�
   await page.fill("#kcb-conseil", "Glace 15 minutes après chaque séance. Pas de course avant le prochain bilan.");
   await page.evaluate(() => KineCabinet.saveMsg());
   await expect.poll(() => page.evaluate((pid) => window.__db.patients[pid].doc.conseil || "", pid)).toContain("Glace");
+  // deux photos de flexion prises au cabinet : le patient les verra avant / après
+  await page.evaluate(async (pid) => { function im(c, a) { const cv = document.createElement("canvas"); cv.width = 300; cv.height = 400; const g = cv.getContext("2d"); g.fillStyle = c; g.fillRect(0, 0, 300, 400); g.strokeStyle = "#fff"; g.lineWidth = 18; g.beginPath(); g.moveTo(60, 120); g.lineTo(150, 230); g.lineTo(150 + 120 * Math.cos(a), 230 + 120 * Math.sin(a)); g.stroke(); return cv.toDataURL("image/jpeg", .7); }
+    await fbCab.photo(pid, { b: "b1", d: "2026-09-10", m: "flex", sd: "a", v: 85, img: im("#3B4252", 1.2) });
+    await fbCab.photo(pid, { b: "b2", d: "2026-10-28", m: "flex", sd: "a", v: 125, img: im("#2E5E4E", 2.1) }); }, pid);
   await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
@@ -829,6 +833,14 @@ test("fiches : une fiche par parcours, conseils du kiné, visibles dans Mon kin�
   await expect(page.locator("#kms-sheet .kmk-fiche")).toContainText("conseils de ton kiné");
   await page.evaluate(() => { KineMonSuivi.close(); showPage("monkine"); });
   await expect(page.locator("#monkine-body .kmk-fiche")).toContainText("conseils de ton kiné");
+  await expect(page.locator("#monkine-body .kmk-ph-pair figure")).toHaveCount(2);
+  await expect(page.locator("#monkine-body .kmk-ph-t em")).toHaveText("+40°");
+  await page.locator("#monkine-body .kmk-ph").scrollIntoViewIfNeeded();
+  await shot(page, info, "98-photos-patient");
+  await page.locator("#monkine-body .kmk-ph-pair figure").last().click();
+  await expect(page.locator("#kmk-phz img")).toBeVisible();
+  await page.locator("#kmk-phz").click();
+  await expect(page.locator("#kmk-phz")).toBeHidden();
   await page.waitForTimeout(800);
   await page.evaluate(() => KineMonSuivi.fiche());
   await expect(page.locator("#kms-sheet .kfi-perso")).toContainText("Glace");

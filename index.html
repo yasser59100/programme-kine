@@ -270,6 +270,8 @@ window.fbPat = {
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.quest = cabRows(r[2]);
     return o;
   },
+  // Ses photos de bilan (avant / après), chargées seulement quand l'onglet les affiche
+  photos: async function (pid) { await cabAnon(); return cabRows(await getDocs(query(collection(cabDb, CAB, pid, "photos"), orderBy("d", "desc"), limit(60)))); },
   // Notifications de son kiné : l'adresse technique du téléphone, rangée dans sa fiche
   notifSave: async function (pid, id, sub) { await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "notif", id), { sub: sub, t: serverTimestamp() }); },
   notifDel: async function (pid, id) { await cabAnon(); await deleteDoc(doc(cabDb, CAB, pid, "notif", id)); },
