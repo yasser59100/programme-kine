@@ -3574,3 +3574,4 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kcb-check .kcb-in { border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245, 158, 11, .2); }
 .kcb-gym { text-decoration: none; display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 6px; background: var(--surface2, #EEF0F4); color: var(--text2); font-size: .7rem; font-weight: 700; line-height: 1.55; vertical-align: 1px; }
 .lu-gen { display: block; margin: 10px auto 0; }
+.kcb-ok > svg { flex-shrink: 0; width: 18px; height: 18px; }
