@@ -126,7 +126,7 @@ var KineMonSuivi = (function () {
   // Demandé une fois, juste après le lien avec le kiné
   function askConsent(then) {
     if (consent() != null) { if (then) then(); return; }
-    show(back() + "<div><div class='kf-h1 kcb-h1'>Sauvegarder tes séances ?</div><div class='kf-sub'>Tes séances faites à la maison, tes douleurs signalées et ton ressenti du jour peuvent être enregistrés dans ton suivi.</div></div>" +
+    show(back() + "<div class='kcb-ok kms-linked'>" + ICON_OK + "C'est relié : ton appli est connectée à ton kiné.</div><div><div class='kf-h1 kcb-h1'>Sauvegarder tes séances ?</div><div class='kf-sub'>Tes séances faites à la maison, tes douleurs signalées et ton ressenti du jour peuvent être enregistrés dans ton suivi.</div></div>" +
       "<div class='su-card'><b>Ce que ça change</b><div class='kf-sub'>Ton kiné voit le détail de ce que tu fais chez toi. Et tu retrouves tout si tu changes de téléphone.</div></div>" +
       "<p class='kcb-hint'>Sinon, tout reste uniquement sur ton téléphone et ton kiné ne voit qu'un résumé de la semaine. Tu pourras changer d'avis dans « Mon espace ».</p>",
       "<button class='seq-btn-main' onclick='KineMonSuivi.consent(1)'>Oui, sauvegarder</button><button class='seq-btn-secondary' onclick='KineMonSuivi.consent(0)'>Non, garder sur mon téléphone</button>");
