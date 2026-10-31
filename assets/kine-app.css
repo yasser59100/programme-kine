@@ -3469,3 +3469,5 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
   @page { margin: 16mm; }
 }
 .kss-alt { align-self: flex-start; margin-top: 4px; border: none; background: var(--blue-dim, rgba(75,91,255,.1)); color: var(--lu-ind2, #3341E0); font: 700 .78rem var(--font); padding: 6px 10px; border-radius: 10px; text-align: left; }
+.kmk-notif { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 20px; background: var(--surface); border: 1px dashed var(--lu-ind2, #3341E0); }
+.kmk-notif > div:first-child { display: flex; flex-direction: column; gap: 2px; } .kmk-notif span { font-size: .85rem; color: var(--text3); } .kmk-notif em { font-style: normal; font-size: .82rem; color: #C2410C; }

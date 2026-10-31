@@ -272,6 +272,8 @@ var KineMonSuivi = (function () {
       (P.etapes[E].but ? "<div class='kms-cm'><span>" + esc(P.etapes[E].but) + "</span></div>" : "") + "</div>";
     // Comprendre sa rééducation : la fiche du parcours et les conseils personnalisés du kiné
     if (window.KineReprise && d.course && !PREV) html += KineReprise.patientCard(d);
+    if (!PREV && inline && window.KineNotifs && KineNotifs.supported && KineNotifs.supported() && !KineNotifs.kineState(s.pid) && !jget("kf-cab-notif-non", false))
+      html += "<div class='kmk-notif'><div><b>Être prévenu par ton kiné</b><span>Une notification quand il t'envoie une séance, un questionnaire ou débloque une étape.</span><em id='kmk-nmsg'></em></div><div class='kcb-two'><button class='seq-btn-secondary' onclick='KineMonSuivi.notifNo()'>Non merci</button><button class='seq-btn-main' onclick='KineMonSuivi.notifOn()'>Activer</button></div></div>";
     if (window.KineFiches && (KineFiches.get(d.parcours) || d.conseil)) html += "<button class='kmk-fiche' onclick='KineMonSuivi.fiche()'><i aria-hidden='true'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z'/><path d='M8 7h6M8 11h6'/></svg></i><span><b>Comprendre ma rééducation</b><em>" + (d.conseil ? "Avec les conseils de ton kiné" : "Ce qui est normal, ce qui aide, quand appeler") + "</em></span><u>›</u></button>";
     if (m) {
       var pct = m.lsi ? Math.min(100, m.v) : null;
@@ -323,10 +325,16 @@ var KineMonSuivi = (function () {
   }
   function unlink() {
     if (!confirm("Délier ce téléphone de ta fiche au cabinet ? Ton kiné devra te donner un nouveau code pour la relier.")) return;
+    if (window.KineNotifs && KineNotifs.kineOff) KineNotifs.kineOff();
     jset(KEY, null); try { localStorage.removeItem(KEY); localStorage.removeItem(PUSHKEY); localStorage.removeItem(JH); } catch (e) {}
     jset("kf-custom", jget("kf-custom", []).filter(function (x) { return x.id !== "kine"; }));
     close(); slot();
   }
+  function notifOn() {
+    var s0 = state(); if (!s0 || !s0.pid) return;
+    KineNotifs.kineOn(s0.pid).then(function (err) { if (err) { var m = $("kmk-nmsg"); if (m) m.textContent = err; } else { if (window.showToast) showToast("C'est activé : ton kiné pourra te prévenir"); page(); } });
+  }
+  function notifNo() { jset("kf-cab-notif-non", true); page(); }
   function fiche() {
     var s0 = PREV ? { d: PREV } : state(), d = s0 && s0.d; if (!d || !window.KineFiches) return;
     var f = KineFiches.get(d.parcours);
@@ -337,5 +345,5 @@ var KineMonSuivi = (function () {
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; page(); }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();

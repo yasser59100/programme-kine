@@ -78,5 +78,33 @@ if (fresh.length) {
   for (const x of fresh) await x.ref.update({ notifie: true });
   console.log(`Demandes : ${n} nouvelle(s), notification envoyée à ${ok} appareil(s) du kiné.`);
 }
+// Notifications envoyées par le kiné à son patient : séance, questionnaire, test, étape, reprise de course,
+// et séances ou questionnaires programmés le jour venu. Le message ne contient aucune donnée de santé.
+const MSG = {
+  seance: ["Nouvelle séance de ton kiné", "Ton kiné t'a préparé une nouvelle séance. Elle t'attend dans l'appli."],
+  quest: ["Un questionnaire de ton kiné", "Ton kiné t'a envoyé un questionnaire : quelques secondes pour y répondre."],
+  test: ["Un test de ton kiné", "Ton kiné t'a envoyé un test à faire avec ton téléphone."],
+  etape: ["Nouvelle étape débloquée", "Ton kiné a débloqué l'étape suivante de ta rééducation. Bravo !"],
+  course: ["Ta reprise de la course", "Ton kiné t'a préparé une reprise de la course, palier par palier."]
+};
+const today = local("Europe/Paris").date;
+let pn = 0;
+const pats = await db.collection("patients").get();
+for (const p of pats.docs) {
+  const d = p.data(), upd = {}, kinds = [];
+  if (d.ping && d.ping.at && d.ping.at > (d.notifAt || 0)) { kinds.push(d.ping.k); upd.notifAt = d.ping.at; }
+  if (d.exosNext && d.exosFrom && d.exosFrom <= today && d.exosNotif !== d.exosFrom) { kinds.push("seance"); upd.exosNotif = d.exosFrom; }
+  const qs = await p.ref.collection("quest").where("des", "==", today).get();
+  for (const q of qs.docs) if (!q.data().desN && !q.data().fini) { kinds.push(q.data().q === "saut" ? "test" : "quest"); await q.ref.update({ desN: true }); }
+  if (!kinds.length) continue;
+  await p.ref.set(upd, { merge: true });
+  const k = kinds[kinds.length - 1], m = MSG[k] || MSG.seance;
+  const subs = await p.ref.collection("notif").get();
+  for (const s of subs.docs) {
+    try { await webpush.sendNotification(s.data().sub, JSON.stringify({ title: m[0], body: m[1], url: "./?ouvrir=monkine", tag: "kf-kine" }), { TTL: 24 * 3600 }); pn++; }
+    catch (e) { if (e.statusCode === 404 || e.statusCode === 410) await s.ref.delete(); }
+  }
+}
+console.log(`Notifications aux patients envoyées : ${pn}`);
 console.log(`Abonnés : ${snap.size} · envoyées : ${sent} · déjà faites ou pas encore l'heure : ${skip} · abonnements périmés retirés : ${gone}`);
 process.exit(0);

@@ -80,7 +80,7 @@ var KineReprise = (function () {
   function send() {
     var t = $("krp-c"); CFG.c = t ? t.value.trim().slice(0, 300) : CFG.c; CFG.env = iso();
     var C = KineCabinet._C(), data = { course: CFG };
-    fbCab.save(C.id, data).then(function () { C.course = CFG; $("krp-ed").classList.remove("open"); KineCabinet._re(); KineCabinet._say("Reprise de course envoyée au patient"); }, function () { KineCabinet._say("Connexion impossible : réessaie."); });
+    fbCab.save(C.id, data).then(function () { C.course = CFG; KineCabinet._ping("course"); $("krp-ed").classList.remove("open"); KineCabinet._re(); KineCabinet._say("Reprise de course envoyée au patient"); }, function () { KineCabinet._say("Connexion impossible : réessaie."); });
   }
   function stop() {
     if (!confirm("Arrêter la reprise de course ? Le patient ne la verra plus.")) return;

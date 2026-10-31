@@ -27,10 +27,13 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     photo: function(pid, d){ var k = id(); var P0 = D.patients[pid]; P0.photos = P0.photos || {}; P0.photos[k] = JSON.parse(JSON.stringify(d)); return R(k); },
     photos: function(pid){ var P0 = D.patients[pid].photos || {}; return R(Object.keys(P0).map(function(k){ var x = JSON.parse(JSON.stringify(P0[k])); x.id = k; return x; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; })); },
     photoDel: function(pid, k){ delete (D.patients[pid].photos || {})[k]; return R(); },
+    ping: function(pid, k){ D.patients[pid].doc.ping = { k: k, at: Date.now() }; return R(); },
     teeAll: function(t){ Object.keys(D.patients).forEach(function(k){ D.patients[k].doc.tee = t; }); return R(); },
     questDel: function(pid, k){ delete D.patients[pid].quest[k]; return R(); }
   };
   window.fbPat = {
+    notifSave: function(pid, id, sub){ var P0 = D.patients[pid]; P0.notif = P0.notif || {}; P0.notif[id] = { sub: sub }; return R(); },
+    notifDel: function(pid, id){ delete (D.patients[pid].notif || {})[id]; return R(); },
     seen: function(pid){ if (D.patients[pid]) D.patients[pid].vu = Date.now() + 1; return R(); },
     join: function(c){ var pid = D.codes[c]; if(!pid) return Promise.reject(new Error("code")); D.patients[pid].membres = 1; delete D.codes[c]; return R(pid); },
     get: function(pid){ var o = full(pid); if (o) { delete o.notes; } return R(o); },

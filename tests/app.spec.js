@@ -269,6 +269,8 @@ test("questionnaires : envoi depuis le bilan, réponse du patient, retour dans l
   await page.evaluate(() => { KineMonSuivi.close(); showPage("monkine"); });
   await expect(page.locator("#monkine-body .kq-pcard")).toBeVisible();
   await expect(page.locator("#monkine-body .kmk-step")).toBeVisible();
+  // le kiné a été prévenu de l'envoi : un signal attend l'envoi automatique de la notification
+  expect(await page.evaluate(() => Object.values(window.__db.patients)[0].doc.ping.k)).toBe("quest");
   expect(await page.evaluate(() => Object.values(window.__db.patients)[0].vu > 0)).toBe(true);
   await page.waitForTimeout(900);
   await shot(page, info, "53-mon-kine-relie");

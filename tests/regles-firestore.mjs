@@ -80,6 +80,10 @@ await t("pas de deuxième réponse au même envoi", assertFails(setDoc(doc(patie
 await t("le kiné lit la réponse", assertSucceeds(getDoc(doc(kine, "patients/p1/quest/q1"))));
 await t("le kiné garde une photo de bilan", assertSucceeds(setDoc(doc(kine, "patients/p1/photos/f1"), { b: "b1", d: "2026-10-29", m: "flex", v: 115, img: "data:image/jpeg;base64,AAAA" })));
 await t("le patient ne voit pas les photos", assertFails(getDocs(collection(patient, "patients/p1/photos"))));
+await t("le patient s'abonne aux notifications de son kiné", assertSucceeds(setDoc(doc(patient, "patients/p1/notif/n1"), { sub: { endpoint: "https://push.example/abc", keys: {} }, t: serverTimestamp() })));
+await t("abonnement d'un autre téléphone refusé", assertFails(setDoc(doc(intrus, "patients/p1/notif/n2"), { sub: { endpoint: "https://push.example/x", keys: {} }, t: serverTimestamp() })));
+await t("le patient ne lit pas les abonnements", assertFails(getDocs(collection(patient, "patients/p1/notif"))));
+await t("abonnement mal formé refusé", assertFails(setDoc(doc(patient, "patients/p1/notif/n3"), { sub: { endpoint: "http://x" }, t: serverTimestamp() })));
 await t("le patient note qu'il a reçu sa fiche", assertSucceeds(setDoc(doc(patient, "patients/p1/membres/anonP"), { vu: serverTimestamp() }, { merge: true })));
 await t("accusé avec une date inventée refusé", assertFails(setDoc(doc(patient, "patients/p1/membres/anonP"), { vu: Timestamp.fromMillis(1) }, { merge: true })));
 await t("accusé qui change le code refusé", assertFails(setDoc(doc(patient, "patients/p1/membres/anonP"), { vu: serverTimestamp(), code: "X" }, { merge: true })));

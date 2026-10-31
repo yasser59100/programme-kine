@@ -229,9 +229,11 @@ window.fbCab = {
   photo: async function (pid, data) { cabNeedKine(); data.t = serverTimestamp(); var r = await addDoc(collection(db, CAB, pid, "photos"), data); return r.id; },
   photos: async function (pid) { cabNeedKine(); return cabRows(await getDocs(query(collection(db, CAB, pid, "photos"), orderBy("d", "desc"), limit(60)))); },
   photoDel: async function (pid, id) { cabNeedKine(); await deleteDoc(doc(db, CAB, pid, "photos", id)); },
+  // Signal pour la notification au patient (traité par l'envoi automatique, toutes les 15 minutes)
+  ping: async function (pid, k) { cabNeedKine(); await setDoc(cabRef(pid), { ping: { k: k, at: Date.now() } }, { merge: true }); },
   remove: async function (pid) {
     cabNeedKine();
-    for (const sub of ["bilans", "seances", "maison", "membres", "notes", "journal", "quest", "photos"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
+    for (const sub of ["bilans", "seances", "maison", "membres", "notes", "journal", "quest", "photos", "notif"]) { var s = await getDocs(collection(db, CAB, pid, sub)); for (const d of s.docs) await deleteDoc(d.ref); }
     var p = await getDoc(cabRef(pid)); if (p.exists() && p.data().code) { try { await deleteDoc(doc(db, "codes", p.data().code)); } catch (e) {} }
     await deleteDoc(cabRef(pid));
   }
@@ -260,6 +262,9 @@ window.fbPat = {
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.quest = cabRows(r[2]);
     return o;
   },
+  // Notifications de son kiné : l'adresse technique du téléphone, rangée dans sa fiche
+  notifSave: async function (pid, id, sub) { await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "notif", id), { sub: sub, t: serverTimestamp() }); },
+  notifDel: async function (pid, id) { await cabAnon(); await deleteDoc(doc(cabDb, CAB, pid, "notif", id)); },
   // Accusé de réception : le téléphone du patient note qu'il a reçu sa fiche à jour
   seen: async function (pid) { var u = await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "membres", u.uid), { vu: serverTimestamp() }, { merge: true }); },
   // Demande d'accès sans code : prénom, nom, un mot facultatif

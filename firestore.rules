@@ -176,6 +176,15 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.exp > request.time
           && request.resource.data.t == request.time;
       }
+      // Notifications de son kiné : l'adresse technique du téléphone du patient (lue seulement par l'envoi automatique)
+      match /notif/{id} {
+        allow read, write: if isAdmin();
+        allow create, update: if isMember(pid) && id.size() <= 80
+          && request.resource.data.keys().hasOnly(['sub', 't'])
+          && request.resource.data.sub.endpoint is string && request.resource.data.sub.endpoint.matches('https://.*')
+          && request.resource.data.t == request.time;
+        allow delete: if isMember(pid);
+      }
       // Accusé de réception : le téléphone du patient note seulement l'heure à laquelle il a reçu sa fiche
       match /membres/{uid} {
         allow update: if request.auth != null && request.auth.uid == uid

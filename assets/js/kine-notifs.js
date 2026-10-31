@@ -108,6 +108,7 @@
     if (!what) return;
     // Nouvelle demande d'accès (notification du kiné) : on ouvre l'onglet Demandes dès que le compte kiné est prêt
     if (what === "demandes") { var n = 0, t = setInterval(function () { if (window.KineCabinet && window.fbUser && fbUser.isAdmin && window.fbCab) { clearInterval(t); KineCabinet.demandes(); } else if (++n > 40) clearInterval(t); }, 250); return; }
+    if (what === "monkine") { if (typeof showPage === "function") { try { showPage("monkine"); } catch (e) {} } return; }
     if (typeof showPage === "function") { try { showPage("home"); } catch (e) {} }
     setTimeout(function () {
       if (what === "savoir" && window.KineSavoir) KineSavoir.open(KineSavoir.today ? KineSavoir.today() : 0);
@@ -122,7 +123,26 @@
   }
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", function (e) { if (e.data && e.data.kfOuvrir) show(e.data.kfOuvrir); });
 
-  window.KineNotifs = { open: open, close: close, available: available, label: label, enable: enable, disable: disable };
+  /* Prévenir le patient quand son kiné lui envoie quelque chose : abonnement rangé dans sa fiche (adresse technique seulement) */
+  var KK = "kf-cab-notif";
+  async function kineOn(pid) {
+    if (!supported()) return "Ton téléphone ne permet pas les notifications depuis cette appli.";
+    if (ios() && !standalone()) return "Sur iPhone, ajoute d'abord KinéForce à l'écran d'accueil (Partager, puis « Sur l'écran d'accueil »), puis ouvre l'appli depuis cette icône.";
+    if (!key()) await loadKey();
+    if (!key()) return "Connexion impossible pour l'instant. Réessaie dans un moment.";
+    var perm = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+    if (perm !== "granted") return "Les notifications sont bloquées. Autorise-les dans les réglages du téléphone, puis réessaie.";
+    try {
+      var reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(key()) });
+      var j = sub.toJSON(), id = await hash(j.endpoint);
+      await fbPat.notifSave(pid, id, { endpoint: j.endpoint, keys: { p256dh: j.keys.p256dh, auth: j.keys.auth } });
+      jset(KK, { pid: pid, id: id }); return "";
+    } catch (e) { return "L'activation n'a pas marché. Vérifie ta connexion et réessaie."; }
+  }
+  async function kineOff() { var s = jget(KK, null); jset(KK, null); if (s && window.fbPat && fbPat.notifDel) { try { await fbPat.notifDel(s.pid, s.id); } catch (e) {} } }
+  function kineState(pid) { var s = jget(KK, null); return !!(s && s.pid === pid); }
+  window.KineNotifs = { open: open, close: close, available: available, label: label, enable: enable, disable: disable, supported: supported, kineOn: kineOn, kineOff: kineOff, kineState: kineState };
   window.addEventListener("kf-fb-ready", loadKey);
   function init() { fromUrl(); loadKey(); }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();

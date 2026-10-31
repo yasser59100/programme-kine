@@ -504,7 +504,7 @@ var KineCabinet = (function () {
     if (dir > 0 && !confirm("Débloquer l'étape " + (n + 1) + " : " + P.etapes[n].nom + " ? Le patient le verra sur son téléphone.")) return;
     var hist = (C.hist || []).concat([{ e: n, d: iso() }]);
     C.etape = n; C.hist = hist; sel = null;
-    fbCab.save(C.id, { etape: n, hist: hist }).then(reView, fail);
+    fbCab.save(C.id, { etape: n, hist: hist }).then(function () { if (dir > 0) ping("etape"); reView(); }, fail);
   }
   function pick(n) { if (!sel) sel = (C.exos || []).slice(); var i = sel.indexOf(n); if (i >= 0) sel.splice(i, 1); else if (sel.length < 10) sel.push(n); else { say("10 exercices au maximum."); return; } var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
   var exEdit = false;
@@ -527,8 +527,10 @@ var KineCabinet = (function () {
     var y = sheet().scrollTop, later = WHEN && WHEN > iso();
     var data = later ? { exosNext: sel.slice(), exosFrom: WHEN, exosAtN: Date.parse(WHEN + "T00:00:00") } : { exos: sel.slice(), exosD: iso(), exosAt: Date.now(), exosNext: null, exosFrom: null };
     fbCab.save(C.id, data).then(function () { Object.keys(data).forEach(function (k) { C[k] = data[k]; }); exEdit = false; sel = null; WHEN = null; reView(); sheet().scrollTop = y;
-      say(later ? "Séance programmée : le patient la recevra le " + dfr(data.exosFrom) : "Séance envoyée au patient."); }, fail);
+      say(later ? "Séance programmée : le patient la recevra le " + dfr(data.exosFrom) : "Séance envoyée au patient."); if (!later) ping("seance"); }, fail);
   }
+  // Prévient le téléphone du patient (s'il a activé les notifications de son kiné)
+  function ping(k) { if (C && fbCab.ping) fbCab.ping(C.id, k).catch(function () {}); }
   function exUnplan() { fbCab.save(C.id, { exosNext: null, exosFrom: null }).then(function () { C.exosNext = null; C.exosFrom = null; reView(); }, fail); }
   // Modifier la séance envoyée (cases déjà cochées) ou en préparer une nouvelle (cases vides)
   function exEditGo(keep) { exEdit = true; sel = keep ? (C.exos || []).slice() : []; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
@@ -756,7 +758,7 @@ var KineCabinet = (function () {
     var P = KP.get(C.parcours), inBilan = !!sheet().querySelector("#kcb-bd");
     var des = WHEN && WHEN > iso() ? WHEN : null; WHEN = null;
     fbCab.questSend(C.id, { q: id, env: iso(), des: des, cote: C.cote || "D", zone: P.zone === "rachis" && /cervic|nevralgie/.test(C.parcours) ? "cou" : P.zone }).then(function () {
-      say(des ? "Programmé : le patient le recevra le " + dfr(des) : C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié.");
+      say(des ? "Programmé : le patient le recevra le " + dfr(des) : C.membres ? "Envoyé : il le verra dans son suivi." : "Envoyé : il le verra dès que son téléphone sera relié."); if (!des) ping(id === "saut" ? "test" : "quest");
       return fbCab.get(C.id).then(function (p) { C = p; if (qOpen()) qOv(); else if (inBilan) bilan(); else reView(); });
     }, fail);
   }
@@ -1291,6 +1293,6 @@ var KineCabinet = (function () {
     seance: seance, sswap: sswap, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
     incl: incl, saut: saut, inclPhone: inclPhone, photo: photo, photoHyper: photoHyper, photoUse: photoUse, photoClose: photoClose, _photoTest: function (src, m, sd) { PH = { m: m || "flex", sd: sd || "a", hyper: false, src: src }; photoLoad(); }, inclTake: inclTake, inclUse: inclUse, inclClose: inclClose,
     guide: guide, gMode: gModeSet, gqNext: gqNext, gqBack: gqBack, gqGo: gqGo, gqZone: gqZone, gqA: gqA, gqC: gqC, gqT: gqT, gA: gA, gQ: gQ, gReset: gReset, gZ: gZ, gN: gN, tee: tee, teeSave: teeSave, qSend: qSend, qCancel: qCancel, qView: qView, gUse: gUse, gGo: gGo, testInfo: testInfo,
-    _curve: curve, _bars: bars2, _C: function () { return C; }, _ov: ov, _re: function () { reView(); }, _say: say
+    _ping: ping, _curve: curve, _bars: bars2, _C: function () { return C; }, _ov: ov, _re: function () { reView(); }, _say: say
   };
 })();
