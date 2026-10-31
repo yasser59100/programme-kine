@@ -819,7 +819,8 @@
     setInterval(peekTick, 700);
     var base = window.showPage;
     if (typeof base === "function" && !base.__masc) {
-      window.showPage = function () { var r = base.apply(this, arguments); if (mode !== "bouge" && mode !== "tour") hide(); setTimeout(maybe, 1200); return r; };
+      // changer d'onglet ferme la bulle ; une visite guidée en cours s'arrête (sinon son cadre resterait sur un autre écran)
+      window.showPage = function () { var r = base.apply(this, arguments); if (mode === "tour") tour(99); else if (mode !== "bouge") hide(); setTimeout(maybe, 1200); return r; };
       window.showPage.__masc = true;
     }
     // Une séance qui démarre referme la bulle de Yass (elle ne reste pas par-dessus la séance)
