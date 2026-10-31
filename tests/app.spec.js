@@ -631,6 +631,20 @@ test("fiche : raccourcis, étapes expliquées, bilan par familles et photos gard
   await expect(page.locator("#kcb-sheet #kcb-phg figure")).toHaveCount(1, { timeout: 20000 });
   await page.waitForTimeout(500);
   await shot(page, info, "63-bilans-photos");
+  // compte rendu pour le médecin
+  await page.evaluate(() => KineCabinet.cr());
+  await page.fill("#kcr-dest", "Dr Martin");
+  await page.fill("#kcr-concl", "Évolution favorable. Poursuite de la rééducation, réévaluation dans 4 semaines.");
+  await page.fill("#kcr-sn", "Yasser Ladraa");
+  await page.locator("#kcb-cr .seq-btn-main").click();
+  await expect(page.locator("#kcb-print .kcr table tbody tr")).toHaveCount(2);
+  await expect(page.locator("#kcb-print .kcr")).toContainText("Dr Martin");
+  await page.waitForTimeout(300);
+  await shot(page, info, "64-compte-rendu");
+  await page.emulateMedia({ media: "print" });
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector(".bottom-nav")).display)).toBe("none");
+  await page.emulateMedia({ media: "screen" });
+  await page.evaluate(() => KineCabinet.crClose());
   expect(await page.evaluate((pid) => Object.keys(window.__db.patients[pid].photos || {}).length, pid)).toBe(1);
   await clean(errs);
 });

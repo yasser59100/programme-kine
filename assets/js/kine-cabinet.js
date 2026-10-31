@@ -438,7 +438,7 @@ var KineCabinet = (function () {
       "<div class='su-card'><div class='su-card-h'><b>Historique</b><span>" + B.length + "</span></div>" +
       (B.length ? B.slice(0, 20).map(function (b) { return "<button class='kcb-brow' onclick='KineCabinet.bilan(" + q(b.id) + ")'><b>" + dfr(b.d) + "</b><span>" + esc(summary(b, P)) + (b.ph ? " · " + b.ph + " photo" + (b.ph > 1 ? "s" : "") : "") + "</span><em>›</em></button>"; }).join("") : "<div class='kf-sub'>Aucun bilan pour l'instant.</div>") + "</div>" +
       "<div id='kcb-phg'></div>";
-    sub = "bilans"; show(html, "<button class='seq-btn-main' onclick='KineCabinet.bilan()'>" + ICON.plus + " Nouveau bilan</button>");
+    sub = "bilans"; show(html, "<button class='seq-btn-main' onclick='KineCabinet.bilan()'>" + ICON.plus + " Nouveau bilan</button>" + (B.length ? "<button class='seq-btn-secondary' onclick='KineCabinet.cr()'>Compte rendu pour le médecin</button>" : ""));
     photosGallery($("kcb-phg"), null);
   }
   /* Journal des séances faites à la maison (si le patient a accepté de le sauvegarder) */
@@ -539,6 +539,59 @@ var KineCabinet = (function () {
     if (at && C.vu && C.vu >= at) { var d = new Date(C.vu); return "<div class='kcb-recu ok'>" + ICON.ok + "Reçue sur son téléphone le " + dfr(iso(d)) + " à " + d.getHours() + "h" + ("0" + d.getMinutes()).slice(-2) + "</div>"; }
     return "<div class='kcb-recu'>Pas encore reçue : elle arrivera à sa prochaine ouverture de l'appli.</div>";
   }
+  /* ════════ Compte rendu de bilan pour le médecin : une page à imprimer ou enregistrer en PDF ════════ */
+  function signGet() { try { return JSON.parse(localStorage.getItem("kf-sign") || "null") || {}; } catch (e) { return {}; } }
+  function cr(bid) {
+    var P = KP.get(C.parcours), B = C.bilans || [], b = bid ? B.filter(function (x) { return x.id === bid; })[0] : B[0];
+    if (!b) { say("Fais d'abord un bilan."); return; }
+    var sg = signGet(), tee = window.KineAvatar && KineAvatar.shirt && KineAvatar.shirt();
+    var el = ov("kcb-cr"); el.setAttribute("aria-label", "Compte rendu de bilan");
+    el.innerHTML = "<div class='kcb-incl-card kcb-qcard'><div class='kcb-mh'><span>Compte rendu pour le médecin</span><button class='kf-back' onclick='document.getElementById(\"kcb-cr\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" +
+      "<div class='kf-sub'>Bilan du " + esc(dfr(b.d)) + ". Le compte rendu reprend les mesures, leur évolution, l'étape du parcours et tes conclusions. Le nom du patient n'y figure pas : ajoute-le à la main ou dans le champ ci-dessous.</div>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Patient (nom complet, facultatif)</span><input class='kcb-in' id='kcr-pat' maxlength='60' value='" + esc(C.alias || "") + "'></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Destinataire</span><input class='kcb-in' id='kcr-dest' maxlength='80' placeholder='Dr …' value='" + esc(C.medecin || "") + "'></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Conclusion et proposition</span><textarea class='kcb-in kcb-ta' id='kcr-concl' maxlength='1200' rows='4' placeholder='Évolution favorable. Je propose de poursuivre la rééducation (…) et de réévaluer dans 4 semaines.'></textarea></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Ta signature (gardée sur ce téléphone)</span><input class='kcb-in' id='kcr-sn' maxlength='60' placeholder='Prénom Nom' value='" + esc(sg.n || (tee ? tee.join(" ").trim() : "")) + "'></label>" +
+      "<input class='kcb-in' id='kcr-sp' maxlength='80' placeholder='Masseur-kinésithérapeute, adresse du cabinet' value='" + esc(sg.p || "Masseur-kinésithérapeute") + "'>" +
+      "<input class='kcb-in' id='kcr-sr' maxlength='40' placeholder='N° RPPS (facultatif)' value='" + esc(sg.r || "") + "'>" +
+      "<button class='seq-btn-main' onclick='KineCabinet.crGo(" + q(b.id) + ")'>Voir et imprimer (ou enregistrer en PDF)</button></div>";
+    el.classList.add("open");
+  }
+  function crGo(bid) {
+    var v = function (id) { return ($(id).value || "").trim(); };
+    var sg = { n: v("kcr-sn"), p: v("kcr-sp"), r: v("kcr-sr") }; try { localStorage.setItem("kf-sign", JSON.stringify(sg)); } catch (e) {}
+    var dest = v("kcr-dest"); if (dest !== (C.medecin || "")) { C.medecin = dest; fbCab.save(C.id, { medecin: dest || null }).catch(function () {}); }
+    var P = KP.get(C.parcours), B = C.bilans || [], b = B.filter(function (x) { return x.id === bid; })[0], i0 = B.indexOf(b), prev = B[i0 + 1] || null, first = B[B.length - 1];
+    var E = Math.min(C.etape || 0, P.etapes.length - 1), side = C.cote === "G" ? "gauche" : C.cote === "D" ? "droit" : C.cote === "2" ? "bilatéral" : "";
+    var dd = KP.days(C.date0), when = dd == null ? "" : (P.op ? "J+" + dd + " après l'intervention" : "semaine " + (Math.floor(dd / 7) + 1) + " de rééducation");
+    var fv = function (m, x, sd) { var d = KP.M[m]; if (d.ch) return x && x.m[m] && x.m[m].a != null ? d.ch[x.m[m].a] : "–"; var y = x ? KP.val(x, m, sd) : null; return y == null ? "–" : KP.fmt(y) + (d.u ? (d.u === "°" ? "°" : " " + d.u) : ""); };
+    var rows = Object.keys(b.m).filter(function (m) { return KP.M[m]; }).map(function (m) {
+      var d = KP.M[m], l = d.s && m !== "ext" ? KP.lsi(b, m) : null, lp = prev && d.s && m !== "ext" ? KP.lsi(prev, m) : null;
+      return "<tr><td>" + esc(d.l) + "</td><td>" + esc(fv(m, b, "a")) + "</td><td>" + (d.s ? esc(fv(m, b, "s")) : "") + "</td><td>" + (l != null ? l + " %" : "") + "</td><td>" + (prev && prev.m[m] ? esc(lp != null ? lp + " %" : fv(m, prev, "a")) : "") + "</td></tr>";
+    }).join("");
+    var ctx0 = ctx(), objs = P.etapes[E].obj.map(function (o) { var s = objState(o); return "<li class='" + (s.done ? "ok" : "") + "'>" + (s.done ? "Atteint : " : "À atteindre : ") + esc(o.t) + "</li>"; }).join("");
+    var Q = (C.quest || []).filter(function (x) { return x.fini; }).sort(function (a, c) { return a.fini < c.fini ? 1 : -1; }), qs = {};
+    Q.forEach(function (x) { if (!qs[x.q] && window.KineQuest && KineQuest.Q[x.q]) qs[x.q] = KineQuest.Q[x.q].nom + " : " + KineQuest.fmt(x.q, x.score) + " (" + dfr(x.fini) + ")"; });
+    var S = (C.seances || []).slice(0, 3), dou = S.filter(function (x) { return x.dou != null; }).map(function (x) { return +x.dou; });
+    var w = (C.maison || []).slice(0, 4), nm = w.reduce(function (t, x) { return t + (x.n || 0); }, 0);
+    var concl = v("kcr-concl"), pat = v("kcr-pat");
+    var html = "<div class='kcr'><header><div><b>Compte rendu de bilan kinésithérapique</b><span>" + esc(dfr(b.d)) + "</span></div>" + (dest ? "<div class='kcr-to'>À l'attention de " + esc(dest) + "</div>" : "") + "</header>" +
+      "<section><h3>Patient</h3><p>" + (pat ? "<b>" + esc(pat) + "</b>. " : "") + esc(P.long) + (side ? ", côté " + side : "") + (when ? ", " + esc(when) : "") + ". " +
+        "Début de la prise en charge : " + esc(C.date0 ? dfr(C.date0) : "–") + ". Bilans réalisés : " + B.length + (first && first !== b ? " (premier le " + esc(dfr(first.d)) + ")" : "") + ".</p></section>" +
+      "<section><h3>Mesures du bilan</h3><table><thead><tr><th>Mesure</th><th>Côté atteint</th><th>Côté sain</th><th>Symétrie</th><th>Bilan précédent" + (prev ? " (" + esc(dfr(prev.d)) + ")" : "") + "</th></tr></thead><tbody>" + rows + "</tbody></table></section>" +
+      (Object.keys(qs).length ? "<section><h3>Questionnaires remplis par le patient</h3><ul>" + Object.keys(qs).map(function (k) { return "<li>" + esc(qs[k]) + "</li>"; }).join("") + "</ul></section>" : "") +
+      "<section><h3>Progression</h3><p>Étape " + (E + 1) + " sur " + P.etapes.length + " : <b>" + esc(P.etapes[E].nom) + "</b>. " + esc(P.etapes[E].but) + "</p><ul class='kcr-obj'>" + objs + "</ul>" +
+        "<p>" + (S.length ? "Séances au cabinet : " + (C.seances || []).length + (dou.length ? ", douleur moyenne aux " + dou.length + " dernières : " + KP.fmt(dou.reduce(function (a, c) { return a + c; }, 0) / dou.length) + "/10" : "") + ". " : "") +
+        (w.length ? "Exercices à domicile : " + nm + " séance" + (nm > 1 ? "s" : "") + " sur les " + w.length + " dernières semaines." : "") + "</p></section>" +
+      (concl ? "<section><h3>Conclusion</h3><p>" + esc(concl).replace(/\n/g, "<br>") + "</p></section>" : "") +
+      "<footer><div><b>" + esc(sg.n || "") + "</b><span>" + esc(sg.p || "") + "</span>" + (sg.r ? "<span>RPPS " + esc(sg.r) + "</span>" : "") + "</div><div class='kcr-sig'>Signature</div></footer>" +
+      "<p class='kcr-src'>Seuils de progression issus des recommandations du parcours (" + esc(P.src.slice(0, 2).map(function (s) { return String(KP.SRC[s] || "").split(".")[0]; }).join(" ; ")) + "). Document établi avec KinéForce.</p></div>";
+    var pr = $("kcb-print"); if (!pr) { pr = document.createElement("div"); pr.id = "kcb-print"; document.body.appendChild(pr); }
+    pr.innerHTML = "<div class='kcr-bar'><button class='seq-btn-secondary' onclick='KineCabinet.crClose()'>Fermer</button><button class='seq-btn-main' onclick='window.print()'>Imprimer ou enregistrer en PDF</button></div>" + html;
+    document.documentElement.classList.add("kf-printing"); pr.scrollTop = 0;
+    $("kcb-cr").classList.remove("open");
+  }
+  function crClose() { document.documentElement.classList.remove("kf-printing"); var pr = $("kcb-print"); if (pr) pr.innerHTML = ""; }
   // La fiche « Comprendre ma rééducation » telle que la voit le patient
   function ficheP() {
     var el = ov("kcb-fip"); el.setAttribute("aria-label", "Fiche du patient"); el.onclick = function (e) { if (e.target === el) el.classList.remove("open"); };
@@ -593,7 +646,7 @@ var KineCabinet = (function () {
     });
     html += "</div><div class='su-card kcb-phcard'><div class='su-card-h'><b>Photos du bilan</b><span>gardées dans la fiche</span></div><div id='kcb-phb'></div><div id='kcb-php'></div>" +
       "<button class='seq-btn-secondary' onclick='KineCabinet.phAdd()'>Ajouter une photo (cicatrice, œdème, posture…)</button><p class='kcb-hint'>Les angles mesurés sur photo y sont ajoutés tout seuls, avec les repères dessinés. Le patient ne les voit pas.</p></div>";
-    show(html, "<button class='seq-btn-main' onclick='KineCabinet.bCheck()'>Vérifier et enregistrer</button>" + (bilanEdit ? "<button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.delBilan()'>Supprimer ce bilan</button>" : ""));
+    show(html, "<button class='seq-btn-main' onclick='KineCabinet.bCheck()'>Vérifier et enregistrer</button>" + (bilanEdit ? "<button class='seq-btn-secondary' onclick='KineCabinet.cr(" + q(bilanEdit.id) + ")'>Compte rendu pour le médecin</button><button class='seq-btn-secondary kcb-danger' onclick='KineCabinet.delBilan()'>Supprimer ce bilan</button>" : ""));
     bFilter(first, "");
     live();
     if (bilanEdit) photosGallery($("kcb-phb"), bilanEdit.id);
@@ -1212,7 +1265,7 @@ var KineCabinet = (function () {
   }
 
   // En mode kiné, l'espace kiné ne se ferme pas (seulement à la déconnexion : close(true))
-  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo", "kcb-fip"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
+  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo", "kcb-fip", "kcb-cr"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
   // Aperçu de ce que voit le patient (sans les notes du kiné)
   function asPatient() {
     var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, conseil: C.conseil, next: C.next, ref: C.ref, hist: C.hist,
@@ -1222,7 +1275,7 @@ var KineCabinet = (function () {
 
   return {
     open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    when: whenSet, exUnplan: exUnplan, ficheP: ficheP, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    when: whenSet, exUnplan: exUnplan, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
