@@ -160,7 +160,11 @@ window.fbCab = {
   list: async function () {
     cabNeedKine();
     var rows = cabRows(await getDocs(collection(db, CAB)));
-    await Promise.all(rows.map(async function (p) { try { p.maison = cabRows(await getDocs(query(collection(db, CAB, p.id, "maison"), orderBy("w", "desc"), limit(2)))); } catch (e) { p.maison = []; } }));
+    await Promise.all(rows.map(async function (p) {
+      try { p.maison = cabRows(await getDocs(query(collection(db, CAB, p.id, "maison"), orderBy("w", "desc"), limit(2)))); } catch (e) { p.maison = []; }
+      // réponses aux questionnaires et tests (pour signaler les nouvelles)
+      try { p.qdone = cabRows(await getDocs(query(collection(db, CAB, p.id, "quest"), where("fini", ">", "")))).map(function (x) { return { q: x.q, fini: x.fini, score: x.score, tf: x.tf && x.tf.toMillis ? x.tf.toMillis() : 0 }; }); } catch (e) { p.qdone = []; }
+    }));
     return rows;
   },
   // Demandes d'accès des patients (nom et prénom) : lues seulement par le kiné, effacées après 30 jours

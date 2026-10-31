@@ -9,7 +9,6 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     o.maison = Object.keys(p.maison).map(function(k){ return p.maison[k]; }); o.membres = p.membres; o.journal = Object.keys(p.journal || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.journal[k])); x.id = k; return x; }); o.notes = Object.keys(p.notes).map(function(k){ var x=p.notes[k]; x.id=k; return x; }); o.quest = Object.keys(p.quest || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.quest[k])); x.id = k; return x; }); o.vu = p.vu || 0; return o; }
   var R = function(v){ return new Promise(function(r){ setTimeout(function(){ r(v); }, 30); }); };
   window.fbCab = {
-    list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = JSON.parse(JSON.stringify(D.patients[k].doc)); o.id=k; o.maison = Object.keys(D.patients[k].maison).sort().reverse().slice(0,2).map(function(w){ return D.patients[k].maison[w]; }); return o; })); },
     demandes: function(){ return R(Object.keys(D.demandes).map(function(k){ var o = JSON.parse(JSON.stringify(D.demandes[k])); o.id=k; return o; })); },
     accept: function(uid, d){ var k = id(); D.patients[k] = { doc: d, bilans: {}, seances: {}, maison: {}, notes: {}, journal: {}, membres: 1 }; D.liens[uid] = { pid: k }; delete D.demandes[uid]; return R(k); },
     pushSave: function(){ return R(); }, pushDel: function(){ return R(); },
@@ -28,6 +27,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     photos: function(pid){ var P0 = D.patients[pid].photos || {}; return R(Object.keys(P0).map(function(k){ var x = JSON.parse(JSON.stringify(P0[k])); x.id = k; return x; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; })); },
     photoDel: function(pid, k){ delete (D.patients[pid].photos || {})[k]; return R(); },
     ping: function(pid, k){ D.patients[pid].doc.ping = { k: k, at: Date.now() }; return R(); },
+    list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = full(k); o.qdone = (o.quest || []).filter(function(x){ return x.fini; }).map(function(x){ return { q: x.q, fini: x.fini, score: x.score, tf: x.tfm || 1 }; }); return o; })); },
     teeAll: function(t){ Object.keys(D.patients).forEach(function(k){ D.patients[k].doc.tee = t; }); return R(); },
     questDel: function(pid, k){ delete D.patients[pid].quest[k]; return R(); }
   };
@@ -48,7 +48,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     request: function(d){ D.demandes.anonP = { prenom: d.prenom, nom: d.nom, msg: d.msg }; return R(); },
     cancel: function(){ delete D.demandes.anonP; return R(); },
     requestState: function(){ var l = D.liens.anonP; if (l) { delete D.liens.anonP; return R(l.pid ? { pid: l.pid } : { refused: true }); } return R(D.demandes.anonP ? { pending: true } : { none: true }); },
-    questDone: function(pid, k, d){ var q = D.patients[pid].quest[k]; if (q.fini) return Promise.reject(new Error("permission")); Object.assign(q, JSON.parse(JSON.stringify(d))); return R(); },
+    questDone: function(pid, k, d){ var q = D.patients[pid].quest[k]; if (q.fini) return Promise.reject(new Error("permission")); Object.assign(q, JSON.parse(JSON.stringify(d))); q.tfm = Date.now() + 5; return R(); },
     home: function(pid, w, d){ d.w = w; D.patients[pid].maison[w] = d; return R(); }
   };
 })();

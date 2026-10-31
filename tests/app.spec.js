@@ -287,8 +287,17 @@ test("questionnaires : envoi depuis le bilan, réponse du patient, retour dans l
   // retour automatique dans la fiche du kiné et dans le bilan suivant
   await page.evaluate((pid) => { KineMonSuivi.close(); window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.fiche(pid); }, pid);
   await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
-  await page.evaluate(() => KineCabinet.questView());
+  // dans la liste des patients : la réponse est signalée tant que le kiné n'a pas rouvert la fiche
+  await page.evaluate(() => { localStorage.removeItem("kf-seen"); KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-news")).toContainText("Note globale : 70/100");
+  await shot(page, info, "95-nouvelles-reponses");
+  await page.locator("#kcb-sheet .kcb-news button").first().click();
   await expect(page.locator("#kcb-sheet .kq-card")).toContainText("Note globale : 70/100");
+  await page.evaluate(() => KineCabinet.open());
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-news")).toHaveCount(0);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
   await page.evaluate(() => KineCabinet.bilan());
   await expect(page.locator("#kcb-sheet input[data-m=sane][data-s=a][data-i='0']")).toHaveValue("70");
   await expect(page.locator("#kcb-sheet .kcb-tagq")).toHaveCount(1);

@@ -3471,3 +3471,8 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kss-alt { align-self: flex-start; margin-top: 4px; border: none; background: var(--blue-dim, rgba(75,91,255,.1)); color: var(--lu-ind2, #3341E0); font: 700 .78rem var(--font); padding: 6px 10px; border-radius: 10px; text-align: left; }
 .kmk-notif { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 20px; background: var(--surface); border: 1px dashed var(--lu-ind2, #3341E0); }
 .kmk-notif > div:first-child { display: flex; flex-direction: column; gap: 2px; } .kmk-notif span { font-size: .85rem; color: var(--text3); } .kmk-notif em { font-style: normal; font-size: .82rem; color: #C2410C; }
+/* Nouvelles réponses des patients */
+.kcb-news { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: 20px; background: linear-gradient(160deg, #5867FF, #3341E0); color: #fff; }
+.kcb-news button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 14px; border: none; background: rgba(255,255,255,.14); color: #fff; text-align: left; font-family: var(--font); }
+.kcb-news button span { font-weight: 800; } .kcb-news button em { flex: 1; font-style: normal; font-size: .82rem; opacity: .9; } .kcb-news button i { font-style: normal; }
+.kcb-new { text-decoration: none; margin-left: 6px; padding: 2px 8px; border-radius: 8px; background: #FF6B4A; color: #fff; font-size: .72rem; font-weight: 800; vertical-align: middle; }

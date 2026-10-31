@@ -81,6 +81,10 @@ var KineCabinet = (function () {
   }
   var D = [];
   function initials(a) { return String(a || "?").replace(/[^A-Za-zÀ-ÿ ]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join("") || "?"; }
+  // Ce que le kiné a déjà vu : date d'ouverture de chaque fiche, sur ce téléphone
+  function seenGet() { try { return JSON.parse(localStorage.getItem("kf-seen") || "{}") || {}; } catch (e) { return {}; } }
+  function seenSet(pid) { var s = seenGet(); s[pid] = Date.now(); try { localStorage.setItem("kf-seen", JSON.stringify(s)); } catch (e) {} }
+  function fresh(p) { var t = seenGet()[p.id] || 0; return (p.qdone || []).filter(function (x) { return (x.tf || 0) > t; }); }
   function flags(p) {
     var w = (p.maison || [])[0], w2 = (p.maison || [])[1], today = iso();
     var pain = !!(w && w.dou != null && (w.dou >= 5 || (w2 && w2.dou != null && w.dou - w2.dou >= 2)));
@@ -95,6 +99,10 @@ var KineCabinet = (function () {
     if (window.KineRole && KineRole.role() !== "kine") html += "<div class='kcb-ok kcb-setk'><span>Ouvrir directement l'espace kiné à chaque lancement sur ce téléphone ?</span><button class='kcb-mode' onclick='KineCabinet.setKine()'>Oui</button></div>";
     if (D.length) html += "<button class='kcb-dem' onclick='KineCabinet.demandes()'><i>" + D.length + "</i><span><b>" + (D.length > 1 ? "Nouvelles demandes d'accès" : "Nouvelle demande d'accès") + "</b><span>" + esc(D.slice(0, 3).map(function (d) { return d.prenom + " " + String(d.nom || "").charAt(0) + "."; }).join(", ")) + "</span></span>" + ICON.next + "</button>";
     html += "<div class='kcb-stats'><div><b>" + rows.length + "</b><span>patient" + (rows.length > 1 ? "s" : "") + " suivi" + (rows.length > 1 ? "s" : "") + "</span></div><div><b>" + nDue + "</b><span>bilan" + (nDue > 1 ? "s" : "") + " à faire</span></div><div class='" + (nPain ? "warn" : "") + "'><b>" + nPain + "</b><span>douleur en hausse</span></div></div>";
+    // nouvelles réponses des patients depuis la dernière ouverture de leur fiche
+    var NR = rows.filter(function (p) { return fresh(p).length; });
+    if (NR.length) html += "<div class='kcb-news'><b>" + (NR.length > 1 ? NR.length + " patients ont répondu" : "Un patient a répondu") + "</b>" + NR.slice(0, 4).map(function (p) {
+      var x = fresh(p); return "<button onclick='KineCabinet.fiche(" + q(p.id) + ",\"quest\")'><span>" + esc(p.alias || "Patient") + "</span><em>" + esc(x.map(function (y) { return window.KineQuest && KineQuest.Q[y.q] ? KineQuest.Q[y.q].nom + " : " + KineQuest.fmt(y.q, y.score) : y.q; }).join(" · ")) + "</em><i>›</i></button>"; }).join("") + "</div>";
     html += "<div class='kcb-filt'>" + [["tous", "Tous"], ["auj", "Bilan aujourd'hui"], ["surv", "À surveiller"]].map(function (f) { return "<button class='" + (filt === f[0] ? "on" : "") + "' onclick='KineCabinet.filter(\"" + f[0] + "\")'>" + f[1] + "</button>"; }).join("") + "</div>";
     var shown = rows.filter(function (p, i) { return filt === "tous" || (filt === "auj" && F[i].due) || (filt === "surv" && (F[i].pain || F[i].due)); });
     if (!rows.length) html += "<div class='kf-note'>Aucun patient pour l'instant. Crée une fiche avec le bouton +, ou accepte une demande d'accès : le téléphone du patient se relie à sa fiche.</div>";
@@ -103,7 +111,8 @@ var KineCabinet = (function () {
       var P = KP.get(p.parcours), n = P ? P.etapes.length : 0, e = (p.etape || 0) + 1, f = flags(p);
       var sub = (P ? P.nom : "Parcours à choisir") + (p.cote && p.cote !== "2" ? ", " + (p.cote === "D" ? "droit" : "gauche") : "");
       var info = f.pain ? "douleur " + KP.fmt(f.w.dou) + "/10 à la maison" : f.due ? "bilan prévu" + (f.today ? " aujourd'hui" : "") : f.w ? f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine" : "";
-      return "<button class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
+      var nr = fresh(p).length;
+      return "<button class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
         (P ? "<em>Étape " + e + "/" + n + "</em>" : "") + "</button>";
     }).join("");
     var tee = window.KineAvatar && KineAvatar.shirt ? KineAvatar.shirt() : null;
@@ -298,9 +307,9 @@ var KineCabinet = (function () {
     P.etapes.slice(C.etape || 0).some(function (e) { return e.obj.some(function (o) { if (o.a && o.a.m === k.m && (o.a.lsi || o.a.min || o.a.max != null) && !objState(o).done) { next = { v: o.a.lsi || o.a.min || o.a.max, e: P.etapes.indexOf(e) }; return true; } }); });
     return { v: v, u: u, hist: hist, next: next };
   }
-  function fiche(pid) {
-    view = "fiche"; loading();
-    fbCab.get(pid).then(function (p) { if (!p) { open(); return; } C = p; sel = null; exEdit = false; dueExos(); ficheView(); }, fail);
+  function fiche(pid, go) {
+    view = "fiche"; loading(); seenSet(pid);
+    fbCab.get(pid).then(function (p) { if (!p) { open(); return; } C = p; sel = null; exEdit = false; dueExos(); if (go === "quest") questView(); else ficheView(); }, fail);
   }
   function ficheView() {
     var P = KP.get(C.parcours); if (!P) { reglages(); return; }
