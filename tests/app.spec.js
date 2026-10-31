@@ -900,5 +900,40 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await expect(page.locator("#monkine-body .krp-p")).toContainText("Ta douleur ce matin");
   await page.locator("#monkine-body .krp-scale button", { hasText: "1" }).first().click();
   await expect(page.locator("#monkine-body .krp-p")).toContainText("Palier 4 sur 10");
+  // reliée au journal de course : la reprise en tête, ses séances dans la liste
+  await page.locator("#monkine-body .krp-jr").click();
+  await expect(page.locator("#kco-sheet .kco-rp")).toContainText("Palier 4 sur 10");
+  await expect(page.locator("#kco-sheet .kco-row").first()).toContainText("Reprise, palier 3");
+  await page.waitForTimeout(400);
+  await shot(page, info, "99-reprise-journal");
+  await page.locator("#kco-sheet .kco-rp .seq-btn-main").click();
+  await expect(page.locator("#krp-run.open")).toBeVisible();
+  await page.evaluate(() => KineReprise.close());
+  await clean(errs);
+});
+
+test("niveau : + ajoute du temps jusqu'à 60 s, puis montre la variante avant de la prendre", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  // familles : un même geste d'un bout à l'autre
+  expect(await page.evaluate(() => KineVariantes.chains.some(c => c.includes("Gainage frontal sur genoux") && c.includes("Side plank sur genoux")))).toBe(false);
+  await page.evaluate(() => { window.speak = () => {}; launchSeq("day0"); });
+  for (let i = 0; i < 6 && await page.evaluate(() => seqExIdx) < 3; i++) { await page.evaluate(() => seqSkipExercise()); await page.waitForTimeout(500); }
+  expect(await page.evaluate(() => SEQ_DAYS.day0.exercises[seqExIdx].name)).toBe("Chaise contre le mur");
+  await page.evaluate(() => { const t = document.getElementById("kf-tuto-go"); if (t) t.click(); });
+  await expect(page.locator("#kv-hint")).toContainText("jusqu'à 60 s");
+  for (const s of ["40 s", "50 s", "60 s"]) { await page.locator("#kv-level .kv-btn.up").click(); await expect(page.locator("#kv-hint")).toContainText(s); }
+  // au seuil : la variante est montrée, l'exercice ne change pas encore
+  await page.locator("#kv-level .kv-btn.up").click();
+  await expect(page.locator(".kv-prev")).toContainText("Position du skieur");
+  expect(await page.evaluate(() => SEQ_DAYS.day0.exercises[seqExIdx].name)).toBe("Chaise contre le mur");
+  await page.locator(".kv-prev").scrollIntoViewIfNeeded(); await page.waitForTimeout(500);
+  await shot(page, info, "100-variante-apercu");
+  await page.locator(".kv-no").click();
+  await expect(page.locator(".kv-prev")).toHaveCount(0);
+  await page.locator("#kv-level .kv-btn.up").click();
+  await page.locator(".kv-yes").click();
+  await expect.poll(() => page.evaluate(() => SEQ_DAYS.day0.exercises[seqExIdx].name)).toBe("Position du skieur");
   await clean(errs);
 });

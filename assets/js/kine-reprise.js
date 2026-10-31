@@ -51,7 +51,7 @@ var KineReprise = (function () {
     var R = (C.journal || []).reduce(function (a, d) { return a.concat((d.c || []).filter(function (r) { return r.cid === c.id; })); }, []), e = etat(c, R);
     return "<div class='su-card krp-k'><div class='su-card-h'><b>Reprise de la course</b><span>" + esc(MODELES[c.m] ? MODELES[c.m].n : "") + "</span></div>" +
       "<div class='krp-pals'>" + PALIERS.map(function (p, i) { return "<i class='" + (i + 1 < e.palier ? "ok" : i + 1 === e.palier ? "now" : "") + "'></i>"; }).join("") + "</div>" +
-      "<div class='kf-sub'>" + (e.fini ? "Reprise terminée : 30 minutes de course continue." : "Palier " + e.palier + " sur 10 : " + esc(palTxt(e.palier - 1)) + ".") + " Seuil de douleur : " + c.max + " sur 10, " + c.f + " séances par semaine.</div>" +
+      "<div class='kf-sub'>" + (e.fini ? "Reprise terminée : 30 minutes de course continue. Le patient continue avec son journal de course (charge par semaine et douleur)." : "Palier " + e.palier + " sur 10 : " + esc(palTxt(e.palier - 1)) + ".") + " Seuil de douleur : " + c.max + " sur 10, " + c.f + " séances par semaine.</div>" +
       (R.length ? R.slice(-4).reverse().map(function (r) { return "<div class='kcb-srow'><b>" + esc(dfr(r.d)) + "</b><span>Palier " + r.rp + " · douleur pendant " + (r.pain || 0) + "/10" + (r.next != null ? ", le lendemain " + r.next + "/10" : ", lendemain pas encore noté") + "</span></div>"; }).join("")
         : "<p class='kcb-hint'>" + (C.membres ? "Les séances apparaîtront ici si le patient sauvegarde son journal." : "Le patient la verra dès que son téléphone sera relié.") + "</p>") +
       "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineReprise.edit()'>Modifier</button><button class='seq-btn-secondary kcb-danger' onclick='KineReprise.stop()'>Arrêter</button></div></div>";
@@ -91,12 +91,19 @@ var KineReprise = (function () {
   function patientCard(d) {
     var c = d && d.course; if (!c) return "";
     var e = etat(c);
-    if (e.fini) return "<div class='kms-card krp-p done'><div class='kms-ck'><span>Reprise de la course</span><span>terminée</span></div><div class='kms-ct'>Bravo : 30 minutes de course continue</div><div class='kms-cm'><span>Parles-en à ton kiné pour la suite.</span></div></div>";
+    var jr = "<button class='krp-jr' onclick='KineReprise.journal()'>Mon journal de course<span aria-hidden='true'>›</span></button>";
+    if (e.fini) return "<div class='kms-card krp-p done'><div class='kms-ck'><span>Reprise de la course</span><span>terminée</span></div><div class='kms-ct'>Bravo : 30 minutes de course continue</div>" +
+      "<div class='kms-cm'><span>La suite se fait dans ton journal de course : tu notes tes sorties, l'appli surveille ta charge semaine après semaine et ta douleur.</span></div>" +
+      "<button class='seq-btn-main' onclick='KineReprise.journal()'>Continuer avec mon journal de course</button></div>";
     var head = "<div class='kms-ck'><span>Reprise de la course</span><span>Palier " + e.palier + " sur 10</span></div><div class='krp-pals'>" + PALIERS.map(function (p, i) { return "<i class='" + (i + 1 < e.palier ? "ok" : i + 1 === e.palier ? "now" : "") + "'></i>"; }).join("") + "</div>";
     if (e.wait) return "<div class='kms-card krp-p'>" + head + "<div class='kms-ct'>Ta douleur ce matin ?</div><div class='kms-cm'><span>Après ta séance du " + esc(dfr(e.wait.d)) + ", de 0 à 10</span></div><div class='krp-scale'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button onclick='KineReprise.lendemain(" + JSON.stringify(e.wait.id) + "," + v + ")'>" + v + "</button>"; }).join("") + "</div></div>";
     return "<div class='kms-card krp-p'>" + head + "<div class='kms-ct'>" + esc(palTxt(e.palier - 1)) + "</div><div class='kms-cm'><span>" + total(e.palier - 1) + " min, plus l'échauffement et le retour au calme · " + esc(c.s) + (e.msg ? " · " + esc(e.msg) : "") + "</span></div>" +
-      (e.nextD ? "<p class='krp-wait'>Prochaine séance à partir du " + esc(dfr(e.nextD)) + " : le corps s'adapte pendant le repos.</p>" : "<button class='seq-btn-main' onclick='KineReprise.go()'>Lancer la séance avec Yass</button>") + "</div>";
+      (e.nextD ? "<p class='krp-wait'>Prochaine séance à partir du " + esc(dfr(e.nextD)) + " : le corps s'adapte pendant le repos.</p>" : "<button class='seq-btn-main' onclick='KineReprise.go()'>Lancer la séance avec Yass</button>") + jr + "</div>";
   }
+  // Le journal de course : les séances de reprise y figurent, et il prend le relais une fois la reprise terminée
+  function journal() { if (window.KineMonSuivi && KineMonSuivi.close) try { KineMonSuivi.close(); } catch (e) {} if (window.KineCourse) KineCourse.open(); }
+  // Pour le journal : la reprise en cours (réglage du kiné et palier), ou null
+  function active() { var c = cfgNow(); if (!c) return null; var e = etat(c); return { c: c, e: e, txt: e.fini ? "" : palTxt(e.palier - 1), min: e.fini ? 0 : total(e.palier - 1) }; }
   function cfgNow() { var s = window.KineMonSuivi && KineMonSuivi.state(); return s && s.d && s.d.course; }
   function lendemain(id, v) {
     try { var a = JSON.parse(localStorage.getItem("kf-runs") || "[]"); a.forEach(function (r) { if (r.id === id) r.next = v; }); localStorage.setItem("kf-runs", JSON.stringify(a)); } catch (e) {}
@@ -158,7 +165,7 @@ var KineReprise = (function () {
     var el = screen(); el.style.background = "#0E141F";
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (RUN.partial ? "arrêtée" : "terminée") + "</span></div><div class='krp-end'><b>" + (RUN.partial ? "Séance arrêtée" : "Bravo !") + "</b>" +
       "<span>Douleur pendant la séance, de 0 à 10</span><div class='krp-scale'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button onclick='KineReprise.done(" + v + ")'>" + v + "</button>"; }).join("") + "</div>" +
-      "<p>Demain matin, l'appli te demandera ta douleur au réveil : c'est elle qui décide du palier suivant.</p></div>";
+      "<p>Demain matin, l'appli te demandera ta douleur au réveil : c'est elle qui décide du palier suivant. La séance s'ajoute aussi à ton journal de course.</p></div>";
   }
   function done(pain) {
     var r = RUN, min = Math.max(1, Math.round((Date.now() - r.t0) / 60000));
@@ -170,6 +177,6 @@ var KineReprise = (function () {
   }
   function close() { if (RUN) clearInterval(RUN.tm); RUN = null; var el = $("krp-run"); if (el) el.classList.remove("open"); document.body.style.overflow = ""; try { if (wake) wake.release(); } catch (e) {} wake = null; if (typeof stopSpeech === "function") stopSpeech(); }
 
-  return { PALIERS: PALIERS, MODELES: MODELES, etat: etat, kineCard: kineCard, edit: edit, m: setM, k: setK, send: send, stop: stop,
+  return { journal: journal, active: active, PALIERS: PALIERS, MODELES: MODELES, etat: etat, kineCard: kineCard, edit: edit, m: setM, k: setK, send: send, stop: stop,
     patientCard: patientCard, lendemain: lendemain, go: go, pause: pause, quit: quit, done: done, close: close, _run: function () { return RUN; }, _skip: function () { if (RUN) { RUN.end = Date.now(); tick(); } } };
 })();

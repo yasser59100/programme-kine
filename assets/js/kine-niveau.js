@@ -107,12 +107,16 @@ var KineLevel = (function () {
   function bump(ex, dir) {
     if (!ex || !ex.name) return "";
     var o = all(), r = rec(o, ex.name), st = now(ex), today = iso(Date.now());
+    var step = st.mode === "timed" ? 2 : 1;   // en durée : 10 s par appui (30 s → 60 s en trois appuis)
     if (dir > 0) {
-      if (st.atCap) { r.tempo = true; save(o); return "Plus difficile : pause de 2 secondes à chaque répétition."; }
-      r.d = Math.min(5, r.d + 1); r.up = today; save(o); return "Plus difficile : " + unit(st, now(ex).value) + ".";
+      if (st.atCap) {
+        if (st.mode === "timed") return "Tu es au maximum : " + CAP_SEC + " s. Parles-en à ton kiné pour une variante plus exigeante.";
+        r.tempo = true; save(o); return "Plus difficile : pause de 2 secondes à chaque répétition.";
+      }
+      r.d = Math.min(st.mode === "timed" ? 10 : 5, r.d + step); r.up = today; save(o); return "Plus difficile : " + unit(st, now(ex).value) + ".";
     }
     if (r.tempo) { r.tempo = false; save(o); return "Plus facile : sans la pause de 2 secondes."; }
-    if (r.d > MIN_D) { r.d--; save(o); return "Plus facile : " + unit(st, now(ex).value) + "."; }
+    if (r.d > MIN_D) { r.d = Math.max(MIN_D, r.d - step); save(o); return "Plus facile : " + unit(st, now(ex).value) + "."; }
     return "";
   }
   function canEase(ex) { var r = get(ex.name); return !!(r && (r.tempo || r.d > MIN_D)) || !r || r.d > MIN_D; }

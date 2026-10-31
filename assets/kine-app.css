@@ -3507,3 +3507,30 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 #kmk-phz img { max-width: 100%; max-height: 75vh; border-radius: 16px; }
 #kmk-phz div { display: flex; flex-direction: column; align-items: center; font-size: 13px; opacity: .85; }
 #kmk-phz .kf-back { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 14px); right: 16px; color: #fff; background: rgba(255, 255, 255, .14); }
+/* Aperçu de la variante avant de l'accepter */
+.kv-prev { margin: 10px 0 0; padding: 12px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border2); box-shadow: 0 8px 24px rgba(15, 23, 42, .08); animation: kvIn .22s ease-out; }
+.kv-prev.up { border-color: rgba(75, 91, 255, .45); }
+@keyframes kvIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.kv-prev-h { font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #4B5BFF; margin-bottom: 8px; }
+.kv-prev:not(.up) .kv-prev-h { color: #0E9F6E; }
+.kv-prev-b { display: flex; gap: 12px; align-items: center; }
+.kv-prev-b img, .kv-prev-ph { width: 92px; height: 92px; flex-shrink: 0; border-radius: 14px; background: linear-gradient(160deg, #EEF0FF, #F7F8FA); object-fit: cover; }
+.kv-prev-b div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.kv-prev-b b { font-size: .98rem; line-height: 1.25; color: var(--text); }
+.kv-prev-b span { font-size: .82rem; line-height: 1.35; color: var(--text2); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.kv-prev-n { margin: 10px 0 0; font-size: .8rem; line-height: 1.35; color: var(--text2); }
+.kv-prev-a { display: grid; grid-template-columns: 1fr 1.25fr; gap: 8px; margin-top: 12px; }
+.kv-prev-a button { min-height: 46px; border-radius: 12px; font: 700 .86rem var(--font); }
+.kv-no { border: 1px solid var(--border2); background: transparent; color: var(--text); }
+.kv-yes { border: 0; background: #111827; color: #fff; }
+/* Reprise et journal de course reliés */
+.krp-jr { display: flex; justify-content: center; align-items: center; gap: 6px; width: 100%; margin-top: 8px; padding: 10px; border: 0; border-radius: 12px; background: rgba(255,255,255,.14); color: #fff; font: 700 .88rem var(--font); }
+.krp-jr span { font-size: 1.1rem; line-height: 1; }
+.kco-rp { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 16px; background: linear-gradient(135deg, #3341E0, #5B6BFF); color: #fff; line-height: 1.4; }
+.kco-rp.done { background: linear-gradient(135deg, #0B6E59, #12A182); }
+.kco-rp-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.kco-rp-h span { font-size: .8rem; font-weight: 700; opacity: .85; }
+.kco-rp > span { font-size: .92rem; opacity: .95; }
+.kco-rp em { font-style: normal; font-size: .86rem; opacity: .9; }
+.kco-rp small { font-size: .78rem; opacity: .8; }
+#kco-sheet .kco-rp .seq-btn-main { margin-top: 4px; background: #fff; color: #3341E0; box-shadow: none; }
