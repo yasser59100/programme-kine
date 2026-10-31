@@ -501,6 +501,13 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await expect(page.locator("#kr-run .kr-sig")).toBeVisible({ timeout: 9000 });
   await shot(page, info, "42-signal-en-cours");
   await page.evaluate(() => KineReactif.stop());
+  // pas réactifs aux flèches, sans matériel
+  await page.evaluate(() => { KineReactif.open("fleches"); KineReactif._set("diag", true); KineReactif._set("rythme", "rapide"); });
+  await expect(page.locator("#kr-sheet .kr-svg text")).toHaveCount(12);
+  await page.evaluate(() => KineReactif.start());
+  await expect(page.locator("#kr-run .kr-arr")).toBeVisible({ timeout: 9000 });
+  await shot(page, info, "97-fleches");
+  await page.evaluate(() => KineReactif.stop());
   // le kiné envoie le test de saut ; le patient le fait chez lui ; les hauteurs reviennent dans le bilan avec la symétrie
   await page.evaluate((pid) => { KineReactif.close(); KineCabinet.fiche(pid); }, pid);
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible();
@@ -660,6 +667,12 @@ test("fiche : raccourcis, étapes expliquées, bilan par familles et photos gard
   await page.emulateMedia({ media: "screen" });
   await page.evaluate(() => KineCabinet.crClose());
   expect(await page.evaluate((pid) => Object.keys(window.__db.patients[pid].photos || {}).length, pid)).toBe(1);
+  // plus de 5 patients : recherche dans la liste
+  await page.evaluate(async () => { for (const a of ["A.A.", "B.B.", "C.C.", "D.D.", "E.E."]) await fbCab.create({ alias: a, parcours: "dos", etape: 0, cote: "D", date0: "2026-10-01" }); KineCabinet.open(); });
+  await expect(page.locator("#kcb-ps")).toBeVisible();
+  await page.fill("#kcb-ps", "lm");
+  await page.evaluate(() => KineCabinet.psearch("l.m"));
+  expect(await page.evaluate(() => [...document.querySelectorAll("#kcb-sheet .kcb-pat")].filter(b => b.style.display !== "none").length)).toBe(1);
   await clean(errs);
 });
 

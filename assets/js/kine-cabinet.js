@@ -105,6 +105,7 @@ var KineCabinet = (function () {
       var x = fresh(p); return "<button onclick='KineCabinet.fiche(" + q(p.id) + ",\"quest\")'><span>" + esc(p.alias || "Patient") + "</span><em>" + esc(x.map(function (y) { return window.KineQuest && KineQuest.Q[y.q] ? KineQuest.Q[y.q].nom + " : " + KineQuest.fmt(y.q, y.score) : y.q; }).join(" · ")) + "</em><i>›</i></button>"; }).join("") + "</div>";
     html += "<div class='kcb-filt'>" + [["tous", "Tous"], ["auj", "Bilan aujourd'hui"], ["surv", "À surveiller"]].map(function (f) { return "<button class='" + (filt === f[0] ? "on" : "") + "' onclick='KineCabinet.filter(\"" + f[0] + "\")'>" + f[1] + "</button>"; }).join("") + "</div>";
     var shown = rows.filter(function (p, i) { return filt === "tous" || (filt === "auj" && F[i].due) || (filt === "surv" && (F[i].pain || F[i].due)); });
+    if (rows.length > 5) html += "<input class='kcb-in kcb-psearch' type='search' id='kcb-ps' placeholder='Chercher un patient' oninput='KineCabinet.psearch(this.value)' aria-label='Chercher un patient'>";
     if (!rows.length) html += "<div class='kf-note'>Aucun patient pour l'instant. Crée une fiche avec le bouton +, ou accepte une demande d'accès : le téléphone du patient se relie à sa fiche.</div>";
     else if (!shown.length) html += "<div class='kf-note'>Personne dans ce filtre.</div>";
     html += shown.map(function (p) {
@@ -112,7 +113,7 @@ var KineCabinet = (function () {
       var sub = (P ? P.nom : "Parcours à choisir") + (p.cote && p.cote !== "2" ? ", " + (p.cote === "D" ? "droit" : "gauche") : "");
       var info = f.pain ? "douleur " + KP.fmt(f.w.dou) + "/10 à la maison" : f.due ? "bilan prévu" + (f.today ? " aujourd'hui" : "") : f.w ? f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine" : "";
       var nr = fresh(p).length;
-      return "<button class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
+      return "<button data-n='" + esc(nrm((p.alias || "") + " " + (P ? P.nom : ""))) + "' class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
         (P ? "<em>Étape " + e + "/" + n + "</em>" : "") + "</button>";
     }).join("");
     var tee = window.KineAvatar && KineAvatar.shirt ? KineAvatar.shirt() : null;
@@ -120,6 +121,7 @@ var KineCabinet = (function () {
     show(html + "<button class='kcb-fab' onclick='KineCabinet.nouveau()' aria-label='Nouveau patient'>" + ICON.plus + "</button>", null, "list");
   }
   function filter(f) { filt = f; list(); }
+  function psearch(t) { t = nrm(t).trim(); [].forEach.call(sheet().querySelectorAll(".kcb-pat"), function (b) { b.style.display = !t || (b.getAttribute("data-n") || "").indexOf(t) >= 0 ? "" : "none"; }); }
   // Le nom imprimé sur le t-shirt de Yass : sur ce téléphone, et sur celui de chaque patient (recopié sur sa fiche)
   function tee() {
     var t = (window.KineAvatar && KineAvatar.shirt && KineAvatar.shirt()) || ["", ""];
@@ -1352,7 +1354,7 @@ var KineCabinet = (function () {
   }
 
   return {
-    open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
