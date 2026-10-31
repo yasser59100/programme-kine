@@ -155,6 +155,8 @@ window.fbCab = {
     var rows = cabRows(await getDocs(collection(db, CAB)));
     await Promise.all(rows.map(async function (p) {
       try { p.maison = cabRows(await getDocs(query(collection(db, CAB, p.id, "maison"), orderBy("w", "desc"), limit(2)))); } catch (e) { p.maison = []; }
+      // téléphone relié ou non (un seul document suffit)
+      try { p.membres = (await getDocs(query(collection(db, CAB, p.id, "membres"), limit(1)))).size; } catch (e) { p.membres = null; }
       // réponses aux questionnaires et tests (pour signaler les nouvelles)
       try { p.qdone = cabRows(await getDocs(query(collection(db, CAB, p.id, "quest"), where("fini", ">", "")))).map(function (x) { return { q: x.q, fini: x.fini, score: x.score, tf: x.tf && x.tf.toMillis ? x.tf.toMillis() : 0 }; }); } catch (e) { p.qdone = []; }
     }));

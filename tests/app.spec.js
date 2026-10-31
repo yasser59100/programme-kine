@@ -386,7 +386,7 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
   await expect(page.locator("#kcb-sheet .kcb-niv .kcb-nv")).toContainText("Position du skieur");
   await expect(page.locator("#kcb-sheet .kcb-run")).toContainText("3 sorties");
   await expect(page.locator("#kcb-sheet .kcb-runmsg")).toContainText("40 min cette semaine");
-  await page.locator("#kcb-sheet .kcb-niv").scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
+  await page.waitForTimeout(600); await page.evaluate(() => { const e = document.querySelector("#kcb-sheet .kcb-niv"); if (e) e.scrollIntoView({ block: "center" }); }); await page.waitForTimeout(300);
   await shot(page, info, "101-reglages-maison-kine");
   // nouveau téléphone : tout est effacé, puis retrouvé avec l'identifiant
   await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; ["kf-cab", "kf-sessions", "kf-cab-jh"].forEach(k => localStorage.removeItem(k)); sessions = []; KineRole.loginForm("restore"); });

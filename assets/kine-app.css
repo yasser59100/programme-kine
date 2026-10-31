@@ -3563,3 +3563,6 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 #kf-demo .v2-stage .rg-phase-label { top: auto; bottom: 12px; white-space: nowrap; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; font-size: .8rem; padding: 6px 12px; z-index: 2; }
 .kss-st .kss-v { width: 46px; height: 32px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--text); text-align: center; font: 800 1.05rem var(--font); }
 .kss-st .kss-v:focus { outline: none; border-color: #4B5BFF; background: var(--surface); }
+.kcb-nr { text-decoration: none; display: inline-block; margin-left: 2px; padding: 0 6px; border-radius: 6px; background: rgba(245, 158, 11, .14); color: #92400E; font-size: .72rem; font-weight: 700; line-height: 1.5; }
+.lx-synced { margin: 4px 2px 0; font-size: .86rem; line-height: 1.4; color: var(--text2); text-align: center; }
+.lx-send2 { display: block; margin: 0 auto; }

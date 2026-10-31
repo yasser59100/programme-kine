@@ -434,6 +434,9 @@
     var p = !L.r || !L.r.height || L.kind === "peek" ? "pSide" : L.bottom ? "pUp" : "pDown";
     return [[p, 0.55], [p, 1.6], ["talkA", 0.5], [p, 0.5], [p, 1.4], ["talkB", 0.5], [p, 0.5], [p, 3]];
   }
+  // Le cadre de lumière suit l'élément expliqué quand on fait défiler la page pendant la visite
+  var holePlace = null;
+  window.addEventListener("scroll", function () { if (mode === "tour" && holePlace) holePlace(); }, { passive: true });
   function tour(i) {
     var st = TOUR[i];
     var hole = $("km-hole");
@@ -465,7 +468,8 @@
         hole.classList.add("on");
       };
       place(); setTimeout(place, 400); setTimeout(place, 1200);   // l'accueil peut se redessiner juste après l'ouverture
-    }
+      holePlace = place;
+    } else holePlace = null;
     bubble(st.text, "<div class='km-dots'>" + TOUR.map(function (_, j) { return "<i" + (j === i ? " class='on'" : "") + "></i>"; }).join("") + "</div>",
       "<button class='km-go' onclick='KineMascotte.tour(" + (i + 1) + ")'>" + (i < TOUR.length - 1 ? "Suivant" : "C'est compris") + "</button>" +
       (i < TOUR.length - 1 ? "<button class='km-later' onclick='KineMascotte.tour(99)'>Passer</button>" : ""));

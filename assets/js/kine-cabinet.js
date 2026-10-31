@@ -113,7 +113,7 @@ var KineCabinet = (function () {
       var sub = (P ? P.nom : "Parcours à choisir") + (p.cote && p.cote !== "2" ? ", " + (p.cote === "D" ? "droit" : "gauche") : "");
       var info = f.pain ? "douleur " + KP.fmt(f.w.dou) + "/10 à la maison" : f.due ? "bilan prévu" + (f.today ? " aujourd'hui" : "") : f.w ? f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine" : "";
       var nr = fresh(p).length;
-      return "<button data-n='" + esc(nrm((p.alias || "") + " " + (P ? P.nom : ""))) + "' class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
+      return "<button data-n='" + esc(nrm((p.alias || "") + " " + (P ? P.nom : ""))) + "' class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + (p.membres === 0 ? " <u class='kcb-nr'>pas relié</u>" : "") + "</span></div>" +
         (P ? "<em>Étape " + e + "/" + n + "</em>" : "") + "</button>";
     }).join("");
     var tee = window.KineAvatar && KineAvatar.shirt ? KineAvatar.shirt() : null;

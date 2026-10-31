@@ -6,6 +6,12 @@
 ═══════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
+  // Relié à son kiné avec la sauvegarde des séances : le kiné voit déjà tout, l'envoi par message devient secondaire
+  function sendBtn() {
+    var st = window.KineMonSuivi && KineMonSuivi.state ? KineMonSuivi.state() : null;
+    if (st && st.pid && KineMonSuivi.syncOn && KineMonSuivi.syncOn()) return "<p class='lx-synced'>Ton kiné voit tes séances et tes douleurs dans sa fiche, sans rien envoyer.</p><button class='kcb-link lx-send2' onclick='KineSuivi.open(\"envoyer\")'>Envoyer quand même un résumé par message</button>";
+    return "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>";
+  }
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   var WD = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
@@ -166,7 +172,7 @@
       (fresh ? welcome + (C ? C.cta() + C.week() : "")
              : kpis(cyc, wk) + (C ? C.cta() : "") + alert + weekBars(ss) +
                (window.KineIdees ? KineIdees.goalCard() : "") +
-               "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>" +
+               sendBtn() +
                (C ? C.week() : "")) +
       (fresh && window.KineIdees ? KineIdees.goalCard() : "") +
       (C ? C.insights() : "<div class='lx-chart'>" + chart(ss) + "</div>") +
@@ -176,7 +182,7 @@
         "<button onclick='KineSuivi.open(\"historique\")'><span>Historique des séances</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
       "</div>" +
-      (fresh ? "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>" : "") +
+      (fresh ? sendBtn() : "") +
       beforeAfter();
     // Les badges ne sont plus affichés
     ["badges-suivi", "badges-home"].forEach(function (id) {
