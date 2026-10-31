@@ -3566,3 +3566,5 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kcb-nr { text-decoration: none; display: inline-block; margin-left: 2px; padding: 0 6px; border-radius: 6px; background: rgba(245, 158, 11, .14); color: #92400E; font-size: .72rem; font-weight: 700; line-height: 1.5; }
 .lx-synced { margin: 4px 2px 0; font-size: .86rem; line-height: 1.4; color: var(--text2); text-align: center; }
 .lx-send2 { display: block; margin: 0 auto; }
+.kq-big.none { color: var(--text3, #9AA3B2); }
+.kq-slhint { margin: -4px 0 8px; text-align: center; font-size: .86rem; color: var(--text2); }
