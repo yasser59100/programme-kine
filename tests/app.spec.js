@@ -745,3 +745,36 @@ test("envoi programmé : séance et questionnaire reçus à la date choisie", as
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine")[0].ex.length)).toBe(2);
   await clean(errs);
 });
+
+test("fiches : une fiche par parcours, conseils du kiné, visibles dans Mon kiné", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => kfNeed("suivi"));
+  expect(await page.evaluate(() => KineParcours.ORDER.filter(id => !KineFiches.get(id)))).toEqual([]);
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true, name: "Kiné" }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
+  await page.evaluate(() => KineCabinet.nouveau());
+  await page.fill("#kcb-alias", "F.T.");
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
+  const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
+  await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
+  await page.fill("#kcb-conseil", "Glace 15 minutes après chaque séance. Pas de course avant le prochain bilan.");
+  await page.evaluate(() => KineCabinet.saveMsg());
+  await expect.poll(() => page.evaluate((pid) => window.__db.patients[pid].doc.conseil || "", pid)).toContain("Glace");
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
+  await page.fill("#kms-code", "K7M2QX");
+  await page.evaluate(() => KineMonSuivi.doJoin());
+  await page.evaluate(() => KineMonSuivi.consent(0));
+  await expect(page.locator("#kms-sheet .kmk-fiche")).toContainText("conseils de ton kiné");
+  await page.evaluate(() => { KineMonSuivi.close(); showPage("monkine"); });
+  await expect(page.locator("#monkine-body .kmk-fiche")).toContainText("conseils de ton kiné");
+  await page.waitForTimeout(800);
+  await page.evaluate(() => KineMonSuivi.fiche());
+  await expect(page.locator("#kms-sheet .kfi-perso")).toContainText("Glace");
+  await expect(page.locator("#kms-sheet .kfi-sec.al li").first()).toBeVisible();
+  await page.waitForTimeout(500);
+  await shot(page, info, "91-fiche-patient");
+  await clean(errs);
+});

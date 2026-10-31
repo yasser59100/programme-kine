@@ -3404,3 +3404,15 @@ html.kf-kmode body::before { content: "Espace kiné"; position: fixed; inset: 0;
 .kcb-when .kf-chips { align-items: center; }
 .kcb-whend input { min-height: 38px; border-radius: 19px; border: 1px solid var(--border2); background: var(--bg); color: var(--text); padding: 0 10px; font: 600 .85rem var(--font); }
 .kcb-plan { border: 1.5px dashed var(--lu-ind2, #3341E0); }
+/* Fiche « Comprendre ma rééducation » */
+.kmk-fiche { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border-radius: 20px; border: 1px solid var(--border2); background: var(--surface); color: var(--text); text-align: left; font-family: var(--font); }
+.kmk-fiche > i { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: #FFF4E5; color: #B45309; flex-shrink: 0; }
+.kmk-fiche > span { flex: 1; display: flex; flex-direction: column; } .kmk-fiche em { font-style: normal; font-size: .82rem; color: var(--text3); } .kmk-fiche u { text-decoration: none; color: var(--text3); font-size: 1.3rem; }
+.kfi-perso { padding: 14px 16px; border-radius: 18px; background: linear-gradient(160deg, #5867FF, #3341E0); color: #fff; }
+.kfi-perso span { font-size: .75rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .85; } .kfi-perso p { margin: 6px 0 0; line-height: 1.5; font-weight: 600; }
+.kfi-quoi { margin: 0; font-size: 1rem; line-height: 1.55; }
+.kfi-sec { padding: 14px 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border2); border-left-width: 5px; }
+.kfi-sec b { font-size: .95rem; }
+.kfi-sec.ok { border-left-color: #0B6E59; } .kfi-sec.do { border-left-color: #3341E0; } .kfi-sec.no { border-left-color: #D97706; } .kfi-sec.al { border-left-color: #DC2626; background: #FEF6F6; }
+.kfi-ul { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.45; font-size: .93rem; }
+.kcb-ta { min-height: 84px; resize: vertical; font-family: var(--font); line-height: 1.4; padding-top: 10px; }

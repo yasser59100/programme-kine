@@ -49,6 +49,7 @@ const APP_FILES = [
   'assets/js/kine-variantes.js',
   'assets/js/kine-reactif.js',
   'assets/js/kine-saut.js',
+  'assets/js/kine-fiches.js',
   'assets/js/kine-camsetup.js',
   'assets/js/kine-camera.js',
   'assets/js/kine-explique.js',

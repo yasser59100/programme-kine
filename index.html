@@ -2810,7 +2810,7 @@ seqSkipExercise = function() {
 <script>
 // Espace kiné et suivi au cabinet : chargés seulement quand ils servent (kiné, ou patient relié à son kiné)
 window.kfNeed = function (g) {
-  var G = { suivi: ["kine-parcours", "kine-quest", "kine-saut", "kine-cabinet"] }, L = window.__kfL = window.__kfL || {};
+  var G = { suivi: ["kine-parcours", "kine-quest", "kine-saut", "kine-fiches", "kine-cabinet"] }, L = window.__kfL = window.__kfL || {};
   if (L[g]) return L[g];
   return L[g] = G[g].reduce(function (p, n) { return p.then(function () { return new Promise(function (ok) {
     var e = document.createElement("script"); e.src = "assets/js/" + n + ".js"; e.onload = ok; e.onerror = ok; document.head.appendChild(e); }); }); }, Promise.resolve())

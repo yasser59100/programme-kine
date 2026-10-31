@@ -334,9 +334,12 @@ var KineCabinet = (function () {
         qPend ? qPend + " en attente de réponse" : qCons ? qCons + " conseillé" + (qCons > 1 ? "s" : "") : "Envoyer au patient", qCons && !qPend ? "hot" : "") + "</div>";
     // pour le patient
     html += "<div class='su-card'><div class='su-card-h'><b>Pour le patient</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div><label class='kcb-field'><span class='kcb-lab'>Un mot (il le voit dans l'appli)</span><input class='kcb-in' id='kcb-msg' maxlength='160' value='" + esc(C.msg && C.msg.t || "") + "' placeholder='Belle séance, on vise 80 % dans 2 semaines.'></label>" +
-      "<label class='kcb-field'><span class='kcb-lab'>Prochain bilan</span><input class='kcb-in' id='kcb-next' type='date' value='" + esc(C.next || "") + "'></label><button class='seq-btn-secondary' onclick='KineCabinet.saveMsg()'>Enregistrer</button>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Prochain bilan</span><input class='kcb-in' id='kcb-next' type='date' value='" + esc(C.next || "") + "'></label>" +
+      "<label class='kcb-field'><span class='kcb-lab'>Conseils personnalisés (en tête de sa fiche « Comprendre ma rééducation »)</span><textarea class='kcb-in kcb-ta' id='kcb-conseil' maxlength='800' rows='3' placeholder='Par exemple : glace 15 min après les séances, pas de course avant le prochain bilan.'>" + esc(C.conseil || "") + "</textarea></label>" +
+      "<button class='seq-btn-secondary' onclick='KineCabinet.saveMsg()'>Enregistrer</button>" +
       "<div class='kcb-links'><button class='kcb-link' onclick='KineCabinet.code(" + q(C.id) + ")'>" + (C.membres ? "Code du patient" : "Afficher le code à donner au patient") + "</button>" +
-      (window.KineMonSuivi ? "<button class='kcb-link' onclick='KineCabinet.asPatient()'>Voir comme mon patient</button>" : "") + "</div></div>";
+      (window.KineMonSuivi ? "<button class='kcb-link' onclick='KineCabinet.asPatient()'>Voir comme mon patient</button>" : "") +
+      (window.KineFiches ? "<button class='kcb-link' onclick='KineCabinet.ficheP()'>Voir sa fiche « Comprendre »</button>" : "") + "</div></div>";
     // repères cliniques
     html += "<details class='kf-acc kcb-acc'><summary>Repères cliniques du parcours</summary><ul>" + (P.notes || []).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
       "<b>Signes d'alerte</b><ul>" + KP.alertes(C.parcours).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + "</ul>" +
@@ -536,10 +539,18 @@ var KineCabinet = (function () {
     if (at && C.vu && C.vu >= at) { var d = new Date(C.vu); return "<div class='kcb-recu ok'>" + ICON.ok + "Reçue sur son téléphone le " + dfr(iso(d)) + " à " + d.getHours() + "h" + ("0" + d.getMinutes()).slice(-2) + "</div>"; }
     return "<div class='kcb-recu'>Pas encore reçue : elle arrivera à sa prochaine ouverture de l'appli.</div>";
   }
+  // La fiche « Comprendre ma rééducation » telle que la voit le patient
+  function ficheP() {
+    var el = ov("kcb-fip"); el.setAttribute("aria-label", "Fiche du patient"); el.onclick = function (e) { if (e.target === el) el.classList.remove("open"); };
+    var cs = $("kcb-conseil") ? $("kcb-conseil").value.trim() : C.conseil;
+    el.innerHTML = "<div class='kcb-incl-card kcb-qcard'><div class='kcb-mh'><span>" + esc((KineFiches.get(C.parcours) || {}).t || "Comprendre ma rééducation") + "</span><button class='kf-back' onclick='document.getElementById(\"kcb-fip\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" + KineFiches.html(C.parcours, cs) + "</div>";
+    el.classList.add("open");
+  }
   function saveMsg() {
     var t = ($("kcb-msg").value || "").trim().slice(0, 160), nx = $("kcb-next").value || "";
-    var data = { next: nx, msg: t ? { t: t, d: iso() } : null };
-    C.next = nx; C.msg = data.msg; fbCab.save(C.id, data).then(function () { say("Enregistré : le patient le verra."); }, fail);
+    var cs = $("kcb-conseil") ? ($("kcb-conseil").value || "").trim().slice(0, 800) : (C.conseil || "");
+    var data = { next: nx, msg: t ? { t: t, d: iso() } : null, conseil: cs || null };
+    C.next = nx; C.msg = data.msg; C.conseil = data.conseil; fbCab.save(C.id, data).then(function () { say("Enregistré : le patient le verra."); }, fail);
   }
 
   /* ════════ Bilan ════════ */
@@ -1201,17 +1212,17 @@ var KineCabinet = (function () {
   }
 
   // En mode kiné, l'espace kiné ne se ferme pas (seulement à la déconnexion : close(true))
-  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
+  function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo", "kcb-fip"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
   // Aperçu de ce que voit le patient (sans les notes du kiné)
   function asPatient() {
-    var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, next: C.next, ref: C.ref, hist: C.hist,
+    var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, conseil: C.conseil, next: C.next, ref: C.ref, hist: C.hist,
       bilans: (C.bilans || []).map(function (b) { return { d: b.d, m: b.m }; }), seances: (C.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; }) }));
     KineMonSuivi.preview(d);
   }
 
   return {
     open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    when: whenSet, exUnplan: exUnplan, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    when: whenSet, exUnplan: exUnplan, ficheP: ficheP, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },

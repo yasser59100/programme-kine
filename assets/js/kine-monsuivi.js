@@ -268,6 +268,8 @@ var KineMonSuivi = (function () {
     var html = (inline ? "" : "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>") + (!PREV && window.KineQuest ? KineQuest.patientCard(d, s.pid) : "");
     if (inline) html += "<div class='kms-card kmk-step'><div class='kms-ck'><span>" + esc(P.nom) + "</span><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span></div><div class='kms-ct'>" + esc(P.etapes[E].nom) + "</div>" +
       (P.etapes[E].but ? "<div class='kms-cm'><span>" + esc(P.etapes[E].but) + "</span></div>" : "") + "</div>";
+    // Comprendre sa rééducation : la fiche du parcours et les conseils personnalisés du kiné
+    if (window.KineFiches && (KineFiches.get(d.parcours) || d.conseil)) html += "<button class='kmk-fiche' onclick='KineMonSuivi.fiche()'><i aria-hidden='true'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z'/><path d='M8 7h6M8 11h6'/></svg></i><span><b>Comprendre ma rééducation</b><em>" + (d.conseil ? "Avec les conseils de ton kiné" : "Ce qui est normal, ce qui aide, quand appeler") + "</em></span><u>›</u></button>";
     if (m) {
       var pct = m.lsi ? Math.min(100, m.v) : null;
       html += "<div class='kcb-slab'><div class='kcb-slab-k'><span>" + esc(m.lab) + "</span></div><div class='kms-big'><b>" + KP.fmt(m.v) + m.u + "</b>" +
@@ -322,8 +324,15 @@ var KineMonSuivi = (function () {
     jset("kf-custom", jget("kf-custom", []).filter(function (x) { return x.id !== "kine"; }));
     close(); slot();
   }
+  function fiche() {
+    var s0 = PREV ? { d: PREV } : state(), d = s0 && s0.d; if (!d || !window.KineFiches) return;
+    var f = KineFiches.get(d.parcours);
+    var was = sheet().classList.contains("open");
+    show(back().replace("KineMonSuivi.close()", was ? (PREV ? "KineMonSuivi.view()" : "KineMonSuivi.open()") : "KineMonSuivi.close()") + "<div><div class='kf-sub'>Ta rééducation</div><div class='kf-h1 kcb-h1'>" + esc(f ? f.t : "Les conseils de ton kiné") + "</div></div>" + KineFiches.html(d.parcours, d.conseil));
+    sheet().scrollTop = 0;
+  }
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; page(); }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();
