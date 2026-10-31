@@ -237,7 +237,7 @@ var KineCabinet = (function () {
       "<button type='button' class='kcb-link' onclick='KineCabinet.guide(\"new\")'>Pas de diagnostic ? Ouvrir le guide d'orientation</button></div>" +
       "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
         [["D", "Droit"], ["G", "Gauche"], ["2", "Les deux"]].map(function (c) { return "<button type='button' class='" + (d.cote === c[0] ? "sel" : "") + "' onclick='KineCabinet.set(\"cote\"," + q(c[0]) + ")'>" + c[1] + "</button>"; }).join("") + "</div></div>" +
-      "<label class='kcb-field'><span class='kcb-lab'>" + (P && P.d0 ? P.d0 : P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1)'></label>" +
+      "<label class='kcb-field' id='kcb-d0f'><span class='kcb-lab'>" + (P && P.d0 ? P.d0 : P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1);KineCabinet.set(\"d0ok\",1,1)'></label>" +
       opts +
       (pid ? "<label class='kcb-field'><span class='kcb-lab'>Exercice de référence au cabinet</span><input class='kcb-in' list='kcb-allex' value='" + esc(d.ref || (P ? P.ref : "")) + "' onchange='KineCabinet.set(\"ref\",this.value,1)'></label>" + datalist() : "");
     if (dem) html += "<div class='kcb-ok'>" + ICON.ok + "Son téléphone se reliera tout seul : pas de code à donner.</div>";
@@ -266,6 +266,9 @@ var KineCabinet = (function () {
     var d = draft;
     if (!String(d.alias || "").trim()) { say("Indique un pseudonyme ou des initiales."); return; }
     if (!d.parcours) { say("Choisis un parcours (ou « Genou, sans diagnostic précis »)."); return; }
+    // Patient opéré : la date de l'opération règle J+ et les étapes ; on la fait vérifier une fois si elle est restée à aujourd'hui
+    var P0 = KP.get(d.parcours);
+    if (!pid && P0 && P0.op && !d.d0ok && d.date0 === iso()) { d.d0ok = 1; var f = $("kcb-d0f"); if (f) { f.classList.add("kcb-check"); f.scrollIntoView({ block: "center", behavior: "smooth" }); } say("Vérifie la date de l'opération : elle est réglée sur aujourd'hui."); return; }
     var data = { alias: String(d.alias).trim().slice(0, 24), parcours: d.parcours, cote: d.cote, date0: d.date0 || iso(), opts: d.opts || {} };
     if (pid) {
       if (d.ref) data.ref = d.ref;

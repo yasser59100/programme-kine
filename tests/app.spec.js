@@ -474,7 +474,10 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
   await page.evaluate(() => { KineCabinet.setKine(); KineCabinet.nouveau(); });
   await page.fill("#kcb-alias", "J.S.");
+  // opéré : la date de l'opération restée à aujourd'hui est signalée une fois, puis la fiche se crée
   await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-d0f.kcb-check")).toBeVisible();
+  await page.evaluate(() => KineCabinet.saveForm(null));
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
@@ -724,7 +727,7 @@ test("séance au cabinet : plusieurs exercices, notés un par un, progression pr
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
   await page.evaluate(() => KineCabinet.nouveau());
   await page.fill("#kcb-alias", "R.K.");
-  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); KineCabinet.saveForm(null); });
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
@@ -826,7 +829,7 @@ test("fiches : une fiche par parcours, conseils du kiné, visibles dans Mon kin�
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
   await page.evaluate(() => KineCabinet.nouveau());
   await page.fill("#kcb-alias", "F.T.");
-  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); KineCabinet.saveForm(null); });
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
