@@ -440,6 +440,9 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
     miss: KineRenfoEx.names.filter(n => !(KineBiblio.find(n) && KineIdees.USAGE[n])),
     lca: KineParcours.exos("lca_op", 5, {}).indexOf("Saut en contrebas puis rebond (drop jump)") >= 0,
     ptg: KineParcours.exos("ptg", 2, {}).filter(n => /Saut|pistol|Nordic/.test(n)).length }));
+  // familles d'exercices (plus facile / plus difficile) : tous les noms existent, aucun en double
+  const ch = await page.evaluate(() => { const f = KineVariantes.chains.flat(); return { miss: f.filter(n => !KineBiblio.find(n)), dup: f.filter((n, i) => f.indexOf(n) !== i) }; });
+  expect(ch).toEqual({ miss: [], dup: [] });
   expect(rf.nb).toBe(52); expect(rf.all).toBe(52); expect(rf.miss).toEqual([]); expect(rf.lca).toBe(true); expect(rf.ptg).toBe(0);
   await page.evaluate(() => KineBiblio.open("cou")); await page.waitForTimeout(800);
   await expect(page.locator(".kf-sheet.open").getByText("Rentrer le menton").first()).toBeVisible();
