@@ -574,11 +574,13 @@ var KineCabinet = (function () {
     Q.forEach(function (x) { if (!qs[x.q] && window.KineQuest && KineQuest.Q[x.q]) qs[x.q] = KineQuest.Q[x.q].nom + " : " + KineQuest.fmt(x.q, x.score) + " (" + dfr(x.fini) + ")"; });
     var S = (C.seances || []).slice(0, 3), dou = S.filter(function (x) { return x.dou != null; }).map(function (x) { return +x.dou; });
     var w = (C.maison || []).slice(0, 4), nm = w.reduce(function (t, x) { return t + (x.n || 0); }, 0);
-    var concl = v("kcr-concl"), pat = v("kcr-pat");
-    var html = "<div class='kcr'><header><div><b>Compte rendu de bilan kinésithérapique</b><span>" + esc(dfr(b.d)) + "</span></div>" + (dest ? "<div class='kcr-to'>À l'attention de " + esc(dest) + "</div>" : "") + "</header>" +
+    var concl = v("kcr-concl"), pat = v("kcr-pat").replace(/\.$/, "");
+    var MF = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    var dl = function (x) { if (!x) return "–"; var p0 = String(x).split("-"); return +p0[2] + " " + MF[+p0[1] - 1] + " " + p0[0]; };
+    var html = "<div class='kcr'><header><div><b>Compte rendu de bilan kinésithérapique</b><span>" + esc(dl(b.d)) + "</span></div>" + (dest ? "<div class='kcr-to'>À l'attention de " + esc(dest) + "</div>" : "") + "</header>" +
       "<section><h3>Patient</h3><p>" + (pat ? "<b>" + esc(pat) + "</b>. " : "") + esc(P.long) + (side ? ", côté " + side : "") + (when ? ", " + esc(when) : "") + ". " +
-        "Début de la prise en charge : " + esc(C.date0 ? dfr(C.date0) : "–") + ". Bilans réalisés : " + B.length + (first && first !== b ? " (premier le " + esc(dfr(first.d)) + ")" : "") + ".</p></section>" +
-      "<section><h3>Mesures du bilan</h3><table><thead><tr><th>Mesure</th><th>Côté atteint</th><th>Côté sain</th><th>Symétrie</th><th>Bilan précédent" + (prev ? " (" + esc(dfr(prev.d)) + ")" : "") + "</th></tr></thead><tbody>" + rows + "</tbody></table></section>" +
+        "Début de la prise en charge : " + esc(dl(C.date0)) + ". Bilans réalisés : " + B.length + (first && first !== b ? " (premier le " + esc(dl(first.d)) + ")" : "") + ".</p></section>" +
+      "<section><h3>Mesures du bilan</h3><table><thead><tr><th>Mesure</th><th>Côté atteint</th><th>Côté sain</th><th>Symétrie</th><th>Bilan précédent" + (prev ? " (" + esc(dl(prev.d)) + ")" : "") + "</th></tr></thead><tbody>" + rows + "</tbody></table></section>" +
       (Object.keys(qs).length ? "<section><h3>Questionnaires remplis par le patient</h3><ul>" + Object.keys(qs).map(function (k) { return "<li>" + esc(qs[k]) + "</li>"; }).join("") + "</ul></section>" : "") +
       "<section><h3>Progression</h3><p>Étape " + (E + 1) + " sur " + P.etapes.length + " : <b>" + esc(P.etapes[E].nom) + "</b>. " + esc(P.etapes[E].but) + "</p><ul class='kcr-obj'>" + objs + "</ul>" +
         "<p>" + (S.length ? "Séances au cabinet : " + (C.seances || []).length + (dou.length ? ", douleur moyenne aux " + dou.length + " dernières : " + KP.fmt(dou.reduce(function (a, c) { return a + c; }, 0) / dou.length) + "/10" : "") + ". " : "") +
