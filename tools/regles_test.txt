@@ -7,25 +7,25 @@ ok   le kiné relie le patient
 ok   le kiné écrit la réponse
 ok   le patient lit sa réponse
 ok   un autre ne lit pas la réponse
-[2026-10-31T13:54:02.420Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aadd error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:46.969Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a6f error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L93, Property email is undefined on object. for 'update' @ L93, Property email is undefined on object. for 'update' @ L93
 ok   le patient n'écrit pas de réponse
 ok   le patient efface sa réponse
 ok   le patient relié rattache son suivi
-[2026-10-31T13:54:02.477Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aadf error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.005Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a71 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L106, evaluation error at L108:32 for 'create' @ L108, Property email is undefined on object. for 'update' @ L106, evaluation error at L108:32 for 'update' @ L108, Property email is undefined on object. for 'create' @ L106, false for 'create' @ L108
 ok   rattacher une fiche dont on n'est pas membre : refusé
 ok   le patient relit son rattachement
 ok   un autre ne lit pas le rattachement
-[2026-10-31T13:54:02.509Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aade error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.033Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a70 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L102, Property email is undefined on object. for 'update' @ L102, Property email is undefined on object. for 'create' @ L102
 ok   abonnement kiné : refusé au patient
 ok   abonnement kiné : accepté pour le kiné
 ok   le patient relié sauvegarde son journal
-[2026-10-31T13:54:02.556Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae0 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.060Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a72 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L136, evaluation error at L138:34 for 'create' @ L138, Property email is undefined on object. for 'update' @ L136, evaluation error at L138:34 for 'update' @ L138, Property email is undefined on object. for 'create' @ L136, false for 'create' @ L138
 ok   journal avec champ en trop refusé
-[2026-10-31T13:54:02.575Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae1 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.073Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a73 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L136, evaluation error at L138:34 for 'create' @ L138, Property email is undefined on object. for 'update' @ L136, evaluation error at L138:34 for 'update' @ L138, Property email is undefined on object. for 'update' @ L136, false for 'update' @ L138
 ok   un autre téléphone n'écrit pas le journal
 ok   un autre téléphone ne lit pas le journal
@@ -34,42 +34,42 @@ ok   le kiné lit le journal
 ok   le kiné envoie un questionnaire
 ok   le patient lit ses questionnaires
 ok   un autre téléphone ne lit pas les questionnaires
-[2026-10-31T13:54:02.674Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae2 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.136Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a74 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L150, Property email is undefined on object. for 'update' @ L150, evaluation error at L152:26 for 'update' @ L152, Property email is undefined on object. for 'create' @ L150
 ok   le patient ne crée pas de questionnaire
-[2026-10-31T13:54:02.707Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae3 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.161Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a75 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L150, Property email is undefined on object. for 'update' @ L150, evaluation error at L152:26 for 'update' @ L152, Property email is undefined on object. for 'update' @ L150, false for 'update' @ L152
 ok   réponse avec champ en trop refusée
-[2026-10-31T13:54:02.727Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae4 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.177Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a76 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L150, Property email is undefined on object. for 'update' @ L150, evaluation error at L152:26 for 'update' @ L152, Property email is undefined on object. for 'update' @ L150, false for 'update' @ L152
 ok   un autre téléphone ne répond pas
 ok   le patient répond
-[2026-10-31T13:54:02.770Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae5 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.203Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a77 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L150, Property email is undefined on object. for 'update' @ L150, evaluation error at L152:26 for 'update' @ L152, Property email is undefined on object. for 'update' @ L150, false for 'update' @ L152
 ok   pas de deuxième réponse au même envoi
 ok   le kiné lit la réponse
 ok   le kiné garde une photo de bilan
 ok   le patient voit ses photos
-[2026-10-31T13:54:02.818Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae6 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.243Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a78 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L131, Property email is undefined on object. for 'update' @ L131, Property email is undefined on object. for 'create' @ L131
 ok   le patient ne modifie pas les photos
 ok   un autre téléphone ne voit pas les photos
 ok   le patient s'abonne aux notifications de son kiné
-[2026-10-31T13:54:02.869Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae8 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.269Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a7a error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L187, evaluation error at L188:34 for 'create' @ L188, Property email is undefined on object. for 'update' @ L187, evaluation error at L188:34 for 'update' @ L188, Property email is undefined on object. for 'create' @ L187, false for 'create' @ L188
 ok   abonnement d'un autre téléphone refusé
 ok   le patient ne lit pas les abonnements
-[2026-10-31T13:54:02.887Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae7 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.282Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a79 error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L187, evaluation error at L188:34 for 'create' @ L188, Property email is undefined on object. for 'update' @ L187, evaluation error at L188:34 for 'update' @ L188, Property email is undefined on object. for 'create' @ L187, false for 'create' @ L188
 ok   abonnement mal formé refusé
 ok   le patient note qu'il a reçu sa fiche
-[2026-10-31T13:54:02.914Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aae9 error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.301Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a7b error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L175, evaluation error at L177:26 for 'create' @ L177, Property email is undefined on object. for 'update' @ L175, evaluation error at L196:26 for 'update' @ L196, Property email is undefined on object. for 'update' @ L175, false for 'update' @ L196
 ok   accusé avec une date inventée refusé
-[2026-10-31T13:54:02.929Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aaea error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.311Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a7c error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L175, evaluation error at L177:26 for 'create' @ L177, Property email is undefined on object. for 'update' @ L175, evaluation error at L196:26 for 'update' @ L196, Property email is undefined on object. for 'update' @ L175, false for 'update' @ L196
 ok   accusé qui change le code refusé
-[2026-10-31T13:54:02.944Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x23c8aaeb error. Code: 7 Message: 7 PERMISSION_DENIED: 
+[2026-10-31T14:10:47.322Z]  @firebase/firestore: Firestore (10.12.2): GrpcConnection RPC 'Write' stream 0x88e77a7d error. Code: 7 Message: 7 PERMISSION_DENIED: 
 Property email is undefined on object. for 'create' @ L175, false for 'create' @ L177, Property email is undefined on object. for 'update' @ L175, false for 'update' @ L196, Property email is undefined on object. for 'update' @ L175, false for 'update' @ L196
 ok   pas d'accusé pour un autre téléphone
 74 réussis, 0 échoués
