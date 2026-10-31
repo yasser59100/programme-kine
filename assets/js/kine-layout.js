@@ -45,6 +45,13 @@
   }
 
   /* ════════ Accueil ════════ */
+  // Reprise de la course réglée par le kiné : rappelée sur l'accueil (le patient n'a pas à chercher dans Mon kiné)
+  function repriseHome() {
+    var R = null; try { R = window.KineReprise && KineReprise.active ? KineReprise.active() : null; } catch (e) {}
+    if (!R || R.e.fini) return "";
+    var sub = R.e.wait ? "Note ta douleur de ce matin" : R.e.nextD ? "Prochaine séance à partir du " + String(R.e.nextD).split("-").reverse().slice(0, 2).join("/") : esc(R.txt);
+    return "<button class='lu-rp' onclick=\"" + (R.e.wait || R.e.nextD ? "showPage('monkine')" : "KineReprise.go()") + "\"><span><b>Reprise de la course · palier " + R.e.palier + " sur 10</b><em>" + sub + "</em></span><i aria-hidden='true'>›</i></button>";
+  }
   function kineSlab(k, ss, today) {
     var done = ss.some(function (x) { return x.date === today && /kin[ée]/i.test(String(x.seance || "")); });
     var IPLAY = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>";
@@ -112,6 +119,7 @@
         "<p class='lu-m'>" + (lede ? esc(lede) + ". " : "") + nWork + " exercices, " + minutes(target) + " minutes, " + kitText(target) + "</p>" +
         "<button class='lx-cta lu-go' onclick=\"openPreview('" + target + "')\"><svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>" + esc(cta) + "</button>" +
         "<button class='lx-link lu-see' onclick=\"openExplain('" + target + "')\">Voir les exercices</button></div>") +
+      repriseHome() +
       "<div class='lu-duo'>" +
         (window.KineCamera ? "<button class='lu-blk lu-vid' id='lu-video' onclick='KineCamera.open()'><span class='lu-ic'>" + ICAM + "</span><b>Tester en vidéo</b><small>Yass regarde ton mouvement et te corrige</small></button>" : "") +
         (xd ? "<button class='lu-blk lu-exp' id='ki-express' onclick=\"KineIdees.express('" + target + "')\"><span class='lu-ic'>" + IZAP + "</span><b>" + (xd.minutes || 10) + " minutes</b><small>Séance express, pas le temps</small></button>" : "") +

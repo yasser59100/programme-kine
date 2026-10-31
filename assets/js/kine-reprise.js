@@ -110,7 +110,7 @@ var KineReprise = (function () {
     var c = cfgNow(); if (c && v > c.max && window.showToast) showToast("Douleur au-dessus du seuil : la prochaine séance reprend le palier d'avant");
     refresh();
   }
-  function refresh() { if (window.KineMonSuivi) { KineMonSuivi.page(); var sh = $("kms-sheet"); if (sh && sh.classList.contains("open")) KineMonSuivi.view(); } }
+  function refresh() { if (window.KineMonSuivi) { KineMonSuivi.page(); var sh = $("kms-sheet"); if (sh && sh.classList.contains("open")) KineMonSuivi.view(); } if (window.KineLayout && KineLayout.render) try { KineLayout.render(); } catch (e) {} }
 
   // La séance : une suite d'intervalles marche / course, avec la voix et des bips
   var RUN = null, wake = null;

@@ -62,6 +62,7 @@ var KineMonSuivi = (function () {
       if (fbPat.seen) fbPat.seen(s.pid).catch(function () {});   // accusé de réception pour le kiné
       if ($("kms-sheet") && $("kms-sheet").classList.contains("open")) view();
       page();
+      if (window.KineLayout && KineLayout.render && d.course) try { KineLayout.render(); } catch (e) {}   // reprise de course rappelée sur l'accueil
       return ns;
     }, function (e) { busy = false; console.log("Suivi cabinet indisponible", e); return s; });
   }

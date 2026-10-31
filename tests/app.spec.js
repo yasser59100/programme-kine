@@ -923,6 +923,11 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   // reliée au journal de course : la reprise en tête, ses séances dans la liste
   await page.locator("#monkine-body .krp-jr").click();
   await expect(page.locator("#kco-sheet .kco-rp")).toContainText("Palier 4 sur 10");
+  // et rappelée sur l'accueil
+  await page.evaluate(() => { KineCourse.close(); showPage("home"); KineLayout.render(); });
+  await expect(page.locator("#today-card .lu-rp")).toContainText("palier 4 sur 10");
+  await page.locator("#today-card .lu-rp").scrollIntoViewIfNeeded(); await page.waitForTimeout(300); await shot(page, info, "102-accueil-reprise");
+  await page.evaluate(() => KineCourse.open());
   await expect(page.locator("#kco-sheet .kco-row").first()).toContainText("Reprise, palier 3");
   await page.waitForTimeout(400);
   await shot(page, info, "99-reprise-journal");

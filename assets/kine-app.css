@@ -3575,3 +3575,8 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kcb-gym { text-decoration: none; display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 6px; background: var(--surface2, #EEF0F4); color: var(--text2); font-size: .7rem; font-weight: 700; line-height: 1.55; vertical-align: 1px; }
 .lu-gen { display: block; margin: 10px auto 0; }
 .kcb-ok > svg { flex-shrink: 0; width: 18px; height: 18px; }
+.lu-rp { display: flex; align-items: center; gap: 10px; width: 100%; margin: 12px 0 0; padding: 14px 16px; border: 0; border-radius: 18px; background: linear-gradient(135deg, #FF8A2B, #F25C3B); color: #fff; text-align: left; font-family: var(--font); box-shadow: 0 10px 24px rgba(242, 92, 59, .25); }
+.lu-rp span { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.lu-rp b { font-size: .98rem; }
+.lu-rp em { font-style: normal; font-size: .84rem; opacity: .92; }
+.lu-rp i { font-style: normal; font-size: 1.4rem; }
