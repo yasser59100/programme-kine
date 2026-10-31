@@ -309,7 +309,7 @@ var KineMonSuivi = (function () {
     if (window.KineReprise && d.course && !PREV) html += KineReprise.patientCard(d);
     // séance du kiné
     var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
-    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<div class='kms-ex'>" + esc(n) + "</div>"; }).join("") +
+    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<button type='button' class='kms-ex' data-n='" + esc(n) + "' onclick='KineMonSuivi.demo(this)'><span>" + esc(n) + "</span><em>Voir</em></button>"; }).join("") +
       (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // mot du kiné
     if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
@@ -382,5 +382,7 @@ var KineMonSuivi = (function () {
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; page(); }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { phZoom: phZoom, _photosHtml: photosHtml, notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  // Voir un exercice de la séance du kiné (Yass le montre)
+  function demo(b) { var n = b && b.getAttribute("data-n"); if (n && window.KineBiblio) KineBiblio.demo(n); }
+  return { demo: demo, phZoom: phZoom, _photosHtml: photosHtml, notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();

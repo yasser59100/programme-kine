@@ -939,7 +939,7 @@ var KineCabinet = (function () {
     sub = "seance";
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1), inL = S.list.map(function (e) { return e.ex; });
     var reco = [C.ref || P.ref].concat(KP.exos(C.parcours, E, C.opts)).filter(function (n, i, a) { return a.indexOf(n) === i && inL.indexOf(n) < 0; });
-    var stp = function (i, k, lab) { var v = S.list[i][k]; return "<div class='kss-st'><span>" + lab + "</span><div><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",-1)' aria-label='Moins'>−</button><b>" + KP.fmt(v) + "</b><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",1)' aria-label='Plus'>+</button></div></div>"; };
+    var stp = function (i, k, lab) { var v = S.list[i][k]; return "<div class='kss-st'><span>" + lab + "</span><div><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",-1)' aria-label='Moins'>−</button><input class='kss-v' inputmode='decimal' aria-label='" + lab + "' value='" + KP.fmt(v) + "' onfocus='this.select()' onchange='KineCabinet.sv(" + i + "," + q(k) + ",this.value)'><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",1)' aria-label='Plus'>+</button></div></div>"; };
     var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) + "<div><div class='kf-h1 kcb-h1'>Séance du jour</div><div class='kf-sub'>Étape " + (E + 1) + " : " + esc(P.etapes[E].nom) + "</div></div>";
     // les exercices de la séance
     html += "<div class='kcb-v2h'>Exercices de la séance" + (S.list.length ? " · " + S.list.length : "") + "</div>";
@@ -975,6 +975,8 @@ var KineCabinet = (function () {
     sheet().scrollTop = y; snapLater(0);
   }
   function sl(i, k, d) { var e = S.list[i], st0 = k === "kg" ? kgStep(e.kg + (d < 0 ? -0.01 : 0)) : 1; e[k] = Math.max(k === "kg" ? 0 : 1, Math.round((e[k] + d * st0) * 10) / 10); e.sug = null; seanceView(); }
+  // Valeur tapée directement (20 kg sans toucher quarante fois « + »)
+  function sv(i, k, t) { var e = S.list[i], v = parseFloat(String(t).replace(",", ".")); if (!e || isNaN(v)) { seanceView(); return; } e[k] = Math.max(k === "kg" ? 0 : 1, Math.min(k === "kg" ? 400 : 100, Math.round(v * (k === "kg" ? 10 : 1)) / (k === "kg" ? 10 : 1))); e.sug = null; seanceView(); }
   function sr(i, r) { S.list[i].r = S.list[i].r === r ? null : r; seanceView(); }
   function srm(i) { S.list.splice(i, 1); seanceView(); }
   function sadd(n) {
@@ -1413,7 +1415,7 @@ var KineCabinet = (function () {
   }
 
   return {
-    open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, sv: sv, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,

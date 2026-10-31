@@ -2992,7 +2992,8 @@ html[data-mode="coureur"] .lu-slab .lu-t { font-style: italic; letter-spacing: -
 .kms-o.ok > i { border: none; }
 .kms-o > span { flex: 1; color: #fff !important; font-size: .92rem !important; }
 .kms-o > b { font: 800 .95rem var(--font); }
-.kms-ex { padding: 10px 0; border-top: 1px solid var(--border); font-weight: 600; font-size: .95rem; }
+.kms-ex { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 10px 0; border: 0; border-top: 1px solid var(--border); background: none; color: var(--text); text-align: left; font: 600 .95rem var(--font); }
+.kms-ex em { font-style: normal; font-size: .8rem; font-weight: 700; color: #4B5BFF; flex-shrink: 0; }
 .kms-why { border-radius: 22px; padding: 16px; background: #E4ECFF; display: flex; flex-direction: column; gap: 6px; }
 .kms-why b { font: 800 1.05rem var(--lu-head); color: #1E2AB0; }
 .kms-why span { font-size: .9rem; line-height: 1.45; color: #2A3550; }
@@ -3558,3 +3559,7 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kcb-relier b { font-size: .92rem; }
 .kcb-relier em { font-style: normal; font-size: .82rem; color: var(--text2); }
 .kcb-relier i { font-style: normal; font-size: 1.3rem; color: #B45309; }
+/* Étiquette de phase de la démonstration : une ligne, sans masquer la tête de Yass */
+#kf-demo .v2-stage .rg-phase-label { top: auto; bottom: 12px; white-space: nowrap; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; font-size: .8rem; padding: 6px 12px; z-index: 2; }
+.kss-st .kss-v { width: 46px; height: 32px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--text); text-align: center; font: 800 1.05rem var(--font); }
+.kss-st .kss-v:focus { outline: none; border-color: #4B5BFF; background: var(--surface); }

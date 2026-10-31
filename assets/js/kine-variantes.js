@@ -132,7 +132,8 @@
       "<div class='kv-mid'><b>Niveau</b>" + (dots ? "<span class='kv-dots' aria-hidden='true'>" + dots + "</span>" : "<span class='kv-n'>à ta mesure</span>") + "</div>" +
       "<button type='button' class='kv-btn up' data-d='1' aria-label='Plus difficile : " + esc(up) + "'>+<small>Plus difficile</small></button></div>" +
       "<p class='kv-hint' id='kv-hint'>" + (up ? upHint(ex) : "") + "</p>";
-    var gb = !neighbor(ex.name, 1) && !adj(ex).down ? gearBlocked(ex.name) : null;
+    // Matériel manquant pour la variante suivante : seulement quand + en serait là (après 60 s ou 15 répétitions)
+    var gb = !neighbor(ex.name, 1) && !adj(ex).down && atVar(dose(ex)) ? gearBlocked(ex.name) : null;
     if (gb) el.querySelector(".kv-hint").innerHTML = "";
     if (gb) el.innerHTML += "<div class='kv-gear'>Niveau suivant : <strong>" + esc(gb.name) + "</strong>. Il faut " + esc(GEAR[gb.gear] || gb.gear) + ".<button type='button' class='kv-gearbtn'>J'en ai, je passe au niveau suivant</button></div>";
     cue.parentNode.insertBefore(el, cue.nextSibling);
