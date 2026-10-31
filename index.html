@@ -118,13 +118,6 @@ window.fbSignOut = async function() {
   await signOut(auth);
 };
 
-// Anciennes données de la Communauté retirée (messages publiés, compteur de séances) : le kiné peut tout effacer
-window.fbPurgeOld = async function () {
-  if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("admin");
-  var n = 0;
-  for (const c of ["messages", "completions"]) { var snap = await getDocs(collection(db, c)); for (const d of snap.docs) { await deleteDoc(d.ref); n++; } }
-  return n;
-};
 // ── PROGRAMME OFFICIEL : contenu des exercices, publié par le kiné, lu par tous (aucune donnée patient) ──
 window.fbGetProgramme = async function() {
   var snap = await getDoc(doc(db, "programme", "officiel"));
