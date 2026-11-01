@@ -452,7 +452,7 @@ window.dispatchEvent(new Event("kf-fb-ready"));
   </div>
 
   <div class="chart-card">
-    <h4>Évolution de l'effort ressenti (Borg)</h4>
+    <h4>Évolution de l'effort ressenti</h4>
     <div id="borg-chart"><div class="chart-empty">Les données apparaîtront après tes premières séances enregistrées.</div></div>
   </div>
 
@@ -714,7 +714,7 @@ function renderAllDays(){['day0','day1','day2','day3','day4'].forEach(renderDay)
 
 // ══ SESSIONS ══
 var sessions=[],borgVal=null;
-var borgLabels=['','Très léger','Léger','Modéré','Difficile','Très difficile'];
+var borgLabels=['','Très facile','Facile','Modéré','Difficile','Épuisant'];
 function loadSessions(){try{var s=localStorage.getItem('kf-sessions');if(s)sessions=JSON.parse(s);}catch(e){}}
 function saveSessions(){try{localStorage.setItem('kf-sessions',JSON.stringify(sessions));}catch(e){}}
 function clearSessions(){if(confirm('Effacer toutes les séances enregistrées ?')){sessions=[];saveSessions();renderAll();}}
@@ -731,7 +731,7 @@ function renderSessions(){
       +'<div class="si-top"><div class="si-date">'+fmtDate(s.date)+'</div><div class="si-seance">'+s.seance+'</div></div>'
       +'<div class="si-tags">'
       +(s.semaine?'<span class="tag blue" style="font-size:0.7rem">'+s.semaine.replace('Semaine ','S').split(' ')[0]+'</span>':'')
-      +(s.borg?'<span class="tag" style="font-size:0.7rem;background:transparent;border-color:'+borgC[s.borg]+';color:'+borgC[s.borg]+'">Borg '+s.borg+' — '+borgLabels[s.borg]+'</span>':'')
+      +(s.borg?'<span class="tag" style="font-size:0.7rem;background:transparent;border-color:'+borgC[s.borg]+';color:'+borgC[s.borg]+'">Effort '+s.borg+', '+borgLabels[s.borg]+'</span>':'')
       +(s.completion?'<span class="tag green" style="font-size:0.7rem">'+s.completion.split('—')[0].trim()+'</span>':'')
       +'</div>'
       +(s.notes?'<div class="si-note">'+s.notes+'</div>':'')
@@ -747,7 +747,7 @@ function renderBorgChart(){
   var borgC=['','#34d399','#6ee7b7','#fcd34d','#fb923c','#f87171'];
   var bars=data.map(function(s){
     var h=Math.round((s.borg/5)*80);
-    return '<div class="bc-col"><div class="bc-val">'+s.borg+'</div><div class="bc-bar" style="height:'+h+'px;background:'+borgC[s.borg]+'" title="+s.seance+ — Borg +s.borg+"></div><div class="bc-label">'+fmtDate(s.date).replace(',','')+'</div></div>';
+    return '<div class="bc-col"><div class="bc-val">'+s.borg+'</div><div class="bc-bar" style="height:'+h+'px;background:'+borgC[s.borg]+'" title="Effort '+s.borg+' sur 5"></div><div class="bc-label">'+fmtDate(s.date).replace(',','')+'</div></div>';
   }).join('');
   el.innerHTML='<div class="bar-chart">'+bars+'</div>'
     +'<div class="chart-legend">'
@@ -844,7 +844,7 @@ function buildSummary(){
     l.push('Date : '+fmtDate(s.date));
     l.push('Type : '+(s.seance||'—'));
     if(s.semaine)l.push('Cycle : '+s.semaine);
-    if(s.borg)l.push('Effort : Borg '+s.borg+' — '+borgLabels[s.borg]);
+    if(s.borg)l.push('Effort ressenti : '+s.borg+' sur 5, '+borgLabels[s.borg]);
     if(s.completion)l.push('Réalisation : '+s.completion);
     if(s.notes)l.push('Remarques : '+s.notes);
     l.push('');
@@ -963,7 +963,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <button class="seq-close" onclick="closeSeq()" aria-label="Quitter la séance"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="seq-header-info">
       <div class="seq-day-label" id="seq-day-label">Séance</div>
-      <div class="seq-ex-counter" id="seq-ex-counter">Exercice 1 / 7</div>
+      <div class="seq-ex-counter" id="seq-ex-counter">Exercice 1</div>
       <div class="seq-progress-bar"><div class="seq-progress-fill" id="seq-progress-fill" style="width:0%"></div></div>
     </div>
     <button class="seq-sound-btn on" id="seq-sound-btn" onclick="toggleSeqSound()" title="Son / Voix" aria-label="Couper ou remettre le son"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7"/></svg></button>
@@ -1117,7 +1117,7 @@ var obSlides = [
   {
     icon: "graph",
     title: "Enregistre tes séances",
-    desc: "Après chaque séance, va dans Mon suivi pour noter ton effort ressenti (Borg 1 à 5). Tes graphiques de progression apparaissent dès la 2ème séance."
+    desc: "Après chaque séance, va dans Mon suivi pour noter ton effort ressenti (de 1 à 5). Tes graphiques de progression apparaissent dès la 2ème séance."
   },
   {
     icon: "people",
@@ -1307,7 +1307,7 @@ var SEQ_DAYS = {
     exercises: [
       { name: "Échauffement global progressif", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Marche genoux hauts 45 s, jumping jacks modérés 35 s, rotations complètes de bas en haut 1 min, 5 grandes respirations 40 s.",
-        tip: "Objectif Borg 2 en fin d'échauffement." },
+        tip: "Objectif : effort ressenti à 2 sur 5 en fin d'échauffement." },
       { name: "Squat + élévation bras", phase: "work", series: 3, repsLabel: "40 secondes", restAfter: 120,
         desc: "Descente en squat, remontée avec élévation coordonnée des deux bras jusqu'à la verticale. Mouvement fluide membres inférieurs et membres supérieurs." },
       { name: "Inchworm et pompes", phase: "work", series: 3, repsLabel: "40 secondes", restAfter: 120,
@@ -2078,7 +2078,7 @@ function qlShowStep(n) {
     sum.innerHTML =
       '<div style="display:flex;gap:12px;flex-wrap:wrap">'
       + '<span>' + qlData.day + '</span>'
-      + (qlData.borg ? '<span>' + borgEmojis[qlData.borg] + ' Borg ' + qlData.borg + ' — ' + borgLabels[qlData.borg] + '</span>' : '')
+      + (qlData.borg ? '<span>' + borgEmojis[qlData.borg] + ' Effort ' + qlData.borg + ', ' + borgLabels[qlData.borg] + '</span>' : '')
       + (qlData.completion ? '<span>' + qlData.completion + '</span>' : '')
       + '</div>';
   }

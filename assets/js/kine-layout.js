@@ -93,7 +93,7 @@
       var dd = new Date(mon0); dd.setDate(mon0.getDate() + i);
       days += "<div class='lu-day" + (!id ? " rest" : "") + (done ? " ok" : "") + (d === dow ? " now" : "") + "'>" + WS[d] + "<b>" + (done ? "✓" : dd.getDate()) + "</b><i>" + (c || "repos") + "</i></div>";
     });
-    var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : comme prévu par ton programme, on reprend en semaine 1.</p>"
+    var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : on reprend en semaine " + st.week + (st.week === 1 ? "" : ", un peu plus bas pour repartir en douceur") + ".</p>"
                : st.cycleDone ? "<p class='lx-rule'>Cycle de 4 semaines terminé. Parles-en à ton kinésithérapeute pour la suite.</p>"
                : st.week >= 2 && window.KineProgress && KineProgress.painHold && KineProgress.painHold() ? "<p class='lx-rule red'><b>Douleur de 5 sur 10 ou plus à plusieurs reprises.</b> Par prudence, on reste à 2 tours, sans augmenter la difficulté, jusqu'à ce que la douleur baisse.</p>" : "";
     var others = Object.keys(SEQ_DAYS).filter(function (id) { return id !== target; }).map(function (id) {
