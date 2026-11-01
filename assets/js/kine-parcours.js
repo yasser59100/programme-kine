@@ -246,14 +246,14 @@ var KineParcours = (function () {
         obj: [
           { id: "course", t: "30 min de course continue sans douleur ni gonflement le lendemain", p: "Tu cours 30 minutes sans douleur" },
           { id: "quad85", t: "Symétrie du quadriceps d'au moins 85 %", p: "Ta cuisse a retrouvé 85 % de sa force", a: { m: "quad", lsi: 85 } },
-          { id: "hop80", t: "Tests de saut à au moins 80 % du côté sain", p: "Tes sauts atteignent 80 % de l'autre jambe", a: { hops: 80 } },
+          { id: "hop80", t: "Tests de saut à au moins 80 % du côté sain", p: "Tes sauts atteignent 80 % de l'autre jambe", a: { hops: 80, need: ["hop1", "hop3", "hop6"] } },
           { id: "recep", t: "Réceptions de sauts symétriques, genou dans l'axe", p: "Tu te réceptionnes bien droit" }],
         exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Montées de genoux", "Skater latéral sans saut", "Squat réactif", "Squat bulgare", "Presse à une jambe", "Leg extension", "Copenhague dynamique genou", "Réception de saut stabilisée", "Saut sur la marche", "Le kangourou"] },
       { nom: "Grands sauts et changements de direction", but: "Pliométrie, pivots, agilité, puis travail spécifique au sport.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps et des ischios d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "isch90", t: "Symétrie des ischio-jambiers d'au moins 90 %", p: "L'arrière de ta cuisse a retrouvé 90 % de sa force", a: { m: "ischio", lsi: 90 } },
-          { id: "hop90", t: "Tests de saut (simple, triple, 6 m) à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
+          { id: "hop90", t: "Tests de saut (simple, triple, 6 m) à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90, need: ["hop1", "hop3", "hop6"] } },
           { id: "agil", t: "Changements de direction et pivots sans appréhension", p: "Tu changes de direction sans crainte" }],
         exos: ["Sauts sur une jambe", "Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Fentes réactives", "Pas chassés réactifs", "Copenhague dynamique", "Nordic curl assisté", "Fente avec charge", "Saut sur une jambe, réception tenue", "Bonds du patineur", "Fentes sautées"] },
       { nom: "Retour au sport", but: "Entraînement complet puis compétition. Programme de prévention à garder.",
@@ -297,12 +297,12 @@ var KineParcours = (function () {
       { nom: "Courir et sauter", but: "Course, sauts progressifs puis changements de direction.",
         obj: [
           { id: "course", t: "30 min de course sans douleur ni gonflement", p: "Tu cours 30 minutes sans douleur" },
-          { id: "hop85", t: "Tests de saut à au moins 85 %", p: "Tes sauts atteignent 85 % de l'autre jambe", a: { hops: 85 } }],
+          { id: "hop85", t: "Tests de saut à au moins 85 %", p: "Tes sauts atteignent 85 % de l'autre jambe", a: { hops: 85, need: ["hop1", "hop3", "hop6"] } }],
         exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Pas chassés réactifs", "Fentes réactives", "Squat réactif", "Réception de saut stabilisée", "Saut sur la marche", "Saut sur une jambe, réception tenue", "Le kangourou"] },
       { nom: "Retour à l'activité", but: "Reprise du sport choisi. Si sport à pivots : décision partagée avec le patient.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
-          { id: "hop90", t: "Tests de saut à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
+          { id: "hop90", t: "Tests de saut à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90, need: ["hop1", "hop3", "hop6"] } },
           { id: "nodero2", t: "Pas de dérobement à l'entraînement", p: "Ton genou tient à l'entraînement" }],
         exos: ["Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Nordic curl assisté", "Planche Copenhague", "Bonds du patineur", "Fentes sautées"] }
     ],
@@ -459,7 +459,7 @@ var KineParcours = (function () {
       { nom: "Renforcer et contrôler", but: "Renforcement progressif et exercices neuromusculaires (genou dans l'axe, équilibre).",
         obj: [
           { id: "sts", t: "Lever de chaise amélioré d'au moins 2 répétitions", p: "Tu te lèves plus facilement de ta chaise", a: { m: "sts30", gain: 2 } },
-          { id: "marche", t: "Marche rapide 4 × 10 m plus rapide qu'au premier bilan", p: "Tu marches plus vite", a: { m: "marche40", gain: 1 } },
+          { id: "marche", t: "Marche rapide 4 × 10 m : au moins 1 s gagnée depuis le premier bilan", p: "Tu marches plus vite", a: { m: "marche40", gain: 1 } },
           { id: "dou", t: "Douleur à l'effort de 4/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 4 } }],
         exos: ["Step-up sur marche", "Squat ballon dans le dos contre le mur", "Squat bilatéral", "Marche latérale élastique", "Pont fessier unilatéral", "Extension de genou assis", "Unipodal yeux fermés", "Toucher en étoile unipodal", "Presse à cuisses", "Leg extension", "Marche arrière", "Fente statique", "Descente de marche sur le côté", "La chaise qui récite l'alphabet"] },
       { nom: "Autonomie", but: "Programme à faire seul, activité physique régulière (marche, vélo, natation).",
@@ -867,7 +867,7 @@ var KineParcours = (function () {
         exos: ["Contraction de l'épaule contre le mur", "Pendulaire de Codman", "Élévation du bras aidée, couché", "Rotation externe au bâton, coude au corps", "Serrage des omoplates", "Haussement et enroulement des épaules", "Glissement de la main sur la table"] },
       { nom: "Renforcer la coiffe", but: "Rotations externes et élévations progressives, travail de l'omoplate.",
         obj: [
-          { id: "fle", t: "Élévation complète, sans arc douloureux net", p: "Tu lèves le bras jusqu'en haut", a: { m: "fle", lsi: 95 } },
+          { id: "fle", t: "Élévation complète (au moins 95 % du côté sain), sans arc douloureux net", p: "Tu lèves le bras jusqu'en haut", a: { m: "fle", lsi: 95 } },
           { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } }],
         exos: ["Rotation externe à l'élastique", "Rotation externe couché sur le côté", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Coup de poing vers le plafond", "Bras en arrière à plat ventre", "Wall slides", "Face pull à l'élastique", "Le mime contre la vitre", "Le chef d'orchestre"] },
       { nom: "Bras en hauteur et reprise", but: "Charges au-dessus de la tête, vitesse, gestes du sport ou du travail.",
@@ -1134,7 +1134,7 @@ var KineParcours = (function () {
         exos: ["Abduction contre le mur, debout", "Montée de marche sur le côté", "Step-up sur marche", "Squat bilatéral", "Pont fessier unilatéral", "Équilibre unipodal", "Marche latérale élastique", "La marche du mannequin"] },
       { nom: "Autonomie", but: "Programme à faire seul, activité physique régulière (marche, vélo, natation).",
         obj: [
-          { id: "marche", t: "Marche rapide 4 × 10 m améliorée", p: "Tu marches plus vite", a: { m: "marche40", gain: 2 } },
+          { id: "marche", t: "Marche rapide 4 × 10 m : au moins 2 s gagnées depuis le premier bilan", p: "Tu marches plus vite", a: { m: "marche40", gain: 2 } },
           { id: "activ", t: "Activité physique régulière en place", p: "Tu bouges régulièrement" }],
         exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Se relever du sol", "Le pas du crabe", "Avion sur une jambe"] }
     ],
@@ -1435,7 +1435,8 @@ var KineParcours = (function () {
   function val(b, mid, side) { var r = b && b.m && b.m[mid]; if (!r) return null; return best(mid, side === "s" ? r.s : r.a); }
   function lsi(b, mid) {
     var a = val(b, mid, "a"), s = val(b, mid, "s");
-    if (a == null || s == null || !a || !s) return null;
+    if (a == null || s == null || !s) return null;
+    if (!a) return M[mid] && M[mid].lo ? null : 0;   // 0 kg : 0 % (pas de contraction) ; un temps nul n'a pas de sens
     return Math.round((M[mid] && M[mid].lo ? s / a : a / s) * 100);
   }
   // Dernière valeur connue d'une mesure dans l'historique des bilans (plus récent en premier)
@@ -1443,11 +1444,12 @@ var KineParcours = (function () {
   function firstWith(bilans, mid) { for (var i = bilans.length - 1; i >= 0; i--) if (val(bilans[i], mid, "a") != null) return bilans[i]; return null; }
   function days(from) { if (!from) return null; var p = String(from).split("-"); return Math.floor((Date.now() - new Date(+p[0], +p[1] - 1, +p[2]).getTime()) / 86400000); }
 
+  var HOPN = { hop1: "saut simple", hop3: "triple saut", hop6: "6 m" };
   /* Évalue un objectif calculé : { ok: true/false/null (pas de mesure), v: texte de la valeur } */
   function evalObj(a, ctx) {
     if (!a) return null;
     var B = ctx.bilans || [];
-    if (a.j != null) { var d = days(ctx.date0); return d == null ? { ok: null, v: "date à renseigner" } : { ok: d >= a.j, v: Math.floor(d / 7) + " sem." }; }
+    if (a.j != null) { var d = days(ctx.date0); return d == null ? { ok: null, v: "date à renseigner" } : d < 0 ? { ok: false, v: "date dans le futur" } : { ok: d >= a.j, v: Math.floor(d / 7) + " sem." }; }
     if (a.dou != null) {
       var ss = (ctx.seances || []).filter(function (s) { return s.dou != null && s.dou !== ""; }).slice(0, 3);
       if (ss.length < 2) return { ok: null, v: "2 séances à noter" };
@@ -1455,11 +1457,18 @@ var KineParcours = (function () {
       return { ok: mx <= a.dou, v: "max " + mx + "/10" };
     }
     if (a.hops != null) {
-      var b0 = B[0] ? B : [];
-      var got = ["hop1", "hop3", "hop6"].map(function (h) { var bb = lastWith(b0, h); return bb ? lsi(bb, h) : null; }).filter(function (x) { return x != null; });
-      if (!got.length) return { ok: null, v: "à mesurer" };
-      var mn = Math.min.apply(null, got);
-      return { ok: mn >= a.hops, v: mn + " %" };
+      // need : tests exigés (batterie complète) ; sinon, tous ceux qui sont mesurés. Un test sous le seuil suffit à ne pas valider ;
+      // un test exigé jamais mesuré empêche de valider (pas de retour au sport sur un seul saut quand le parcours en demande trois).
+      var b0 = B[0] ? B : [], need = a.need || [], got = [], miss = [];
+      (need.length ? need : ["hop1", "hop3", "hop6"]).forEach(function (h) {
+        var bb = lastWith(b0, h), l = bb ? lsi(bb, h) : null;
+        if (l != null) got.push(l); else if (need.length) miss.push(HOPN[h] || h);
+      });
+      var mn = got.length ? Math.min.apply(null, got) : null;
+      if (mn != null && mn < a.hops) return { ok: false, v: mn + " %" };
+      if (miss.length) return { ok: null, v: "à mesurer : " + miss.join(", ") };
+      if (mn == null) return { ok: null, v: "à mesurer" };
+      return { ok: true, v: mn + " %" };
     }
     var b = lastWith(B, a.m); if (!b) return { ok: null, v: "à mesurer" };
     var va = val(b, a.m, "a"), vs = val(b, a.m, "s"), u = M[a.m] && M[a.m].u ? M[a.m].u : "", sp = u === "°" ? "" : " ";
