@@ -71,6 +71,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 const ADMIN_EMAIL = "yasser59100@gmail.com";
+// Une seule fenêtre Google à la fois : un double appui relançait la fenêtre et faisait planter Firebase sur iPhone
+let popupRun = null;
+function onePopup(fn) { if (popupRun) return popupRun; popupRun = Promise.resolve().then(fn).finally(function () { popupRun = null; }); return popupRun; }
 
 // ── AUTH STATE ──
 onAuthStateChanged(auth, function(user) {
@@ -96,7 +99,7 @@ onAuthStateChanged(auth, function(user) {
 window.signInWithGoogle = async function() {
   try {
     provider.setCustomParameters({ prompt: "select_account" });
-    await signInWithPopup(auth, provider);
+    await onePopup(function () { return signInWithPopup(auth, provider); });
   } catch(e) {
     console.error("Google sign-in error:", e);
     var err = document.getElementById("modal-error");
@@ -287,7 +290,7 @@ window.fbPat = {
   google: function () { var u = cabAuth.currentUser; return u && !u.isAnonymous ? (u.email || "compte Google") : null; },
   linkGoogle: async function (pid) {
     var u = await cabAnon(), pv = new GoogleAuthProvider(); pv.setCustomParameters({ prompt: "select_account" });
-    try { if (u.isAnonymous) await linkWithPopup(u, pv); }
+    try { if (u.isAnonymous) await onePopup(function () { return linkWithPopup(u, pv); }); }
     catch (e) {
       // Ce compte Google est déjà rattaché à un suivi : on s'y connecte et on retrouve sa fiche
       if (e && e.code === "auth/credential-already-in-use") { var c = GoogleAuthProvider.credentialFromError(e); await signInWithCredential(cabAuth, c); var a = await getDoc(doc(cabDb, "acces", cabAuth.currentUser.uid)); return a.exists() ? a.data().pid : null; }
@@ -314,7 +317,7 @@ window.fbPat = {
   journalGet: async function (pid) { await cabAnon(); return cabRows(await getDocs(collection(cabDb, CAB, pid, "journal"))); },
   restoreGoogle: async function () {
     var pv = new GoogleAuthProvider(); pv.setCustomParameters({ prompt: "select_account" });
-    var r = await signInWithPopup(cabAuth, pv);
+    var r = await onePopup(function () { return signInWithPopup(cabAuth, pv); });
     var a = await getDoc(doc(cabDb, "acces", r.user.uid));
     return a.exists() ? a.data().pid : null;
   },
