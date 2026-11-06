@@ -209,8 +209,7 @@ var KineParcours = (function () {
 
   P.lca_op = {
     nom: "LCA opéré", long: "Ligamentoplastie du ligament croisé antérieur", zone: "genou", op: 1,
-    opts: [{ id: "greffe", l: "Greffe", ch: [["didt", "Ischio-jambiers (DIDT)"], ["kj", "Tendon rotulien (KJ)"], ["quadri", "Tendon quadricipital"], ["autre", "Autre"]] },
-           { id: "menisque", l: "Suture méniscale associée", ch: [["non", "Non"], ["oui", "Oui"]] }],
+    opts: [{ id: "greffe", l: "Greffe", ch: [["didt", "Ischio-jambiers (DIDT)"], ["kj", "Tendon rotulien (KJ)"], ["quadri", "Tendon quadricipital"], ["autre", "Autre"]] }],
     key: { m: "quad", lsi: 1, l: "Symétrie du quadriceps" },
     mes: ["quad", "ischio", "flex", "ext", "peri", "cuisse", "epanch", "hop1", "hop3", "hop6", "yb", "aclrsi"],
     ref: "Leg extension amplitude limitée",
@@ -302,6 +301,8 @@ var KineParcours = (function () {
       { nom: "Retour à l'activité", but: "Reprise du sport choisi. Si sport à pivots : décision partagée avec le patient.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
+          { id: "isch90", t: "Symétrie des ischio-jambiers d'au moins 90 %", p: "L'arrière de ta cuisse a retrouvé 90 % de sa force", a: { m: "ischio", lsi: 90 } },
+          { id: "rsi", t: "ACL-RSI satisfaisant (repère : 65 ou plus, à interpréter)", p: "Tu te sens prêt dans ta tête", a: { m: "aclrsi", min: 65 } },
           { id: "hop90", t: "Tests de saut à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90, need: ["hop1", "hop3", "hop6"] } },
           { id: "nodero2", t: "Pas de dérobement à l'entraînement", p: "Ton genou tient à l'entraînement" }],
         exos: ["Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Nordic curl assisté", "Planche Copenhague", "Bonds du patineur", "Fentes sautées"] }
@@ -504,7 +505,6 @@ var KineParcours = (function () {
 
   P.lcm = {
     nom: "Entorse du ligament latéral interne", long: "Entorse du ligament collatéral médial (LLI)", zone: "genou",
-    opts: [{ id: "grade", l: "Gravité", ch: [["1", "Grade 1 (bénin)"], ["2", "Grade 2 (partielle)"], ["3", "Grade 3 (rupture)"]] }],
     key: { m: "quad", lsi: 1, l: "Symétrie du quadriceps" },
     mes: ["quad", "flex", "ext", "peri", "epanch", "hop1", "yb"],
     ref: "Presse à une jambe",
@@ -604,7 +604,6 @@ var KineParcours = (function () {
 
   P.entorse = {
     nom: "Entorse de cheville", long: "Entorse du ligament latéral externe de la cheville", zone: "cheville",
-    opts: [{ id: "grade", l: "Gravité", ch: [["1", "Bénigne"], ["2", "Moyenne"], ["3", "Grave"]] }],
     key: { m: "heel", lsi: 1, l: "Symétrie des élévations du talon" },
     mes: ["dou", "fig8", "dfl", "dfa", "heel", "yb", "hopside", "hop1", "cait", "faam"],
     ref: "Élévation des talons unipodale",
@@ -712,7 +711,6 @@ var KineParcours = (function () {
   P.rupt_achille = {
     nom: "Rupture du tendon d'Achille", long: "Rupture du tendon d'Achille, opérée ou traitée sans opération", zone: "cheville", op: 1,
     d0: "Date de la rupture ou de l'opération",
-    opts: [{ id: "trait", l: "Traitement", ch: [["chir", "Opérée"], ["fonct", "Sans opération (botte)"]] }],
     key: { m: "heelh", lsi: 1, l: "Symétrie de la hauteur du talon" },
     mes: ["dou", "atra", "heel", "heelh", "fig8", "atrs", "hop1"],
     ref: "Talons levés assis",
@@ -780,7 +778,6 @@ var KineParcours = (function () {
   P.fract_cheville = {
     nom: "Fracture de la cheville", long: "Fracture de la cheville, opérée ou traitée par plâtre ou botte", zone: "cheville", op: 1,
     d0: "Date de l'opération ou du plâtre",
-    opts: [{ id: "trait", l: "Traitement", ch: [["chir", "Opérée"], ["ortho", "Plâtre ou botte"]] }],
     key: { m: "dfl", lsi: 1, l: "Symétrie de la fente au mur" },
     mes: ["dou", "fig8", "dfl", "dfa", "heel", "yb", "omas"],
     ref: "Fente de cheville au mur",
@@ -883,7 +880,6 @@ var KineParcours = (function () {
 
   P.coiffe_op = {
     nom: "Réparation de la coiffe opérée", long: "Suture des tendons de la coiffe des rotateurs", zone: "epaule", op: 1,
-    opts: [{ id: "taille", l: "Taille de la rupture", ch: [["petite", "Petite ou moyenne"], ["large", "Large ou massive"]] }],
     key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
     mes: ["dou", "dnu", "fle", "abd", "re1", "fRE", "fElev", "sane", "psfs"],
     ref: "Élévation du bras aidée, couché",
@@ -949,7 +945,6 @@ var KineParcours = (function () {
 
   P.instab_ep = {
     nom: "Instabilité ou luxation de l'épaule", long: "Luxation ou instabilité de l'épaule, traitée sans opération", zone: "epaule",
-    opts: [{ id: "type", l: "Origine", ch: [["trauma", "Après une luxation"], ["laxe", "Sans traumatisme (épaule laxe)"]] }],
     key: { m: "fRE", lsi: 1, l: "Symétrie de la force des rotateurs externes" },
     mes: ["dou", "fle", "abd", "re1", "re90", "fRE", "ckc", "sane", "psfs"],
     ref: "Rotation externe à l'élastique",
@@ -984,7 +979,6 @@ var KineParcours = (function () {
 
   P.stab_op = {
     nom: "Stabilisation de l'épaule opérée", long: "Opération de Bankart ou de Latarjet après luxations", zone: "epaule", op: 1,
-    opts: [{ id: "tech", l: "Opération", ch: [["bankart", "Bankart (sous arthroscopie)"], ["latarjet", "Latarjet (butée osseuse)"]] }],
     key: { m: "fRE", lsi: 1, l: "Symétrie de la force des rotateurs externes" },
     mes: ["dou", "fle", "abd", "re1", "re90", "fRE", "ckc", "sane", "psfs"],
     ref: "Rotation externe à l'élastique",
@@ -1020,7 +1014,6 @@ var KineParcours = (function () {
 
   P.pte = {
     nom: "Prothèse d'épaule", long: "Prothèse totale d'épaule, anatomique ou inversée", zone: "epaule", op: 1,
-    opts: [{ id: "type", l: "Type de prothèse", ch: [["anat", "Anatomique"], ["inv", "Inversée"]] }],
     key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
     mes: ["dou", "dnu", "fle", "abd", "re1", "sane", "psfs"],
     ref: "Élévation du bras aidée, couché",
@@ -1143,7 +1136,6 @@ var KineParcours = (function () {
   };
   P.pth = {
     nom: "Prothèse de hanche", long: "Prothèse totale de hanche", zone: "hanche", op: 1,
-    opts: [{ id: "voie", l: "Voie d'abord", ch: [["ant", "Antérieure"], ["post", "Postérieure ou latérale"]] }],
     key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
     mes: ["dou", "hflex", "abd", "sts30", "tug", "marche40", "sane", "psfs"],
     ref: "Assis-debout de chaise",
@@ -1266,7 +1258,6 @@ var KineParcours = (function () {
   ];
   P.dos = {
     nom: "Lombalgie commune", long: "Lombalgie commune, aiguë ou persistante", zone: "rachis",
-    opts: [{ id: "duree", l: "Durée", ch: [["aigue", "Moins de 6 semaines"], ["sub", "6 à 12 semaines"], ["chro", "Plus de 3 mois"]] }],
     key: { m: "dou", l: "Douleur à l'effort" },
     mes: ["dou", "dsol", "sorensen", "plk", "sts30", "sane", "psfs"],
     ref: "Superman quadrupédique en gainage",

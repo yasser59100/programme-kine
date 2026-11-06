@@ -140,3 +140,25 @@ test("parcours : règles de passage d'étape dans les cas limites", async ({ pag
   expect(rows.length).toBeGreaterThanOrEqual(30);
   expect(ko, ko.join("\n")).toEqual([]);
 });
+
+test("parcours : chaque option demandée au kiné change vraiment quelque chose", async ({ page }) => {
+  await ouvrir(page);
+  const inutiles = await page.evaluate(() => {
+    const KP = KineParcours, res = [];
+    KP.ORDER.forEach(pid => {
+      const p = KP.P[pid];
+      (p.opts || []).forEach(o => {
+        const sert = p.etapes.some(e => (e.exos || []).some(x => typeof x !== "string" && x.sauf && x.sauf[o.id] != null));
+        if (!sert) res.push(pid + " : l'option « " + o.l + " » n'a aucun effet sur les exercices");
+      });
+    });
+    return res;
+  });
+  expect(inutiles, inutiles.join("\n")).toEqual([]);
+});
+
+test("parcours : le LCA non opéré exige aussi la confiance (ACL-RSI) et les ischio-jambiers au retour à l'activité", async ({ page }) => {
+  await ouvrir(page);
+  const ids = await page.evaluate(() => KineParcours.P.lca_cons.etapes[4].obj.map(o => o.id));
+  expect(ids).toEqual(expect.arrayContaining(["quad90", "isch90", "rsi", "hop90"]));
+});
