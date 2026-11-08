@@ -511,7 +511,9 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   const v = await page.evaluate(() => [0, 1, 2].map(i => +document.querySelector("input[data-m=hopv][data-s=a][data-i='" + i + "']").value.replace(",", ".")));
   expect(v[1]).toBeGreaterThan(19); expect(v[1]).toBeLessThan(21.5); expect(v[0]).toBeLessThan(v[1]);
   // sauts répétés : RSI et temps de contact
-  await page.evaluate(() => { KineCabinet.saut("rsi", "a"); KineSaut.begin();
+  await page.evaluate(() => { KineCabinet.saut("rsi", "a"); KineSaut.begin(); });
+  await expect(page.locator("#ks-test .kcb-ang")).toHaveText("Prêt");
+  await page.evaluate(() => {
     const js = []; for (let i = 0; i < 10; i++) js.push({ tf: 0.42, tc: 0.21, rebound: true });
     KineSaut._feed(sautSim(js)); });
   await expect(page.locator("#ks-test .ks-c")).toContainText("RSI");
@@ -557,7 +559,7 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   for (const tf of [[0.4, 0.42], [0.36, 0.38]]) {   // jambe droite (atteinte) puis gauche
     await expect(page.locator("#kq-sheet .kq-q")).toContainText("Saut vertical");
     await page.locator("#kq-next").click();
-    for (const t of tf) { await page.evaluate((t) => { KineSaut.begin(); KineSaut._feed(sautSim([{ tf: t }])); }, t); await expect(page.locator("#ks-test .kcb-ang.big")).toContainText("cm"); }
+    for (const t of tf) { await page.evaluate(() => KineSaut.begin()); await expect(page.locator("#ks-test .kcb-ang")).toHaveText("Prêt"); await page.evaluate((t) => { KineSaut._feed(sautSim([{ tf: t }])); }, t); await expect(page.locator("#ks-test .kcb-ang.big")).toContainText("cm"); }
     await page.evaluate(() => KineSaut.use());
     await expect(page.locator("#kq-sheet .kq-sum b")).toContainText("cm");
     if (tf[0] === 0.4) await shot(page, info, "44-saut-patient-mesure");
