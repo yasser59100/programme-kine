@@ -3584,3 +3584,8 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .lu-rp b { font-size: .98rem; }
 .lu-rp em { font-style: normal; font-size: .84rem; opacity: .92; }
 .lu-rp i { font-style: normal; font-size: 1.4rem; }
+
+/* Espace kiné : le bouton rond « + » ne masque plus la fin de la ligne T-shirt, et laisse de la place en bas de liste */
+.kcb-tee { padding-right: 86px; }
+.kcb-fab { transition: transform .22s ease, opacity .22s ease; }
+html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-events: none; }

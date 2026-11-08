@@ -307,7 +307,7 @@ var KineCabinet = (function () {
   var ICON_SHARE = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7'/><path d='M16 6l-4-4-4 4'/><path d='M12 2v14'/></svg>";
   function codeShare(c, until) {
     var url = location.origin + location.pathname.replace(/index\.html$/, "");
-    var t = "Bonjour, voici ton code pour relier KinéForce à ton suivi au cabinet : " + c + " (valable jusqu'au " + until + ", une seule fois).\n1. Ouvre KinéForce : " + url + "\n2. Onglet « Mon kiné », touche « J'ai un code de mon kiné »\n3. Tape le code.";
+    var t = "Bonjour, voici ton code pour relier KinéForce à ton suivi au cabinet : " + c + " (valable jusqu'au " + until + ", une seule fois).\nTouche ce lien, le code est déjà rempli, il n'y a plus qu'à valider : " + url + "#code=" + c + "\nSi le lien ne s'ouvre pas : ouvre KinéForce (" + url + "), onglet « Mon kiné », « J'ai un code de mon kiné », et tape le code.";
     if (navigator.share) { navigator.share({ title: "Code KinéForce", text: t }).catch(function () {}); return; }
     var done = function () { say("Message copié : colle-le dans un SMS ou un mail."); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { prompt("Copie ce message :", t); });

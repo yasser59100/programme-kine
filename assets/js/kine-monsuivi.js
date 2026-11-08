@@ -387,3 +387,32 @@ var KineMonSuivi = (function () {
   function demo(b) { var n = b && b.getAttribute("data-n"); if (n && window.KineBiblio) KineBiblio.demo(n); }
   return { demo: demo, phZoom: phZoom, _photosHtml: photosHtml, notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();
+
+/* Lien « un seul geste » : le kiné envoie …/#code=ABC123 ; le patient touche le lien, l'appli s'ouvre sur « Relier mon téléphone »
+   avec le code déjà tapé, il n'a plus qu'à valider. Le code est dans la partie après le # : il n'est jamais envoyé au serveur,
+   et il est retiré de la barre d'adresse dès la lecture. Fonctionne aussi si l'appli était déjà ouverte (le # change seulement). */
+(function () {
+  function lire() {
+    try {
+      var m = /[#&]code=([A-Za-z0-9]{6})(?![A-Za-z0-9])/.exec(location.hash || "");
+      if (!m) return;
+      var code = m[1].toUpperCase();
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+      try {
+        if (!localStorage.getItem("kf-role")) localStorage.setItem("kf-role", "patient");   // qui a un code de kiné est patient
+        localStorage.setItem("kf-tour-v2", "1");                                            // pas de visite guidée avant le code
+      } catch (e) {}
+      var essais = 0;
+      (function ouvrir() {
+        if (window.KineMonSuivi && document.readyState !== "loading") {
+          KineMonSuivi.join();
+          var i = document.getElementById("kms-code"); if (i) i.value = code;
+          return;
+        }
+        if (++essais < 40) setTimeout(ouvrir, 250);
+      })();
+    } catch (e) {}
+  }
+  lire();
+  window.addEventListener("hashchange", lire);
+})();
