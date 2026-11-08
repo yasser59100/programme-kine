@@ -404,12 +404,12 @@ var KineMonSuivi = (function () {
       } catch (e) {}
       var essais = 0;
       (function ouvrir() {
-        if (window.KineMonSuivi && document.readyState !== "loading") {
+        if (window.KineMonSuivi && window.KineRole && document.readyState === "complete") {
           KineMonSuivi.join();
           var i = document.getElementById("kms-code"); if (i) i.value = code;
           return;
         }
-        if (++essais < 40) setTimeout(ouvrir, 250);
+        if (++essais < 120) setTimeout(ouvrir, 250);
       })();
     } catch (e) {}
   }
