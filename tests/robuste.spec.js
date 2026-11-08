@@ -52,3 +52,28 @@ test("message bref : showToast existe et s'affiche", async ({ page }) => {
   await page.evaluate(() => window.showToast("Autre message"));
   await expect(page.locator(".ko-toast")).toHaveCount(1);
 });
+
+// Bibliothèque : pas de doublon de nom (le nom sert de clé pour la progression), textes présents, chaînes de variantes valides.
+test("bibliothèque : noms uniques, textes présents, chaînes de variantes valides", async ({ page }) => {
+  const fs = require("fs"), path = require("path");
+  const src = fs.readFileSync(path.join(__dirname, "..", "assets/js/kine-variantes.js"), "utf8");
+  const i = src.indexOf("var CHAINS = "), j = src.indexOf("];", i);
+  const chaines = eval(src.slice(i + "var CHAINS = ".length, j + 1));
+  await page.addInitScript(() => { try { localStorage.setItem("kf-onboarded", "1"); localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-tour-v2", "1"); } catch (e) {} });
+  await page.goto("index.html");
+  await page.waitForFunction(() => window.KineBiblio && window.KineAvatar, null, { timeout: 15000 });
+  const r = await page.evaluate((ch) => {
+    const a = KineBiblio.all(), vus = {}, doublons = [];
+    a.forEach((e) => { const k = e.name.toLowerCase().trim(); if (vus[k]) doublons.push(e.name); vus[k] = 1; });
+    const noms = new Set(a.map((e) => e.name));
+    const inconnus = ch.flat().filter((n) => !noms.has(n));
+    const repetes = ch.flat().filter((n, i, t) => t.indexOf(n) !== i);
+    const sansTexte = a.filter((e) => !e.desc || e.desc.length < 25 || !e.group).map((e) => e.name);
+    return { doublons, inconnus, repetes, sansTexte, n: a.length };
+  }, chaines);
+  expect(r.n).toBeGreaterThan(300);
+  expect(r.doublons).toEqual([]);
+  expect(r.inconnus).toEqual([]);
+  expect(r.repetes).toEqual([]);
+  expect(r.sansTexte).toEqual([]);
+});
