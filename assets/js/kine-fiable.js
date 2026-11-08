@@ -14,6 +14,32 @@
   // ── 3. Vieux réglages retirés (les données du patient ne sont jamais touchées) ──
   try { ["kf-eco", "kf-eco-auto", "kf-masc-peek", "kf-install-dismissed"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
 
+  // ── 4. Données locales abîmées (JSON cassé, mauvais type) : on les remet d'aplomb avant que quoi que ce soit les lise.
+  //    Liste d'objets : on retire les éléments qui n'en sont pas. Dictionnaire : on exige un objet simple. Sinon la clé est retirée.
+  try {
+    var LISTS = ["kf-sessions", "kf-pain", "kf-runs"];
+    var DICTS = ["kf-kpush", "kf-sign", "kf-seen", "kf-checkin", "kf-salle-log", "kf-mode-start", "kf-mode-seen", "kf-ex"];
+    var isObj = function (x) { return x !== null && typeof x === "object" && !Array.isArray(x); };
+    var fix = function (k, ok) {
+      var raw = localStorage.getItem(k); if (raw == null) return;
+      var v; try { v = JSON.parse(raw); } catch (e) { localStorage.removeItem(k); return; }
+      var n = ok(v); if (n === undefined) localStorage.removeItem(k); else if (n !== v) localStorage.setItem(k, JSON.stringify(n));
+    };
+    LISTS.forEach(function (k) { fix(k, function (v) { return Array.isArray(v) ? (v.every(isObj) ? v : v.filter(isObj)) : undefined; }); });
+    DICTS.forEach(function (k) { fix(k, function (v) { return isObj(v) ? v : undefined; }); });
+    fix("kf-custom", function (v) {
+      if (!Array.isArray(v)) return undefined;
+      var l = v.filter(function (x) { return isObj(x) && typeof x.id === "string" && x.id; }), ch = l.length !== v.length;
+      l.forEach(function (x) {
+        if (!Array.isArray(x.ex)) { x.ex = []; ch = true; }
+        if (typeof x.name !== "string") { x.name = "Ma séance"; ch = true; }
+      });
+      return ch ? l : v;
+    });
+    fix("kf-tee", function (v) { return v === null || Array.isArray(v) ? v : undefined; });
+    fix("kf-cab", function (v) { return v === null || isObj(v) ? v : undefined; });
+  } catch (e) {}
+
   function where() {
     try {
       var pg = document.querySelector(".page.active"), ov = document.querySelector("#seq-overlay.open, #kcam-run.open, #kc-sheet.open, #kb-sheet.open, #kf-masc.open, .kf-sheet.open");
