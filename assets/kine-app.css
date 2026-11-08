@@ -979,6 +979,7 @@ html[data-theme="light"] .ko-name { color: #0f1923; }
 html[data-theme="light"] .bnav-coach .bnav-face { background: radial-gradient(circle at 50% 40%, rgba(75, 91, 255, 0.3), #fff 72%); }
 #page-mes .content { padding-bottom: 120px; }
 .mx-hero { position: relative; margin-top: 8px; padding: 18px 16px 16px; border-radius: 22px; border: 1px solid rgba(75, 91, 255, 0.35); display: grid; grid-template-columns: 76px 1fr; gap: 6px 12px; align-items: center }
+.mx-hero.mx-noface { grid-template-columns: 1fr }
 .mx-face { width: 76px; height: 76px; border-radius: 38px; object-fit: cover; object-position: 50% 28%; background: radial-gradient(circle, rgba(75, 91, 255, 0.25), transparent 70%); }
 .mx-hero h1 { margin: 0 0 4px; font-size: 22px; line-height: 1.15; }
 .mx-hero p { margin: 0; font-size: 14px; line-height: 1.4; color: var(--text2, #a9b8cc); }
