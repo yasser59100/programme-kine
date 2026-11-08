@@ -162,3 +162,19 @@ test("parcours : le LCA non opéré exige aussi la confiance (ACL-RSI) et les is
   const ids = await page.evaluate(() => KineParcours.P.lca_cons.etapes[4].obj.map(o => o.id));
   expect(ids).toEqual(expect.arrayContaining(["quad90", "isch90", "rsi", "hop90"]));
 });
+
+test("parcours opérés : chaque passage d'étape demande l'accord du chirurgien", async ({ page }) => {
+  await ouvrir(page);
+  const manques = await page.evaluate(() => {
+    const res = [];
+    ["rupt_achille", "coiffe_op", "stab_op", "pte", "pth"].forEach((id) => {
+      const q = KineParcours.P[id];
+      if (!q) { res.push(id + " : parcours introuvable"); return; }
+      q.etapes.slice(0, -1).forEach((e, i) => {
+        if (!e.obj.some((o) => /^chir\d$/.test(o.id) && !o.a)) res.push(id + " étape " + (i + 1));
+      });
+    });
+    return res;
+  });
+  expect(manques).toEqual([]);
+});

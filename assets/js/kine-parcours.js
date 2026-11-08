@@ -722,19 +722,22 @@ var KineParcours = (function () {
         obj: [
           { id: "j42", t: "Au moins 6 semaines depuis la rupture ou l'opération", p: "6 semaines depuis le début", a: { j: 42 } },
           { id: "appui", t: "Appui complet dans la botte, sans douleur", p: "Tu marches en appui complet dans la botte" },
-          { id: "atra", t: "ATRA : moins de 10° d'écart avec l'autre côté", p: "Ton tendon cicatrise à la bonne longueur", a: { m: "atra", diff: 10 } }],
+          { id: "atra", t: "ATRA : moins de 10° d'écart avec l'autre côté", p: "Ton tendon cicatrise à la bonne longueur", a: { m: "atra", diff: 10 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Contraction du quadriceps couché", "Relevé de jambe tendue couché", "Pont de hanche", "Clamshell", "Abduction couché sur le côté"] },
       { nom: "Sortir de la botte et remarcher", but: "Sevrage de la botte, marche normale, premières contractions du mollet sans étirement.",
         obj: [
           { id: "j70", t: "Au moins 10 semaines", p: "10 semaines depuis le début", a: { j: 70 } },
           { id: "marche", t: "Marche sans boiterie, chaussures normales", p: "Tu marches normalement, sans botte" },
-          { id: "deux", t: "Élévation du talon sur deux pieds", p: "Tu montes sur la pointe des deux pieds" }],
+          { id: "deux", t: "Élévation du talon sur deux pieds", p: "Tu montes sur la pointe des deux pieds" },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Talons levés assis", "Mollet assis avec charge", "Pointes de pieds tenues", "Élévation des talons", "Bascule d'un pied à l'autre", "Vélo d'appartement", "Équilibre unipodal", "Pousser le bord du pied contre le mur"] },
       { nom: "Renforcer le mollet", but: "Élévations du talon sur une jambe, de plus en plus hautes et nombreuses.",
         obj: [
           { id: "j112", t: "Au moins 16 semaines", p: "16 semaines depuis le début", a: { j: 112 } },
           { id: "heel60", t: "Élévations du talon : au moins 60 % du côté sain", p: "Ton mollet a retrouvé 60 % de son endurance", a: { m: "heel", lsi: 60 } },
-          { id: "heelh80", t: "Hauteur du talon : au moins 80 % du côté sain", p: "Ton talon monte presque aussi haut que l'autre", a: { m: "heelh", lsi: 80 } }],
+          { id: "heelh80", t: "Hauteur du talon : au moins 80 % du côté sain", p: "Ton talon monte presque aussi haut que l'autre", a: { m: "heelh", lsi: 80 } },
+          { id: "chir3", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Élévation des talons unipodale", "Élévation du talon sur une jambe, genou plié", "Élévation des talons genoux fléchis", "Marche sur la pointe des pieds", "Unipodal sur coussin", "Le flamant rose", "Le cueilleur de pommes", "Élévation des talons sur une marche"] },
       { nom: "Courir et sauter", but: "Reprise de la course, puis sauts et sport, selon la force du mollet.",
         obj: [
@@ -891,18 +894,21 @@ var KineParcours = (function () {
         obj: [
           { id: "j42", t: "Au moins 6 semaines depuis l'opération", p: "6 semaines depuis l'opération", a: { j: 42 } },
           { id: "passif", t: "Élévation passive d'au moins 120°", p: "Ton bras monte bien quand on t'aide" },
-          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Haussement et enroulement des épaules", "Serrage des omoplates"] },
       { nom: "Bouger activement", but: "Sevrage de l'attelle, mouvements actifs aidés puis actifs, sans charge.",
         obj: [
           { id: "j70", t: "Au moins 10 semaines", p: "10 semaines depuis l'opération", a: { j: 70 } },
-          { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } }],
+          { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Marche des doigts sur le mur", "Rotation externe au bâton, coude au corps", "Élévation du bâton bras tendus", "Contraction de l'épaule contre le mur", "Coup de poing vers le plafond", "Wall slides", "Le mime contre la vitre"] },
       { nom: "Renforcer", but: "Renforcement progressif de la coiffe et de l'omoplate.",
         obj: [
           { id: "j112", t: "Au moins 16 semaines", p: "16 semaines depuis l'opération", a: { j: 112 } },
           { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } },
-          { id: "fre70", t: "Force des rotateurs externes : au moins 70 % du côté sain", p: "Ton épaule a retrouvé 70 % de sa force", a: { m: "fRE", lsi: 70 } }],
+          { id: "fre70", t: "Force des rotateurs externes : au moins 70 % du côté sain", p: "Ton épaule a retrouvé 70 % de sa force", a: { m: "fRE", lsi: 70 } },
+          { id: "chir3", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Rotation externe à l'élastique", "Rotation externe couché sur le côté", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Bras en arrière à plat ventre", "Rowing un bras appui chaise", "Le chef d'orchestre"] },
       { nom: "Reprendre les activités", but: "Charges, bras au-dessus de la tête, sport, en général à partir de 6 mois.",
         obj: [
@@ -989,17 +995,20 @@ var KineParcours = (function () {
       { nom: "Protéger (attelle)", but: "Mobilisation passive dans les limites du chirurgien, omoplate, coude et main.",
         obj: [
           { id: "j28", t: "Au moins 4 semaines depuis l'opération", p: "4 semaines depuis l'opération", a: { j: 28 } },
-          { id: "dou3", t: "Douleur de 3/10 au maximum", p: "La douleur a bien baissé", a: { m: "dou", max: 3 } }],
+          { id: "dou3", t: "Douleur de 3/10 au maximum", p: "La douleur a bien baissé", a: { m: "dou", max: 3 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Serrage des omoplates", "Haussement et enroulement des épaules"] },
       { nom: "Bouger et contrôler", but: "Amplitudes actives progressives, contractions de la coiffe.",
         obj: [
           { id: "j56", t: "Au moins 8 semaines", p: "8 semaines depuis l'opération", a: { j: 56 } },
-          { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } }],
+          { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Contraction de l'épaule contre le mur", "Marche des doigts sur le mur", "Rotation externe au bâton, coude au corps", "Coup de poing vers le plafond", "Wall slides", "Le mime contre la vitre"] },
       { nom: "Renforcer", but: "Coiffe, omoplate, appuis sur les mains.",
         obj: [
           { id: "j84", t: "Au moins 12 semaines", p: "12 semaines depuis l'opération", a: { j: 84 } },
-          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } }],
+          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } },
+          { id: "chir3", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Rotation externe à l'élastique", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Bras en arrière à plat ventre", "Pompes contre le mur", "Rowing un bras appui chaise", "Face pull à l'élastique"] },
       { nom: "Retour au sport", but: "Bras armé, vitesse, contacts, sur critères.",
         obj: [
@@ -1024,12 +1033,14 @@ var KineParcours = (function () {
       { nom: "Protéger", but: "Attelle, mobilisation passive puis active aidée, selon le chirurgien.",
         obj: [
           { id: "j42", t: "Au moins 6 semaines depuis l'opération", p: "6 semaines depuis l'opération", a: { j: 42 } },
-          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Haussement et enroulement des épaules", "Serrage des omoplates"] },
       { nom: "Bouger activement", but: "Mouvements actifs dans les amplitudes fonctionnelles.",
         obj: [
           { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } },
-          { id: "quot", t: "Main à la bouche et à la tête sans aide", p: "Tu manges et te coiffes seul" }],
+          { id: "quot", t: "Main à la bouche et à la tête sans aide", p: "Tu manges et te coiffes seul" },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Marche des doigts sur le mur", "Élévation du bâton bras tendus", "Coup de poing vers le plafond", "Contraction de l'épaule contre le mur", "Le chef d'orchestre", "Le mime contre la vitre"] },
       { nom: "Renforcer et autonomie", but: "Renforcement du deltoïde et de la coiffe, gestes du quotidien et loisirs.",
         obj: [
@@ -1146,13 +1157,15 @@ var KineParcours = (function () {
       { nom: "Remarcher", but: "Marche avec aides techniques, mobilité dans les limites autorisées, réveil des fessiers.",
         obj: [
           { id: "j21", t: "Au moins 3 semaines depuis l'opération", p: "3 semaines depuis l'opération", a: { j: 21 } },
-          { id: "esc", t: "Escaliers avec une rampe, en sécurité", p: "Tu montes les escaliers en sécurité" }],
+          { id: "esc", t: "Escaliers avec une rampe, en sécurité", p: "Tu montes les escaliers en sécurité" },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pompe de cheville couché", "Contraction des fessiers couché", "Glissement de la jambe sur le côté, couché", "Glissement du talon couché", "Pont de hanche", "Montée de genou assis"] },
       { nom: "Marcher sans aide", but: "Sevrage des cannes, marche sans boiterie, renforcement des abducteurs.",
         obj: [
           { id: "j42", t: "Au moins 6 semaines", p: "6 semaines depuis l'opération", a: { j: 42 } },
           { id: "marche", t: "Marche sans canne et sans boiterie", p: "Tu marches sans canne et sans boiter" },
-          { id: "abd70", t: "Force des abducteurs : au moins 70 % du côté sain", p: "Ta hanche a retrouvé 70 % de sa force", a: { m: "abd", lsi: 70 } }],
+          { id: "abd70", t: "Force des abducteurs : au moins 70 % du côté sain", p: "Ta hanche a retrouvé 70 % de sa force", a: { m: "abd", lsi: 70 } },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Abduction contre le mur, debout", "Abduction couché sur le côté", "Assis-debout de chaise", "Step-up sur marche", "Montée de marche sur le côté", "Marche latérale élastique", "Vélo d'appartement"] },
       { nom: "Renforcer et autonomie", but: "Force, équilibre, activités de loisir adaptées.",
         obj: [
