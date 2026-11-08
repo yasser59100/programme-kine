@@ -55,6 +55,20 @@
     }, { passive: true });
   } catch (e) {}
 
+  // ── 6. Message bref en bas de l'écran (showToast) : plusieurs écrans l'appelaient sans qu'il existe, leurs confirmations
+  //    (« Demande envoyée à ton kiné », « Suivi sauvegardé », seuil de douleur dépassé…) ne s'affichaient donc jamais.
+  if (!window.showToast) {
+    window.showToast = function (t) {
+      try {
+        var old = document.querySelectorAll(".ko-toast"); for (var i = 0; i < old.length; i++) old[i].remove();
+        var el = document.createElement("div"); el.className = "ko-toast"; el.setAttribute("role", "status"); el.textContent = String(t);
+        document.body.appendChild(el);
+        setTimeout(function () { el.classList.add("on"); }, 30);
+        setTimeout(function () { el.classList.remove("on"); setTimeout(function () { el.remove(); }, 400); }, 3500);
+      } catch (e) {}
+    };
+  }
+
   function where() {
     try {
       var pg = document.querySelector(".page.active"), ov = document.querySelector("#seq-overlay.open, #kcam-run.open, #kc-sheet.open, #kb-sheet.open, #kf-masc.open, .kf-sheet.open");

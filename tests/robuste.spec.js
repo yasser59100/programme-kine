@@ -42,3 +42,13 @@ test("hors connexion : liste de précache complète et sans fichier manquant", a
   expect(utilises.filter((u) => !liste.includes(u))).toEqual([]);
   expect(liste.filter((f) => f !== "./" && !fs.existsSync(path.join(racine, f)))).toEqual([]);
 });
+
+// Les confirmations affichées par showToast (« Suivi sauvegardé », seuil de douleur…) doivent réellement apparaître.
+test("message bref : showToast existe et s'affiche", async ({ page }) => {
+  await page.addInitScript(() => { try { localStorage.setItem("kf-onboarded", "1"); localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-tour-v2", "1"); sessionStorage.setItem("kf-ressenti-later", "1"); } catch (e) {} });
+  await page.goto("index.html");
+  await page.evaluate(() => window.showToast("Suivi sauvegardé"));
+  await expect(page.locator(".ko-toast.on")).toHaveText("Suivi sauvegardé");
+  await page.evaluate(() => window.showToast("Autre message"));
+  await expect(page.locator(".ko-toast")).toHaveCount(1);
+});
