@@ -29,3 +29,16 @@ for (const [nom, val] of Object.entries(MAUVAIS)) {
     expect(erreurs).toEqual([]);
   });
 }
+
+// Hors connexion : tout script chargé par l'appli doit être dans la liste de précache de sw.js, et tout fichier de la liste doit exister.
+test("hors connexion : liste de précache complète et sans fichier manquant", async () => {
+  const fs = require("fs"), path = require("path");
+  const racine = path.join(__dirname, "..");
+  const sw = fs.readFileSync(path.join(racine, "sw.js"), "utf8");
+  const liste = [...sw.match(/APP_FILES\s*=\s*\[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  const html = fs.readFileSync(path.join(racine, "index.html"), "utf8");
+  const paresseux = ["kine-parcours", "kine-quest", "kine-saut", "kine-fiches", "kine-reprise", "kine-cabinet"].map((n) => "assets/js/" + n + ".js");
+  const utilises = [...new Set([...[...html.matchAll(/src="(assets\/js\/[^"]+)"/g)].map((m) => m[1]), ...paresseux])];
+  expect(utilises.filter((u) => !liste.includes(u))).toEqual([]);
+  expect(liste.filter((f) => f !== "./" && !fs.existsSync(path.join(racine, f)))).toEqual([]);
+});
