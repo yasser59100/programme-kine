@@ -2311,6 +2311,9 @@ html.kf-typing .bottom-nav, html.kf-typing #km-peek { display: none !important; 
 
 /* Bouton son global, toujours visible en haut à droite */
 .kf-snd { position: fixed; z-index: 600; top: calc(env(safe-area-inset-top, 0px) + 22px); right: 16px; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: rgba(255, 255, 255, .86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); color: var(--lu-ind, #4B5BFF); display: grid; place-items: center; box-shadow: 0 6px 18px rgba(15, 29, 46, .10); padding: 0; cursor: pointer; transition: transform .15s, background .2s, color .2s; -webkit-tap-highlight-color: transparent; }
+.kf-snd, .kf-me { transition: transform .22s ease, opacity .22s ease; }
+/* En défilant vers le bas, les deux boutons du haut s'effacent pour ne plus masquer les cartes ; ils reviennent dès qu'on remonte */
+html.kf-scroll-down .kf-snd:not(.warn), html.kf-scroll-down .kf-me { transform: translateY(-84px); opacity: 0; pointer-events: none; }
 .kf-snd:active { transform: scale(.92); }
 .kf-snd svg { width: 20px; height: 20px; }
 .kf-snd.off { color: var(--text3, #8A94A6); background: rgba(255, 255, 255, .78); }

@@ -40,6 +40,21 @@
     fix("kf-cab", function (v) { return v === null || isObj(v) ? v : undefined; });
   } catch (e) {}
 
+  // ── 5. Boutons flottants du haut : ils s'effacent quand on descend dans la page, reviennent quand on remonte.
+  try {
+    var lastY = 0, ticking = false, root = document.documentElement;
+    window.addEventListener("scroll", function () {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        var y = window.pageYOffset || 0, d = y - lastY;
+        if (y < 80 || d < -6) root.classList.remove("kf-scroll-down");
+        else if (d > 6) root.classList.add("kf-scroll-down");
+        lastY = y;
+      });
+    }, { passive: true });
+  } catch (e) {}
+
   function where() {
     try {
       var pg = document.querySelector(".page.active"), ov = document.querySelector("#seq-overlay.open, #kcam-run.open, #kc-sheet.open, #kb-sheet.open, #kf-masc.open, .kf-sheet.open");
