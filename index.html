@@ -1087,7 +1087,7 @@ function scheduleReminderCheck() {
   if (!sessions.length) return;
   var lastTs = sessions[0].ts || 0;
   var daysSince = (Date.now() - lastTs) / (1000 * 60 * 60 * 24);
-  if (daysSince >= 2 && Notification.permission === 'granted') {
+  if (daysSince >= 2 && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     new Notification('KinéForce', {
       body: "Ca fait " + Math.floor(daysSince) + " jours sans seance. Ton programme t'attend !",
       icon: 'icon-192.png',

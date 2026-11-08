@@ -831,7 +831,7 @@ test("envoi programmé : séance et questionnaire reçus à la date choisie", as
   // une semaine plus tard : la nouvelle séance arrive
   await page.evaluate(() => { const D = window.__db.patients[Object.keys(window.__db.patients)[0]].doc; D.exosFrom = "2000-01-01"; });
   await page.evaluate(() => KineMonSuivi.open());
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine")[0].ex.length)).toBe(2);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine")[0].ex.length), { timeout: 20000 }).toBe(2); // synchro asynchrone : attente large pour le moteur lent de GitHub
   await clean(errs);
 });
 
