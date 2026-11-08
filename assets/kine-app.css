@@ -669,7 +669,7 @@ html[data-theme="light"] .kf-tuto-pts strong, html[data-theme="light"] .kf-tuto-
 .ks-card { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: left; margin: 22px 0 6px; padding: 16px 16px 14px; border-radius: 20px; border: 1px solid rgba(75, 91, 255, 0.28); color: inherit; font: inherit; cursor: pointer }
 .ks-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase }
 .ks-title { font-size: 17px; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em }
-.ks-src { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #a9b8cc; }
+.ks-src { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #5F6E84; }
 .ks-src span { font-size: 20px; line-height: 1; color: #4B5BFF; }
 .ks-body { gap: 16px !important; }
 .ks-body .ks-tag { margin-top: 6px; }
@@ -1518,11 +1518,11 @@ html.kf-boot.lu, html.kf-boot.lu body::before { background: #F6F8FB !important; 
 .lu-me svg { width: 20px; height: 20px; }
 :root:root:root .lu-hello { font-size: 2.45rem !important; margin: 6px 0 0 !important; }
 .lu-days { display: flex; gap: 6px; margin: 16px 0 0; }
-.lu-days div { flex: 1; min-width: 0; height: 60px; border-radius: 16px; background: #fff; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .68rem; color: #8A98AB; line-height: 1.15; }
+.lu-days div { flex: 1; min-width: 0; height: 60px; border-radius: 16px; background: #fff; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .68rem; color: #5F6E84; line-height: 1.15; }
 .lu-days b { font: 800 1rem var(--lu-head); color: var(--text); }
-.lu-days i { font-style: normal; font-size: .6rem; font-weight: 700; color: var(--lu-ind); opacity: .85; }
+.lu-days i { font-style: normal; font-size: .6rem; font-weight: 700; color: var(--lu-ind); }
 .lu-days .rest { background: transparent; border-style: dashed; }
-.lu-days .rest i { color: #A4B0C0; font-weight: 600; }
+.lu-days .rest i { color: #5F6E84; font-weight: 600; }
 .lu-days .ok { background: #E3F8F2; border-color: #BDEBDD; color: #0E9B7E; }
 .lu-days .ok b, .lu-days .ok i { color: #0E9B7E; }
 .lu-days .now { background: var(--lu-ink); border-color: var(--lu-ink); color: #9FB0C6; border-style: solid; }
