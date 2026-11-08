@@ -13,7 +13,7 @@ var KineParcours = (function () {
   var M = {
     quad:   { l: "Force du quadriceps", c: "Quadri", u: "kg", s: 1, n: 3, g: "Force", how: "Assis, genou fléchi à 60°, dynamomètre à la cheville, 3 essais de 5 s, on garde le meilleur. Toujours la même position." },
     ischio: { l: "Force des ischio-jambiers", u: "kg", s: 1, n: 3, g: "Force", how: "Assis, genou fléchi à 60°, dynamomètre derrière la cheville, 3 essais de 5 s." },
-    abd:    { l: "Force des abducteurs de hanche", u: "kg", s: 1, n: 3, g: "Force", how: "Couché sur le côté, dynamomètre au-dessus de la malléole externe, 3 essais de 5 s." },
+    abdh:   { l: "Force des abducteurs de hanche", u: "kg", s: 1, n: 3, g: "Force", how: "Couché sur le côté, dynamomètre au-dessus de la malléole externe, 3 essais de 5 s." },
     flex:   { l: "Flexion du genou", c: "Flexion", u: "°", s: 1, incl: 1, g: "Amplitude", how: "Couché sur le dos, talon qui glisse vers la fesse. Au téléphone : posé sur la cuisse puis sur le tibia." },
     ext:    { l: "Extension du genou", c: "Extension", u: "°", s: 1, incl: 1, g: "Amplitude", how: "0 = extension complète, valeur négative = déficit (−5 = il manque 5°), positive = hyperextension." },
     peri:   { l: "Périmètre au milieu de la rotule", u: "cm", s: 1, g: "Périmètre", how: "Mètre ruban au milieu de la rotule, genou tendu et détendu. Reflète l'épanchement." },
@@ -380,7 +380,7 @@ var KineParcours = (function () {
   P.sfp = {
     nom: "Syndrome fémoro-patellaire", long: "Douleur antérieure du genou (fémoro-patellaire)", zone: "genou",
     key: { m: "akps", l: "Score de Kujala" },
-    mes: ["dou", "akps", "quad", "abd", "flex", "yb"],
+    mes: ["dou", "akps", "quad", "abdh", "flex", "yb"],
     ref: "Chaise contre le mur",
     notes: ["Le traitement de référence associe des exercices pour la hanche et pour le genou, et l'éducation sur la gestion de la charge.",
             "Douleur tolérée pendant les exercices : jusqu'à 3 ou 4 sur 10, si elle redescend dans les 24 heures.",
@@ -1092,8 +1092,8 @@ var KineParcours = (function () {
   ];
   P.hanche = {
     nom: "Hanche, sans diagnostic précis", long: "Douleur de hanche ou de l'aine sans diagnostic établi", zone: "hanche",
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "hflex", "hri", "abd", "fAdd", "sts30", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "hri", "abdh", "fAdd", "sts30", "sane", "psfs"],
     ref: "Pont de hanche",
     notes: ["Parcours général en attendant d'affiner : le guide d'orientation propose une piste à partir de l'interrogatoire et des tests.",
             "Penser à examiner le rachis lombaire : une douleur de fesse ou de hanche vient parfois du dos."],
@@ -1105,12 +1105,12 @@ var KineParcours = (function () {
         exos: ["Contraction des fessiers couché", "Rotation de hanche couché, genou plié", "Pont de hanche", "Clamshell", "Montée de genou assis", "Vélo d'appartement", "Le hula hoop"] },
       { nom: "Renforcer", but: "Fessiers, abducteurs, adducteurs, contrôle du bassin sur une jambe.",
         obj: [
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } },
           { id: "uni", t: "Tient 30 s sur une jambe, bassin horizontal", p: "Tu tiens 30 secondes sur une jambe, bien droit" }],
         exos: ["Abduction contre le mur, debout", "Abduction couché sur le côté", "Pont fessier unilatéral", "Montée de marche sur le côté", "Marche latérale élastique", "Serrage de ballon entre les genoux", "Squat bilatéral", "La marche du mannequin"] },
       { nom: "Reprendre les activités", but: "Charges, course, sport.",
         obj: [
-          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abdh", lsi: 90 } },
           { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
         exos: ["Squat bulgare", "Fente latérale", "Avion sur une jambe", "Planche Copenhague genou", "Le pas du crabe", "La porte du saloon"] }
     ],
@@ -1120,7 +1120,7 @@ var KineParcours = (function () {
   P.coxarthrose = {
     nom: "Arthrose de la hanche", long: "Coxarthrose", zone: "hanche",
     key: { m: "sts30", l: "Levers de chaise en 30 secondes" },
-    mes: ["dou", "hflex", "hri", "abd", "sts30", "tug", "marche40", "sane", "psfs"],
+    mes: ["dou", "hflex", "hri", "abdh", "sts30", "tug", "marche40", "sane", "psfs"],
     ref: "Assis-debout de chaise",
     notes: ["L'exercice et les explications sont le traitement de base, à tous les stades : il ne use pas la hanche.",
             "La perte de poids aide si elle est nécessaire. Une canne du côté opposé soulage la marche les mauvais jours.",
@@ -1134,7 +1134,7 @@ var KineParcours = (function () {
       { nom: "Renforcer et contrôler", but: "Renforcement progressif et exercices d'équilibre, comme le programme GLA:D.",
         obj: [
           { id: "sts", t: "Levers de chaise en 30 s en hausse d'au moins 2", p: "Tu te lèves plus facilement d'une chaise", a: { m: "sts30", gain: 2 } },
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } }],
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } }],
         exos: ["Abduction contre le mur, debout", "Montée de marche sur le côté", "Step-up sur marche", "Squat bilatéral", "Pont fessier unilatéral", "Équilibre unipodal", "Marche latérale élastique", "La marche du mannequin"] },
       { nom: "Autonomie", but: "Programme à faire seul, activité physique régulière (marche, vélo, natation).",
         obj: [
@@ -1147,8 +1147,8 @@ var KineParcours = (function () {
   };
   P.pth = {
     nom: "Prothèse de hanche", long: "Prothèse totale de hanche", zone: "hanche", op: 1,
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "hflex", "abd", "sts30", "tug", "marche40", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "abdh", "sts30", "tug", "marche40", "sane", "psfs"],
     ref: "Assis-debout de chaise",
     notes: ["Voie postérieure : les premières semaines, éviter de plier la hanche au-delà de 90°, de croiser les jambes et de tourner le genou vers l'intérieur, selon le chirurgien.",
             "Voie antérieure : éviter au début l'extension forcée avec la jambe tournée vers l'extérieur.",
@@ -1164,12 +1164,12 @@ var KineParcours = (function () {
         obj: [
           { id: "j42", t: "Au moins 6 semaines", p: "6 semaines depuis l'opération", a: { j: 42 } },
           { id: "marche", t: "Marche sans canne et sans boiterie", p: "Tu marches sans canne et sans boiter" },
-          { id: "abd70", t: "Force des abducteurs : au moins 70 % du côté sain", p: "Ta hanche a retrouvé 70 % de sa force", a: { m: "abd", lsi: 70 } },
+          { id: "abd70", t: "Force des abducteurs : au moins 70 % du côté sain", p: "Ta hanche a retrouvé 70 % de sa force", a: { m: "abdh", lsi: 70 } },
           { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Abduction contre le mur, debout", "Abduction couché sur le côté", "Assis-debout de chaise", "Step-up sur marche", "Montée de marche sur le côté", "Marche latérale élastique", "Vélo d'appartement"] },
       { nom: "Renforcer et autonomie", but: "Force, équilibre, activités de loisir adaptées.",
         obj: [
-          { id: "abd85", t: "Force des abducteurs : au moins 85 % du côté sain", p: "Ta hanche a presque retrouvé sa force", a: { m: "abd", lsi: 85 } },
+          { id: "abd85", t: "Force des abducteurs : au moins 85 % du côté sain", p: "Ta hanche a presque retrouvé sa force", a: { m: "abdh", lsi: 85 } },
           { id: "sts", t: "Levers de chaise en 30 s en hausse d'au moins 3", p: "Tu te lèves bien plus facilement", a: { m: "sts30", gain: 3 } }],
         exos: ["Pont fessier unilatéral", "Squat bilatéral", "Équilibre unipodal", "Fente arrière", "Se relever du sol", "La marche du mannequin"] }
     ],
@@ -1178,8 +1178,8 @@ var KineParcours = (function () {
   };
   P.tendino_fess = {
     nom: "Douleur latérale de hanche (fessiers)", long: "Tendinopathie des moyen et petit fessiers", zone: "hanche",
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "abd", "hri", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "abdh", "hri", "sane", "psfs"],
     ref: "Abduction contre le mur, debout",
     notes: ["Le programme explications + exercices fait mieux qu'une infiltration à un an (essai LEAP).",
             "À éviter : croiser les jambes, se tenir debout en appui sur une hanche, dormir couché sur le côté douloureux sans coussin entre les genoux, les étirements de la face externe de la hanche.",
@@ -1192,12 +1192,12 @@ var KineParcours = (function () {
         exos: ["Abduction contre le mur, debout", "Contraction des fessiers couché", "Pont de hanche", "Montée de genou assis", "Vélo d'appartement"] },
       { nom: "Renforcer en charge", but: "Renforcement progressif des abducteurs, contrôle du bassin.",
         obj: [
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } },
           { id: "uni", t: "Tient 30 s sur une jambe sans douleur", p: "Tu tiens 30 secondes sur une jambe sans douleur" }],
         exos: ["Montée de marche sur le côté", "Pont fessier unilatéral", "Marche latérale élastique", "Squat bilatéral", "Équilibre unipodal", "La marche du mannequin"] },
       { nom: "Reprendre les activités", but: "Montées, course, sport.",
         obj: [
-          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abdh", lsi: 90 } },
           { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
         exos: ["Squat bulgare", "Fente latérale", "Avion sur une jambe", "Step-up sur marche", "Le pas du crabe"] }
     ],
@@ -1206,8 +1206,8 @@ var KineParcours = (function () {
   };
   P.cfa = {
     nom: "Douleur de hanche du sportif (conflit)", long: "Conflit fémoro-acétabulaire et douleur de hanche du sujet jeune et actif", zone: "hanche",
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "hflex", "hri", "abd", "fAdd", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "hri", "abdh", "fAdd", "sane", "psfs"],
     ref: "Pont fessier unilatéral",
     notes: ["Rééducation de 3 mois au moins en première intention : renforcement de la hanche et du tronc, contrôle du mouvement, adaptation du sport.",
             "Limiter au début les flexions profondes de hanche avec rotation interne (squat très bas, position assise basse prolongée).",
@@ -1220,12 +1220,12 @@ var KineParcours = (function () {
         exos: ["Pont de hanche", "Clamshell", "Contraction des fessiers couché", "Dead bug", "Montée de genou assis", "Le hula hoop"] },
       { nom: "Renforcer hanche et tronc", but: "Fessiers, adducteurs, gainage, sur une jambe.",
         obj: [
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } },
           { id: "add80", t: "Force des adducteurs : au moins 80 % du côté sain", p: "L'intérieur de ta cuisse a retrouvé 80 % de sa force", a: { m: "fAdd", lsi: 80 } }],
         exos: ["Pont fessier unilatéral", "Montée de marche sur le côté", "Planche Copenhague genou", "Side plank sur genoux", "Avion sur une jambe", "Charnière de hanche, fesses au mur", "La porte du saloon"] },
       { nom: "Reprendre le sport", but: "Course, changements de direction, frappes, sur critères.",
         obj: [
-          { id: "abd90", t: "Force des abducteurs et des adducteurs : au moins 90 %", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "abd90", t: "Force des abducteurs et des adducteurs : au moins 90 %", p: "Ta hanche a retrouvé sa force", a: { m: "abdh", lsi: 90 } },
           { id: "sport", t: "Entraînement repris sans douleur gênante", p: "Tu as repris l'entraînement" }],
         exos: ["Squat bulgare", "Fente latérale", "Planche Copenhague", "Bonds du patineur", "Le pas du crabe"] }
     ],
@@ -1235,7 +1235,7 @@ var KineParcours = (function () {
   P.pubalgie = {
     nom: "Douleur de l'aine du sportif (adducteurs)", long: "Douleur de l'aine liée aux adducteurs (pubalgie)", zone: "hanche",
     key: { m: "fAdd", lsi: 1, l: "Symétrie de la force des adducteurs" },
-    mes: ["dou", "fAdd", "abd", "hri", "sane", "psfs"],
+    mes: ["dou", "fAdd", "abdh", "hri", "sane", "psfs"],
     ref: "Planche Copenhague genou",
     notes: ["Le renforcement actif des adducteurs et du tronc est le traitement de référence (programme d'Hölmich).",
             "Le programme Copenhague (adducteurs) réduit nettement les douleurs de l'aine chez les footballeurs : à garder en prévention.",

@@ -178,3 +178,22 @@ test("parcours opérés : chaque passage d'étape demande l'accord du chirurgien
   });
   expect(manques).toEqual([]);
 });
+
+// Une clé de mesure en double n'est pas une erreur JavaScript : la seconde écrase la première en silence
+// (c'était le cas de « abd » : force de hanche en kg et abduction du bras en degrés).
+test("parcours : aucune clé de mesure en double, et chaque mesure demandée existe", async ({ page }) => {
+  const fs = require("fs"), path = require("path");
+  const src = fs.readFileSync(path.join(__dirname, "..", "assets/js/kine-parcours.js"), "utf8");
+  const bloc = src.slice(src.indexOf("var M = {"), src.indexOf("\n  };", src.indexOf("var M = {")));
+  const cles = [...bloc.matchAll(/^    ([A-Za-z0-9_]+):\s*\{/gm)].map((m) => m[1]);
+  const doublons = cles.filter((k, i) => cles.indexOf(k) !== i);
+  expect(doublons).toEqual([]);
+  expect(cles.length).toBeGreaterThan(50);
+  await ouvrir(page);
+  const inconnues = await page.evaluate(() => {
+    const res = [];
+    KineParcours.ORDER.forEach((id) => (KineParcours.P[id].mes || []).forEach((k) => { if (!KineParcours.M[k]) res.push(id + ":" + k); }));
+    return res;
+  });
+  expect(inconnues).toEqual([]);
+});
