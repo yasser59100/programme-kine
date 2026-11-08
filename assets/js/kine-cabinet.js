@@ -305,6 +305,11 @@ var KineCabinet = (function () {
   }
   // Le code part par message (SMS, WhatsApp, mail) avec le lien de l'appli ; sinon il est copié
   var ICON_SHARE = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7'/><path d='M16 6l-4-4-4 4'/><path d='M12 2v14'/></svg>";
+  // L'aide « Comment ça marche » s'ouvre la toute première fois, puis reste repliée pour laisser voir l'étape en cours
+  function aideVue() {
+    try { if (localStorage.getItem("kf-aide-etapes")) return ""; localStorage.setItem("kf-aide-etapes", "1"); } catch (e) { return ""; }
+    return " open";
+  }
   function codeShare(c, until) {
     var url = location.origin + location.pathname.replace(/index\.html$/, "");
     var t = "Bonjour, voici ton code pour relier KinéForce à ton suivi au cabinet : " + c + " (valable jusqu'au " + until + ", une seule fois).\nTouche ce lien, le code est déjà rempli, il n'y a plus qu'à valider : " + url + "#code=" + c + "\nSi le lien ne s'ouvre pas : ouvre KinéForce (" + url + "), onglet « Mon kiné », « J'ai un code de mon kiné », et tape le code.";
@@ -408,7 +413,7 @@ var KineCabinet = (function () {
   function etapes() {
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1);
     var html = back2() + "<div class='kf-h1 kcb-h1'>Les étapes</div><div class='kf-sub'>" + esc(P.long) + "</div>" +
-      "<div class='kcb-explain'><b>Comment ça marche</b><span>Les étapes avancent sur critères, pas sur le calendrier : on passe à la suivante quand les objectifs sont atteints. Ils se cochent tout seuls à partir des bilans, ou c'est toi qui les coches. Les délais indiqués sont des minimums. Touche un objectif pour le valider à la main.</span></div>";
+      "<details class='kcb-explain'" + aideVue() + "><summary>Comment ça marche</summary><span>Les étapes avancent sur critères, pas sur le calendrier : on passe à la suivante quand les objectifs sont atteints. Ils se cochent tout seuls à partir des bilans, ou c'est toi qui les coches. Les délais indiqués sont des minimums. Touche un objectif pour le valider à la main.</span></details>";
     P.etapes.forEach(function (et, i) {
       var st = et.obj.map(objState), nd = st.filter(function (s) { return s.done; }).length, j = et.obj.filter(function (o) { return o.a && o.a.j; }).map(function (o) { return o.a.j; })[0];
       var ex = KP.exos(C.parcours, i, C.opts);
