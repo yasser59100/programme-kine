@@ -60,7 +60,7 @@ test("parcours : structure, exercices, mesures, sources et critères de chacun d
     });
     return { n: KP.ORDER.length, issues };
   });
-  expect(r.n).toBe(35);
+  expect(r.n).toBe(36);
   expect(r.issues, r.issues.join("\n")).toEqual([]);
 });
 

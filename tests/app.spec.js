@@ -438,7 +438,7 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
     KineAvatar.setShirt(["Yasser", "Ladraa"]); const t1 = KineAvatar.shirt(); KineAvatar.setShirt(null);
     return { miss, nb: KineChevilleEx.names.length, zones, piste: piste && piste.parcours, rupt: rupt && rupt.parcours, t1, t2: KineAvatar.shirt(), al: KineParcours.alertes("entorse")[0].slice(0, 20) };
   });
-  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7, 8, 6, 4]);
+  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7, 8, 6, 4, 1]);
   expect(c.piste).toBe("entorse"); expect(c.rupt).toBe("rupt_achille");
   expect(c.t1).toEqual(["Yasser", "Ladraa"]); expect(c.t2).toBe(null); expect(c.al).toBe("Impossible de faire ");
   // Épaule : exercices animés, 8 parcours, guide avec tests conseillés

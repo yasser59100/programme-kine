@@ -102,6 +102,8 @@ var KineParcours = (function () {
     collins: "Collins NJ et al. 2018 Consensus statement on exercise therapy and physical interventions (orthoses, taping and manual therapy) to treat patellofemoral pain. Br J Sports Med 2018.",
     willy: "Willy RW et al. Patellofemoral pain: clinical practice guidelines. J Orthop Sports Phys Ther 2019.",
     malliaras: "Malliaras P et al. Patellar tendinopathy: clinical diagnosis, load management, and advice for challenging case presentations. J Orthop Sports Phys Ther 2015.",
+    oms2020: "Bull FC et al. World Health Organization 2020 guidelines on physical activity and sedentary behaviour. Br J Sports Med 2020.",
+    firth2019: "Firth J et al. The Lancet Psychiatry Commission: a blueprint for protecting physical health in people with mental illness. Lancet Psychiatry 2019.",
     breda: "Breda SJ et al. Effectiveness of progressive tendon-loading exercise therapy in patients with patellar tendinopathy: a randomised clinical trial. Br J Sports Med 2021.",
     silber: "Silbernagel KG et al. Continued sports activity, using a pain-monitoring model, during rehabilitation in patients with Achilles tendinopathy. Am J Sports Med 2007.",
     oarsi: "Bannuru RR et al. OARSI guidelines for the non-surgical management of knee, hip, and polyarticular osteoarthritis. Osteoarthritis Cartilage 2019.",
@@ -470,6 +472,37 @@ var KineParcours = (function () {
         exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Squat bulgare", "Marche du fermier sur place", "Se relever du sol", "Squat sur une jambe vers la chaise", "Fentes en marchant, bras au ciel"] }
     ],
     src: ["oarsi", "nice", "glad", "fransen", "dobson"]
+  };
+
+  /* Patients de l'hôpital : activité physique adaptée, sans atteinte articulaire à suivre.
+     Pas de côté atteint, pas de date d'opération ; les critères sont ceux de la régularité et de l'autonomie. */
+  P.hopital = {
+    nom: "Hôpital : sport adapté", long: "Activité physique adaptée (patient de l'hôpital)", zone: "hopital", nocote: true,
+    key: { m: "dou", l: "Douleur" },
+    mes: ["dou"],
+    ref: "Assis-debout de chaise",
+    d0: "Date de début des séances",
+    notes: ["Séances de groupe ou individuelles à l'hôpital : le but est de bouger régulièrement, avec plaisir, à un effort que la personne tolère.",
+            "Pas de bilan articulaire par défaut : tu ajoutes une mesure ou change de parcours si une douleur ou une blessure apparaît.",
+            "Les séances du jour restent simples et courtes : 5 à 6 exercices."],
+    etapes: [
+      { nom: "Reprendre le mouvement", but: "Reprendre l'habitude de bouger, séances courtes et accessibles.",
+        obj: [
+          { id: "venu", t: "Le patient participe aux séances proposées", p: "Tu viens aux séances" },
+          { id: "bien", t: "Il se sent à l'aise avec les exercices de base", p: "Les exercices de base te vont bien" }],
+        exos: ["Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Pompes contre le mur", "Serrage des omoplates", "Tandem talon-pointe"] },
+      { nom: "Prendre de l'énergie", but: "Séances plus complètes, endurance et force de tout le corps.",
+        obj: [
+          { id: "regul", t: "2 séances par semaine régulièrement", p: "Tu fais 2 séances par semaine" },
+          { id: "effort", t: "Il tolère un effort modéré sans gêne", p: "Tu supportes un effort moyen" }],
+        exos: ["Squat bilatéral", "Pompes sur genoux", "Rowing deux bras penché", "Squat + élévation bras", "Dead bug", "Équilibre unipodal"] },
+      { nom: "Devenir autonome", but: "Faire un petit programme seul, en dehors des séances.",
+        obj: [
+          { id: "auto", t: "Programme fait en autonomie", p: "Tu fais ton programme seul" },
+          { id: "act", t: "Activité physique régulière (marche, vélo…)", p: "Tu bouges régulièrement" }],
+        exos: ["Fente latérale avec toucher sol", "Marche du fermier sur place", "Curl biceps", "Plank — gainage avant-bras", "Se relever du sol", "Squat bilatéral"] }
+    ],
+    src: ["oms2020", "firth2019"]
   };
 
   P.ptg = {
@@ -1383,7 +1416,7 @@ var KineParcours = (function () {
                "cheville", "entorse", "instab", "achille", "rupt_achille", "aponev", "fract_cheville",
                "epaule", "coiffe", "coiffe_op", "capsulite", "instab_ep", "stab_op", "pte", "fx_humerus",
                "hanche", "coxarthrose", "pth", "tendino_fess", "cfa", "pubalgie",
-               "dos", "sciatique", "cervicalgie", "nevralgie_cb"];
+               "dos", "sciatique", "cervicalgie", "nevralgie_cb", "hopital"];
   // Les questionnaires remplis par le patient (note globale, activités choisies) sont proposés dans tous les parcours
   // Tests de saut au téléphone : hauteur, réactivité et symétrie, dans les parcours qui reprennent les sauts
   var SAUTS = { lca_op: ["hopv", "rsi", "tcs"], lca_cons: ["hopv", "rsi", "tcs"], suture_men: ["hopv"], menisectomie: ["hopv", "rsi"], lcm: ["hopv", "rsi"],
@@ -1425,7 +1458,7 @@ var KineParcours = (function () {
   });
   // Tendinopathie rotulienne : contractions statiques lourdes dès la première étape
   if (P.tendino_rot.etapes[0].exos.indexOf("Spanish squat tenu lourd") < 0) P.tendino_rot.etapes[0].exos.unshift("Spanish squat tenu lourd");
-  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"], ["hanche", "Hanche"], ["rachis", "Dos et cou"]];
+  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"], ["hanche", "Hanche"], ["rachis", "Dos et cou"], ["hopital", "Hôpital"]];
 
   /* ════════ Calculs ════════ */
   function num(v) { if (v == null || v === "") return null; var n = +String(v).replace(",", "."); return isFinite(n) ? n : null; }

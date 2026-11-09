@@ -3600,3 +3600,10 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kf-defpop { position: fixed; z-index: 7000; max-width: min(300px, calc(100vw - 20px)); padding: 10px 14px; border-radius: 14px; background: var(--surface3, #1c2a3a); color: var(--text, #e8f0fe); border: 1px solid var(--border2, #243547); box-shadow: 0 8px 28px rgba(0,0,0,.35); font-size: 14px; line-height: 1.4; opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; pointer-events: none; }
 .kf-defpop.on { opacity: 1; transform: none; }
 .kf-defpop b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--teal, #2dd4bf); margin-bottom: 2px; }
+
+/* Mode hôpital (espace kiné) */
+.kcb-hop { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; padding: 14px 16px; border-radius: 16px; border: 1.5px dashed var(--border2, #243547); background: var(--surface2, #162030); color: var(--text, #e8f0fe); font: inherit; cursor: pointer; }
+.kcb-hop b { font-size: 16px; }
+.kcb-hop span { font-size: 13px; opacity: .75; }
+.kcb-hop.sel { border-style: solid; border-color: var(--teal, #2dd4bf); background: var(--teal-dim, rgba(45,212,191,.12)); }
+.kcb-hopq { display: block; margin: -4px 0 12px 8px; font-size: 13px; }

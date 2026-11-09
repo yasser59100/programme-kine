@@ -152,7 +152,7 @@ var KineCabinet = (function () {
       if (!rows.length) html += "<div class='kgd-empty'><b>Aucune demande</b><span>Un patient qui n'a pas de code peut demander un accès depuis l'appli, avec son prénom et son nom. La demande arrive ici.</span></div>";
       html += rows.map(function (d) {
         var t = d.t && d.t.toDate ? d.t.toDate() : null;
-        return "<button class='kcb-pat' onclick='KineCabinet.accept(" + q(d.id) + ")'><i>" + esc(initials(d.prenom + " " + d.nom)) + "</i><div><b>" + esc(d.prenom + " " + d.nom) + "</b><span>" + esc([t ? "Le " + t.getDate() + " " + MOIS[t.getMonth()] : "", d.msg ? "« " + d.msg + " »" : ""].filter(Boolean).join(" · ")) + "</span></div><em>Voir</em></button>";
+        return "<button class='kcb-pat' onclick='KineCabinet.accept(" + q(d.id) + ")'><i>" + esc(initials(d.prenom + " " + d.nom)) + "</i><div><b>" + esc(d.prenom + " " + d.nom) + "</b><span>" + esc([t ? "Le " + t.getDate() + " " + MOIS[t.getMonth()] : "", d.msg ? "« " + d.msg + " »" : ""].filter(Boolean).join(" · ")) + "</span></div><em>Voir</em></button><button class='kcb-link kcb-hopq' onclick='KineCabinet.acceptHopital(" + q(d.id) + ")'>Patient de l'hôpital : accepter en un geste</button>";
       }).join("");
       html += "<p class='kcb-hint'>Les noms complets ne sont visibles que par toi. Une demande est effacée dès que tu l'acceptes ou la refuses, et au bout de 30 jours sinon.</p>";
       show(html, null, "demandes");
@@ -232,11 +232,12 @@ var KineCabinet = (function () {
       (dem ? "<div><div class='kf-h1 kcb-h1'>" + esc(d.full) + "</div>" + (d.msg ? "<div class='kf-sub'>« " + esc(d.msg) + " »</div>" : "") + "</div>" : "<div class='kf-h1 kcb-h1'>" + (pid ? "Modifier la fiche" : "Nouveau patient") + "</div>") +
       "<label class='kcb-field'><span class='kcb-lab'>Pseudonyme ou initiales</span><input class='kcb-in' id='kcb-alias' maxlength='24' value='" + esc(d.alias) + "' placeholder='Par exemple : Samir B.' oninput='KineCabinet.set(\"alias\",this.value,1)'></label>" +
       "<p class='kcb-hint'>" + (dem ? "Le nom complet est effacé dès que tu acceptes : la fiche reste pseudonyme." : "Pas de nom complet : la fiche reste pseudonyme.") + "</p>" +
+      "<div class='kcb-field'><span class='kcb-lab'>Patient de l'hôpital ?</span><button type='button' class='kcb-hop" + (d.parcours === "hopital" ? " sel" : "") + "' onclick='KineCabinet.hopital()'><b>Mode hôpital</b><span>Sport adapté, sans bilan articulaire ni côté à choisir</span></button></div>" +
       "<div class='kcb-field'><span class='kcb-lab'>Parcours</span>" + (P ? "<div class='kcb-pnow'>" + ICON.ok + "<b>" + esc(P.nom) + "</b></div>" : "") +
       "<input class='kcb-in kcb-psearch' type='search' placeholder='Chercher : lombalgie, épaule, LCA…' oninput='KineCabinet.pfilter(this.value)' aria-label='Chercher un parcours'>" + chips +
       "<button type='button' class='kcb-link' onclick='KineCabinet.guide(\"new\")'>Pas de diagnostic ? Ouvrir le guide d'orientation</button></div>" +
-      "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
-        [["D", "Droit"], ["G", "Gauche"], ["2", "Les deux"]].map(function (c) { return "<button type='button' class='" + (d.cote === c[0] ? "sel" : "") + "' onclick='KineCabinet.set(\"cote\"," + q(c[0]) + ")'>" + c[1] + "</button>"; }).join("") + "</div></div>" +
+      (P && P.nocote ? "" : "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
+        [["D", "Droit"], ["G", "Gauche"], ["2", "Les deux"]].map(function (c) { return "<button type='button' class='" + (d.cote === c[0] ? "sel" : "") + "' onclick='KineCabinet.set(\"cote\"," + q(c[0]) + ")'>" + c[1] + "</button>"; }).join("") + "</div></div>") +
       "<label class='kcb-field' id='kcb-d0f'><span class='kcb-lab'>" + (P && P.d0 ? P.d0 : P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1);KineCabinet.set(\"d0ok\",1,1)'></label>" +
       opts +
       (pid ? "<label class='kcb-field'><span class='kcb-lab'>Exercice de référence au cabinet</span><input class='kcb-in' list='kcb-allex' value='" + esc(d.ref || (P ? P.ref : "")) + "' onchange='KineCabinet.set(\"ref\",this.value,1)'></label>" + datalist() : "");
@@ -252,6 +253,9 @@ var KineCabinet = (function () {
   }
   // On garde la position dans la page : choisir un parcours en bas de liste ne renvoie plus tout en haut
   function reForm() { var y = sheet().scrollTop; form(formPid); sheet().scrollTop = y; }
+  // Mode hôpital : un geste règle le parcours « sport adapté » ; pas de côté ni de date d'opération à renseigner
+  function hopital() { draft.parcours = "hopital"; draft.opts = {}; draft.cote = "2"; reForm(); }
+  function acceptHopital(uid) { accept(uid); if (draft) { draft.parcours = "hopital"; draft.cote = "2"; saveForm(null); } }
   function set(k, v, quiet) { draft[k] = v; if (k === "parcours") draft.opts = {}; if (!quiet) reForm(); }
   function opt(k, v) { draft.opts[k] = v; reForm(); }
   // Filtre des parcours (35) : on tape « lomb », « épaule », « LCA »…
@@ -1425,7 +1429,7 @@ var KineCabinet = (function () {
   }
 
   return {
-    open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, sv: sv, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    hopital: hopital, acceptHopital: acceptHopital, open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, sv: sv, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
     when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
