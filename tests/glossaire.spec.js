@@ -24,3 +24,11 @@ test('glossaire : mot technique souligné, définition en appui prolongé, texte
   await expect(page.locator('.kf-defpop')).toHaveCount(0);
   expect(errs).toEqual([]);
 });
+
+test('lot 3 : les nouveaux exercices sont dans la bibliothèque, animés et expliqués', async ({ page }) => {
+  await page.addInitScript(() => { try { localStorage.setItem('kf-onboarded', '1'); localStorage.setItem('kf-install-never', '1'); localStorage.setItem('kf-tour-v2', '1'); } catch (e) {} });
+  await page.goto('/index.html');
+  await page.waitForFunction(() => window.KineAvatar && window.KineBiblio && window.KineIdees);
+  const r = await page.evaluate(() => ["Curl biceps à l'élastique", "Extension triceps à l'élastique", "Pompes diamant", "Contraction du cou en rotation contre la main"].map(n => ({ n, anim: KineAvatar.supports(n) && KineAvatar.hasSteps(n), fiche: !!KineBiblio.find(n), usage: !!(KineIdees.USAGE && KineIdees.USAGE[n]) })));
+  r.forEach(x => { expect(x.anim, x.n + ' animé').toBeTruthy(); expect(x.fiche, x.n + ' fiche').toBeTruthy(); expect(x.usage, x.n + ' à quoi ça sert').toBeTruthy(); });
+});
