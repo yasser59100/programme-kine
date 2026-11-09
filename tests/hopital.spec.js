@@ -46,3 +46,32 @@ test("mode hôpital : dans une fiche manuelle, un bouton règle le parcours et c
   expect(await page.evaluate(() => Object.values(window.__db.patients)[0].doc.parcours)).toBe("hopital");
   expect(errs).toEqual([]);
 });
+test("espace hôpital : séances prêtes, le savais-tu, vrai ou faux côté patient", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  // toutes les séances ne contiennent que des exercices existants
+  const manquants = await page.evaluate(() => KineHopital.seances.flatMap(s => s.ex.filter(n => !KineBiblio.find(n))));
+  expect(manquants).toEqual([]);
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true); });
+  await page.evaluate(() => { try { KineMonSuivi.consent(0); } catch (e) {} }); await page.waitForTimeout(1200);
+  await page.evaluate(() => showPage("monkine")); await page.waitForTimeout(1500);
+  await expect(page.locator(".kh-seance").first()).toBeVisible({ timeout: 8000 });
+  expect(await page.locator(".kh-seance").count()).toBe(4);
+  await page.locator(".kh-seances, .kh-seance").first().scrollIntoViewIfNeeded(); await page.screenshot({ path: "/tmp/hop-espace.png" });
+  await page.locator(".kh-tip").first().dispatchEvent("click");
+  await expect(page.locator("#kh-sheet.open")).toBeVisible();
+  await page.evaluate(() => KineHopital.tipClose());
+  await page.locator("#kh-vf button").first().dispatchEvent("click");
+  await expect(page.locator("#kh-vf")).toContainText(/C'est (vrai|faux)/);
+  await page.locator(".kh-seance button").first().dispatchEvent("click");
+  await page.waitForTimeout(800);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom")).some(x => x.id === "hop-reveil"))).toBe(true);
+  expect(errs).toEqual([]);
+});

@@ -312,6 +312,8 @@ var KineMonSuivi = (function () {
     var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
     if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<button type='button' class='kms-ex' data-n='" + esc(n) + "' onclick='KineMonSuivi.demo(this)'><span>" + esc(n) + "</span><em>Voir</em></button>"; }).join("") +
       (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
+    // patient de l'hôpital : séances toutes prêtes, le savais-tu, vrai ou faux
+    if (d.parcours === "hopital" && window.KineHopital) html += KineHopital.html(PREV);
     // mot du kiné
     if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
     if (d.next) html += "<p class='kf-sub kcb-center'>Prochain bilan au cabinet : <b>" + dfr(d.next) + "</b></p>";

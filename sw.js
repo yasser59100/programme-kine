@@ -26,6 +26,7 @@ const APP_FILES = [
   'assets/js/kine-nouveaux.js',
   'assets/js/kine-nouveaux2.js',
   'assets/js/kine-nouveaux3.js',
+  'assets/js/kine-hopital.js',
   'assets/js/kine-salle-ex.js',
   'assets/js/kine-genou-ex.js',
   'assets/js/kine-cheville-ex.js',

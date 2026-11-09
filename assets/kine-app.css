@@ -3607,3 +3607,9 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kcb-hop span { font-size: 13px; opacity: .75; }
 .kcb-hop.sel { border-style: solid; border-color: var(--teal, #2dd4bf); background: var(--teal-dim, rgba(45,212,191,.12)); }
 .kcb-hopq { display: block; margin: -4px 0 12px 8px; font-size: 13px; }
+.kh-seance{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:12px 0;border-top:1px solid var(--line,rgba(128,128,128,.2))}
+.kh-seance:first-of-type{border-top:0}
+.kh-seance b{display:block;font-size:1.02em}.kh-seance em{display:block;font-style:normal;font-size:.85em;opacity:.75;margin-top:2px}
+.kh-seance .seq-btn-main{width:100%;min-width:0;padding:11px 14px}
+.kh-vf .kcb-two{display:flex;gap:10px;margin-top:6px}.kh-vf .kcb-two button{flex:1;min-width:0}
+.kh-tip,.kh-vf{margin-top:10px}
