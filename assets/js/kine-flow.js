@@ -63,13 +63,17 @@ var KineProgress = (function () {
     var pp = []; try { pp = JSON.parse(get("kf-pain") || "[]"); } catch (e) {}
     var days = {};
     pp.forEach(function (p) { var d = String(p.date || "").slice(0, 10); if (d && +p.intensite >= 5 && daysBetween(d, today) <= 7) days[d] = 1; });
-    return bad >= 2 || Object.keys(days).length >= 2;
+    return bad >= 2 || Object.keys(days).length >= 2 || painToday();
+  }
+  // Douleur forte notée ce matin dans « Comment ça va aujourd'hui ? » (7 sur 10 ou plus) : la séance du jour reste douce
+  function painToday() {
+    try { var m = JSON.parse(get("kf-checkin") || "{}") || {}, c = m[iso(Date.now())]; return !!c && +c.pain >= 7; } catch (e) { return false; }
   }
   function loadWeek() { var w = state().week; return painHold() ? Math.min(2, w) : w; }
 
   function plan() {
     var st = state(), w = st.week;
-    if (w >= 2 && painHold()) return { week: w, series: 2, repsBonus: 0, high: true, pain: true, reason: "Douleur de 5 sur 10 ou plus à plusieurs reprises : on reste à 2 tours, sans variante avancée. Parles-en à ton kiné.", state: st };
+    if (w >= 2 && painHold()) return { week: w, series: 2, repsBonus: 0, high: true, pain: true, reason: painToday() ? "Douleur forte ce matin : séance en douceur, 2 tours et sans variante avancée. Si elle reste forte, parles-en à ton kiné." : "Douleur de 5 sur 10 ou plus à plusieurs reprises : on reste à 2 tours, sans variante avancée. Parles-en à ton kiné.", state: st };
     var borgs = st.cycle.map(function (s) { return +s.borg; }).filter(function (b) { return b >= 1 && b <= 5; });
     var high = borgs.length >= 2 && borgs[0] >= 4 && borgs[1] >= 4;           // les plus récentes en premier
     var recent = borgs.slice(0, 3), avg = recent.length ? recent.reduce(function (a, b) { return a + b; }, 0) / recent.length : null;
@@ -121,7 +125,7 @@ var KineProgress = (function () {
   return {
     state: state, plan: plan, repsLabel: repsLabel, variant: variant,
     week: function () { return state().week; },
-    loadWeek: loadWeek, painHold: painHold,
+    loadWeek: loadWeek, painHold: painHold, painToday: painToday,
     markStart: function () { if (!get("kf-start")) { set("kf-start", iso(Date.now())); set("kf-reset", ""); } }
   };
 })();

@@ -197,3 +197,28 @@ test("parcours : aucune clé de mesure en double, et chaque mesure demandée exi
   });
   expect(inconnues).toEqual([]);
 });
+
+test("douleur forte notée ce matin : la séance du jour reste douce (2 tours, sans répétition en plus)", async ({ page }) => {
+  await ouvrir(page);
+  const r = await page.evaluate(() => {
+    const iso = (d) => d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    const jour = (n) => iso(new Date(Date.now() - n * 864e5));
+    window.sessions = [{ date: jour(2), borg: 1, douleur: 0 }, { date: jour(4), borg: 1, douleur: 0 }];
+    localStorage.setItem("kf-start", jour(16)); localStorage.setItem("kf-reset", "");
+    localStorage.setItem("kf-checkin", JSON.stringify({}));
+    const normal = KineProgress.plan();
+    localStorage.setItem("kf-checkin", JSON.stringify({ [jour(0)]: { pain: 8 } }));
+    const forte = KineProgress.plan();
+    localStorage.setItem("kf-checkin", JSON.stringify({ [jour(0)]: { pain: 6 } }));
+    const moyenne = KineProgress.plan();
+    localStorage.setItem("kf-checkin", JSON.stringify({ [jour(1)]: { pain: 9 } }));
+    const hier = KineProgress.plan();
+    return { normal: [normal.week, normal.series, normal.repsBonus, !!normal.pain], forte: [forte.series, forte.repsBonus, !!forte.pain, forte.reason], moyenne: [moyenne.series, !!moyenne.pain], hier: [hier.series, !!hier.pain] };
+  });
+  expect(r.normal[0]).toBeGreaterThanOrEqual(3);
+  expect(r.normal[3]).toBe(false);
+  expect(r.forte[0]).toBe(2); expect(r.forte[1]).toBe(0); expect(r.forte[2]).toBe(true);
+  expect(r.forte[3]).toContain("Douleur forte ce matin");
+  expect(r.moyenne[1]).toBe(false);   // 6 sur 10 : pas assez pour changer la séance
+  expect(r.hier[1]).toBe(false);      // la douleur d'hier ne compte pas aujourd'hui
+});
