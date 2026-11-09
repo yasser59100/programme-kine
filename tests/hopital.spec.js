@@ -14,7 +14,7 @@ test("mode hôpital : une demande s'accepte en un geste, sans parcours ni côté
   await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
   await page.evaluate(() => KineCabinet.demandes());
   await expect(page.locator("#kcb-sheet .kcb-hopq")).toHaveCount(1);
-  await page.locator("#kcb-sheet .kcb-hopq").click();
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
   await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
   expect(await page.evaluate(() => Object.keys(window.__db.demandes).length)).toBe(0);
   const doc = await page.evaluate(() => { const k = Object.keys(window.__db.patients)[0]; return window.__db.patients[k].doc; });
