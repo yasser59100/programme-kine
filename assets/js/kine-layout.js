@@ -359,7 +359,7 @@
   function yassArm() { document.querySelectorAll(".lu-ys:not(.armed)").forEach(function (el) { el.classList.add("armed"); yassPlay(el, el.getAttribute("data-g")); }); }
   function yassTap(el) { var g = yPick("today"); yLast = g; yassPlay(el, g); try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} }
   function renderAllLx() { renderHome(); renderSuivi(); renderProg(); yassArm(); }
-  window.KineLayout = { yass: yassTap, render: renderAllLx, chart: chart, bigText: bigText };
+  window.KineLayout = { arm: yassArm, yass: yassTap, render: renderAllLx, chart: chart, bigText: bigText };
   function init() {
     try { arrangeGuide(); renderAllLx(); } catch (e) {}
     // la nouvelle interface est dessinée : on lève l'écran de démarrage

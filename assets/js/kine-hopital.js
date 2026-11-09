@@ -147,19 +147,91 @@
     var el = $("kh-vf"); if (el) { var w = document.createElement("div"); w.innerHTML = vfBlock(); el.parentNode.replaceChild(w.firstChild, el); }
   }
 
-  /* ── bloc affiché dans l'écran de suivi ── */
-  function html(prev) {
-    var t = TIPS[day() % TIPS.length];
-    var h = "<div class='kcb-v2h'>Ton espace sport adapté</div><div class='su-card kh-seances'><div class='su-card-h'><b>Des séances toutes prêtes</b><span>choisis celle qui te va</span></div>";
-    SEANCES.forEach(function (S, i) {
-      h += "<div class='kh-seance'><div><b>" + esc(S.nom) + "</b><em>" + S.min + " min · " + S.ex.length + " exercices · " + esc(S.desc) + "</em></div>" +
-        (prev ? "" : "<button type='button' class='seq-btn-main' onclick='KineHopital.start(" + i + ")'>Commencer</button>") + "</div>";
-    });
-    h += "</div>";
-    h += "<button type='button' class='ks-card kh-tip' onclick='KineHopital.tipOpen(" + (day() % TIPS.length) + ")'><span class='ks-tag'>Le savais-tu ?</span><span class='ks-title'>" + esc(t.title) + "</span><span class='ks-src'>" + esc(t.source.replace(/^.*?,\s*/, "")) + "<span aria-hidden='true'>›</span></span></button>";
-    h += vfBlock();
-    return h;
+  /* ── semaine : les séances faites se remplissent ── */
+  function iso(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function weekDone() {
+    var ss = []; try { ss = (typeof sessions !== "undefined" && sessions) ? sessions : JSON.parse(localStorage.getItem("kf-sessions") || "[]"); } catch (e) {}
+    var d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); var mon = iso(d), days = {};
+    ss.forEach(function (x) { var k = String(x.date).slice(0, 10); if (k >= mon) days[k] = 1; });
+    return { n: ss.filter(function (x) { return String(x.date).slice(0, 10) >= mon; }).length, days: days, mon: d };
   }
 
-  window.KineHopital = { html: html, start: startSeance, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+  var ICON = {
+    "hop-reveil": "<circle cx='12' cy='13' r='4'/><path d='M12 3v2M4.2 7.2l1.4 1.4M19.8 7.2l-1.4 1.4M2 13h2M20 13h2M3 20h18'/>",
+    "hop-energie": "<path d='M13 2L4 14h7l-1 8 9-12h-7z'/>",
+    "hop-force": "<path d='M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11'/>",
+    "hop-calme": "<path d='M5 19c0-9 5-14 14-14 0 9-5 14-14 14z'/><path d='M5 19c3-4 6-6 9-8'/>"
+  };
+
+  function haptic(n) { try { if (navigator.vibrate) navigator.vibrate(n); } catch (e) {} }
+  function reduced() { return window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function burst(host) {
+    if (reduced() || !host) return;
+    var cols = ["#4B5BFF", "#3CF2B0", "#FFC56B", "#FF5C73", "#7B88FF"], w = document.createElement("span");
+    w.className = "kh-burst"; w.setAttribute("aria-hidden", "true");
+    for (var i = 0; i < 16; i++) {
+      var p = document.createElement("i"), a = (i / 16) * 6.283, r = 70 + Math.random() * 50;
+      p.style.cssText = "background:" + cols[i % 5] + ";--dx:" + Math.round(Math.cos(a) * r) + "px;--dy:" + Math.round(Math.sin(a) * r - 20) + "px;animation-delay:" + (Math.random() * 0.08) + "s";
+      w.appendChild(p);
+    }
+    host.appendChild(w); setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 1200);
+  }
+
+  /* ── bloc affiché dans l'écran de suivi ── */
+  function html(prev) {
+    var hi = day() % SEANCES.length, H = SEANCES[hi], t = TIPS[day() % TIPS.length], wk = weekDone(), goal = 4;
+    var h = "<div class='kh-wrap'>";
+    // 1. le héros : Yass et la séance du jour
+    h += "<section class='kh-hero kh-in' style='--i:0'><span class='kh-yw'><button type='button' class='lu-yass lu-ys' aria-label='Yass' onclick='KineLayout.yass(this)' data-g='salut'></button></span>" +
+      "<div class='kh-kick'>Ta séance du jour</div><div class='kh-big'>" + esc(H.nom) + "</div>" +
+      "<div class='kh-meta'>" + H.min + " minutes · " + H.ex.length + " exercices</div>" +
+      "<div class='kh-say'>" + esc(H.desc) + "</div>" +
+      (prev ? "" : "<button type='button' class='kh-go' onclick='KineHopital.start(" + hi + ")'>Commencer<span aria-hidden='true'>›</span></button>") + "</section>";
+    // 2. ma semaine
+    h += "<section class='kh-week kh-in' style='--i:1'><div class='kh-wk-h'><b>Ma semaine</b><span>" + wk.n + " séance" + (wk.n > 1 ? "s" : "") + "</span></div><div class='kh-dots'>";
+    var lab = ["L", "M", "M", "J", "V", "S", "D"], today = iso(new Date());
+    for (var i = 0; i < 7; i++) {
+      var d = new Date(wk.mon.getTime()); d.setDate(d.getDate() + i); var k = iso(d), done = !!wk.days[k];
+      h += "<span class='kh-dot" + (done ? " ok" : "") + (k === today ? " now" : "") + "' style='--d:" + (i * 0.07 + 0.5) + "s'><i aria-hidden='true'>" + (done ? "✓" : "") + "</i><em>" + lab[i] + "</em></span>";
+    }
+    h += "</div><div class='kh-wk-s'>" + (wk.n === 0 ? "Une première séance cette semaine ? Je suis avec toi." : wk.n >= goal ? "Objectif de la semaine atteint, bravo !" : "Encore " + (goal - wk.n) + " pour atteindre ton objectif.") + "</div></section>";
+    // 3. mes séances, en cartes à faire défiler
+    h += "<div class='kh-sec kh-in' style='--i:2'>Mes séances</div><div class='kh-rail kh-in' style='--i:3'>";
+    SEANCES.forEach(function (S, i) {
+      h += "<button type='button' class='kh-card c" + i + "'" + (prev ? " disabled" : " onclick='KineHopital.start(" + i + ")'") + ">" +
+        "<svg viewBox='0 0 24 24' width='34' height='34' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" + ICON[S.id] + "</svg>" +
+        "<b>" + esc(S.nom) + "</b><span>" + S.min + " min</span></button>";
+    });
+    h += "</div>";
+    // 4. le savais-tu
+    h += "<button type='button' class='kh-tip kh-in' style='--i:4' onclick='KineHopital.tipOpen(" + (day() % TIPS.length) + ")'><span class='kh-bulb' aria-hidden='true'><svg viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z'/></svg></span>" +
+      "<span class='kh-tt'><em>Le savais-tu ? · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
+    // 5. vrai ou faux
+    h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:5'");
+    setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 80);
+    setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 500);
+    return h + "</div>";
+  }
+
+  function vfBlock() {
+    var i = day() % VF.length, v = VF[i], h = jget("kf-hop-vf", {}), r = h[v.q];
+    var dn = r && r.d === day(), good = dn && r.r === v.a;
+    var b = "<div class='kh-kick vf'>Vrai ou faux du jour</div><div class='kh-q'>« " + esc(v.q) + " »</div>";
+    if (dn) {
+      b += "<div class='kh-ans " + (good ? "yes" : "no") + "'><b>" + (good ? "Bien vu !" : "Pas tout à fait.") + " " + (v.a ? "C'est vrai." : "C'est faux.") + "</b><span>" + esc(v.e) + "</span></div>";
+    } else {
+      b += "<div class='kh-two'><button type='button' class='kh-vb' onclick='KineHopital.vf(true,this)'>Vrai</button><button type='button' class='kh-vb' onclick='KineHopital.vf(false,this)'>Faux</button></div>";
+    }
+    return "<section class='kh-vf' id='kh-vf'>" + b + "</section>";
+  }
+  function vf(rep, btn) {
+    var i = day() % VF.length, h = jget("kf-hop-vf", {}); h[VF[i].q] = { r: !!rep, d: day() }; jset("kf-hop-vf", h);
+    var good = (!!rep) === VF[i].a;
+    var el = $("kh-vf"); if (!el) return;
+    var w = document.createElement("div"); w.innerHTML = vfBlock(); var n = w.firstChild; n.className += " kh-in"; n.style.setProperty("--i", "0");
+    el.parentNode.replaceChild(n, el);
+    if (good) { burst(n); haptic([14, 40, 14]); } else haptic(30);
+  }
+
+  window.KineHopital = { burst: burst, html: html, start: startSeance, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();
