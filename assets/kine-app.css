@@ -3594,3 +3594,9 @@ html.kf-printing #kcb-print { display: block; position: fixed; inset: 0; z-index
 .kcb-tee { padding-right: 86px; }
 .kcb-fab { transition: transform .22s ease, opacity .22s ease; }
 html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-events: none; }
+
+/* Glossaire : mots techniques soulignés, définition en appui prolongé */
+.kf-def { text-decoration: underline dotted; text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: var(--teal, #2dd4bf); -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; cursor: help; }
+.kf-defpop { position: fixed; z-index: 7000; max-width: min(300px, calc(100vw - 20px)); padding: 10px 14px; border-radius: 14px; background: var(--surface3, #1c2a3a); color: var(--text, #e8f0fe); border: 1px solid var(--border2, #243547); box-shadow: 0 8px 28px rgba(0,0,0,.35); font-size: 14px; line-height: 1.4; opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; pointer-events: none; }
+.kf-defpop.on { opacity: 1; transform: none; }
+.kf-defpop b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--teal, #2dd4bf); margin-bottom: 2px; }

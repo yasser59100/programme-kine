@@ -347,14 +347,15 @@ test("kiné ou patient : premier lancement, demande d'accès et acceptation", as
   await clean(errs);
 });
 
-test("mon espace : bouton toujours visible, code du kiné dans Progrès", async ({ page }, info) => {
+test("mon espace : bouton toujours visible, code du kiné dans Mon kiné (plus de doublon dans Progrès)", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
   await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await expect(page.locator("#kf-me")).toBeVisible();
   await page.evaluate(() => showPage("suivi"));
-  await expect(page.locator("#page-suivi #kms-join-row")).toBeVisible();
+  await expect(page.locator("#page-suivi #kms-join-row")).toHaveCount(0);
   await page.locator("#kf-me").click();
+  await expect(page.locator("#kf-hub.open")).toContainText("J'ai un code de mon kiné");
   await expect(page.locator("#kf-hub.open .khb-seg")).toHaveCount(0);
   await expect(page.locator("#kf-hub.open .khb-out")).toContainText("Changer de profil");
   await shot(page, info, "23-mon-espace");

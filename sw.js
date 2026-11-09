@@ -20,6 +20,7 @@ const APP_FILES = [
   'assets/js/kine-niveau.js',
   'assets/js/kine-biblio.js',
   'assets/js/kine-compose.js',
+  'assets/js/kine-glossaire.js',
   'assets/js/kine-officiel.js',
   'assets/js/kine-themes.js',
   'assets/js/kine-nouveaux.js',
