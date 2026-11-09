@@ -177,6 +177,31 @@
     host.appendChild(w); setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 1200);
   }
 
+
+  /* ── patient de l'hôpital ? ── */
+  function isHop() { var s = jget("kf-cab", null); return !!(s && s.d && s.d.parcours === "hopital"); }
+
+  /* ── fin de séance : comment tu te sens ? (trois visages, envoyés au kiné avec le ressenti du jour) ── */
+  var FACES = [
+    { n: 1, t: "Difficile", f: "#fde8e1", s: "#e6a794", m: "M13 28q7-6 14 0" },
+    { n: 2, t: "Moyen", f: "#fff1dc", s: "#e6c58a", m: "M13 26h14" },
+    { n: 3, t: "Bien", f: "#e6f6f3", s: "#9fd8cf", m: "M13 24q7 7 14 0" }
+  ];
+  function feelHtml() {
+    var h = "<div class='kh-feel' role='group' aria-label='Comment tu te sens ?'><div class='kh-feel-q'>Comment tu te sens ?</div><div class='kh-feel-r'>";
+    FACES.forEach(function (F) {
+      h += "<button type='button' class='kh-face' data-n='" + F.n + "' onclick='KineHopital.feel(" + F.n + ",this)'><svg viewBox='0 0 40 40' width='52' height='52' aria-hidden='true'><circle cx='20' cy='20' r='18' fill='" + F.f + "' stroke='" + F.s + "' stroke-width='1.5'/><circle cx='14' cy='16' r='2' fill='#111c2d'/><circle cx='26' cy='16' r='2' fill='#111c2d'/><path d='" + F.m + "' fill='none' stroke='#111c2d' stroke-width='2' stroke-linecap='round'/></svg><span>" + F.t + "</span></button>";
+    });
+    return h + "</div></div>";
+  }
+  function feel(n, btn) {
+    var m = jget("kf-checkin", {}), k = iso(new Date()); m[k] = m[k] || {}; m[k].feel = n; jset("kf-checkin", m);
+    [].forEach.call(document.querySelectorAll(".kh-face"), function (b) { b.classList.toggle("on", b === btn); });
+    haptic(12);
+    if (n === 3) burst(btn.parentNode);
+    try { var st = jget("kf-cab", null); if (st && st.pid && window.KineMonSuivi && KineMonSuivi.sync) KineMonSuivi.sync(); } catch (e) {}
+  }
+
   /* ── bloc affiché dans l'écran de suivi ── */
   function html(prev) {
     var hi = day() % SEANCES.length, H = SEANCES[hi], t = TIPS[day() % TIPS.length], wk = weekDone(), goal = 4;
@@ -233,5 +258,5 @@
     if (good) { burst(n); haptic([14, 40, 14]); } else haptic(30);
   }
 
-  window.KineHopital = { burst: burst, html: html, start: startSeance, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+  window.KineHopital = { isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();

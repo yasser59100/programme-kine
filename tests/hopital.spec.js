@@ -62,6 +62,10 @@ test("espace hôpital : séances prêtes, le savais-tu, vrai ou faux côté pati
   await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true); });
   await page.evaluate(() => { try { KineMonSuivi.consent(0); } catch (e) {} }); await page.waitForTimeout(1200);
   await page.evaluate(() => showPage("monkine")); await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => KineHopital.isHop())).toBe(true);
+  await page.evaluate(() => { const d = document.createElement("div"); d.id = "zz"; d.innerHTML = KineHopital.feelHtml(); document.body.appendChild(d); });
+  await page.locator("#zz .kh-face").nth(2).dispatchEvent("click");
+  expect(await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("kf-checkin"))).some(c => c.feel === 3))).toBe(true);
   await expect(page.locator(".kh-card").first()).toBeVisible({ timeout: 8000 });
   expect(await page.locator(".kh-card").count()).toBe(4);
   await page.waitForTimeout(1500); await page.screenshot({ path: "/tmp/hop-espace.png" }); await page.locator(".kh-vf").scrollIntoViewIfNeeded(); await page.screenshot({ path: "/tmp/hop-espace2.png" });
@@ -73,5 +77,25 @@ test("espace hôpital : séances prêtes, le savais-tu, vrai ou faux côté pati
   await page.locator(".kh-go").dispatchEvent("click");
   await page.waitForTimeout(800);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom")).some(x => String(x.id).indexOf("hop-") === 0))).toBe(true);
+  expect(errs).toEqual([]);
+});
+
+test("liste des patients : groupe Hôpital, deux boutons à l'acceptation", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await expect(page.locator("#kcb-sheet .kcb-pick")).toHaveCount(2);
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kcb-sheet){display:none!important}" }); await page.waitForTimeout(700); await page.screenshot({ path: "/tmp/kine-accept.png" });
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => { window.__db.patients.p2 = { doc: { alias: "Marc D.", parcours: "lca_opere", etape: 0, cote: "D" }, bilans: {}, seances: {}, maison: {}, notes: {}, journal: {}, membres: 0 }; });
+  await page.evaluate(() => KineCabinet.open());
+  await expect(page.locator("#kcb-sheet .kcb-grp").first()).toContainText("Hôpital", { timeout: 8000 });
+  await expect(page.locator("#kcb-sheet .kcb-grp")).toHaveCount(2);
+  await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/kine-liste.png" });
   expect(errs).toEqual([]);
 });

@@ -3606,7 +3606,6 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kcb-hop b { font-size: 16px; }
 .kcb-hop span { font-size: 13px; opacity: .75; }
 .kcb-hop.sel { border-style: solid; border-color: var(--teal, #2dd4bf); background: var(--teal-dim, rgba(45,212,191,.12)); }
-.kcb-hopq { display: block; margin: -4px 0 12px 8px; font-size: 13px; }
 /* ── Espace hôpital : un écran vivant, pas une liste ── */
 .kh-wrap{display:flex;flex-direction:column;gap:14px;margin:6px 0 4px}
 .kh-in{animation:kfRise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * .09s)}
@@ -3673,3 +3672,22 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 @keyframes khShake{0%{transform:scale(.9);opacity:0}40%{transform:translateX(-5px)}70%{transform:translateX(4px)}100%{transform:none;opacity:1}}
 @keyframes khBurst{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.4) rotate(220deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.kh-in,.kh-hero::before,.kh-yw,.kh-go,.kh-card svg,.kh-bulb,.kh-dot.ok i,.kh-ans{animation:none!important}}
+
+/* acceptation : deux choix de même poids ; groupe Hôpital dans la liste */
+.kcb-two2{display:flex;gap:10px;margin:2px 0 14px}
+.kcb-pick{flex:1;min-height:64px;border-radius:18px;border:2px solid var(--border2);background:var(--surface);color:var(--text);text-align:left;padding:10px 14px;font-family:var(--font);display:flex;flex-direction:column;gap:2px;cursor:pointer;transition:transform .15s}
+.kcb-pick:active{transform:scale(.97)}
+.kcb-pick b{font-size:.95rem}.kcb-pick span{font-size:.78rem;color:var(--text2)}
+.kcb-pick.hop{border-color:#2f9e8f;background:rgba(47,158,143,.1)}
+.kcb-grp{display:flex;justify-content:space-between;align-items:baseline;margin:16px 2px 6px;font-size:.74rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
+.kcb-grp em{font-style:normal}
+/* fin de séance : trois visages */
+.kh-feel{margin:6px 0 18px;text-align:center}
+.kh-feel-q{font-weight:800;font-size:1.05rem;margin-bottom:10px}
+.kh-feel-r{position:relative;display:flex;gap:10px;justify-content:center}
+.kh-face{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border-radius:20px;border:2px solid var(--border2);background:var(--surface);color:var(--text);font:700 .85rem var(--font);cursor:pointer;transition:transform .15s,border-color .2s,background .2s}
+.kh-face:active{transform:scale(.94)}
+.kh-face.on{border-color:#2f9e8f;background:rgba(47,158,143,.14)}
+.kh-face.on svg{animation:khBounce .6s both}
+@keyframes khBounce{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-6deg)}70%{transform:scale(.95) rotate(4deg)}100%{transform:scale(1.1)}}
+@media (prefers-reduced-motion:reduce){.kh-face.on svg{animation:none}}

@@ -108,12 +108,15 @@ var KineCabinet = (function () {
     if (rows.length > 5) html += "<input class='kcb-in kcb-psearch' type='search' id='kcb-ps' placeholder='Chercher un patient' oninput='KineCabinet.psearch(this.value)' aria-label='Chercher un patient'>";
     if (!rows.length) html += "<div class='kf-note'>Aucun patient pour l'instant. Crée une fiche avec le bouton +, ou accepte une demande d'accès : le téléphone du patient se relie à sa fiche.</div>";
     else if (!shown.length) html += "<div class='kf-note'>Personne dans ce filtre.</div>";
+    var isH = function (p) { return p.parcours === "hopital"; }, nH = rows.filter(isH).length, lastG = "";
+    if (nH) shown = shown.filter(isH).concat(shown.filter(function (p) { return !isH(p); }));
     html += shown.map(function (p) {
       var P = KP.get(p.parcours), n = P ? P.etapes.length : 0, e = (p.etape || 0) + 1, f = flags(p);
       var sub = (P ? P.nom : "Parcours à choisir") + (p.cote && p.cote !== "2" ? ", " + (p.cote === "D" ? "droit" : "gauche") : "");
       var info = f.pain ? "douleur " + KP.fmt(f.w.dou) + "/10 à la maison" : f.due ? "bilan prévu" + (f.today ? " aujourd'hui" : "") : f.w ? f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine" : "";
       var nr = fresh(p).length;
-      return "<button data-n='" + esc(nrm((p.alias || "") + " " + (P ? P.nom : ""))) + "' class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + (p.membres === 0 ? " <u class='kcb-nr'>pas relié</u>" : "") + "</span></div>" +
+      var gn = isH(p) ? "Hôpital" : "Cabinet", hd = nH && gn !== lastG ? "<div class='kcb-grp'><span>" + gn + "</span><em>" + (isH(p) ? nH : rows.length - nH) + "</em></div>" : ""; lastG = gn;
+      return hd + "<button data-n='" + esc(nrm((p.alias || "") + " " + (P ? P.nom : ""))) + "' class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + (p.membres === 0 ? " <u class='kcb-nr'>pas relié</u>" : "") + "</span></div>" +
         (P ? "<em>Étape " + e + "/" + n + "</em>" : "") + "</button>";
     }).join("");
     var tee = window.KineAvatar && KineAvatar.shirt ? KineAvatar.shirt() : null;
@@ -152,7 +155,7 @@ var KineCabinet = (function () {
       if (!rows.length) html += "<div class='kgd-empty'><b>Aucune demande</b><span>Un patient qui n'a pas de code peut demander un accès depuis l'appli, avec son prénom et son nom. La demande arrive ici.</span></div>";
       html += rows.map(function (d) {
         var t = d.t && d.t.toDate ? d.t.toDate() : null;
-        return "<button class='kcb-pat' onclick='KineCabinet.accept(" + q(d.id) + ")'><i>" + esc(initials(d.prenom + " " + d.nom)) + "</i><div><b>" + esc(d.prenom + " " + d.nom) + "</b><span>" + esc([t ? "Le " + t.getDate() + " " + MOIS[t.getMonth()] : "", d.msg ? "« " + d.msg + " »" : ""].filter(Boolean).join(" · ")) + "</span></div><em>Voir</em></button><button class='kcb-link kcb-hopq' onclick='KineCabinet.acceptHopital(" + q(d.id) + ")'>Patient de l'hôpital : accepter en un geste</button>";
+        return "<button class='kcb-pat' onclick='KineCabinet.accept(" + q(d.id) + ")'><i>" + esc(initials(d.prenom + " " + d.nom)) + "</i><div><b>" + esc(d.prenom + " " + d.nom) + "</b><span>" + esc([t ? "Le " + t.getDate() + " " + MOIS[t.getMonth()] : "", d.msg ? "« " + d.msg + " »" : ""].filter(Boolean).join(" · ")) + "</span></div><em>Voir</em></button><div class='kcb-two2'><button class='kcb-pick' onclick='KineCabinet.accept(" + q(d.id) + ")'><b>Patient du cabinet</b><span>Je choisis un bilan</span></button><button class='kcb-pick hop kcb-hopq' onclick='KineCabinet.acceptHopital(" + q(d.id) + ")'><b>Patient de l'hôpital</b><span>Sport adapté, en un geste</span></button></div>";
       }).join("");
       html += "<p class='kcb-hint'>Les noms complets ne sont visibles que par toi. Une demande est effacée dès que tu l'acceptes ou la refuses, et au bout de 30 jours sinon.</p>";
       show(html, null, "demandes");

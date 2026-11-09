@@ -195,6 +195,7 @@
   var CHECK = "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12.5l4.5 4.5L19 7.5'/></svg>";
   function cta() {
     var c = get(iso());
+    if (c && c.pain == null && c.sleep == null && c.mood == null && c.stiff == null && !(c.acts && c.acts.length) && !c.note) c = null;   // seul le ressenti de séance (hôpital) est noté
     if (!c) return "<button class='kr-cta' onclick='KineCheckin.open()'>" + PLUS + "<span>Comment ça va aujourd'hui ?<small>30 secondes : douleur, sommeil, moral</small></span></button>";
     var bits = [];
     if (c.pain != null) bits.push("douleur " + c.pain + "/10");
@@ -311,6 +312,7 @@
       if (c.pain != null) kv.push((+c.pain >= 5 ? "!" : "") + "Douleur " + c.pain + "/10" + (c.zones && c.zones.length ? ", " + c.zones.join(", ").toLowerCase() : ""));
       if (c.sleep != null) kv.push("Nuit " + SLEEP[c.sleep].toLowerCase());
       if (c.mood != null) kv.push("Moral " + c.mood + "/5");
+      if (c.feel) kv.push("Séance : " + ["difficile", "moyenne", "bien vécue"][c.feel - 1]);
       if (c.stiff != null) kv.push("Raideur : " + STIFF[c.stiff].toLowerCase());
       (c.acts || []).forEach(function (a) { if (a !== "Rien de plus") kv.push(a); });
       h += "<div class='kr-lab mute'>Ressenti du jour</div>" + kv0(kv) + (c.note ? "<p class='kr-note-t'>« " + esc(c.note) + " »</p>" : "");
