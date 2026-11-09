@@ -3607,7 +3607,7 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kcb-hop span { font-size: 13px; opacity: .75; }
 .kcb-hop.sel { border-style: solid; border-color: var(--teal, #2dd4bf); background: var(--teal-dim, rgba(45,212,191,.12)); }
 /* ── Espace hôpital : un écran vivant, pas une liste ── */
-.kh-wrap{display:flex;flex-direction:column;gap:14px;margin:6px 0 4px}
+.kh-wrap{display:flex;flex-direction:column;gap:14px;margin:6px 0 4px;padding-bottom:96px}
 .kh-in{animation:kfRise .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * .09s)}
 .kh-hero{position:relative;overflow:hidden;border-radius:28px;padding:22px 20px 20px;color:#fff;background:linear-gradient(155deg,#5566ff 0%,#3342d8 100%);box-shadow:0 18px 36px -18px rgba(51,66,216,.7)}
 .kh-hero::before{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.28),rgba(255,255,255,0) 70%);animation:khBreath 5s ease-in-out infinite}

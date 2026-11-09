@@ -255,6 +255,7 @@
     var el = $("kh-vf"); if (!el) return;
     var w = document.createElement("div"); w.innerHTML = vfBlock(); var n = w.firstChild; n.className += " kh-in"; n.style.setProperty("--i", "0");
     el.parentNode.replaceChild(n, el);
+    try { n.scrollIntoView({ block: "center", behavior: reduced() ? "auto" : "smooth" }); } catch (e) {}
     if (good) { burst(n); haptic([14, 40, 14]); } else haptic(30);
   }
 
