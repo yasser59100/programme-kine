@@ -3697,19 +3697,6 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kh-body-h{font-weight:800;font-size:17px;letter-spacing:-.01em}
 .kh-body-s{font-size:13px;color:#566179;margin:2px 0 10px}
 .kh-body-g{display:flex;gap:10px;align-items:center}
-.kh-figw{flex:none;width:118px;position:relative}
-.kh-fig{width:118px;height:auto;display:block;overflow:visible;animation:khFig 4.5s ease-in-out infinite;transform-origin:50% 60%}
-.kh-silh{transition:opacity .3s;opacity:.92}
-.kh-bz{cursor:pointer;fill:rgba(75,91,255,0);stroke:none;outline:none;transition:fill .25s}
-.kh-bz:hover,.kh-bz:focus-visible{fill:rgba(75,91,255,.22)}
-.kh-bz.on{fill:rgba(255,140,66,.55);animation:khZoneGlow 1.6s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,120,50,.7))}
-.kh-hints circle{fill:#fff;stroke:#4b5bff;stroke-width:2;animation:khHint 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center}
-.kh-hints circle:nth-child(2){animation-delay:.5s}.kh-hints circle:nth-child(3){animation-delay:1s}.kh-hints circle:nth-child(4){animation-delay:1.3s}
-.kh-body[class*="sel-"] .kh-hints{opacity:0}
-.kh-body.sel-bien .kh-silh{opacity:1;filter:drop-shadow(0 0 10px rgba(47,190,150,.7))}
-.kh-body.sel-bien .kh-silh{stroke:#2fbe96}
-.kh-body.sel-fatigue .kh-fig{animation:khSlump 3.5s ease-in-out infinite}
-.kh-body.sel-fatigue .kh-silh{opacity:.55}
 .kh-zones{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
 .kh-zone{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:14px;border:1.5px solid #dfe3f0;background:#fff;font:inherit;font-weight:700;font-size:14px;color:#111c2d;text-align:left;transition:transform .15s,background .2s,border-color .2s,box-shadow .2s}
 .kh-zone:active{transform:scale(.97)}
@@ -3720,10 +3707,19 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kh-adv-t{font-size:15px;font-weight:700;line-height:1.4}
 .kh-adv-w{margin-top:10px;font-size:13px;line-height:1.4;color:#8a3b16;background:#fff3ea;border-radius:12px;padding:8px 10px}
 .kh-adv-go{margin-top:12px;width:100%}
-@keyframes khZoneGlow{0%,100%{fill:rgba(255,140,66,.4)}50%{fill:rgba(255,140,66,.75)}}
-@keyframes khHint{0%{transform:scale(.6);opacity:1}70%,100%{transform:scale(2.2);opacity:0}}
-@keyframes khSlump{0%,100%{transform:translateY(0)}50%{transform:translateY(5px) scaleY(.98)}}
 @keyframes khRiseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.kh-fig,.kh-bz.on,.kh-hints circle,.kh-advice{animation:none!important}}
-@keyframes khFig{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@media (prefers-reduced-motion:reduce){.kh-advice{animation:none!important}}
 .kh-adv-go{background:linear-gradient(170deg,#5566ff,#3342d8)!important;color:#fff!important;box-shadow:0 8px 18px rgba(51,66,216,.3)}
+
+/* Yass joue la gêne choisie */
+.kh-figw{flex:none;width:132px;height:150px;position:relative;display:flex;align-items:flex-end;justify-content:center}
+.kh-sp{height:150px;background-repeat:no-repeat;background-position:0 0;position:relative;filter:drop-shadow(0 10px 10px rgba(30,40,120,.25))}
+.kh-sp.play{animation:spFramesLu var(--d,1.2s) steps(var(--n)) infinite}
+.kh-ring{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;border:3px solid #ff7a2e;background:rgba(255,140,66,.28);box-shadow:0 0 14px rgba(255,120,50,.8);opacity:0;pointer-events:none}
+.kh-ring.on{opacity:1;animation:khRing 1.3s ease-in-out infinite}
+.kh-zz{position:absolute;right:2px;top:6px;font-weight:800;color:#8a6cf5;opacity:0;pointer-events:none}
+.kh-zz b{font-size:20px;margin-left:2px}.kh-zz em{font-size:26px;margin-left:2px;font-style:normal}
+.kh-zz.on{opacity:1;animation:khZz 2.6s ease-in-out infinite}
+@keyframes khRing{0%,100%{transform:scale(.85);opacity:.75}50%{transform:scale(1.25);opacity:1}}
+@keyframes khZz{0%{transform:translateY(8px);opacity:0}30%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.kh-sp.play,.kh-ring.on,.kh-zz.on{animation:none!important}}

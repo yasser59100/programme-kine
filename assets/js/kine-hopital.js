@@ -134,6 +134,7 @@
     if (card) {
       card.className = card.className.replace(/\bsel-\w+/g, "").trim() + " sel-" + id;
       [].forEach.call(card.querySelectorAll("[data-z]"), function (e) { e.classList.toggle("on", e.getAttribute("data-z") === id); });
+      paintYass(id);
       var box = $("kh-advice"); if (box) { box.innerHTML = ""; void box.offsetWidth; box.innerHTML = adviceHtml(id); }
       if (id === "bien") burst($("kh-bodycard").querySelector(".kh-figw"));
     }
@@ -141,19 +142,29 @@
     try { var st = jget("kf-cab", null); if (st && st.pid && window.KineMonSuivi && KineMonSuivi.sync) KineMonSuivi.sync(); } catch (e) {}
   }
   /* Le corps du jour : une silhouette que le patient touche là où il a une gêne, ou une liste de choix. */
+  /* Yass joue la gêne choisie : dos voûté avec une canne, marche raide, étirement de l'épaule, fatigue, ou saut de joie. */
+  var YST = {
+    init:    { img: "salut", n: 12, w: 239, h: 300, dur: 1.2 },
+    bien:    { img: "joie", n: 13, w: 244, h: 300, dur: 1.1 },
+    dos:     { img: "mode-dos", n: 12, w: 240, h: 240, dur: 1.5, ring: [40, 46] },
+    bas:     { img: "st-raide", n: 12, w: 240, h: 240, dur: 1.5, ring: [50, 64] },
+    haut:    { img: "etire", n: 12, w: 244, h: 300, dur: 1.4, ring: [64, 33] },
+    fatigue: { img: "mode-general", n: 12, w: 240, h: 240, dur: 3.2 }
+  };
+  function paintYass(id) {
+    var el = $("kh-sp"), r = $("kh-ring"); if (!el) return;
+    var Y = YST[id] || YST.init;
+    el.style.cssText = "aspect-ratio:" + Y.w + "/" + Y.h + ";background-image:url(assets/lumiere/yass-anim/" + Y.img + ".webp);background-size:" + (Y.n * 100) + "% 100%;--n:" + (Y.n - 1) + ";--d:" + Y.dur + "s";
+    el.className = "kh-sp"; void el.offsetWidth; el.classList.add("play");
+    if (r) { if (Y.ring) { r.style.left = Y.ring[0] + "%"; r.style.top = Y.ring[1] + "%"; r.className = "kh-ring on"; } else r.className = "kh-ring"; }
+    var z = $("kh-zz"); if (z) z.className = "kh-zz" + (id === "fatigue" ? " on" : "");
+  }
   function bodyHtml(zc) {
-    var Z = function (id, shape, lab) { return "<g class='kh-bz' data-z='" + id + "' role='button' tabindex='0' aria-label='" + lab + "' onclick='KineHopital.zone(\"" + id + "\")' onkeydown='if(event.key===\"Enter\"||event.key===\" \"){event.preventDefault();KineHopital.zone(\"" + id + "\")}'>" + shape + "</g>"; };
-    var svg = "<svg class='kh-fig' viewBox='0 0 120 236' aria-hidden='false'><defs><linearGradient id='khg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#8d9bff'/><stop offset='1' stop-color='#4b5bff'/></linearGradient></defs>" +
-      "<g class='kh-silh' fill='none' stroke='url(#khg)' stroke-width='15' stroke-linecap='round' stroke-linejoin='round'>" +
-      "<circle cx='60' cy='24' r='14' fill='url(#khg)' stroke='none'/><path d='M60 44v8'/><path d='M44 62h32M46 62v56M74 62v56'/><path d='M44 62l-12 6-8 50M76 62l12 6 8 50'/><path d='M50 124l-3 56 -1 46M70 124l3 56 1 46'/></g>" +
-      Z("haut", "<circle cx='34' cy='66' r='15'/><circle cx='86' cy='66' r='15'/><circle cx='24' cy='112' r='10'/><circle cx='96' cy='112' r='10'/>", "Épaules ou bras") +
-      Z("dos", "<rect x='46' y='74' width='28' height='56' rx='14'/>", "Le dos") +
-      Z("bas", "<circle cx='48' cy='178' r='14'/><circle cx='72' cy='178' r='14'/>", "Jambes ou genoux") +
-      "<g class='kh-hints' aria-hidden='true'><circle cx='34' cy='66' r='4'/><circle cx='60' cy='100' r='4'/><circle cx='48' cy='178' r='4'/><circle cx='72' cy='178' r='4'/></g></svg>";
     var chips = "";
     ZONES.forEach(function (z) { chips += "<button type='button' class='kh-zone" + (zc === z.id ? " on" : "") + "' data-z='" + z.id + "' onclick='KineHopital.zone(\"" + z.id + "\")'><i class='kh-zd z-" + z.id + "' aria-hidden='true'></i>" + esc(z.t) + "</button>"; });
-    return "<section class='kh-body kh-in" + (zc ? " sel-" + zc : "") + "' id='kh-bodycard' style='--i:1'><div class='kh-body-h'>Comment va ton corps aujourd'hui ?</div><div class='kh-body-s'>Touche là où tu ressens quelque chose.</div>" +
-      "<div class='kh-body-g'><div class='kh-figw'>" + svg + "</div><div class='kh-zones'>" + chips + "</div></div>" +
+    setTimeout(function () { paintYass(zc || "init"); }, 60);
+    return "<section class='kh-body kh-in" + (zc ? " sel-" + zc : "") + "' id='kh-bodycard' style='--i:1'><div class='kh-body-h'>Comment va ton corps aujourd'hui ?</div><div class='kh-body-s'>Choisis ce qui te correspond, Yass te montre.</div>" +
+      "<div class='kh-body-g'><div class='kh-figw'><div class='kh-sp' id='kh-sp' role='img' aria-label='Yass'><i class='kh-ring' id='kh-ring' aria-hidden='true'></i></div><span class='kh-zz' id='kh-zz' aria-hidden='true'>z<b>z</b><em>z</em></span></div><div class='kh-zones'>" + chips + "</div></div>" +
       "<div id='kh-advice' class='kh-advice'>" + (zc ? adviceHtml(zc) : "") + "</div></section>";
   }
   function adviceHtml(id) {
