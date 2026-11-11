@@ -376,7 +376,7 @@ var KineCabinet = (function () {
     html += "<div class='kcb-tiles'>" +
       tile("bilans()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19V9M10 19V5M16 19v-7M22 19H2'/></svg>", "Bilan",
         B.length ? "Dernier le " + dfr(B[0].d) : "Premier bilan à faire", BNEEDF(P, E) ? "hot" : "") +
-      tile("seance()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12'/></svg>", "Séance au cabinet",
+      tile("seance()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12'/></svg>", (C.parcours === "hopital" ? "Séance à l'hôpital" : "Séance au cabinet"),
         lastS ? "Dernière le " + dfr(lastS.d) : "Noter la charge et la douleur") +
       tile("maison()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11l9-7 9 7v9H3z'/><path d='M9 20v-6h6v6'/></svg>", "Exercices à la maison",
         sent.length ? sent.length + " exercices envoyés" + (C.exosAt && C.vu >= C.exosAt ? ", reçus" : "") : "Aucune séance envoyée", sent.length ? "" : "hot") +

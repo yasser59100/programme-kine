@@ -12,13 +12,13 @@
 
   /* Séances prêtes à l'emploi : courtes, sans matériel, du plus doux au plus tonique */
   var SEANCES = [
-    { id: "hop-reveil", nom: "Réveil en douceur", min: 10, desc: "On remet le corps en route, sans forcer.",
+    { id: "hop-reveil", nom: "Mobilisation douce", min: 10, desc: "On remet le corps en route, sans forcer.",
       ex: ["Assis-debout de chaise", "Élévation des talons", "Serrage des omoplates", "Chat-vache", "Bascule du bassin couché", "Pont de hanche"] },
-    { id: "hop-energie", nom: "Un coup d'énergie", min: 12, desc: "Le cœur et la respiration travaillent, sans sauts.",
+    { id: "hop-energie", nom: "Endurance cardiorespiratoire", min: 12, desc: "Le cœur et la respiration travaillent, sans sauts.",
       ex: ["Jumping jack sans saut", "Montées de genoux", "Talons-fesses debout", "Squat bilatéral", "Skater latéral sans saut", "Le boxeur"] },
-    { id: "hop-force", nom: "Force du corps", min: 15, desc: "Jambes, dos, bras et ventre, à ton rythme.",
+    { id: "hop-force", nom: "Renforcement musculaire", min: 15, desc: "Jambes, dos, bras et ventre, à ton rythme.",
       ex: ["Squat bilatéral", "Pompes contre le mur", "Rowing deux bras penché", "Pont de hanche", "Dead bug", "Curl biceps"] },
-    { id: "hop-calme", nom: "Équilibre et détente", min: 10, desc: "Pour se sentir stable, souple et apaisé.",
+    { id: "hop-calme", nom: "Équilibre et relaxation", min: 10, desc: "Pour se sentir stable, souple et apaisé.",
       ex: ["Tandem talon-pointe", "Équilibre unipodal", "Marche en tournant la tête", "Enfiler l'aiguille", "Rotation thoracique à quatre pattes", "Chat-vache"] }
   ];
 

@@ -478,28 +478,31 @@ var KineParcours = (function () {
      Pas de côté atteint, pas de date d'opération ; les critères sont ceux de la régularité et de l'autonomie. */
   P.hopital = {
     nom: "Hôpital : sport adapté", long: "Activité physique adaptée (patient de l'hôpital)", zone: "hopital", nocote: true,
-    key: { m: "dou", l: "Douleur" },
-    mes: ["dou"],
+    key: { m: "sts30", l: "Lever de chaise en 30 s" },
+    mes: ["sts30", "dou"],
     ref: "Assis-debout de chaise",
     d0: "Date de début des séances",
-    notes: ["Séances de groupe ou individuelles à l'hôpital : le but est de bouger régulièrement, avec plaisir, à un effort que la personne tolère.",
+    notes: ["Les séances encadrées ont lieu à l'hôpital, avec toi, environ quatre fois par semaine, dont une séance d'étirements. L'appli n'en compte pas la présence : elle sert de complément, en dehors de ces séances.",
+            "Les critères sont évalués par toi, avec un test fonctionnel (lever de chaise en 30 s) et l'effort perçu (échelle de Borg).",
             "Pas de bilan articulaire par défaut : tu ajoutes une mesure ou change de parcours si une douleur ou une blessure apparaît.",
-            "Les séances du jour restent simples et courtes : 5 à 6 exercices."],
+            "Les séances du jour restent courtes : 5 à 6 exercices."],
     etapes: [
-      { nom: "Reprendre le mouvement", but: "Reprendre l'habitude de bouger, séances courtes et accessibles.",
+      { nom: "Réactivation physique", but: "Reprise progressive de l'activité physique, mobilisation douce, apprentissage des gestes de base.",
         obj: [
-          { id: "venu", t: "Le patient participe aux séances proposées", p: "Tu viens aux séances" },
-          { id: "bien", t: "Il se sent à l'aise avec les exercices de base", p: "Les exercices de base te vont bien" }],
+          { id: "tol", t: "Tolère les séances encadrées sans gêne ni douleur", p: "Tu supportes bien les séances" },
+          { id: "gestes", t: "Exécute correctement les gestes de base (lever de chaise, pont, équilibre)", p: "Tu réalises correctement les gestes de base" }],
         exos: ["Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Pompes contre le mur", "Serrage des omoplates", "Tandem talon-pointe"] },
-      { nom: "Prendre de l'énergie", but: "Séances plus complètes, endurance et force de tout le corps.",
+      { nom: "Reconditionnement à l'effort", but: "Amélioration de l'endurance cardiorespiratoire et du renforcement musculaire global.",
         obj: [
-          { id: "regul", t: "2 séances par semaine régulièrement", p: "Tu fais 2 séances par semaine" },
-          { id: "effort", t: "Il tolère un effort modéré sans gêne", p: "Tu supportes un effort moyen" }],
+          { id: "sts", t: "Lever de chaise en 30 s : au moins 2 répétitions de gain depuis le premier bilan", p: "Tu te lèves plus facilement de ta chaise", a: { m: "sts30", gain: 2 } },
+          { id: "borg", t: "Tolère un effort d'intensité modérée (Borg 11 à 13)", p: "Tu supportes un effort modéré" },
+          { id: "globale", t: "Réalise une séance globale complète (membres inférieurs, tronc, membres supérieurs)", p: "Tu fais une séance complète en entier" }],
         exos: ["Squat bilatéral", "Pompes sur genoux", "Rowing deux bras penché", "Squat + élévation bras", "Dead bug", "Équilibre unipodal"] },
-      { nom: "Devenir autonome", but: "Faire un petit programme seul, en dehors des séances.",
+      { nom: "Autonomisation", but: "Entretien de l'activité physique en dehors des séances encadrées, réduction de la sédentarité.",
         obj: [
-          { id: "auto", t: "Programme fait en autonomie", p: "Tu fais ton programme seul" },
-          { id: "act", t: "Activité physique régulière (marche, vélo…)", p: "Tu bouges régulièrement" }],
+          { id: "auto", t: "Réalise un programme d'exercices en autonomie", p: "Tu fais ton programme seul" },
+          { id: "marche", t: "Pratique une activité d'endurance hors séances (marche, vélo)", p: "Tu marches ou pédales en dehors des séances" },
+          { id: "act", t: "Atteint les recommandations de l'OMS : 150 min d'activité modérée par semaine", p: "Tu bouges 150 minutes par semaine" }],
         exos: ["Fente latérale avec toucher sol", "Marche du fermier sur place", "Curl biceps", "Plank — gainage avant-bras", "Se relever du sol", "Squat bilatéral"] }
     ],
     src: ["oms2020", "firth2019"]

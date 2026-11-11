@@ -347,14 +347,14 @@ var KineMonSuivi = (function () {
     var hist = d.hist || [];
     P.etapes.forEach(function (e, i) {
       if (i < E) { var h = hist.filter(function (x) { return x.e === i + 1; }).pop(); html += "<div class='kms-et done'><i>" + ICON_OK + "</i><div><b>" + (i + 1) + " · " + esc(e.nom) + "</b><span>" + (h ? "Validée au cabinet le " + dfr(h.d) : "Validée") + "</span></div></div>"; return; }
-      if (i > E) { html += "<div class='kms-et lock'><i>" + ICON_LOCK + "</i><div><b>" + (i + 1) + " · " + esc(e.nom) + "</b><span>Se débloque avec ton kiné, au cabinet</span></div></div>"; return; }
+      if (i > E) { html += "<div class='kms-et lock'><i>" + ICON_LOCK + "</i><div><b>" + (i + 1) + " · " + esc(e.nom) + "</b><span>Se débloque avec ton kiné, " + (d.parcours === "hopital" ? "à l'hôpital" : "au cabinet") + "</span></div></div>"; return; }
       html += "<div class='kms-et now'><div class='kms-eh'><i>" + (i + 1) + "</i><div><b>" + esc(e.nom) + "</b><span>En cours</span></div></div>" + (i < P.etapes.length - 1 ? "<div class='kms-k'>Pour passer à l'étape suivante</div>" : "") +
         e.obj.map(function (o) { var a = o.a ? KP.evalObj(o.a, cx) : null, ok = !!(d.done && d.done[o.id]) || !!(a && a.ok); return "<div class='kms-o" + (ok ? " ok" : "") + "'><i>" + (ok ? ICON_OK : "") + "</i><span>" + esc(o.p || o.t) + "</span>" + (a && !ok && a.ok === false ? "<b>" + esc(a.v) + "</b>" : "") + "</div>"; }).join("") + "</div>";
     });
     // charge au cabinet
     var ref = d.ref || P.ref, S = (d.seances || []).filter(function (x) { return x.ex === ref && x.kg != null; }).slice().reverse();
     if (S.length > 1 && window.KineCabinet) html += "<div class='su-card'><div class='su-card-h'><b>" + esc(ref) + "</b><span>au cabinet</span></div>" + KineCabinet._bars(S) + "</div>";
-    html += "<div class='kms-why'><b>Pourquoi passer au cabinet ?</b><span>Tes exercices ici sont tes devoirs entre deux séances. Au cabinet, ton kiné mesure ta force, corrige ton geste et décide quand tu passes à l'étape suivante.</span></div>" +
+    html += (d.parcours === "hopital" ? "<div class='kms-why'><b>Comment on avance ?</b><span>Les séances encadrées ont lieu à l'hôpital avec ton kiné. Ici, tu complètes entre les séances. C'est lui qui évalue ta progression et décide quand tu passes à l'étape suivante.</span></div>" : "<div class='kms-why'><b>Pourquoi passer au cabinet ?</b><span>Tes exercices ici sont tes devoirs entre deux séances. Au cabinet, ton kiné mesure ta force, corrige ton geste et décide quand tu passes à l'étape suivante.</span></div>") +
       (PREV ? "" : "<button class='kcb-link' onclick='KineMonSuivi.unlink()'>Délier ce téléphone</button>");
     return html;
   }
