@@ -3691,3 +3691,15 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kh-face.on svg{animation:khBounce .6s both}
 @keyframes khBounce{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-6deg)}70%{transform:scale(.95) rotate(4deg)}100%{transform:scale(1.1)}}
 @media (prefers-reduced-motion:reduce){.kh-face.on svg{animation:none}}
+
+/* Hôpital : comment va ton corps ? */
+.kh-body{margin:0 0 14px;padding:16px;border-radius:22px;background:#fff;border:1px solid rgba(80,90,140,.14)}
+.kh-body-h{font-weight:800;font-size:16px;margin-bottom:10px}
+.kh-zones{display:flex;flex-wrap:wrap;gap:8px}
+.kh-zone{min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid #d9deea;background:#fff;font:inherit;font-weight:700;font-size:14px;color:#111c2d;transition:transform .15s,background .2s,border-color .2s}
+.kh-zone:active{transform:scale(.96)}
+.kh-zone.on{background:#111c2d;color:#fff;border-color:#111c2d}
+.kh-advice:not(:empty){margin-top:12px;padding:12px 14px;border-radius:16px;background:#eef0ff;animation:khPop .4s both}
+.kh-adv-t{font-size:15px;font-weight:700;line-height:1.4}
+.kh-adv-w{margin-top:8px;font-size:13px;line-height:1.4;color:#8a3b16}
+.kh-adv-go{margin-top:10px;width:100%}

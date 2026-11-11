@@ -10,16 +10,36 @@
   function jset(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function day() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000); }
 
-  /* Séances prêtes à l'emploi : courtes, sans matériel, du plus doux au plus tonique */
+  /* Séances de la semaine, calquées sur celles de l'hôpital : les programmes de l'appli (J1, J3, J5) et une séance de récupération.
+     jours : 0 dimanche … 6 samedi. Le vendredi (marche au marché) et le dimanche (marche ou repos) n'ont pas de séance guidée. */
   var SEANCES = [
-    { id: "hop-reveil", nom: "Mobilisation douce", min: 10, desc: "On remet le corps en route, sans forcer.",
-      ex: ["Assis-debout de chaise", "Élévation des talons", "Serrage des omoplates", "Chat-vache", "Bascule du bassin couché", "Pont de hanche"] },
-    { id: "hop-energie", nom: "Endurance cardiorespiratoire", min: 12, desc: "Le cœur et la respiration travaillent, sans sauts.",
-      ex: ["Jumping jack sans saut", "Montées de genoux", "Talons-fesses debout", "Squat bilatéral", "Skater latéral sans saut", "Le boxeur"] },
-    { id: "hop-force", nom: "Renforcement musculaire", min: 15, desc: "Jambes, dos, bras et ventre, à ton rythme.",
-      ex: ["Squat bilatéral", "Pompes contre le mur", "Rowing deux bras penché", "Pont de hanche", "Dead bug", "Curl biceps"] },
-    { id: "hop-calme", nom: "Équilibre et relaxation", min: 10, desc: "Pour se sentir stable, souple et apaisé.",
-      ex: ["Tandem talon-pointe", "Équilibre unipodal", "Marche en tournant la tête", "Enfiler l'aiguille", "Rotation thoracique à quatre pattes", "Chat-vache"] }
+    { id: "hop-global", nom: "Global fonctionnel", day: "day4", jours: [1], court: "Lundi", desc: "Jambes, tronc et bras dans la même séance.",
+      ex: ["Squat bilatéral", "Pompes sur genoux", "Rowing deux bras penché", "Pont de hanche", "Dead bug", "Fentes avant unilatérales"] },
+    { id: "hop-tronc", nom: "Gainage rachidien", day: "day2", jours: [2, 6], court: "Mardi et samedi", desc: "On renforce le tronc, la ceinture du dos.",
+      ex: ["Dead bug", "Plank — gainage avant-bras", "Superman quadrupédique en gainage", "Chat-vache"] },
+    { id: "hop-jambes", nom: "Membres inférieurs", day: "day0", jours: [4], court: "Jeudi", desc: "Cuisses, fessiers et mollets.",
+      ex: ["Squat bilatéral", "Fentes avant unilatérales", "Chaise contre le mur", "Élévation des talons"] },
+    { id: "hop-recup", nom: "Récupération et étirements", jours: [3], court: "Mercredi", min: 15, desc: "Mobilité et souplesse pour récupérer en douceur.",
+      ex: ["Chat-vache", "Bascule du bassin couché", "Enfiler l'aiguille", "Rotation thoracique à quatre pattes", "Fente psoas dynamique"] }
+  ];
+  var DOW = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+  function seanceDuJour() {
+    var dw = new Date().getDay(), k = -1;
+    SEANCES.forEach(function (S, i) { if (S.jours.indexOf(dw) >= 0) k = i; });
+    return k;   // -1 : vendredi et dimanche (marche)
+  }
+  function nbEx(S) {
+    try { var D = window.SEQ_DAYS && S.day && SEQ_DAYS[S.day]; if (D) return D.exercises.filter(function (e) { return e.phase === "work"; }).length; } catch (e) {}
+    return S.ex.length;
+  }
+
+  /* Comment va ton corps ? : une phrase et une séance adaptée. Une douleur vive ou inhabituelle renvoie vers le kiné. */
+  var ZONES = [
+    { id: "bien", t: "Tout va bien", say: "Parfait, profite de ta séance du jour.", go: null },
+    { id: "dos", t: "Le dos", say: "Un peu mal au dos aujourd'hui ? Essaie la séance « Récupération et étirements ».", go: { i: 3 } },
+    { id: "bas", t: "Jambes ou genoux", say: "Jambes ou genoux sensibles ? Essaie plutôt une séance pour le haut du corps.", go: { day: "day1", nom: "Membres supérieurs" } },
+    { id: "haut", t: "Épaules ou bras", say: "Épaule ou bras sensibles ? Essaie plutôt la séance « Membres inférieurs ».", go: { i: 2 } },
+    { id: "fatigue", t: "Fatigué·e", say: "Fatigué·e aujourd'hui ? Choisis la récupération, ou une marche de 10 minutes : bouger un peu aide souvent à retrouver de l'énergie.", go: { i: 3 } }
   ];
 
   /* Le savais-tu ? — les études d'observation montrent un lien, pas toujours une cause. */
@@ -96,13 +116,36 @@
 
   /* ── séances ── */
   function startSeance(i) {
-    var S = SEANCES[i]; if (!S || !window.KineBiblio) return;
+    var S = SEANCES[i]; if (!S) return;
+    try { if (window.KineMonSuivi && KineMonSuivi.close) KineMonSuivi.close(); } catch (e) {}
+    if (S.day && window.launchSeq) { launchSeq(S.day); return; }
+    if (!window.KineBiblio) return;
     var ex = S.ex.filter(function (n) { return KineBiblio.find(n); });
     var list = jget("kf-custom", []).filter(function (x) { return x.id !== S.id; });
     list.unshift({ id: S.id, name: S.nom, ex: ex, at: Date.now() });
     jset("kf-custom", list.slice(0, 12));
-    try { if (window.KineMonSuivi && KineMonSuivi.close) KineMonSuivi.close(); } catch (e) {}
     if (window.KineCompose) KineCompose.start(S.id);
+  }
+  function startDay(d) { try { if (window.KineMonSuivi && KineMonSuivi.close) KineMonSuivi.close(); } catch (e) {} if (window.launchSeq) launchSeq(d); }
+  function zone(id, btn) {
+    var Z = ZONES.filter(function (z) { return z.id === id; })[0]; if (!Z) return;
+    var m = jget("kf-checkin", {}), k = iso(new Date()); m[k] = m[k] || {}; m[k].zone = id; jset("kf-checkin", m);
+    [].forEach.call(document.querySelectorAll(".kh-zone"), function (b) { b.classList.toggle("on", b === btn); });
+    var box = $("kh-advice"); if (box) box.innerHTML = adviceHtml(id);
+    haptic(12);
+    try { var st = jget("kf-cab", null); if (st && st.pid && window.KineMonSuivi && KineMonSuivi.sync) KineMonSuivi.sync(); } catch (e) {}
+  }
+  function adviceHtml(id) {
+    var Z = ZONES.filter(function (z) { return z.id === id; })[0]; if (!Z) return "";
+    var h = "<div class='kh-adv-t'>" + esc(Z.say) + "</div>";
+    if (Z.go) h += "<button type='button' class='kh-go kh-adv-go' onclick=\"" + (Z.go.day ? "KineHopital.startDay('" + Z.go.day + "')" : "KineHopital.start(" + Z.go.i + ")") + "\">Essayer cette séance<span aria-hidden='true'>›</span></button>";
+    if (id !== "bien") h += "<div class='kh-adv-w'>Douleur vive, qui descend dans la jambe ou avec des fourmillements : arrête et préviens ton kiné.</div>";
+    return h;
+  }
+  function walk(btn) {
+    var m = jget("kf-checkin", {}), k = iso(new Date()); m[k] = m[k] || {}; m[k].walk = 1; jset("kf-checkin", m);
+    if (btn) { btn.textContent = "Bravo, c'est noté"; btn.disabled = true; burst(btn.parentNode); }
+    haptic([14, 40, 14]);
   }
 
   /* ── le savais-tu ? ── */
@@ -157,11 +200,12 @@
   }
 
   var ICON = {
-    "hop-reveil": "<circle cx='12' cy='13' r='4'/><path d='M12 3v2M4.2 7.2l1.4 1.4M19.8 7.2l-1.4 1.4M2 13h2M20 13h2M3 20h18'/>",
-    "hop-energie": "<path d='M13 2L4 14h7l-1 8 9-12h-7z'/>",
-    "hop-force": "<path d='M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11'/>",
-    "hop-calme": "<path d='M5 19c0-9 5-14 14-14 0 9-5 14-14 14z'/><path d='M5 19c3-4 6-6 9-8'/>"
+    "hop-global": "<circle cx='12' cy='5' r='2'/><path d='M12 7v6M8 21l4-8 4 8M5 10l7 1 7-1'/>",
+    "hop-tronc": "<path d='M12 3v18M8 6c2 2 2 4 0 6s-2 4 0 6M16 6c-2 2-2 4 0 6s2 4 0 6'/>",
+    "hop-jambes": "<path d='M7 3v8l-2 10M17 3v8l2 10M7 11h10'/>",
+    "hop-recup": "<path d='M5 19c0-9 5-14 14-14 0 9-5 14-14 14z'/><path d='M5 19c3-4 6-6 9-8'/>"
   };
+
 
   function haptic(n) { try { if (navigator.vibrate) navigator.vibrate(n); } catch (e) {} }
   function reduced() { return window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; }
@@ -204,14 +248,25 @@
 
   /* ── bloc affiché dans l'écran de suivi ── */
   function html(prev) {
-    var hi = day() % SEANCES.length, H = SEANCES[hi], t = TIPS[day() % TIPS.length], wk = weekDone(), goal = 4;
+    var hi = seanceDuJour(), H = hi >= 0 ? SEANCES[hi] : null, t = TIPS[day() % TIPS.length], wk = weekDone(), goal = 4, dw = new Date().getDay(), done0 = (jget("kf-checkin", {})[iso(new Date())] || {}).walk;
     var h = "<div class='kh-wrap'>";
     // 1. le héros : Yass et la séance du jour
     h += "<section class='kh-hero kh-in' style='--i:0'><span class='kh-yw'><button type='button' class='lu-yass lu-ys' aria-label='Yass' onclick='KineLayout.yass(this)' data-g='salut'></button></span>" +
-      "<div class='kh-kick'>Ta séance du jour</div><div class='kh-big'>" + esc(H.nom) + "</div>" +
-      "<div class='kh-meta'>" + H.min + " minutes · " + H.ex.length + " exercices</div>" +
-      "<div class='kh-say'>" + esc(H.desc) + "</div>" +
-      (prev ? "" : "<button type='button' class='kh-go' onclick='KineHopital.start(" + hi + ")'>Commencer<span aria-hidden='true'>›</span></button>") + "</section>";
+      (H ? "<div class='kh-kick'>Ta séance du jour · " + DOW[dw] + "</div><div class='kh-big'>" + esc(H.nom) + "</div>" +
+        "<div class='kh-meta'>" + (H.min ? H.min + " minutes · " : "") + nbEx(H) + " exercices</div>" +
+        "<div class='kh-say'>" + esc(H.desc) + "</div>" +
+        (prev ? "" : "<button type='button' class='kh-go' onclick='KineHopital.start(" + hi + ")'>Commencer<span aria-hidden='true'>›</span></button>")
+       : "<div class='kh-kick'>Aujourd'hui · " + DOW[dw] + "</div><div class='kh-big'>" + (dw === 5 ? "Marche au marché" : "Marche ou repos") + "</div>" +
+        "<div class='kh-meta'>" + (dw === 5 ? "Avec ton kiné" : "À ton rythme") + "</div>" +
+        "<div class='kh-say'>" + (dw === 5 ? "Une sortie à pied, au rythme du groupe." : "Une marche tranquille si tu en as envie, sinon un vrai repos.") + "</div>" +
+        (prev ? "" : "<button type='button' class='kh-go' onclick='KineHopital.walk(this)'" + (done0 ? " disabled" : "") + ">" + (done0 ? "Bravo, c'est noté" : "J'ai marché") + "<span aria-hidden='true'>›</span></button>")) + "</section>";
+    // 1 bis. comment va ton corps ?
+    var zc = (jget("kf-checkin", {})[iso(new Date())] || {}).zone;
+    if (!prev) {
+      h += "<section class='kh-body kh-in' style='--i:1'><div class='kh-body-h'>Comment va ton corps aujourd'hui ?</div><div class='kh-zones'>";
+      ZONES.forEach(function (z) { h += "<button type='button' class='kh-zone" + (zc === z.id ? " on" : "") + "' onclick='KineHopital.zone(\"" + z.id + "\",this)'>" + esc(z.t) + "</button>"; });
+      h += "</div><div id='kh-advice' class='kh-advice'>" + (zc ? adviceHtml(zc) : "") + "</div></section>";
+    }
     // 2. ma semaine
     h += "<section class='kh-week kh-in' style='--i:1'><div class='kh-wk-h'><b>Ma semaine</b><span>" + wk.n + " séance" + (wk.n > 1 ? "s" : "") + "</span></div><div class='kh-dots'>";
     var lab = ["L", "M", "M", "J", "V", "S", "D"], today = iso(new Date());
@@ -225,7 +280,7 @@
     SEANCES.forEach(function (S, i) {
       h += "<button type='button' class='kh-card c" + i + "'" + (prev ? " disabled" : " onclick='KineHopital.start(" + i + ")'") + ">" +
         "<svg viewBox='0 0 24 24' width='34' height='34' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" + ICON[S.id] + "</svg>" +
-        "<b>" + esc(S.nom) + "</b><span>" + S.min + " min</span></button>";
+        "<b>" + esc(S.nom) + "</b><span>" + S.court + "</span></button>";
     });
     h += "</div>";
     // 4. le savais-tu
@@ -259,5 +314,5 @@
     if (good) { burst(n); haptic([14, 40, 14]); } else haptic(30);
   }
 
-  window.KineHopital = { isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+  window.KineHopital = { isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();

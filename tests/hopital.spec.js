@@ -68,13 +68,16 @@ test("espace hôpital : séances prêtes, le savais-tu, vrai ou faux côté pati
   expect(await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("kf-checkin"))).some(c => c.feel === 3))).toBe(true);
   await expect(page.locator(".kh-card").first()).toBeVisible({ timeout: 8000 });
   expect(await page.locator(".kh-card").count()).toBe(4);
+  await page.locator(".kh-zone").nth(1).dispatchEvent("click");
+  await expect(page.locator("#kh-advice")).toContainText("mal au dos");
+  expect(await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("kf-checkin"))).some(c => c.zone === "dos"))).toBe(true);
   await page.waitForTimeout(1500); await page.screenshot({ path: "/tmp/hop-espace.png" }); await page.locator(".kh-vf").scrollIntoViewIfNeeded(); await page.screenshot({ path: "/tmp/hop-espace2.png" });
   await page.locator(".kh-tip").first().dispatchEvent("click");
   await expect(page.locator("#kh-sheet.open")).toBeVisible();
   await page.evaluate(() => KineHopital.tipClose());
   await page.locator("#kh-vf .kh-vb").first().dispatchEvent("click");
   await expect(page.locator("#kh-vf")).toContainText(/C'est (vrai|faux)/);
-  await page.locator(".kh-go").dispatchEvent("click");
+  await page.locator(".kh-card").nth(3).dispatchEvent("click");
   await page.waitForTimeout(800);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom")).some(x => String(x.id).indexOf("hop-") === 0))).toBe(true);
   expect(errs).toEqual([]);

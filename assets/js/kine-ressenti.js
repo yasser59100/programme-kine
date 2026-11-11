@@ -313,6 +313,8 @@
       if (c.sleep != null) kv.push("Nuit " + SLEEP[c.sleep].toLowerCase());
       if (c.mood != null) kv.push("Moral " + c.mood + "/5");
       if (c.feel) kv.push("Séance : " + ["difficile", "moyenne", "bien vécue"][c.feel - 1]);
+      if (c.zone && c.zone !== "bien") kv.push("Gêne signalée : " + ({ dos: "dos", bas: "jambes ou genoux", haut: "épaules ou bras", fatigue: "fatigue" }[c.zone] || c.zone));
+      if (c.walk) kv.push("Marche faite");
       if (c.stiff != null) kv.push("Raideur : " + STIFF[c.stiff].toLowerCase());
       (c.acts || []).forEach(function (a) { if (a !== "Rien de plus") kv.push(a); });
       h += "<div class='kr-lab mute'>Ressenti du jour</div>" + kv0(kv) + (c.note ? "<p class='kr-note-t'>« " + esc(c.note) + " »</p>" : "");
