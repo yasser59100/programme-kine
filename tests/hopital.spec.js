@@ -99,16 +99,3 @@ test("liste des patients : groupe Hôpital, deux boutons à l'acceptation", asyn
   await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/kine-liste.png" });
   expect(errs).toEqual([]);
 });
-
-test("critères hôpital : la présence aux séances valide les étapes", async ({ page }) => {
-  await boot(page);
-  const r = await page.evaluate(() => {
-    const KP = window.KineParcours, iso = n => { const d = new Date(Date.now() - n * 86400000); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
-    const P = KP.get("hopital"), o = id => P.etapes.flatMap(e => e.obj).find(x => x.id === id);
-    const ev = (id, off) => KP.evalObj(o(id).a, { bilans: [], seances: [], jours: off.map(iso) }).ok;
-    return { v2: ev("venu", [0, 2]), v3: ev("venu", [0, 2, 5]), vOld: ev("venu", [0, 2, 9]),
-      r1: ev("regul", [0, 1, 2, 3]), r2: ev("regul", [0, 1, 2, 3, 7, 8, 9, 10]), r2b: ev("regul", [0, 1, 2, 3, 7, 8, 9]),
-      a3: ev("act", [0, 1, 2, 3, 4, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18]) };
-  });
-  expect(r).toEqual({ v2: false, v3: true, vOld: false, r1: false, r2: true, r2b: false, a3: true });
-});

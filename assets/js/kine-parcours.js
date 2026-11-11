@@ -482,26 +482,24 @@ var KineParcours = (function () {
     mes: ["dou"],
     ref: "Assis-debout de chaise",
     d0: "Date de début des séances",
-    notes: ["Rythme de la semaine à l'hôpital : lundi séance globale, mardi tronc, mercredi récupération et étirements, jeudi jambes, vendredi marche au marché, samedi tronc, dimanche marche ou repos. Les critères comptent donc les séances faites sur la semaine.",
+    notes: ["Séances de groupe ou individuelles à l'hôpital : le but est de bouger régulièrement, avec plaisir, à un effort que la personne tolère.",
             "Pas de bilan articulaire par défaut : tu ajoutes une mesure ou change de parcours si une douleur ou une blessure apparaît.",
             "Les séances du jour restent simples et courtes : 5 à 6 exercices."],
     etapes: [
       { nom: "Reprendre le mouvement", but: "Reprendre l'habitude de bouger, séances courtes et accessibles.",
         obj: [
-          { id: "venu", t: "Il vient à au moins 3 séances sur une semaine", p: "Tu viens à 3 séances dans la semaine", a: { pres: 3, d: 7 } },
+          { id: "venu", t: "Le patient participe aux séances proposées", p: "Tu viens aux séances" },
           { id: "bien", t: "Il se sent à l'aise avec les exercices de base", p: "Les exercices de base te vont bien" }],
         exos: ["Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Pompes contre le mur", "Serrage des omoplates", "Tandem talon-pointe"] },
       { nom: "Prendre de l'énergie", but: "Séances plus complètes, endurance et force de tout le corps.",
         obj: [
-          { id: "regul", t: "4 séances par semaine, 2 semaines de suite", p: "Tu viens 4 fois par semaine, deux semaines de suite", a: { sem: 4, k: 2 } },
-          { id: "globale", t: "Il fait une séance globale (jambes, tronc, bras) en entier", p: "Tu fais une séance complète en entier" },
+          { id: "regul", t: "2 séances par semaine régulièrement", p: "Tu fais 2 séances par semaine" },
           { id: "effort", t: "Il tolère un effort modéré sans gêne", p: "Tu supportes un effort moyen" }],
         exos: ["Squat bilatéral", "Pompes sur genoux", "Rowing deux bras penché", "Squat + élévation bras", "Dead bug", "Équilibre unipodal"] },
       { nom: "Devenir autonome", but: "Faire un petit programme seul, en dehors des séances.",
         obj: [
-          { id: "auto", t: "Il fait un petit programme seul (week-end ou hors séance)", p: "Tu fais ton programme seul" },
-          { id: "marche", t: "Il marche régulièrement (sortie du vendredi, dimanche)", p: "Tu marches régulièrement" },
-          { id: "act", t: "Il tient 5 séances par semaine, 3 semaines de suite", p: "Tu bouges presque tous les jours, trois semaines de suite", a: { sem: 5, k: 3 } }],
+          { id: "auto", t: "Programme fait en autonomie", p: "Tu fais ton programme seul" },
+          { id: "act", t: "Activité physique régulière (marche, vélo…)", p: "Tu bouges régulièrement" }],
         exos: ["Fente latérale avec toucher sol", "Marche du fermier sur place", "Curl biceps", "Plank — gainage avant-bras", "Se relever du sol", "Squat bilatéral"] }
     ],
     src: ["oms2020", "firth2019"]
@@ -1489,15 +1487,6 @@ var KineParcours = (function () {
     if (!a) return null;
     var B = ctx.bilans || [];
     if (a.j != null) { var d = days(ctx.date0); return d == null ? { ok: null, v: "date à renseigner" } : d < 0 ? { ok: false, v: "date dans le futur" } : { ok: d >= a.j, v: Math.floor(d / 7) + " sem." }; }
-    if (a.pres != null || a.sem != null) {
-      // Présence : jours où le patient a fait une séance (à l'hôpital ou sur son téléphone). pres = n séances sur j jours ; sem = n séances par semaine, k semaines de suite.
-      var J = {}; (ctx.jours || []).forEach(function (x) { if (x) J[String(x).slice(0, 10)] = 1; });
-      var nb = function (from, to) { var c = 0; Object.keys(J).forEach(function (k) { var d = days(k); if (d != null && d >= from && d < to) c++; }); return c; };
-      if (a.pres != null) { var c1 = nb(0, a.d || 7); return { ok: c1 >= a.pres, v: c1 + " séance" + (c1 > 1 ? "s" : "") + " sur " + (a.d || 7) + " jours" }; }
-      var kk = a.k || 1, goods = 0, last = null;
-      for (var w = 0; w < kk; w++) { var cw = nb(w * 7, w * 7 + 7); if (w === 0) last = cw; if (cw >= a.sem) goods++; else break; }
-      return { ok: goods >= kk, v: kk > 1 ? goods + " semaine" + (goods > 1 ? "s" : "") + " sur " + kk : last + " séance" + (last > 1 ? "s" : "") + " cette semaine" };
-    }
     if (a.dou != null) {
       var ss = (ctx.seances || []).filter(function (s) { return s.dou != null && s.dou !== ""; }).slice(0, 3);
       if (ss.length < 2) return { ok: null, v: "2 séances à noter" };
