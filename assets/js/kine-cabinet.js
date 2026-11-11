@@ -329,7 +329,8 @@ var KineCabinet = (function () {
 
   /* ════════ Fiche patient ════════ */
   function allB() { return window.KineQuest ? KineQuest.merge(C.bilans, C.quest) : (C.bilans || []); }   // bilans du cabinet + questionnaires remplis par le patient
-  function ctx() { return { bilans: allB(), seances: C.seances || [], date0: C.date0 }; }
+  function jours() { var J = []; (C.seances || []).forEach(function (x) { if (x.d) J.push(x.d); }); (C.journal || []).forEach(function (d) { (d.s || []).forEach(function (x) { if (x.date) J.push(x.date); }); }); return J; }
+  function ctx() { return { bilans: allB(), seances: C.seances || [], date0: C.date0, jours: jours() }; }
   function objState(o) {
     var a = o.a ? KP.evalObj(o.a, ctx()) : null, man = !!(C.done && C.done[o.id]);
     return { auto: a, done: man || !!(a && a.ok === true), man: man };
@@ -818,7 +819,7 @@ var KineCabinet = (function () {
   function bCheck() {
     var m = collect(), P = KP.get(C.parcours), keys = Object.keys(m);
     if (!keys.length && !PHOTOS.length) { say("Aucune mesure saisie."); return; }
-    var nb = { d: $("kcb-bd").value || iso(), m: m }, before = ctx(), after = { bilans: [nb].concat(allB()), seances: C.seances || [], date0: C.date0 };
+    var nb = { d: $("kcb-bd").value || iso(), m: m }, before = ctx(), after = { bilans: [nb].concat(allB()), seances: C.seances || [], date0: C.date0, jours: jours() };
     var E = Math.min(C.etape || 0, P.etapes.length - 1), gained = P.etapes[E].obj.filter(function (o) {
       if (!o.a || (C.done && C.done[o.id])) return false; var a0 = KP.evalObj(o.a, before), a1 = KP.evalObj(o.a, after); return a1 && a1.ok === true && !(a0 && a0.ok === true); });
     var rows = keys.map(function (k) {

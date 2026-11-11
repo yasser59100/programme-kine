@@ -164,7 +164,7 @@ var KineMonSuivi = (function () {
 
   /* ════════ Carte dans l'onglet Suivi ════════ */
   function allB(d) { return window.KineQuest ? KineQuest.merge(d.bilans, d.quest) : (d.bilans || []); }
-  function ctx(d) { return { bilans: allB(d), seances: d.seances || [], date0: d.date0 }; }
+  function ctx(d) { var J = []; (d.seances || []).forEach(function (x) { if (x.d) J.push(x.d); }); arr("kf-sessions").forEach(function (x) { if (x.date) J.push(x.date); }); return { bilans: allB(d), seances: d.seances || [], date0: d.date0, jours: J }; }
   function metric(d) {
     var P = KP.get(d.parcours); if (!P) return null;
     var k = P.key, B = allB(d), b = KP.lastWith(B, k.m); if (!b) return null;
