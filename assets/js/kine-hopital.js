@@ -127,13 +127,34 @@
     if (window.KineCompose) KineCompose.start(S.id);
   }
   function startDay(d) { try { if (window.KineMonSuivi && KineMonSuivi.close) KineMonSuivi.close(); } catch (e) {} if (window.launchSeq) launchSeq(d); }
-  function zone(id, btn) {
+  function zone(id) {
     var Z = ZONES.filter(function (z) { return z.id === id; })[0]; if (!Z) return;
     var m = jget("kf-checkin", {}), k = iso(new Date()); m[k] = m[k] || {}; m[k].zone = id; jset("kf-checkin", m);
-    [].forEach.call(document.querySelectorAll(".kh-zone"), function (b) { b.classList.toggle("on", b === btn); });
-    var box = $("kh-advice"); if (box) box.innerHTML = adviceHtml(id);
-    haptic(12);
+    var card = $("kh-bodycard");
+    if (card) {
+      card.className = card.className.replace(/\bsel-\w+/g, "").trim() + " sel-" + id;
+      [].forEach.call(card.querySelectorAll("[data-z]"), function (e) { e.classList.toggle("on", e.getAttribute("data-z") === id); });
+      var box = $("kh-advice"); if (box) { box.innerHTML = ""; void box.offsetWidth; box.innerHTML = adviceHtml(id); }
+      if (id === "bien") burst($("kh-bodycard").querySelector(".kh-figw"));
+    }
+    haptic(id === "bien" ? [14, 40, 14] : 12);
     try { var st = jget("kf-cab", null); if (st && st.pid && window.KineMonSuivi && KineMonSuivi.sync) KineMonSuivi.sync(); } catch (e) {}
+  }
+  /* Le corps du jour : une silhouette que le patient touche là où il a une gêne, ou une liste de choix. */
+  function bodyHtml(zc) {
+    var Z = function (id, shape, lab) { return "<g class='kh-bz' data-z='" + id + "' role='button' tabindex='0' aria-label='" + lab + "' onclick='KineHopital.zone(\"" + id + "\")' onkeydown='if(event.key===\"Enter\"||event.key===\" \"){event.preventDefault();KineHopital.zone(\"" + id + "\")}'>" + shape + "</g>"; };
+    var svg = "<svg class='kh-fig' viewBox='0 0 120 236' aria-hidden='false'><defs><linearGradient id='khg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#8d9bff'/><stop offset='1' stop-color='#4b5bff'/></linearGradient></defs>" +
+      "<g class='kh-silh' fill='none' stroke='url(#khg)' stroke-width='15' stroke-linecap='round' stroke-linejoin='round'>" +
+      "<circle cx='60' cy='24' r='14' fill='url(#khg)' stroke='none'/><path d='M60 44v8'/><path d='M44 62h32M46 62v56M74 62v56'/><path d='M44 62l-12 6-8 50M76 62l12 6 8 50'/><path d='M50 124l-3 56 -1 46M70 124l3 56 1 46'/></g>" +
+      Z("haut", "<circle cx='34' cy='66' r='15'/><circle cx='86' cy='66' r='15'/><circle cx='24' cy='112' r='10'/><circle cx='96' cy='112' r='10'/>", "Épaules ou bras") +
+      Z("dos", "<rect x='46' y='74' width='28' height='56' rx='14'/>", "Le dos") +
+      Z("bas", "<circle cx='48' cy='178' r='14'/><circle cx='72' cy='178' r='14'/>", "Jambes ou genoux") +
+      "<g class='kh-hints' aria-hidden='true'><circle cx='34' cy='66' r='4'/><circle cx='60' cy='100' r='4'/><circle cx='48' cy='178' r='4'/><circle cx='72' cy='178' r='4'/></g></svg>";
+    var chips = "";
+    ZONES.forEach(function (z) { chips += "<button type='button' class='kh-zone" + (zc === z.id ? " on" : "") + "' data-z='" + z.id + "' onclick='KineHopital.zone(\"" + z.id + "\")'><i class='kh-zd z-" + z.id + "' aria-hidden='true'></i>" + esc(z.t) + "</button>"; });
+    return "<section class='kh-body kh-in" + (zc ? " sel-" + zc : "") + "' id='kh-bodycard' style='--i:1'><div class='kh-body-h'>Comment va ton corps aujourd'hui ?</div><div class='kh-body-s'>Touche là où tu ressens quelque chose.</div>" +
+      "<div class='kh-body-g'><div class='kh-figw'>" + svg + "</div><div class='kh-zones'>" + chips + "</div></div>" +
+      "<div id='kh-advice' class='kh-advice'>" + (zc ? adviceHtml(zc) : "") + "</div></section>";
   }
   function adviceHtml(id) {
     var Z = ZONES.filter(function (z) { return z.id === id; })[0]; if (!Z) return "";
@@ -200,11 +221,12 @@
   }
 
   var ICON = {
-    "hop-global": "<circle cx='12' cy='5' r='2'/><path d='M12 7v6M8 21l4-8 4 8M5 10l7 1 7-1'/>",
-    "hop-tronc": "<path d='M12 3v18M8 6c2 2 2 4 0 6s-2 4 0 6M16 6c-2 2-2 4 0 6s2 4 0 6'/>",
-    "hop-jambes": "<path d='M7 3v8l-2 10M17 3v8l2 10M7 11h10'/>",
-    "hop-recup": "<path d='M5 19c0-9 5-14 14-14 0 9-5 14-14 14z'/><path d='M5 19c3-4 6-6 9-8'/>"
+    "hop-global": "<circle cx='12' cy='4.2' r='2'/><path d='M12 7v6.5M4.5 8.5l7.5 1.5 7.5-1.5M12 13.5l-5 7M12 13.5l5 7'/><path d='M2.5 5.5l1.5 1M21.5 5.5l-1.5 1' opacity='.55'/>",
+    "hop-tronc": "<rect x='9' y='2.5' width='6' height='3.2' rx='1.4'/><rect x='8.4' y='7' width='7.2' height='3.2' rx='1.4'/><rect x='7.8' y='11.5' width='8.4' height='3.2' rx='1.4'/><rect x='8.4' y='16' width='7.2' height='3.2' rx='1.4'/><path d='M12 19.5v2' opacity='.55'/>",
+    "hop-jambes": "<circle cx='12' cy='4' r='2'/><path d='M12 6.5v5M8.5 9h7M12 11.5l-4.5 3.5V21M12 11.5l4.5 3.5V21'/><path d='M3 21h18' opacity='.55'/>",
+    "hop-recup": "<path d='M12 20.5c-4.2 0-7.2-2.2-8.5-5.5 3.2-.2 5.8 1 8.5 4 2.7-3 5.3-4.2 8.5-4-1.3 3.3-4.3 5.5-8.5 5.5z'/><path d='M12 19c-3.2-3.2-3.2-8.2 0-13.5 3.2 5.3 3.2 10.3 0 13.5z'/>"
   };
+
 
 
   function haptic(n) { try { if (navigator.vibrate) navigator.vibrate(n); } catch (e) {} }
@@ -262,11 +284,7 @@
         (prev ? "" : "<button type='button' class='kh-go' onclick='KineHopital.walk(this)'" + (done0 ? " disabled" : "") + ">" + (done0 ? "Bravo, c'est noté" : "J'ai marché") + "<span aria-hidden='true'>›</span></button>")) + "</section>";
     // 1 bis. comment va ton corps ?
     var zc = (jget("kf-checkin", {})[iso(new Date())] || {}).zone;
-    if (!prev) {
-      h += "<section class='kh-body kh-in' style='--i:1'><div class='kh-body-h'>Comment va ton corps aujourd'hui ?</div><div class='kh-zones'>";
-      ZONES.forEach(function (z) { h += "<button type='button' class='kh-zone" + (zc === z.id ? " on" : "") + "' onclick='KineHopital.zone(\"" + z.id + "\",this)'>" + esc(z.t) + "</button>"; });
-      h += "</div><div id='kh-advice' class='kh-advice'>" + (zc ? adviceHtml(zc) : "") + "</div></section>";
-    }
+    if (!prev) h += bodyHtml(zc);
     // 2. ma semaine
     h += "<section class='kh-week kh-in' style='--i:1'><div class='kh-wk-h'><b>Ma semaine</b><span>" + wk.n + " séance" + (wk.n > 1 ? "s" : "") + "</span></div><div class='kh-dots'>";
     var lab = ["L", "M", "M", "J", "V", "S", "D"], today = iso(new Date());

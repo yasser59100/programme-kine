@@ -3693,13 +3693,37 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 @media (prefers-reduced-motion:reduce){.kh-face.on svg{animation:none}}
 
 /* Hôpital : comment va ton corps ? */
-.kh-body{margin:0 0 14px;padding:16px;border-radius:22px;background:#fff;border:1px solid rgba(80,90,140,.14)}
-.kh-body-h{font-weight:800;font-size:16px;margin-bottom:10px}
-.kh-zones{display:flex;flex-wrap:wrap;gap:8px}
-.kh-zone{min-height:44px;padding:0 14px;border-radius:22px;border:1.5px solid #d9deea;background:#fff;font:inherit;font-weight:700;font-size:14px;color:#111c2d;transition:transform .15s,background .2s,border-color .2s}
-.kh-zone:active{transform:scale(.96)}
-.kh-zone.on{background:#111c2d;color:#fff;border-color:#111c2d}
-.kh-advice:not(:empty){margin-top:12px;padding:12px 14px;border-radius:16px;background:#eef0ff;animation:khPop .4s both}
+.kh-body{margin:0 0 14px;padding:18px 16px;border-radius:26px;background:linear-gradient(170deg,#fff,#f1f3ff);border:1px solid rgba(80,90,140,.16);overflow:hidden;position:relative}
+.kh-body-h{font-weight:800;font-size:17px;letter-spacing:-.01em}
+.kh-body-s{font-size:13px;color:#566179;margin:2px 0 10px}
+.kh-body-g{display:flex;gap:10px;align-items:center}
+.kh-figw{flex:none;width:118px;position:relative}
+.kh-fig{width:118px;height:auto;display:block;overflow:visible;animation:khFig 4.5s ease-in-out infinite;transform-origin:50% 60%}
+.kh-silh{transition:opacity .3s;opacity:.92}
+.kh-bz{cursor:pointer;fill:rgba(75,91,255,0);stroke:none;outline:none;transition:fill .25s}
+.kh-bz:hover,.kh-bz:focus-visible{fill:rgba(75,91,255,.22)}
+.kh-bz.on{fill:rgba(255,140,66,.55);animation:khZoneGlow 1.6s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,120,50,.7))}
+.kh-hints circle{fill:#fff;stroke:#4b5bff;stroke-width:2;animation:khHint 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+.kh-hints circle:nth-child(2){animation-delay:.5s}.kh-hints circle:nth-child(3){animation-delay:1s}.kh-hints circle:nth-child(4){animation-delay:1.3s}
+.kh-body[class*="sel-"] .kh-hints{opacity:0}
+.kh-body.sel-bien .kh-silh{opacity:1;filter:drop-shadow(0 0 10px rgba(47,190,150,.7))}
+.kh-body.sel-bien .kh-silh{stroke:#2fbe96}
+.kh-body.sel-fatigue .kh-fig{animation:khSlump 3.5s ease-in-out infinite}
+.kh-body.sel-fatigue .kh-silh{opacity:.55}
+.kh-zones{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
+.kh-zone{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:14px;border:1.5px solid #dfe3f0;background:#fff;font:inherit;font-weight:700;font-size:14px;color:#111c2d;text-align:left;transition:transform .15s,background .2s,border-color .2s,box-shadow .2s}
+.kh-zone:active{transform:scale(.97)}
+.kh-zone.on{background:#111c2d;color:#fff;border-color:#111c2d;box-shadow:0 6px 16px rgba(17,28,45,.25)}
+.kh-zd{flex:none;width:10px;height:10px;border-radius:50%;background:#9aa4ff}
+.kh-zd.z-bien{background:#2fbe96}.kh-zd.z-dos,.kh-zd.z-bas,.kh-zd.z-haut{background:#ff8c42}.kh-zd.z-fatigue{background:#8a6cf5}
+.kh-advice:not(:empty){margin-top:14px;padding:14px;border-radius:18px;background:#fff;border:1.5px solid #cfd5ff;box-shadow:0 8px 22px rgba(75,91,255,.12);animation:khRiseIn .45s cubic-bezier(.2,.8,.2,1) both}
 .kh-adv-t{font-size:15px;font-weight:700;line-height:1.4}
-.kh-adv-w{margin-top:8px;font-size:13px;line-height:1.4;color:#8a3b16}
-.kh-adv-go{margin-top:10px;width:100%}
+.kh-adv-w{margin-top:10px;font-size:13px;line-height:1.4;color:#8a3b16;background:#fff3ea;border-radius:12px;padding:8px 10px}
+.kh-adv-go{margin-top:12px;width:100%}
+@keyframes khZoneGlow{0%,100%{fill:rgba(255,140,66,.4)}50%{fill:rgba(255,140,66,.75)}}
+@keyframes khHint{0%{transform:scale(.6);opacity:1}70%,100%{transform:scale(2.2);opacity:0}}
+@keyframes khSlump{0%,100%{transform:translateY(0)}50%{transform:translateY(5px) scaleY(.98)}}
+@keyframes khRiseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kh-fig,.kh-bz.on,.kh-hints circle,.kh-advice{animation:none!important}}
+@keyframes khFig{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+.kh-adv-go{background:linear-gradient(170deg,#5566ff,#3342d8)!important;color:#fff!important;box-shadow:0 8px 18px rgba(51,66,216,.3)}
