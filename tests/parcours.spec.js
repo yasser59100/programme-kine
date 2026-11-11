@@ -44,7 +44,7 @@ test("parcours : structure, exercices, mesures, sources et critères de chacun d
           } else if (a.hops != null) {
             (a.need || []).forEach(h => { if (p.mes.indexOf(h) < 0) add(pid, tag + " " + o.id + " test de saut exigé absent du parcours " + h); });
             if (!a.need && !["hop1", "hop3", "hop6"].some(h => p.mes.indexOf(h) >= 0)) add(pid, tag + " " + o.id + " aucun test de saut dans le parcours");
-          } else if (!["j", "dou"].some(k => a[k] != null)) add(pid, tag + " " + o.id + " règle non reconnue");
+          } else if (!["j", "dou", "pres", "sem"].some(k => a[k] != null)) add(pid, tag + " " + o.id + " règle non reconnue");
         });
         const names = {};
         (e.exos || []).forEach(x => {
