@@ -149,22 +149,31 @@
     dos:     { img: "mode-dos", n: 12, w: 240, h: 240, dur: 1.5, ring: [40, 46] },
     bas:     { img: "st-raide", n: 12, w: 240, h: 240, dur: 1.5, ring: [50, 64] },
     haut:    { img: "etire", n: 12, w: 244, h: 300, dur: 1.4, ring: [64, 33] },
-    fatigue: { img: "mode-general", n: 12, w: 240, h: 240, dur: 3.2 }
+    fatigue: { bed: true }
   };
   function paintYass(id) {
     var el = $("kh-sp"), r = $("kh-ring"); if (!el) return;
-    var Y = YST[id] || YST.init;
+    var Y = YST[id] || YST.init, fw = el.parentNode;
+    if (fw) fw.classList.toggle("bed", !!Y.bed);
+    if (Y.bed) { if (r) r.className = "kh-ring"; var z0 = $("kh-zz"); if (z0) z0.className = "kh-zz on"; return; }
     el.style.cssText = "aspect-ratio:" + Y.w + "/" + Y.h + ";background-image:url(assets/lumiere/yass-anim/" + Y.img + ".webp);background-size:" + (Y.n * 100) + "% 100%;--n:" + (Y.n - 1) + ";--d:" + Y.dur + "s";
     el.className = "kh-sp"; void el.offsetWidth; el.classList.add("play");
     if (r) { if (Y.ring) { r.style.left = Y.ring[0] + "%"; r.style.top = Y.ring[1] + "%"; r.className = "kh-ring on"; } else r.className = "kh-ring"; }
-    var z = $("kh-zz"); if (z) z.className = "kh-zz" + (id === "fatigue" ? " on" : "");
+    var z = $("kh-zz"); if (z) z.className = "kh-zz";
   }
   function bodyHtml(zc) {
     var chips = "";
     ZONES.forEach(function (z) { chips += "<button type='button' class='kh-zone" + (zc === z.id ? " on" : "") + "' data-z='" + z.id + "' onclick='KineHopital.zone(\"" + z.id + "\")'><i class='kh-zd z-" + z.id + "' aria-hidden='true'></i>" + esc(z.t) + "</button>"; });
     setTimeout(function () { paintYass(zc || "init"); }, 60);
     return "<section class='kh-body kh-in" + (zc ? " sel-" + zc : "") + "' id='kh-bodycard' style='--i:1'><div class='kh-body-h'>Comment va ton corps aujourd'hui ?</div><div class='kh-body-s'>Choisis ce qui te correspond, Yass te montre.</div>" +
-      "<div class='kh-body-g'><div class='kh-figw'><div class='kh-sp' id='kh-sp' role='img' aria-label='Yass'><i class='kh-ring' id='kh-ring' aria-hidden='true'></i></div><span class='kh-zz' id='kh-zz' aria-hidden='true'>z<b>z</b><em>z</em></span></div><div class='kh-zones'>" + chips + "</div></div>" +
+      "<div class='kh-body-g'><div class='kh-figw'><div class='kh-sp' id='kh-sp' role='img' aria-label='Yass'><i class='kh-ring' id='kh-ring' aria-hidden='true'></i></div><svg class='kh-bedsvg' viewBox='0 0 132 112' aria-hidden='true'><defs><linearGradient id='khbl' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#7a88ff'/><stop offset='1' stop-color='#3b49d6'/></linearGradient><linearGradient id='khwd' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#a8714b'/><stop offset='1' stop-color='#7d4f33'/></linearGradient></defs>" +
+      "<ellipse cx='68' cy='104' rx='60' ry='6' fill='rgba(30,40,120,.18)'/>" +
+      "<rect x='4' y='34' width='11' height='66' rx='5' fill='url(#khwd)'/><rect x='117' y='60' width='10' height='40' rx='5' fill='url(#khwd)'/>" +
+      "<rect x='12' y='72' width='108' height='16' rx='7' fill='#e8ecff' stroke='#cfd6f6'/><rect x='14' y='86' width='104' height='8' rx='4' fill='url(#khwd)'/>" +
+      "<ellipse cx='34' cy='64' rx='21' ry='10' fill='#fff' stroke='#d6dcf5'/>" +
+      "<circle cx='35' cy='57' r='13.5' fill='#e2ab83'/><path d='M22 55c1-10 9-14 14-14s12 3 13 12c-5-4-9-5-14-5s-9 2-13 7z' fill='#3a2a22'/><path d='M23 60c1 9 6 12 12 12s11-3 12-12c-3 3-7 4-12 4s-9-1-12-4z' fill='#3a2a22'/>" +
+      "<path d='M28 56q3 2.5 6 0M37 56q3 2.5 6 0' fill='none' stroke='#3a2a22' stroke-width='1.8' stroke-linecap='round'/><path d='M32 64q3 1.6 6 0' fill='none' stroke='#e2ab83' stroke-width='2' stroke-linecap='round'/>" +
+      "<g class='kh-blank'><path d='M46 70c6-8 18-8 30-6 14 2 30 0 42 6v20H46z' fill='url(#khbl)'/><path d='M46 76c20 4 50 4 72 0' fill='none' stroke='rgba(255,255,255,.45)' stroke-width='3' stroke-linecap='round'/></g></svg><span class='kh-zz' id='kh-zz' aria-hidden='true'>z<b>z</b><em>z</em></span></div><div class='kh-zones'>" + chips + "</div></div>" +
       "<div id='kh-advice' class='kh-advice'>" + (zc ? adviceHtml(zc) : "") + "</div></section>";
   }
   function adviceHtml(id) {

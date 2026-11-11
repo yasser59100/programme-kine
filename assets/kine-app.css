@@ -3723,3 +3723,12 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 @keyframes khRing{0%,100%{transform:scale(.85);opacity:.75}50%{transform:scale(1.25);opacity:1}}
 @keyframes khZz{0%{transform:translateY(8px);opacity:0}30%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.kh-sp.play,.kh-ring.on,.kh-zz.on{animation:none!important}}
+
+.kh-bedsvg{display:none;width:132px;height:auto;position:absolute;left:0;bottom:0;overflow:visible}
+.kh-figw.bed .kh-sp{display:none}
+.kh-figw.bed .kh-bedsvg{display:block;animation:khRiseIn .5s both}
+.kh-blank{transform-box:fill-box;transform-origin:50% 100%;animation:khSleep 3.4s ease-in-out infinite}
+.kh-figw.bed + .kh-zones{}
+.kh-zz{left:34px;right:auto;top:26px}
+@keyframes khSleep{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.07)}}
+@media (prefers-reduced-motion:reduce){.kh-blank{animation:none!important}}
