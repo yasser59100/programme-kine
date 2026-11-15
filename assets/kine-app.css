@@ -3732,3 +3732,9 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kh-zz{left:34px;right:auto;top:26px}
 @keyframes khSleep{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.07)}}
 @media (prefers-reduced-motion:reduce){.kh-blank{animation:none!important}}
+.kh-grid{display:grid;grid-template-columns:1fr 1fr;overflow:visible;margin:0;padding:2px 0 10px;gap:12px}
+.kh-grid .kh-card{width:auto}
+.kh-more{display:flex;flex-direction:column;gap:10px}
+.kh-more button,.kh-tips button{display:flex;flex-direction:column;gap:3px;text-align:left;border:1px solid var(--border,#e1e5ef);background:var(--card,#fff);border-radius:18px;padding:14px 16px;font-family:var(--font);color:inherit;cursor:pointer;min-height:44px}
+.kh-more b,.kh-tips b{font-size:1rem}.kh-more span,.kh-tips em{font-size:.85rem;color:var(--text2,#566179);font-style:normal}
+.kh-tips{display:flex;flex-direction:column;gap:10px}

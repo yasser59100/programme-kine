@@ -252,7 +252,7 @@ var KineMonSuivi = (function () {
   /* ════════ Onglet « Mon kiné » : le suivi au cabinet, sans ouvrir de fenêtre ════════ */
   function page(force) {
     var el = $("monkine-body"), pg = $("page-monkine"); if (!el || !pg || !pg.classList.contains("active")) return;
-    var s = state(), h = "<div class='kmk-head'><h1 class='lx-title'>Mon kiné</h1></div>";
+    var s = state(), h = "<div class='kmk-head'><h1 class='lx-title'>" + (window.KineHopital && KineHopital.isHop() ? "Moi" : "Mon kiné") + "</h1></div>";
     if (s && s.pid && !kpReady()) { el.innerHTML = h + "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; need().then(function () { page(force); }); return; }
     if (s && s.pid && s.d) h += body(s, false, true);
     else if (s && s.pid) h += "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>";
@@ -265,6 +265,7 @@ var KineMonSuivi = (function () {
           "<button class='krl-row dash' onclick='KineRole.loginForm(\"restore\")'><span class='krl-ic grey'>↺</span><span class='krl-t'><b>J'avais déjà un suivi</b><span>Avec mon identifiant ou Google</span></span></button>" : "") + "</div>";
     }
     el.innerHTML = h;
+    try { if (window.KineHopital) KineHopital.mode(); } catch (e) {}
     if (s && s.pid && s.d) photos(s.pid);
     if (force) refresh(true);
   }
@@ -313,7 +314,7 @@ var KineMonSuivi = (function () {
     if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<button type='button' class='kms-ex' data-n='" + esc(n) + "' onclick='KineMonSuivi.demo(this)'><span>" + esc(n) + "</span><em>Voir</em></button>"; }).join("") +
       (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // patient de l'hôpital : séances toutes prêtes, le savais-tu, vrai ou faux
-    if (d.parcours === "hopital" && window.KineHopital) html += KineHopital.html(PREV);
+    if (d.parcours === "hopital" && window.KineHopital && PREV) html += KineHopital.html(PREV);
     // mot du kiné
     if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
     if (d.next) html += "<p class='kf-sub kcb-center'>Prochain bilan au cabinet : <b>" + dfr(d.next) + "</b></p>";

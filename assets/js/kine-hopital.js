@@ -289,11 +289,12 @@
   }
 
   /* ── bloc affiché dans l'écran de suivi ── */
-  function html(prev) {
+  function html(prev, part) {
+    part = part || "all"; var P = function (n) { return part === "all" || part === n; };
     var hi = seanceDuJour(), H = hi >= 0 ? SEANCES[hi] : null, t = TIPS[day() % TIPS.length], wk = weekDone(), goal = 4, dw = new Date().getDay(), done0 = (jget("kf-checkin", {})[iso(new Date())] || {}).walk;
-    var h = "<div class='kh-wrap'>";
+    var h = "<div class='kh-wrap'>" + (part === "today" ? "<h1 class='lx-title'>Aujourd'hui</h1>" : part === "seances" ? "<h1 class='lx-title'>Séances</h1><p class='lx-lede'>Les mêmes séances qu'à l'hôpital, pour les refaire ou les compléter.</p>" : part === "learn" ? "<h1 class='lx-title'>Apprendre</h1><p class='lx-lede'>Une info utile et un vrai ou faux, chaque jour.</p>" : "");
     // 1. le héros : Yass et la séance du jour
-    h += "<section class='kh-hero kh-in' style='--i:0'><span class='kh-yw'><button type='button' class='lu-yass lu-ys' aria-label='Yass' onclick='KineLayout.yass(this)' data-g='salut'></button></span>" +
+    if (P("today")) h += "<section class='kh-hero kh-in' style='--i:0'><span class='kh-yw'><button type='button' class='lu-yass lu-ys' aria-label='Yass' onclick='KineLayout.yass(this)' data-g='salut'></button></span>" +
       (H ? "<div class='kh-kick'>Ta séance du jour · " + DOW[dw] + "</div><div class='kh-big'>" + esc(H.nom) + "</div>" +
         "<div class='kh-meta'>" + (H.min ? H.min + " minutes · " : "") + nbEx(H) + " exercices</div>" +
         "<div class='kh-say'>" + esc(H.desc) + "</div>" +
@@ -304,28 +305,29 @@
         (prev ? "" : "<button type='button' class='kh-go' onclick='KineHopital.walk(this)'" + (done0 ? " disabled" : "") + ">" + (done0 ? "Bravo, c'est noté" : "J'ai marché") + "<span aria-hidden='true'>›</span></button>")) + "</section>";
     // 1 bis. comment va ton corps ?
     var zc = (jget("kf-checkin", {})[iso(new Date())] || {}).zone;
-    if (!prev) h += bodyHtml(zc);
+    if (!prev && P("today")) h += bodyHtml(zc);
     // 2. ma semaine
-    h += "<section class='kh-week kh-in' style='--i:1'><div class='kh-wk-h'><b>Ma semaine</b><span>" + wk.n + " séance" + (wk.n > 1 ? "s" : "") + "</span></div><div class='kh-dots'>";
+    if (P("today")) { h += "<section class='kh-week kh-in' style='--i:1'><div class='kh-wk-h'><b>Ma semaine</b><span>" + wk.n + " séance" + (wk.n > 1 ? "s" : "") + "</span></div><div class='kh-dots'>";
     var lab = ["L", "M", "M", "J", "V", "S", "D"], today = iso(new Date());
     for (var i = 0; i < 7; i++) {
       var d = new Date(wk.mon.getTime()); d.setDate(d.getDate() + i); var k = iso(d), done = !!wk.days[k];
       h += "<span class='kh-dot" + (done ? " ok" : "") + (k === today ? " now" : "") + "' style='--d:" + (i * 0.07 + 0.5) + "s'><i aria-hidden='true'>" + (done ? "✓" : "") + "</i><em>" + lab[i] + "</em></span>";
     }
-    h += "</div><div class='kh-wk-s'>" + (wk.n === 0 ? "Une première séance cette semaine ? Je suis avec toi." : wk.n >= goal ? "Objectif de la semaine atteint, bravo !" : "Encore " + (goal - wk.n) + " pour atteindre ton objectif.") + "</div></section>";
+    h += "</div><div class='kh-wk-s'>" + (wk.n === 0 ? "Une première séance cette semaine ? Je suis avec toi." : wk.n >= goal ? "Objectif de la semaine atteint, bravo !" : "Encore " + (goal - wk.n) + " pour atteindre ton objectif.") + "</div></section>"; }
     // 3. mes séances, en cartes à faire défiler
-    h += "<div class='kh-sec kh-in' style='--i:2'>Mes séances</div><div class='kh-rail kh-in' style='--i:3'>";
-    SEANCES.forEach(function (S, i) {
+    if (P("seances")) h += "<div class='kh-sec kh-in' style='--i:2'>La semaine à l'hôpital</div><div class='kh-rail kh-grid kh-in' style='--i:3'>";
+    if (P("seances")) SEANCES.forEach(function (S, i) {
       h += "<button type='button' class='kh-card c" + i + "'" + (prev ? " disabled" : " onclick='KineHopital.start(" + i + ")'") + ">" +
         "<svg viewBox='0 0 24 24' width='34' height='34' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" + ICON[S.id] + "</svg>" +
         "<b>" + esc(S.nom) + "</b><span>" + S.court + "</span></button>";
     });
-    h += "</div>";
+    if (P("seances")) h += "</div><div class='kh-sec kh-in' style='--i:4'>Aller plus loin</div><div class='kh-more kh-in' style='--i:5'><button type='button' onclick=\"showPage('guide')\"><b>Bibliothèque d'exercices</b><span>Variantes plus difficiles et nouveaux mouvements</span></button><button type='button' onclick=\"showPage('mes');window.KineCompose&&KineCompose.tab()\"><b>Composer ma séance</b><span>Choisis tes exercices, je m'occupe de l'ordre</span></button></div>";
     // 4. le savais-tu
-    h += "<button type='button' class='kh-tip kh-in' style='--i:4' onclick='KineHopital.tipOpen(" + (day() % TIPS.length) + ")'><span class='kh-bulb' aria-hidden='true'><svg viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z'/></svg></span>" +
+    if (P("learn")) h += "<button type='button' class='kh-tip kh-in' style='--i:4' onclick='KineHopital.tipOpen(" + (day() % TIPS.length) + ")'><span class='kh-bulb' aria-hidden='true'><svg viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z'/></svg></span>" +
       "<span class='kh-tt'><em>Le savais-tu ? · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
     // 5. vrai ou faux
-    h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:5'");
+    if (P("learn")) h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:5'");
+    if (part === "learn") { h += "<div class='kh-sec kh-in' style='--i:6'>Toutes les infos</div><div class='kh-tips'>"; TIPS.forEach(function (T, i) { h += "<button type='button' onclick='KineHopital.tipOpen(" + i + ")'><em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b></button>"; }); h += "</div>"; }
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 80);
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 500);
     return h + "</div>";
@@ -352,5 +354,51 @@
     if (good) { burst(n); haptic([14, 40, 14]); } else haptic(30);
   }
 
-  window.KineHopital = { isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+
+  /* ── onglets de l'hôpital : Aujourd'hui, Séances, Apprendre, Moi ── */
+  var NAVSAVE = null, PAGES = { "hop-today": "today", "hop-seances": "seances", "hop-learn": "learn" };
+  var NI = {
+    home: "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z'/></svg>",
+    seances: "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M13 3L5 14h6l-1 7 8-11h-6z'/></svg>",
+    learn: "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z'/></svg>",
+    moi: "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21c1-4 4-6 8-6s7 2 8 6'/></svg>"
+  };
+  function paintHop(id) {
+    var el = $("page-" + id), part = PAGES[id]; if (!el) return;
+    el.innerHTML = "<div class='content'>" + html(false, part) + "</div>";
+  }
+  function mode() {
+    var on = isHop(), nav = document.querySelector(".bottom-nav"); if (!nav || !window.pageMap) return;
+    var B = function (i) { return $("bn-" + i); };
+    if (on && !NAVSAVE) {
+      NAVSAVE = {}; ["home", "guide", "mes", "suivi", "monkine"].forEach(function (i) { var b = B(i); NAVSAVE[i] = { h: b.innerHTML, c: b.getAttribute("onclick"), d: b.style.display }; });
+      var host = $("page-home").parentNode;
+      Object.keys(PAGES).forEach(function (id) { if (!$("page-" + id)) { var d = document.createElement("div"); d.className = "page"; d.id = "page-" + id; host.insertBefore(d, $("page-home").nextSibling); } });
+      pageMap["hop-today"] = "bn-home"; pageMap["hop-seances"] = "bn-guide"; pageMap["hop-learn"] = "bn-suivi";
+      function set(i, svg, lab, go) { var b = B(i); b.innerHTML = "<span class='bnav-icon'>" + svg + "</span><span>" + lab + "</span>"; b.setAttribute("onclick", go); }
+      set("home", NI.home, "Aujourd'hui", "showPage('hop-today')");
+      set("guide", NI.seances, "Séances", "showPage('hop-seances')");
+      set("suivi", NI.learn, "Apprendre", "showPage('hop-learn')");
+      set("monkine", NI.moi, "Moi", "showPage('monkine')");
+      B("mes").style.display = "none";
+      document.body.classList.add("kf-hop");
+      var shown = document.querySelector(".page.active");
+      if (shown && (shown.id === "page-home" || shown.id === "page-guide" || shown.id === "page-suivi")) showPage("hop-today");
+    } else if (!on && NAVSAVE) {
+      Object.keys(NAVSAVE).forEach(function (i) { var b = B(i), o = NAVSAVE[i]; b.innerHTML = o.h; if (o.c) b.setAttribute("onclick", o.c); b.style.display = o.d; });
+      NAVSAVE = null; document.body.classList.remove("kf-hop"); showPage("home");
+    }
+  }
+  (function () {
+    var orig = window.showPage; if (!orig) return;
+    window.showPage = function (id) {
+      if (isHop()) { mode(); if (id === "home") id = "hop-today"; else if (id === "suivi") id = "monkine"; }
+      orig(id);
+      if (PAGES[id]) paintHop(id);
+    };
+  })();
+  document.addEventListener("DOMContentLoaded", function () { setTimeout(mode, 50); });
+  if (document.readyState !== "loading") setTimeout(mode, 50);
+
+  window.KineHopital = { mode: mode,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();
