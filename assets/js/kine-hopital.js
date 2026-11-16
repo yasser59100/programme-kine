@@ -86,6 +86,17 @@
       source: "Bull et al., British Journal of Sports Medicine, 2020 (OMS)", url: pm("Bull World Health Organization 2020 guidelines on physical activity and sedentary behaviour") }
   ];
 
+  var TH = {
+    "Le corps aussi compte": { a: "#12a37f", b: "#0b7c66", i: "muscle" }, "Moral": { a: "#ff9f5a", b: "#f0603f", i: "moral" }, "Sommeil": { a: "#5566ff", b: "#3a2fb0", i: "sleep" },
+    "Mémoire": { a: "#8a6cf5", b: "#5b45d6", i: "brain" }, "Tabac": { a: "#64748b", b: "#334155", g: "<path d='M3 16h14v3H3zM19 16h2v3h-2zM15 5c2 2-2 4 1 7' />" },
+    "Alimentation": { a: "#34b36b", b: "#1f8a50", g: "<path d='M12 7c-3-2-8 0-7 6s5 8 7 7c2 1 6-1 7-7s-4-8-7-6zM12 7c0-2 1-3 3-4'/>" },
+    "Sédentarité": { a: "#2f9be0", b: "#1d6fb8", i: "balance" }, "Activité": { a: "#ffb43c", b: "#f08a00", i: "walk" }, def: { a: "#5566ff", b: "#3342d8", g: "<circle cx='12' cy='12' r='8'/>" }
+  };
+  function thPic(th, sz) {
+    return th.i ? "<img class='kh-thp " + sz + "' src='assets/illus/" + th.i + ".webp' alt='' loading='lazy'>"
+      : "<span class='kh-thp " + sz + " gl'><svg viewBox='0 0 24 24' width='34' height='34' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>" + th.g + "</svg></span>";
+  }
+
   /* Vrai ou faux : une idée reçue, la réponse, l'explication */
   var VF = [
     { q: "Quand on n'a pas le moral, bouger ne sert à rien.", a: false,
@@ -328,12 +339,16 @@
         "<button type='button' onclick=\"showPage('guide')\"><i class='t3'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5h7v14H4zM13 5h7v14h-7z'/></svg></i><b>Bibliothèque</b><span>Variantes plus difficiles</span></button>" +
         "<button type='button' onclick=\"KineHopital.start(3)\"><i class='t4'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20.5c-4.2 0-7.2-2.2-8.5-5.5 3.2-.2 5.8 1 8.5 4 2.7-3 5.3-4.2 8.5-4-1.3 3.3-4.3 5.5-8.5 5.5z'/><path d='M12 19c-3.2-3.2-3.2-8.2 0-13.5 3.2 5.3 3.2 10.3 0 13.5z'/></svg></i><b>Étirements</b><span>15 minutes, en douceur</span></button></div>";
     }
-    // 4. le savais-tu
-    if (P("learn")) h += "<button type='button' class='kh-tip kh-in' style='--i:4' onclick='KineHopital.tipOpen(" + (day() % TIPS.length) + ")'><span class='kh-bulb' aria-hidden='true'><svg viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z'/></svg></span>" +
-      "<span class='kh-tt'><em>Le savais-tu ? · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
-    // 5. vrai ou faux
-    if (P("learn")) h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:5'");
-    if (part === "learn") { h += "<div class='kh-sec kh-in' style='--i:6'>Toutes les infos</div><div class='kh-tips'>"; TIPS.forEach(function (T, i) { h += "<button type='button' onclick='KineHopital.tipOpen(" + i + ")'><em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b></button>"; }); h += "</div>"; }
+    // 4. apprendre : l'info du jour, le vrai ou faux, la respiration, toutes les infos
+    if (P("learn")) {
+      var ti = day() % TIPS.length, th = TH[t.theme] || TH.def;
+      h += "<button type='button' class='kh-lh kh-in' style='--i:3;--g1:" + th.a + ";--g2:" + th.b + "' onclick='KineHopital.tipOpen(" + ti + ")'><span class='kh-lh-t'><em>Info du jour · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b><span class='kh-lh-s'><strong>" + esc(t.stat) + "</strong>" + esc(t.statLabel) + "</span><span class='kh-lh-go'>Lire en 1 minute<i aria-hidden='true'>›</i></span></span>" + thPic(th, "lg") + "</button>";
+      h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:4'");
+      h += "<button type='button' class='kh-br-card kh-in' style='--i:5' onclick='KineHopital.breathe()'><span class='kh-bo' aria-hidden='true'><i></i><i></i><i></i></span><span class='kh-br-t'><em>À essayer</em><b>Pourquoi bien respirer ?</b><span>Le rôle du diaphragme, expliqué simplement, puis 3 minutes guidées.</span></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
+      h += "<div class='kh-sec kh-in' style='--i:6'>Toutes les infos</div><div class='kh-tg kh-in' style='--i:7'>";
+      TIPS.forEach(function (T, i) { var q = TH[T.theme] || TH.def; h += "<button type='button' style='--g1:" + q.a + ";--g2:" + q.b + "' onclick='KineHopital.tipOpen(" + i + ")'>" + thPic(q, "sm") + "<em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b></button>"; });
+      h += "</div>";
+    }
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 80);
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 500);
     return h + "</div>";
@@ -361,27 +376,49 @@
   }
 
 
-  /* ── Respirer : cohérence cardiaque, 5 s d'inspiration et 5 s d'expiration pendant 3 minutes ── */
+  /* ── Respirer : explication du diaphragme, puis 3 minutes guidées (5 s d'inspiration, 5 s d'expiration) ── */
   var BT = null;
-  function breathe() {
+  var DIA = "<svg class='kh-dia' viewBox='0 0 220 240' aria-hidden='true'><defs><linearGradient id='khdl' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#bcd0ff'/><stop offset='1' stop-color='#5b6cff'/></linearGradient><linearGradient id='khdb' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffd58a'/><stop offset='1' stop-color='#ff9f5a'/></linearGradient></defs>" +
+    "<path d='M64 26Q110 10 156 26Q176 34 178 66L182 130Q186 190 164 226L56 226Q34 190 38 130L42 66Q44 34 64 26Z' fill='rgba(255,255,255,.05)' stroke='rgba(255,255,255,.3)' stroke-width='2'/>" +
+    "<path d='M110 26v90' stroke='rgba(255,255,255,.18)' stroke-width='3' stroke-linecap='round'/>" +
+    "<ellipse cx='80' rx='26' fill='url(#khdl)' opacity='.92'><animate attributeName='ry' values='42;52;42' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/><animate attributeName='cy' values='80;90;80' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/><animate attributeName='cx' values='80;76;80' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/></ellipse>" +
+    "<ellipse cx='140' rx='26' fill='url(#khdl)' opacity='.92'><animate attributeName='ry' values='42;52;42' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/><animate attributeName='cy' values='80;90;80' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/><animate attributeName='cx' values='140;144;140' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/></ellipse>" +
+    "<path fill='none' stroke='#3cf2b0' stroke-width='6' stroke-linecap='round'><animate attributeName='d' values='M48 140Q110 100 172 140;M48 158Q110 152 172 158;M48 140Q110 100 172 140' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/></path>" +
+    "<ellipse cx='110' cy='190' fill='url(#khdb)' opacity='.9'><animate attributeName='rx' values='34;48;34' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/><animate attributeName='ry' values='22;30;22' calcMode='spline' keyTimes='0;.5;1' keySplines='.45 0 .55 1;.45 0 .55 1' dur='10s' repeatCount='indefinite'/></ellipse>" +
+    "</svg><div class='kh-leg'><span><i style='background:#7f93ff'></i>Poumons</span><span><i style='background:#3cf2b0'></i>Diaphragme</span><span><i style='background:#ffb55e'></i>Ventre</span></div>";
+  function breathe(go) {
     var sh = $("kh-breath");
-    if (!sh) { sh = document.createElement("div"); sh.id = "kh-breath"; sh.className = "kf-sheet ks-sheet"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "Respirer"); document.body.appendChild(sh); }
-    sh.innerHTML = "<div class='kf-sheet-body ks-body kh-br'><button class='kf-back' onclick='KineHopital.breatheClose()' aria-label='Fermer'>←</button>" +
-      "<div class='ks-tag'>Respirer</div><h2 class='ks-h'>3 minutes pour se calmer</h2>" +
-      "<div class='kh-orb'><i id='kh-orb' class='" + (reduced() ? "" : "go") + "'></i><b id='kh-bw'>Prépare-toi</b></div>" +
-      "<p class='ks-p'>Inspire par le nez pendant 5 secondes, puis souffle doucement par la bouche pendant 5 secondes. Suis le cercle. Si tu as la tête qui tourne, reprends ta respiration normale.</p>" +
-      "<div class='ks-count' id='kh-bt'>3:00</div></div>";
-    sh.classList.add("open");
-    var t0 = Date.now() + 2000; if (BT) clearInterval(BT);
+    if (!sh) { sh = document.createElement("div"); sh.id = "kh-breath"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "Respirer"); document.body.appendChild(sh); }
+    if (BT) clearInterval(BT); BT = null;
+    sh.className = "kh-bro open";
+    if (go === true) return breatheGo();
+    sh.innerHTML = "<button class='kh-bx' onclick='KineHopital.breatheClose()' aria-label='Fermer'>×</button><div class='kh-bi'>" +
+      "<div class='kh-bk'>Respirer</div><h2>Pourquoi bien respirer ?</h2>" + DIA +
+      "<div class='kh-bcap'><span class='in'>Tu inspires : le diaphragme descend, le ventre se gonfle</span><span class='out'>Tu souffles : il remonte, le ventre rentre</span></div>" +
+      "<div class='kh-bp'><b>1</b><div><strong>Le signal du calme</strong><span>Quand on est tendu, la respiration devient courte et haute, dans la poitrine. Respirer lentement envoie au corps le signal inverse : le cœur ralentit, les muscles se détendent, l'esprit s'apaise.</span></div></div>" +
+      "<div class='kh-bp'><b>2</b><div><strong>Ton diaphragme</strong><span>C'est un grand muscle en forme de dôme, sous les poumons. Quand tu inspires, il descend et s'aplatit : les poumons se remplissent et le ventre se gonfle doucement. Quand tu souffles, il remonte.</span></div></div>" +
+      "<div class='kh-bp'><b>3</b><div><strong>Comment faire</strong><span>Pose une main sur le ventre. Inspire par le nez : ta main avance, les épaules restent basses. Souffle lentement par la bouche, comme à travers une paille. Si tu as la tête qui tourne, reprends ton rythme normal.</span></div></div>" +
+      "<div style='height:96px'></div></div><div class='kh-bf'><button type='button' onclick='KineHopital.breatheGo()'>Commencer 3 minutes</button></div>";
+    var d = sh.querySelector(".kh-dia"); try { if (d && d.setCurrentTime) d.setCurrentTime(0); if (reduced() && d && d.pauseAnimations) d.pauseAnimations(); } catch (e) {}
+    sh.querySelector(".kh-bi").scrollTop = 0;
+  }
+  function breatheGo() {
+    var sh = $("kh-breath"); if (!sh) return; sh.className = "kh-bro open";
+    sh.innerHTML = "<button class='kh-bx' onclick='KineHopital.breathe()' aria-label='Retour'>‹</button><div class='kh-bs'>" +
+      "<div class='kh-bk'>3 minutes</div><div class='kh-orb2'><svg viewBox='0 0 260 260' class='kh-ring2' aria-hidden='true'><circle cx='130' cy='130' r='122' fill='none' stroke='rgba(255,255,255,.12)' stroke-width='4'/><circle id='kh-prog' cx='130' cy='130' r='122' fill='none' stroke='#3cf2b0' stroke-width='4' stroke-linecap='round' stroke-dasharray='766' stroke-dashoffset='766' transform='rotate(-90 130 130)'/></svg>" +
+      "<i class='o3'></i><i class='o2'></i><i class='o1'></i><b id='kh-bw'>Prépare-toi</b></div>" +
+      "<div class='kh-bt' id='kh-bt'>3:00</div><p>Une main sur le ventre. Suis le cercle.</p></div><div class='kh-bf'><button type='button' class='ghost' onclick='KineHopital.breatheClose()'>Terminer</button></div>";
+    var t0 = Date.now() + 2500, pr = $("kh-prog"), orb = sh.querySelector(".kh-orb2"); if (BT) clearInterval(BT);
+    if (!reduced()) setTimeout(function () { orb.classList.add("go"); if (pr) { pr.style.transition = "stroke-dashoffset 180s linear"; pr.style.strokeDashoffset = "0"; } }, 2500);
     BT = setInterval(function () {
       var e = Date.now() - t0, w = $("kh-bw"), c = $("kh-bt"); if (!w) { clearInterval(BT); return; }
-      if (e < 0) return;
+      if (e < 0) { w.textContent = "Prépare-toi"; return; }
       var left = Math.max(0, 180 - Math.floor(e / 1000)); c.textContent = Math.floor(left / 60) + ":" + ("0" + (left % 60)).slice(-2);
-      w.textContent = left === 0 ? "Bravo" : (Math.floor(e / 5000) % 2 === 0 ? "Inspire" : "Souffle");
-      if (left === 0) { clearInterval(BT); haptic([14, 40, 14]); }
+      var ph = Math.floor(e / 5000) % 2 === 0; if (w.textContent !== (ph ? "Inspire" : "Souffle") && left > 0) { w.textContent = ph ? "Inspire" : "Souffle"; haptic(10); }
+      if (left === 0) { w.textContent = "Bravo"; orb.classList.remove("go"); clearInterval(BT); haptic([14, 40, 14]); }
     }, 250);
   }
-  function breatheClose() { if (BT) clearInterval(BT); BT = null; var sh = $("kh-breath"); if (sh) sh.classList.remove("open"); }
+  function breatheClose() { if (BT) clearInterval(BT); BT = null; var sh = $("kh-breath"); if (sh) sh.className = "kh-bro"; }
 
   /* ── onglets de l'hôpital : Aujourd'hui, Séances, Apprendre, Moi ── */
   var NAVSAVE = null, PAGES = { "hop-today": "today", "hop-seances": "seances", "hop-learn": "learn" };
@@ -428,5 +465,5 @@
   document.addEventListener("DOMContentLoaded", function () { setTimeout(mode, 50); });
   if (document.readyState !== "loading") setTimeout(mode, 50);
 
-  window.KineHopital = { mode: mode, breathe: breathe, breatheClose: breatheClose,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+  window.KineHopital = { mode: mode, breathe: breathe, breatheGo: breatheGo, breatheClose: breatheClose,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();
