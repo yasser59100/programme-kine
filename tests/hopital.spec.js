@@ -107,3 +107,25 @@ test("liste des patients : groupe Hôpital, deux boutons à l'acceptation", asyn
   await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/kine-liste.png" });
   expect(errs).toEqual([]);
 });
+
+test("kiné : vue « Ce matin » des patients de l'hôpital", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  await page.evaluate(() => {
+    const n = new Date(), ym = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2), ds = ym + "-" + ("0" + n.getDate()).slice(-2);
+    const mk = (alias, r) => ({ doc: { alias, parcours: "hopital", etape: 0 }, bilans: {}, seances: {}, maison: {}, notes: {}, journal: r ? { [ym]: { r: { [ds]: r } } } : {}, membres: 1 });
+    window.__db.patients.h1 = mk("Léa M.", { zone: "dos", pre: 2 });
+    window.__db.patients.h2 = mk("Karim B.", { zone: "fatigue", pre: 1, walk: 1 });
+    window.__db.patients.h3 = mk("Sophie T.", { zone: "bien", pre: 3 });
+    window.__db.patients.h4 = mk("Paul R.", null);
+    window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open();
+  });
+  await expect(page.locator("#kcb-sheet .kcb-mat")).toBeVisible({ timeout: 8000 });
+  await expect(page.locator("#kcb-sheet .kcb-mat-h")).toContainText("3/4");
+  await expect(page.locator("#kcb-sheet .kcb-mat-c")).toContainText("1 dos");
+  await expect(page.locator("#kcb-sheet .kcb-mat-c")).toContainText("1 fatigué");
+  await expect(page.locator("#kcb-sheet .kcb-mrow")).toHaveCount(4);
+  await expect(page.locator("#kcb-sheet .kcb-mrow.none")).toContainText("Pas encore répondu");
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kcb-sheet){display:none!important}" }); await page.waitForTimeout(600); await page.screenshot({ path: "/tmp/kine-matin.png" });
+  expect(errs).toEqual([]);
+});

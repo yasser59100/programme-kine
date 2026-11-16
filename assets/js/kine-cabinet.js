@@ -91,6 +91,25 @@ var KineCabinet = (function () {
     var due = !!(p.next && p.next <= today);
     return { pain: pain, due: due, today: p.next === today, w: w };
   }
+  // Hôpital : ce que les patients ont déclaré ce matin (gêne, humeur, marche), pour adapter la séance de groupe
+  var ZL = { dos: "Dos", bas: "Jambes ou genoux", haut: "Épaules ou bras", fatigue: "Fatigué·e" }, ML = { 1: "humeur pas top", 2: "humeur moyenne", 3: "humeur bonne" };
+  function matin(rows) {
+    var H = rows.filter(function (p) { return p.parcours === "hopital"; });
+    if (!H.length) return "";
+    var tally = {}, ans = 0, low = 0, walk = 0;
+    var lines = H.map(function (p) {
+      var c = p.ce, z = c && c.zone, bits = [];
+      if (c) ans++;
+      if (z && ZL[z]) { tally[z] = (tally[z] || 0) + 1; bits.push(ZL[z]); } else if (z === "bien") bits.push("Tout va bien");
+      if (c && c.pre) { bits.push(ML[c.pre] || ""); if (c.pre === 1) low++; }
+      if (c && c.walk) { bits.push("a marché"); walk++; }
+      var warn = z && ZL[z] || (c && c.pre === 1);
+      return "<button class='kcb-mrow" + (warn ? " warn" : "") + (c ? "" : " none") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><b>" + esc(p.alias || "Patient") + "</b><span>" + (bits.length ? esc(bits.filter(Boolean).join(" · ")) : "Pas encore répondu") + "</span></button>";
+    }).join("");
+    var chips = Object.keys(ZL).filter(function (k) { return tally[k]; }).map(function (k) { return "<em>" + tally[k] + " " + esc(ZL[k].toLowerCase()) + "</em>"; }).join("") + (low ? "<em>" + low + " humeur pas top</em>" : "");
+    return "<div class='kcb-mat'><div class='kcb-mat-h'><b>Ce matin à l'hôpital</b><span>" + ans + "/" + H.length + " ont répondu</span></div>" +
+      (chips ? "<div class='kcb-mat-c'>" + chips + "</div>" : (ans ? "<div class='kcb-mat-c'><em>Rien à signaler</em></div>" : "")) + lines + "</div>";
+  }
   function list() {
     var rows = (L || []).slice().sort(function (a, b) { return (b.maj && b.maj.seconds || 0) - (a.maj && a.maj.seconds || 0); });
     var F = rows.map(function (p) { return flags(p); });
@@ -103,6 +122,7 @@ var KineCabinet = (function () {
     var NR = rows.filter(function (p) { return fresh(p).length; });
     if (NR.length) html += "<div class='kcb-news'><b>" + (NR.length > 1 ? NR.length + " patients ont répondu" : "Un patient a répondu") + "</b>" + NR.slice(0, 4).map(function (p) {
       var x = fresh(p); return "<button onclick='KineCabinet.fiche(" + q(p.id) + ",\"quest\")'><span>" + esc(p.alias || "Patient") + "</span><em>" + esc(x.map(function (y) { return window.KineQuest && KineQuest.Q[y.q] ? KineQuest.Q[y.q].nom + " : " + KineQuest.fmt(y.q, y.score) : y.q; }).join(" · ")) + "</em><i>›</i></button>"; }).join("") + "</div>";
+    html += matin(rows);
     html += "<div class='kcb-filt'>" + [["tous", "Tous"], ["auj", "Bilan aujourd'hui"], ["surv", "À surveiller"]].map(function (f) { return "<button class='" + (filt === f[0] ? "on" : "") + "' onclick='KineCabinet.filter(\"" + f[0] + "\")'>" + f[1] + "</button>"; }).join("") + "</div>";
     var shown = rows.filter(function (p, i) { return filt === "tous" || (filt === "auj" && F[i].due) || (filt === "surv" && (F[i].pain || F[i].due)); });
     if (rows.length > 5) html += "<input class='kcb-in kcb-psearch' type='search' id='kcb-ps' placeholder='Chercher un patient' oninput='KineCabinet.psearch(this.value)' aria-label='Chercher un patient'>";

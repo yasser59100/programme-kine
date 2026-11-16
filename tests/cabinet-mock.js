@@ -27,7 +27,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     photos: function(pid){ var P0 = D.patients[pid].photos || {}; return R(Object.keys(P0).map(function(k){ var x = JSON.parse(JSON.stringify(P0[k])); x.id = k; return x; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; })); },
     photoDel: function(pid, k){ delete (D.patients[pid].photos || {})[k]; return R(); },
     ping: function(pid, k){ D.patients[pid].doc.ping = { k: k, at: Date.now() }; return R(); },
-    list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = full(k); o.qdone = (o.quest || []).filter(function(x){ return x.fini; }).map(function(x){ return { q: x.q, fini: x.fini, score: x.score, tf: x.tfm || 1 }; }); return o; })); },
+    list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = full(k); o.qdone = (o.quest || []).filter(function(x){ return x.fini; }).map(function(x){ return { q: x.q, fini: x.fini, score: x.score, tf: x.tfm || 1 }; }); if (o.parcours === "hopital") { var n = new Date(), ym = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2), ds = ym + "-" + ("0" + n.getDate()).slice(-2), jd = (D.patients[k].journal || {})[ym]; o.ce = jd && jd.r ? (jd.r[ds] || null) : null; } return o; })); },
     modeles: function(){ var M = D.modeles || {}; return R(Object.keys(M).map(function(k){ var x = JSON.parse(JSON.stringify(M[k])); x.id = k; return x; })); },
     modeleSave: function(d){ var k = id(); D.modeles = D.modeles || {}; D.modeles[k] = JSON.parse(JSON.stringify(d)); return R(k); },
     modeleDel: function(k){ delete (D.modeles || {})[k]; return R(); },
