@@ -20,9 +20,7 @@
   }
 
   /* ── Douleur du matin et conseil adapté ── */
-  var LEVELS = [
-    { v: 0, t: "Aucune", c: "ok" }, { v: 2, t: "Légère", c: "ok" }, { v: 5, t: "Moyenne", c: "mid" }, { v: 8, t: "Forte", c: "hi" }
-  ];
+  var NIV = ["Aucune douleur", "Presque rien", "Très légère", "Légère", "Gênante", "Moyenne", "Marquée", "Forte", "Très forte", "Intense", "Insupportable"];
   function advice(v) {
     if (v == null) return null;
     if (v <= 1) return { t: "Parfait, tu peux faire ta séance normalement." };
@@ -30,18 +28,28 @@
     if (v <= 6) return { t: "Fais ta séance un cran plus doucement : moins d'amplitude, moins de charge. Si la douleur monte, arrête l'exercice." };
     return { t: "Aujourd'hui, ménage ta zone : pas de séance intense. Une marche tranquille est possible si elle ne fait pas mal. Dis-le à ton kiné.", write: true };
   }
+  // vert (0) → jaune → rouge (10), même teinte que le curseur
+  function colorOf(v) { var h = Math.round(v <= 5 ? 140 - 16.8 * v : 56 - 11.2 * (v - 5)); return "hsl(" + h + ",72%," + (v < 4 ? 40 : 46) + "%)"; }
   function today() { return (jget("kf-checkin", {})[iso(new Date())] || {}); }
   function painHtml() {
-    var c = today(), p = c.pain, a = advice(p);
-    var h = "<section class='kh-body kc-pain kh-in' style='--i:1'><div class='kh-body-h'>Ta douleur ce matin ?</div><div class='kh-body-s'>Un geste suffit : ton kiné le voit avant ton rendez-vous.</div><div class='kc-lv'>";
-    LEVELS.forEach(function (L) { h += "<button type='button' class='kc-l " + L.c + (p === L.v ? " on" : "") + "' onclick='KineCabPatient.pain(" + L.v + ")'><b>" + L.v + "</b><span>" + L.t + "</span></button>"; });
-    h += "</div><div class='kc-adv' id='kc-adv'" + (a ? "" : " hidden") + ">" + (a ? advHtml(a) : "") + "</div></section>";
+    var p = today().pain, set = p != null, v = set ? +p : 0, a = advice(set ? v : null);
+    var h = "<section class='kh-body kc-pain kh-in' style='--i:1'><div class='kh-body-h'>Ta douleur ce matin ?</div><div class='kh-body-s'>Glisse le curseur : ton kiné le voit avant ton rendez-vous.</div>" +
+      "<div class='kc-read' id='kc-read' style='--c:" + colorOf(v) + "'><b id='kc-n'>" + (set ? v : "–") + "</b><span id='kc-t'>" + (set ? NIV[v] : "Pas encore répondu") + "</span></div>" +
+      "<input type='range' class='kc-range" + (set ? " set" : "") + "' id='kc-range' min='0' max='10' step='1' value='" + v + "' aria-label='Douleur de 0 à 10' style='--c:" + colorOf(v) + ";--p:" + (v * 10) + "%' oninput='KineCabPatient.live(this.value)' onchange='KineCabPatient.pain(this.value)'>" +
+      "<div class='kc-ends'><span>Aucune</span><span>La pire imaginable</span></div>" +
+      "<div class='kc-adv' id='kc-adv'" + (a ? "" : " hidden") + ">" + (a ? advHtml(a) : "") + "</div></section>";
     return h;
   }
   function advHtml(a) { return "<p>" + esc(a.t) + "</p>" + (a.write ? "<button type='button' class='kc-w' onclick='KineMonSuivi.msg()'>Écrire à mon kiné</button>" : ""); }
+  function live(v) {
+    v = +v; var r = $("kc-range"), rd = $("kc-read"), c = colorOf(v);
+    if (r) { r.classList.add("set"); r.style.setProperty("--c", c); r.style.setProperty("--p", v * 10 + "%"); }
+    if (rd) rd.style.setProperty("--c", c);
+    var n = $("kc-n"), t = $("kc-t"); if (n) n.textContent = v; if (t) t.textContent = NIV[v];
+  }
   function pain(v) {
+    v = +v; live(v);
     var m = jget("kf-checkin", {}), k = iso(new Date()); m[k] = m[k] || {}; m[k].pain = v; jset("kf-checkin", m);
-    [].forEach.call(document.querySelectorAll(".kc-pain .kc-l"), function (b) { b.classList.toggle("on", b.querySelector("b").textContent === String(v)); });
     var box = $("kc-adv"), a = advice(v); if (box && a) { box.hidden = false; box.innerHTML = advHtml(a); }
     try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
     try { var st = jget("kf-cab", null); if (st && st.pid && window.KineMonSuivi && KineMonSuivi.sync) KineMonSuivi.sync(); } catch (e) {}
@@ -66,6 +74,14 @@
     if (!R || R.e.fini) return "";
     var sub = R.e.wait ? "Note ta douleur de ce matin" : R.e.nextD ? "Prochaine séance à partir du " + String(R.e.nextD).split("-").reverse().slice(0, 2).join("/") : esc(R.txt);
     return "<button class='lu-rp kh-in' style='--i:1' onclick=\"" + (R.e.wait || R.e.nextD ? "showPage('monkine')" : "KineReprise.go()") + "\"><span><b>Reprise de la course · palier " + R.e.palier + " sur 10</b><em>" + sub + "</em></span><i aria-hidden='true'>›</i></button>";
+  }
+  // En tête de l'onglet Séances : la séance envoyée par le kiné, prête à lancer
+  function seanceHero() {
+    var k = kineSeance(); if (!k) return "";
+    var done = jget("kf-sessions", []).some(function (x) { return String(x.date).slice(0, 10) === iso(new Date()) && /kin[ée]/i.test(String(x.seance || "")); });
+    return "<section class='kc-ses'><div class='kc-ses-k'>" + (done ? "Faite aujourd'hui" : "Envoyée par ton kiné") + "</div><div class='kc-ses-t'>" + nbx(k.ex.length) + "</div>" +
+      "<ol class='kc-ses-l'>" + k.ex.slice(0, 5).map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("") + (k.ex.length > 5 ? "<li class='more'>+ " + (k.ex.length - 5) + " autres</li>" : "") + "</ol>" +
+      "<button type='button' class='kc-ses-go' onclick=\"KineCompose.start('kine')\">" + (done ? "La refaire" : "Lancer la séance") + "<span aria-hidden='true'>›</span></button></section>";
   }
   function rdvHtml() {
     var d = (jget("kf-cab", {}).d || {}), n = d.next; if (!n || String(n) < iso(new Date())) return "";
@@ -162,5 +178,5 @@
   document.addEventListener("DOMContentLoaded", function () { setTimeout(mode, 80); });
   if (document.readyState !== "loading") setTimeout(mode, 80);
 
-  window.KineCabPatient = { mode: mode, isCab: isCab, pain: pain, advice: advice, read: read, open: open, paint: paint };
+  window.KineCabPatient = { seanceHero: seanceHero, mode: mode, isCab: isCab, pain: pain, live: live, advice: advice, read: read, open: open, paint: paint };
 })();

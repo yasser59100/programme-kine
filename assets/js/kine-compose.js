@@ -308,6 +308,8 @@ var KineCompose = (function () {
     var all = KineBiblio.all(), gear = jget(GKEY, {}), list = jget(KEY, []);
     var count = function (c) { return all.filter(function (e) { return KineBiblio.color(e.name) === c; }).length; };
     var face = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null;
+    var cabP0 = false; try { cabP0 = !!(window.KineCabPatient && KineCabPatient.isCab()); } catch (e) {}
+    if (cabP0) list = list.filter(function (s) { return s.id !== "kine"; });
     var mine = list.length ? list.map(function (s) {
       var reds = s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length;
       var dots = s.ex.map(function (n) { return "<i class='kb-dot c" + KineBiblio.color(n) + "'></i>"; }).join("");
@@ -320,8 +322,9 @@ var KineCompose = (function () {
       return "<button class='mx-grp' data-n='" + esc(it[0].name) + "' onclick='KineBiblio.open(\"" + g[0] + "\")'><span class='mx-im'>" + (t ? "<img src='" + t + "' alt=''>" : "<span class='pg-fig'></span>") + "</span>" +
         "<b>" + esc(g[1]) + "</b><small>" + it.length + " exercice" + (it.length > 1 ? "s" : "") + "</small></button>";
     }).join("");
+    var cabP = false; try { cabP = !!(window.KineCabPatient && KineCabPatient.isCab()); } catch (e) {}
     root.innerHTML =
-      "<div class='community-header mx-head'><h1 class='lx-title'>Ma séance</h1></div>" +
+      "<div class='community-header mx-head'><h1 class='lx-title'>" + (cabP ? "Séances" : "Ma séance") + "</h1></div>" + (cabP ? KineCabPatient.seanceHero() : "") +
       "<div class='mx-hero" + (face ? "" : " mx-noface") + "' id='mx-create'>" + (face ? "<img class='mx-face' src='" + face + "' alt=''>" : "") +
         "<div><h1>Compose ta séance</h1><p>" + all.length + " exercices animés. Tu choisis, je m'occupe de l'échauffement, des étirements et de l'ordre.</p></div>" +
         "<button class='mx-cta' onclick='KineCompose.open()'>＋ Créer une séance</button></div>" +
