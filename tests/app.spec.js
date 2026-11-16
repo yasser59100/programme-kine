@@ -231,9 +231,9 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   expect(custom).toBe(2);
   // l'accueil propose la séance du kiné, le programme général reste accessible
   await page.evaluate(() => { KineMonSuivi.close(); showPage("home"); });
-  await expect(page.locator("#today-card .lu-kine")).toContainText("La séance de ton kiné");
-  await expect(page.locator("#today-card .lu-kine .lu-t")).toContainText("2 exercices");
-  await page.locator("#today-card .lu-kine .lu-go").click();
+  await expect(page.locator("#page-cab-today .kh-hero")).toContainText("La séance de ton kiné");
+  await expect(page.locator("#page-cab-today .kh-hero .kh-big")).toContainText("2 exercices");
+  await page.locator("#page-cab-today .kh-hero .kh-go").click();
   await expect(page.locator("#seq-overlay.open, #kf-preview.open, .kf-sheet.open").first()).toBeVisible();
   await clean(errs);
 });
@@ -936,8 +936,8 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await expect(page.locator("#kco-sheet .kco-rp")).toContainText("Palier 4 sur 10");
   // et rappelée sur l'accueil
   await page.evaluate(() => { KineCourse.close(); showPage("home"); KineLayout.render(); });
-  await expect(page.locator("#today-card .lu-rp")).toContainText("palier 4 sur 10");
-  await page.locator("#today-card .lu-rp").scrollIntoViewIfNeeded(); await page.waitForTimeout(300); await shot(page, info, "102-accueil-reprise");
+  await expect(page.locator("#page-cab-today .lu-rp")).toContainText("palier 4 sur 10");
+  await page.locator("#page-cab-today .lu-rp").scrollIntoViewIfNeeded(); await page.waitForTimeout(300); await shot(page, info, "102-accueil-reprise");
   await page.evaluate(() => KineCourse.open());
   await expect(page.locator("#kco-sheet .kco-row").first()).toContainText("Reprise, palier 3");
   await page.waitForTimeout(400);

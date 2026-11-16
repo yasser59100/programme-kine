@@ -249,7 +249,7 @@ var KineCompose = (function () {
     var rows = list.map(function (s) {
       var reds = s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length;
       return "<div class='kc-mine'><button class='pg-day' onclick='KineCompose.start(" + q(s.id) + ")'><span class='pg-j'>★</span>" +
-        "<span class='pg-day-t'><b>" + esc(s.name) + "</b><span>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</span></span></button>" +
+        "<span class='pg-day-t'><b>" + esc(s.name) + "</b><span>" + s.ex.length + " exercice" + (s.ex.length > 1 ? "s" : "") + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</span></span></button>" +
         "<button class='kc-mini' aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button>" +
         "<button class='kc-mini' aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>🗑</button></div>";
     }).join("");
@@ -311,7 +311,7 @@ var KineCompose = (function () {
     var mine = list.length ? list.map(function (s) {
       var reds = s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length;
       var dots = s.ex.map(function (n) { return "<i class='kb-dot c" + KineBiblio.color(n) + "'></i>"; }).join("");
-      return "<div class='mx-mine'><button class='mx-sess' onclick='KineCompose.start(" + q(s.id) + ")'><b>" + esc(s.name) + "</b><span>" + dots + "</span><small>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small><em>Lancer ›</em></button>" +
+      return "<div class='mx-mine'><button class='mx-sess' onclick='KineCompose.start(" + q(s.id) + ")'><b>" + esc(s.name) + "</b><span>" + dots + "</span><small>" + s.ex.length + " exercice" + (s.ex.length > 1 ? "s" : "") + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small><em>Lancer ›</em></button>" +
         "<div class='mx-tools'><button aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button><button aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div></div>";
     }).join("") : "<button type='button' class='mx-empty-card' onclick='KineCompose.open()'><span class='mx-plus' aria-hidden='true'>+</span><span><strong>Crée ta première séance</strong>Choisis 5 à 8 exercices, ça prend une minute.</span></button>";
     var groups = KineBiblio.groups.map(function (g) {

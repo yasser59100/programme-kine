@@ -57,7 +57,7 @@
     var IPLAY = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>";
     return "<div class='lu-slab lu-" + (done ? "done" : "today") + " lu-kine'>" + yassHtml(done ? "done" : "today") +
       "<p class='lu-k'>" + (done ? "Faite aujourd'hui, bravo !" : "La séance de ton kiné") + "</p>" +
-      "<h2 class='lu-t'>" + k.ex.length + " exercice" + (k.ex.length > 1 ? "s" : "") + " choisis pour toi</h2>" +
+      "<h2 class='lu-t'>" + k.ex.length + " exercice" + (k.ex.length > 1 ? "s choisis" : " choisi") + " pour toi</h2>" +
       "<p class='lu-m'>" + esc(k.ex.slice(0, 3).join(", ") + (k.ex.length > 3 ? "…" : "")) + "</p>" +
       "<button class='lx-cta lu-go' onclick=\"KineCompose.start('kine')\">" + IPLAY + (done ? "La refaire" : "Commencer") + "</button>" +
       "<button class='lx-link lu-see' onclick=\"showPage('monkine')\">Voir mon suivi avec mon kiné</button></div>";

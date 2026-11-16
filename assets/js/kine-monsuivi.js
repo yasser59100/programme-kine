@@ -311,7 +311,7 @@ var KineMonSuivi = (function () {
     if (window.KineReprise && d.course && !PREV) html += KineReprise.patientCard(d);
     // séance du kiné
     var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
-    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<button type='button' class='kms-ex' data-n='" + esc(n) + "' onclick='KineMonSuivi.demo(this)'><span>" + esc(n) + "</span><em>Voir</em></button>"; }).join("") +
+    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercice" + (ex.length > 1 ? "s" : "") + "</span></div>" + ex.map(function (n) { return "<button type='button' class='kms-ex' data-n='" + esc(n) + "' onclick='KineMonSuivi.demo(this)'><span>" + esc(n) + "</span><em>Voir</em></button>"; }).join("") +
       (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // patient de l'hôpital : séances toutes prêtes, le savais-tu, vrai ou faux
     if (d.parcours === "hopital" && window.KineHopital) html += PREV ? KineHopital.html(PREV) : (KineHopital.moiHtml ? KineHopital.moiHtml() : "");
