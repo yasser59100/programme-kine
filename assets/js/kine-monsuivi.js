@@ -200,7 +200,7 @@ var KineMonSuivi = (function () {
     var d = s.d; if (!d) { el.innerHTML = "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; refresh(true); return; }
     if (!kpReady()) { el.innerHTML = "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; need().then(slot); return; }
     var P = KP.get(d.parcours), E = d.etape || 0, m = metric(d);
-    el.innerHTML = (window.KineQuest ? KineQuest.patientCard(d, s.pid) : "") + "<button class='kms-card' onclick='KineMonSuivi.open()'><div class='kms-ck'><span>Suivi au cabinet</span><span>Étape " + (E + 1) + (P ? " sur " + P.etapes.length : "") + "</span></div>" +
+    el.innerHTML = (window.KineQuest ? KineQuest.patientCard(d, s.pid) : "") + "<button class='kms-card' onclick='KineMonSuivi.open()'><div class='kms-ck'><span>Suivi au cabinet</span><span>" + (d.fin ? "Parcours terminé" : "Étape " + (E + 1) + (P ? " sur " + P.etapes.length : "")) + "</span></div>" +
       "<div class='kms-ct'>" + esc(P ? P.etapes[Math.min(E, P.etapes.length - 1)].nom : "Ton parcours") + "</div>" +
       (m ? "<div class='kms-cm'><b>" + KP.fmt(m.v) + m.u + "</b><span>" + esc(m.lab) + "</span></div>" : "<div class='kms-cm'><span>Ton premier bilan arrive au cabinet.</span></div>") +
       (d.msg && d.msg.t ? "<div class='kms-cmsg'>« " + esc(d.msg.t) + " »</div>" : "") + "</button>";
@@ -305,7 +305,7 @@ var KineMonSuivi = (function () {
     var PREV = prev;
     var E = Math.min(d.etape || 0, P.etapes.length - 1), m = metric(d), cx = ctx(d), B = d.bilans || [];
     var html = (inline ? "" : "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>") + (!PREV && window.KineQuest ? KineQuest.patientCard(d, s.pid) : "");
-    if (inline) html += "<div class='kms-card kmk-step'><div class='kms-ck'><span>" + esc(P.nom) + "</span><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span></div><div class='kms-ct'>" + esc(P.etapes[E].nom) + "</div>" +
+    if (inline) html += "<div class='kms-card kmk-step'><div class='kms-ck'><span>" + esc(P.nom) + "</span><span>" + (d.fin ? "Parcours terminé, bravo !" : "Étape " + (E + 1) + " sur " + P.etapes.length) + "</span></div><div class='kms-ct'>" + esc(P.etapes[E].nom) + "</div>" +
       (P.etapes[E].but ? "<div class='kms-cm'><span>" + esc(P.etapes[E].but) + "</span></div>" : "") + "</div>";
     // Comprendre sa rééducation : la fiche du parcours et les conseils personnalisés du kiné
     if (window.KineReprise && d.course && !PREV) html += KineReprise.patientCard(d);
