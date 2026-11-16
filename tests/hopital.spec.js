@@ -76,7 +76,7 @@ test("espace hôpital : séances prêtes, le savais-tu, vrai ou faux côté pati
   expect(await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("kf-checkin"))).some(c => c.zone === "dos"))).toBe(true);
   await page.waitForTimeout(1500); await page.screenshot({ path: "/tmp/hop-espace.png" }); await page.screenshot({ path: "/tmp/hop-espace2.png" });
   await page.evaluate(() => showPage("hop-learn"));
-  await page.locator(".kh-tip").first().dispatchEvent("click");
+  await page.locator(".kh-lh").first().dispatchEvent("click");
   await expect(page.locator("#kh-sheet.open")).toBeVisible();
   await page.evaluate(() => KineHopital.tipClose());
   await page.locator("#kh-vf .kh-vb").first().dispatchEvent("click");
