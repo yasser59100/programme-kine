@@ -39,7 +39,7 @@
     { id: "dos", t: "Le dos", say: "Un peu mal au dos aujourd'hui ? Essaie la séance « Récupération et étirements ».", go: { i: 3 } },
     { id: "bas", t: "Jambes ou genoux", say: "Jambes ou genoux sensibles ? Essaie plutôt une séance pour le haut du corps.", go: { day: "day1", nom: "Membres supérieurs" } },
     { id: "haut", t: "Épaules ou bras", say: "Épaule ou bras sensibles ? Essaie plutôt la séance « Membres inférieurs ».", go: { i: 2 } },
-    { id: "fatigue", t: "Fatigué·e", say: "Fatigué·e aujourd'hui ? Choisis la récupération, ou une marche de 10 minutes : bouger un peu aide souvent à retrouver de l'énergie.", go: { i: 3 } }
+    { id: "fatigue", t: "Fatigué·e", v: "Fatigué aujourd'hui ? Choisis la récupération, ou une marche de 10 minutes : bouger un peu aide souvent à retrouver de l'énergie.", say: "Fatigué·e aujourd'hui ? Choisis la récupération, ou une marche de 10 minutes : bouger un peu aide souvent à retrouver de l'énergie.", go: { i: 3 } }
   ];
 
   /* Le savais-tu ? — les études d'observation montrent un lien, pas toujours une cause. */
@@ -125,6 +125,33 @@
       e: "Oui. Respirer lentement et étirer le corps détend les muscles et aide à retrouver le calme." }
   ];
 
+
+  /* ── voix : Yass lit les conseils (voix de Léo enregistrée, voix du téléphone sinon). Le son se coupe avec le réglage de l'appli. ── */
+  var WARN = "Douleur vive, qui descend dans la jambe ou avec des fourmillements : arrête et préviens ton kiné.";
+  var BR = {
+    intro: "Installe-toi confortablement, et pose une main sur ton ventre.",
+    in: ["Inspire doucement par le nez.", "Inspire doucement."], out: ["Souffle lentement par la bouche.", "Souffle doucement."],
+    end: "Bravo, tu as bien respiré. Reste un instant au calme.",
+    why1: "Quand on est tendu, la respiration devient courte et haute, dans la poitrine. Respirer lentement envoie au corps le signal inverse : le cœur ralentit, les muscles se détendent, l'esprit s'apaise.",
+    why2: "Le diaphragme est un grand muscle en forme de dôme, sous les poumons. Quand tu inspires, il descend et s'aplatit : les poumons se remplissent et le ventre se gonfle doucement. Quand tu souffles, il remonte.",
+    why3: "Pose une main sur le ventre. Inspire par le nez : ta main avance, les épaules restent basses. Souffle lentement par la bouche, comme à travers une paille. Si tu as la tête qui tourne, reprends ton rythme normal."
+  };
+  function say(t, now) { try { if (typeof speak === "function" && t) speak(t, { prio: 1, now: now !== false, ttl: 60000 }); } catch (e) {} }
+  function hush() { try { if (typeof kfvStop === "function") kfvStop(); if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
+  function tipVoice(T) { return T.title + " " + T.body + " " + T.action; }
+  function vfVoice(v) { return (v.a ? "C'est vrai. " : "C'est faux. ") + v.e; }
+  /* toutes les phrases que Yass dit dans l'espace hôpital : alimente le fichier de voix (tools/voix_textes.json) */
+  function voices() {
+    var out = [];
+    [BR.intro, BR.in[0], BR.in[1], BR.out[0], BR.out[1], BR.end].forEach(function (t) { out.push({ t: t, g: "calme" }); });
+    [BR.why1, BR.why2, BR.why3].forEach(function (t) { out.push({ t: t, g: "calme" }); });
+    ZONES.forEach(function (z) { out.push({ t: z.v || z.say, g: "mascotte" }); });
+    out.push({ t: WARN, g: "mascotte" }, { t: "Bien vu !", g: "mascotte" }, { t: "Pas tout à fait.", g: "mascotte" });
+    VF.forEach(function (v) { out.push({ t: v.q, g: "mascotte" }); out.push({ t: vfVoice(v), g: "mascotte" }); });
+    TIPS.forEach(function (T) { out.push({ t: tipVoice(T), g: "mascotte" }); });
+    return out;
+  }
+
   /* ── séances ── */
   function startSeance(i) {
     var S = SEANCES[i]; if (!S) return;
@@ -150,6 +177,7 @@
       if (id === "bien") burst($("kh-bodycard").querySelector(".kh-figw"));
     }
     haptic(id === "bien" ? [14, 40, 14] : 12);
+    say(Z.v || Z.say);
     try { var st = jget("kf-cab", null); if (st && st.pid && window.KineMonSuivi && KineMonSuivi.sync) KineMonSuivi.sync(); } catch (e) {}
   }
   /* Le corps du jour : une silhouette que le patient touche là où il a une gêne, ou une liste de choix. */
@@ -212,6 +240,7 @@
       "<h2 class='ks-h'>" + esc(t.title) + "</h2>" +
       "<div class='ks-stat'><b>" + esc(t.stat) + "</b><span>" + esc(t.statLabel) + "</span></div>" +
       "<p class='ks-p'>" + esc(t.body) + "</p>" +
+      "<button type='button' class='kh-listen' onclick='KineHopital.listen(" + cur + ")'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12'/></svg>Écouter</button>" +
       "<div class='ks-do'><strong>Pour toi</strong><span>" + esc(t.action) + "</span></div>" +
       "<div class='ks-ref'><span>Source</span><strong>" + esc(t.source) + "</strong><a href='" + esc(t.url) + "' target='_blank' rel='noopener'>Voir l'étude</a></div>" +
       "<p class='ks-note'>Ces informations générales ne remplacent pas l'avis de ton équipe soignante.</p>" +
@@ -222,7 +251,8 @@
     sh.classList.add("open");
     var b = sh.querySelector(".ks-body"); if (b) b.scrollTop = 0;
   }
-  function tipClose() { var sh = $("kh-sheet"); if (sh) sh.classList.remove("open"); }
+  function listen(i) { say(tipVoice(TIPS[i])); }
+  function tipClose() { hush(); var sh = $("kh-sheet"); if (sh) sh.classList.remove("open"); }
 
   /* ── vrai ou faux ── */
   function vfBlock() {
@@ -345,8 +375,8 @@
       h += "<button type='button' class='kh-lh kh-in' style='--i:3;--g1:" + th.a + ";--g2:" + th.b + "' onclick='KineHopital.tipOpen(" + ti + ")'><span class='kh-lh-t'><em>Info du jour · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b><span class='kh-lh-s'><strong>" + esc(t.stat) + "</strong>" + esc(t.statLabel) + "</span><span class='kh-lh-go'>Lire en 1 minute<i aria-hidden='true'>›</i></span></span>" + thPic(th, "lg") + "</button>";
       h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:4'");
       h += "<button type='button' class='kh-br-card kh-in' style='--i:5' onclick='KineHopital.breathe()'><span class='kh-bo' aria-hidden='true'><i></i><i></i><i></i></span><span class='kh-br-t'><em>À essayer</em><b>Pourquoi bien respirer ?</b><span>Le rôle du diaphragme, expliqué simplement, puis 3 minutes guidées.</span></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
-      h += "<div class='kh-sec kh-in' style='--i:6'>Toutes les infos</div><div class='kh-tg kh-in' style='--i:7'>";
-      TIPS.forEach(function (T, i) { var q = TH[T.theme] || TH.def; h += "<button type='button' style='--g1:" + q.a + ";--g2:" + q.b + "' onclick='KineHopital.tipOpen(" + i + ")'>" + thPic(q, "sm") + "<em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b></button>"; });
+      h += "<div class='kh-sec kh-in' style='--i:6'>À lire ensuite</div><div class='kh-ed kh-in' style='--i:7'>";
+      TIPS.forEach(function (T, i) { var q = TH[T.theme] || TH.def; h += "<button type='button' style='--g1:" + q.a + ";--g2:" + q.b + "' onclick='KineHopital.tipOpen(" + i + ")'><span class='kh-ed-n'><i>" + ("0" + (i + 1)).slice(-2) + "</i><strong>" + esc(T.stat) + "</strong></span><span class='kh-ed-t'><em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b><small>1 min de lecture<i aria-hidden='true'>›</i></small></span></button>"; });
       h += "</div>";
     }
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 80);
@@ -357,7 +387,7 @@
   function vfBlock() {
     var i = day() % VF.length, v = VF[i], h = jget("kf-hop-vf", {}), r = h[v.q];
     var dn = r && r.d === day(), good = dn && r.r === v.a;
-    var b = "<div class='kh-kick vf'>Vrai ou faux du jour</div><div class='kh-q'>« " + esc(v.q) + " »</div>";
+    var b = "<div class='kh-kick vf'>Vrai ou faux du jour</div><div class='kh-q'>« " + esc(v.q) + " »</div>" + (dn ? "" : "<button type='button' class='kh-listen on-dark' onclick='KineHopital.vfListen()' aria-label='Écouter la question'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12'/></svg>Écouter</button>");
     if (dn) {
       b += "<div class='kh-ans " + (good ? "yes" : "no") + "'><b>" + (good ? "Bien vu !" : "Pas tout à fait.") + " " + (v.a ? "C'est vrai." : "C'est faux.") + "</b><span>" + esc(v.e) + "</span></div>";
     } else {
@@ -373,7 +403,9 @@
     el.parentNode.replaceChild(n, el);
     try { n.scrollIntoView({ block: "center", behavior: reduced() ? "auto" : "smooth" }); } catch (e) {}
     if (good) { burst(n); haptic([14, 40, 14]); } else haptic(30);
+    say(good ? "Bien vu !" : "Pas tout à fait.", true); say(vfVoice(VF[i]), false);
   }
+  function vfListen() { say(VF[day() % VF.length].q); }
 
 
   /* ── Respirer : explication du diaphragme, puis 3 minutes guidées (5 s d'inspiration, 5 s d'expiration) ── */
@@ -398,12 +430,15 @@
       "<div class='kh-bp'><b>1</b><div><strong>Le signal du calme</strong><span>Quand on est tendu, la respiration devient courte et haute, dans la poitrine. Respirer lentement envoie au corps le signal inverse : le cœur ralentit, les muscles se détendent, l'esprit s'apaise.</span></div></div>" +
       "<div class='kh-bp'><b>2</b><div><strong>Ton diaphragme</strong><span>C'est un grand muscle en forme de dôme, sous les poumons. Quand tu inspires, il descend et s'aplatit : les poumons se remplissent et le ventre se gonfle doucement. Quand tu souffles, il remonte.</span></div></div>" +
       "<div class='kh-bp'><b>3</b><div><strong>Comment faire</strong><span>Pose une main sur le ventre. Inspire par le nez : ta main avance, les épaules restent basses. Souffle lentement par la bouche, comme à travers une paille. Si tu as la tête qui tourne, reprends ton rythme normal.</span></div></div>" +
-      "<div style='height:96px'></div></div><div class='kh-bf'><button type='button' onclick='KineHopital.breatheGo()'>Commencer 3 minutes</button></div>";
+      "<div style='height:150px'></div></div><div class='kh-bf'><button type='button' class='ghost' onclick='KineHopital.breatheListen()'>Écouter l'explication</button><button type='button' onclick='KineHopital.breatheGo()'>Commencer 3 minutes</button></div>";
+    calmLoad();
     var d = sh.querySelector(".kh-dia"); try { if (d && d.setCurrentTime) d.setCurrentTime(0); if (reduced() && d && d.pauseAnimations) d.pauseAnimations(); } catch (e) {}
     sh.querySelector(".kh-bi").scrollTop = 0;
   }
+  function calmLoad() { try { if (window.KFV && KFV.map) Object.keys(KFV.map).forEach(function (k) { var e = KFV.map[k]; if (e.g === "calme" && typeof kfvLoad === "function") kfvLoad(e); }); } catch (e) {} }
+  function breatheListen() { say(BR.why1); say(BR.why2, false); say(BR.why3, false); }
   function breatheGo() {
-    var sh = $("kh-breath"); if (!sh) return; sh.className = "kh-bro open";
+    var sh = $("kh-breath"); if (!sh) return; sh.className = "kh-bro open"; hush(); calmLoad(); say(BR.intro); var lastPh = -1, nIn = 0, nOut = 0;
     sh.innerHTML = "<button class='kh-bx' onclick='KineHopital.breathe()' aria-label='Retour'>‹</button><div class='kh-bs'>" +
       "<div class='kh-bk'>3 minutes</div><div class='kh-orb2'><svg viewBox='0 0 260 260' class='kh-ring2' aria-hidden='true'><circle cx='130' cy='130' r='122' fill='none' stroke='rgba(255,255,255,.12)' stroke-width='4'/><circle id='kh-prog' cx='130' cy='130' r='122' fill='none' stroke='#3cf2b0' stroke-width='4' stroke-linecap='round' stroke-dasharray='766' stroke-dashoffset='766' transform='rotate(-90 130 130)'/></svg>" +
       "<i class='o3'></i><i class='o2'></i><i class='o1'></i><b id='kh-bw'>Prépare-toi</b></div>" +
@@ -414,11 +449,11 @@
       var e = Date.now() - t0, w = $("kh-bw"), c = $("kh-bt"); if (!w) { clearInterval(BT); return; }
       if (e < 0) { w.textContent = "Prépare-toi"; return; }
       var left = Math.max(0, 180 - Math.floor(e / 1000)); c.textContent = Math.floor(left / 60) + ":" + ("0" + (left % 60)).slice(-2);
-      var ph = Math.floor(e / 5000) % 2 === 0; if (w.textContent !== (ph ? "Inspire" : "Souffle") && left > 0) { w.textContent = ph ? "Inspire" : "Souffle"; haptic(10); }
-      if (left === 0) { w.textContent = "Bravo"; orb.classList.remove("go"); clearInterval(BT); haptic([14, 40, 14]); }
+      var k5 = Math.floor(e / 5000), ph = k5 % 2 === 0; if (k5 !== lastPh && left > 0) { lastPh = k5; w.textContent = ph ? "Inspire" : "Souffle"; haptic(10); if (k5 < 4 || k5 % 6 === 0) say(ph ? BR.in[nIn++ % 2] : BR.out[nOut++ % 2]); }
+      if (left === 0) { w.textContent = "Bravo"; orb.classList.remove("go"); clearInterval(BT); haptic([14, 40, 14]); say(BR.end); }
     }, 250);
   }
-  function breatheClose() { if (BT) clearInterval(BT); BT = null; var sh = $("kh-breath"); if (sh) sh.className = "kh-bro"; }
+  function breatheClose() { hush(); if (BT) clearInterval(BT); BT = null; var sh = $("kh-breath"); if (sh) sh.className = "kh-bro"; }
 
   /* ── onglets de l'hôpital : Aujourd'hui, Séances, Apprendre, Moi ── */
   var NAVSAVE = null, PAGES = { "hop-today": "today", "hop-seances": "seances", "hop-learn": "learn" };
@@ -446,12 +481,12 @@
       set("suivi", NI.learn, "Apprendre", "showPage('hop-learn')");
       set("monkine", NI.moi, "Moi", "showPage('monkine')");
       B("mes").style.display = "none";
-      document.body.classList.add("kf-hop");
+      document.body.classList.add("kf-hosp");
       var shown = document.querySelector(".page.active");
       if (shown && (shown.id === "page-home" || shown.id === "page-guide" || shown.id === "page-suivi")) showPage("hop-today");
     } else if (!on && NAVSAVE) {
       Object.keys(NAVSAVE).forEach(function (i) { var b = B(i), o = NAVSAVE[i]; b.innerHTML = o.h; if (o.c) b.setAttribute("onclick", o.c); b.style.display = o.d; });
-      NAVSAVE = null; document.body.classList.remove("kf-hop"); showPage("home");
+      NAVSAVE = null; document.body.classList.remove("kf-hosp"); showPage("home");
     }
   }
   (function () {
@@ -465,5 +500,5 @@
   document.addEventListener("DOMContentLoaded", function () { setTimeout(mode, 50); });
   if (document.readyState !== "loading") setTimeout(mode, 50);
 
-  window.KineHopital = { mode: mode, breathe: breathe, breatheGo: breatheGo, breatheClose: breatheClose,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+  window.KineHopital = { mode: mode, breathe: breathe, breatheGo: breatheGo, breatheListen: breatheListen, listen: listen, vfListen: vfListen, voices: voices, breatheClose: breatheClose,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();

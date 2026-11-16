@@ -66,6 +66,9 @@ def main():
         body = {"text": pour_tts(t), "model_id": "eleven_multilingual_v2",
                 "previous_text": "Très bien, on continue comme ça.", "next_text": "Et on recommence.",
                 "voice_settings": {"stability": 0.38, "similarity_boost": 0.8, "style": 0.4, "use_speaker_boost": True}}
+        if g == "calme":   # respiration guidée : voix posée, lente, sans effet
+            body["previous_text"] = "Très bien, doucement."; body["next_text"] = "Et on continue, tranquillement."
+            body["voice_settings"] = {"stability": 0.8, "similarity_boost": 0.8, "style": 0.0, "speed": 0.85, "use_speaker_boost": False}
         for attempt in range(4):
             st, d = call("POST", f"/v1/text-to-speech/{VOICE}?output_format=mp3_44100_128", body, raw=True)
             if st == 200: break
