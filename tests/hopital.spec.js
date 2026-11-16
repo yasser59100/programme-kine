@@ -129,3 +129,51 @@ test("kiné : vue « Ce matin » des patients de l'hôpital", async ({ page }) =
   await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kcb-sheet){display:none!important}" }); await page.waitForTimeout(600); await page.screenshot({ path: "/tmp/kine-matin.png" });
   expect(errs).toEqual([]);
 });
+
+test("cabinet : « Avant ton rendez-vous » et message du patient au kiné", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  // le patient écrit à son kiné
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true); });
+  await page.evaluate(() => { try { KineMonSuivi.consent(0); } catch (e) {} }); await page.waitForTimeout(1000);
+  await page.evaluate(() => showPage("monkine")); await page.waitForTimeout(1500);
+  await expect(page.locator(".kms-write").first()).toBeVisible();
+  await page.locator(".kms-write").first().scrollIntoViewIfNeeded(); await page.waitForTimeout(400); await page.screenshot({ path: "/tmp/pat-moi.png" });
+  await page.evaluate(() => KineMonSuivi.msg());
+  await expect(page.locator("#kms-msg")).toBeVisible();
+  await page.fill("#kms-msg", "Mon genou tire un peu depuis hier soir, je peux venir quand même ?");
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kms-sheet){display:none!important}" }); await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/pat-msg.png" });
+  await page.evaluate(() => KineMonSuivi.msgSend());
+  await expect(page.locator("#kms-sheet")).toContainText("C'est envoyé", { timeout: 8000 });
+  const n = await page.evaluate(() => Object.values(window.__db.patients)[0].msgs.length);
+  expect(n).toBe(1);
+  // le kiné voit la liste
+  await page.evaluate(() => {
+    const t = new Date(), ds = t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2), ym = ds.slice(0, 7);
+    const mk = (alias, extra, r) => Object.assign({ doc: Object.assign({ alias, parcours: "genou", etape: 1, cote: "D" }, extra), bilans: {}, seances: {}, maison: {}, notes: {}, journal: r ? { [ym]: { r: { [ds]: r } } } : {}, membres: 1 });
+    window.__db.patients.c1 = mk("Marc D.", { next: ds }, { pain: 6 });
+    window.__db.patients.c2 = mk("Julie P.", { next: ds }, null);
+    window.__db.patients.c2.msgs = [{ txt: "Mon genou tire un peu depuis hier soir, je peux venir quand même ?", t: Date.now() }];
+    window.__db.patients.c3 = mk("Anne L.", { next: "2099-01-01" }, null);
+    window.fbUser = { uid: "k1", isAdmin: true }; KineMonSuivi.close(); KineCabinet.open();
+  });
+  await expect(page.locator("#kcb-sheet .kcb-mat-h").first()).toContainText("Avant ton rendez-vous", { timeout: 8000 });
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).toContainText("Marc D.");
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).toContainText("douleur 6/10 ce matin");
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).not.toContainText("Anne L.");
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).toContainText("genou tire");
+  await expect(page.locator("#kcb-sheet .kcb-mat").nth(1)).toContainText("message");
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kcb-sheet){display:none!important}" }); await page.waitForTimeout(600); await page.screenshot({ path: "/tmp/kine-avant.png" });
+  // ouvrir la fiche : le message y est, puis il n'est plus « non lu »
+  await page.locator("#kcb-sheet .kcb-mrow", { hasText: "genou" }).first().dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-msgs")).toContainText("Mon genou tire", { timeout: 8000 });
+  await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/kine-fiche-msg.png" });
+  expect(errs).toEqual([]);
+});

@@ -315,6 +315,7 @@ var KineMonSuivi = (function () {
       (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // patient de l'hôpital : séances toutes prêtes, le savais-tu, vrai ou faux
     if (d.parcours === "hopital" && window.KineHopital) html += PREV ? KineHopital.html(PREV) : (KineHopital.moiHtml ? KineHopital.moiHtml() : "");
+    if (!PREV && s.pid) html += "<button class='kms-write' onclick='KineMonSuivi.msg()'><i aria-hidden='true'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z'/></svg></i><div><b>Écrire à mon kiné</b><span>Une question, un souci, une nouvelle</span></div></button>";
     // mot du kiné
     if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
     if (d.next) html += "<p class='kf-sub kcb-center'>Prochain bilan au cabinet : <b>" + dfr(d.next) + "</b></p>";
@@ -383,12 +384,34 @@ var KineMonSuivi = (function () {
     show(back().replace("KineMonSuivi.close()", was ? (PREV ? "KineMonSuivi.view()" : "KineMonSuivi.open()") : "KineMonSuivi.close()") + "<div><div class='kf-sub'>Ta rééducation</div><div class='kf-h1 kcb-h1'>" + esc(f ? f.t : "Les conseils de ton kiné") + "</div></div>" + KineFiches.html(d.parcours, d.conseil));
     sheet().scrollTop = 0;
   }
+  /* ════════ Message au kiné ════════ */
+  function msgList() { return jget("kf-msgs", []); }
+  function msg(err, keep) {
+    var H = msgList().slice(-4), sent = H.length ? "<div class='kms-sent'>" + H.map(function (m) { return "<div><small>" + esc(dfr(m.d)) + "</small>" + esc(m.t) + "</div>"; }).join("") + "</div>" : "";
+    show(back() + "<div><div class='kf-h1 kcb-h1'>Écrire à mon kiné</div><div class='kf-sub'>Il le lira avant ta prochaine séance. Pour une urgence, appelle-le ou le 15.</div></div>" +
+      "<textarea class='kms-ta' id='kms-msg' maxlength='500' placeholder='Ton message' aria-label='Ton message'>" + esc(keep || "") + "</textarea>" +
+      (err ? "<div class='kcb-alert'><b>" + esc(err) + "</b></div>" : "") + sent,
+      "<button class='seq-btn-main' id='kms-msgb' onclick='KineMonSuivi.msgSend()'>Envoyer</button>");
+    setTimeout(function () { var i = $("kms-msg"); if (i) i.focus(); }, 100);
+  }
+  function msgSend() {
+    var i = $("kms-msg"), t = i ? i.value.trim() : "", s = state();
+    if (!t) { msg("Écris ton message d'abord.", ""); return; }
+    var last = msgList().slice(-1)[0];
+    if (last && Date.now() - (last.ts || 0) < 20000) { msg("Un instant avant d'en envoyer un autre.", t); return; }
+    if (!s || !s.pid || !window.fbPat || !fbPat.msgSend) { msg("Message impossible pour l'instant.", t); return; }
+    var b = $("kms-msgb"); if (b) { b.disabled = true; b.textContent = "Envoi…"; }
+    fbPat.msgSend(s.pid, t).then(function () {
+      var H = msgList(); H.push({ t: t, d: new Date().toISOString().slice(0, 10), ts: Date.now() }); jset("kf-msgs", H.slice(-20));
+      show(back() + "<div class='kcb-ok kms-linked'>" + ICON_OK + "C'est envoyé : ton kiné le lira.</div>", "<button class='seq-btn-main' onclick='KineMonSuivi.close()'>Fermer</button>");
+    }, function () { msg("Le message n'est pas parti. Vérifie ta connexion et réessaie.", t); });
+  }
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; page(); }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
   // Voir un exercice de la séance du kiné (Yass le montre)
   function demo(b) { var n = b && b.getAttribute("data-n"); if (n && window.KineBiblio) KineBiblio.demo(n); }
-  return { demo: demo, phZoom: phZoom, _photosHtml: photosHtml, notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  return { msg: msg, msgSend: msgSend, demo: demo, phZoom: phZoom, _photosHtml: photosHtml, notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
 })();
 
 /* Lien « un seul geste » : le kiné envoie …/#code=ABC123 ; le patient touche le lien, l'appli s'ouvre sur « Relier mon téléphone »

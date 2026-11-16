@@ -182,6 +182,14 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/codes/$(request.resource.data.code)).data.exp > request.time
           && request.resource.data.t == request.time;
       }
+      // Messages du patient à son kiné : écrits par son téléphone, lus et effacés par le kiné seulement
+      match /msgs/{id} {
+        allow read, write: if isAdmin();
+        allow create: if isMember(pid)
+          && request.resource.data.keys().hasOnly(['txt', 't'])
+          && request.resource.data.txt is string && request.resource.data.txt.size() >= 1 && request.resource.data.txt.size() <= 500
+          && request.resource.data.t == request.time;
+      }
       // Notifications de son kiné : l'adresse technique du téléphone du patient (lue seulement par l'envoi automatique)
       match /notif/{id} {
         allow read, write: if isAdmin();

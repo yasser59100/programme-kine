@@ -6,7 +6,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
   function full(pid){ var p = D.patients[pid]; if(!p) return null; var o = JSON.parse(JSON.stringify(p.doc)); o.id = pid;
     o.bilans = Object.keys(p.bilans).map(function(k){ var b = JSON.parse(JSON.stringify(p.bilans[k])); b.id=k; return b; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; });
     o.seances = Object.keys(p.seances).map(function(k){ var b = JSON.parse(JSON.stringify(p.seances[k])); b.id=k; return b; }).sort(function(a,b){ return a.d < b.d ? 1 : (a.d > b.d ? -1 : (a.id < b.id ? 1 : -1)); });
-    o.maison = Object.keys(p.maison).map(function(k){ return p.maison[k]; }); o.membres = p.membres; o.journal = Object.keys(p.journal || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.journal[k])); x.id = k; return x; }); o.notes = Object.keys(p.notes).map(function(k){ var x=p.notes[k]; x.id=k; return x; }); o.quest = Object.keys(p.quest || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.quest[k])); x.id = k; return x; }); o.vu = p.vu || 0; return o; }
+    o.msgs = (p.msgs || []).slice().reverse(); o.maison = Object.keys(p.maison).map(function(k){ return p.maison[k]; }); o.membres = p.membres; o.journal = Object.keys(p.journal || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.journal[k])); x.id = k; return x; }); o.notes = Object.keys(p.notes).map(function(k){ var x=p.notes[k]; x.id=k; return x; }); o.quest = Object.keys(p.quest || {}).map(function(k){ var x = JSON.parse(JSON.stringify(p.quest[k])); x.id = k; return x; }); o.vu = p.vu || 0; return o; }
   var R = function(v){ return new Promise(function(r){ setTimeout(function(){ r(v); }, 30); }); };
   window.fbCab = {
     demandes: function(){ return R(Object.keys(D.demandes).map(function(k){ var o = JSON.parse(JSON.stringify(D.demandes[k])); o.id=k; return o; })); },
@@ -27,7 +27,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     photos: function(pid){ var P0 = D.patients[pid].photos || {}; return R(Object.keys(P0).map(function(k){ var x = JSON.parse(JSON.stringify(P0[k])); x.id = k; return x; }).sort(function(a,b){ return a.d < b.d ? 1 : -1; })); },
     photoDel: function(pid, k){ delete (D.patients[pid].photos || {})[k]; return R(); },
     ping: function(pid, k){ D.patients[pid].doc.ping = { k: k, at: Date.now() }; return R(); },
-    list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = full(k); o.qdone = (o.quest || []).filter(function(x){ return x.fini; }).map(function(x){ return { q: x.q, fini: x.fini, score: x.score, tf: x.tfm || 1 }; }); if (o.parcours === "hopital") { var n = new Date(), ym = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2), ds = ym + "-" + ("0" + n.getDate()).slice(-2), jd = (D.patients[k].journal || {})[ym]; o.ce = jd && jd.r ? (jd.r[ds] || null) : null; } return o; })); },
+    list: function(){ return R(Object.keys(D.patients).map(function(k){ var o = full(k); o.qdone = (o.quest || []).filter(function(x){ return x.fini; }).map(function(x){ return { q: x.q, fini: x.fini, score: x.score, tf: x.tfm || 1 }; }); o.msgs = (D.patients[k].msgs || []).slice().reverse().slice(0, 5); if (o.parcours) { var n = new Date(), ym = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2), ds = ym + "-" + ("0" + n.getDate()).slice(-2), jd = (D.patients[k].journal || {})[ym]; o.ce = jd && jd.r ? (jd.r[ds] || null) : null; } return o; })); },
     modeles: function(){ var M = D.modeles || {}; return R(Object.keys(M).map(function(k){ var x = JSON.parse(JSON.stringify(M[k])); x.id = k; return x; })); },
     modeleSave: function(d){ var k = id(); D.modeles = D.modeles || {}; D.modeles[k] = JSON.parse(JSON.stringify(d)); return R(k); },
     modeleDel: function(k){ delete (D.modeles || {})[k]; return R(); },
@@ -38,6 +38,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     photos: function(pid){ return window.fbCab.photos(pid); },
     notifSave: function(pid, id, sub){ var P0 = D.patients[pid]; P0.notif = P0.notif || {}; P0.notif[id] = { sub: sub }; return R(); },
     notifDel: function(pid, id){ delete (D.patients[pid].notif || {})[id]; return R(); },
+    msgSend: function(pid, txt){ var P0 = D.patients[pid]; P0.msgs = P0.msgs || []; P0.msgs.push({ txt: String(txt).slice(0, 500), t: Date.now() }); return R(); },
     seen: function(pid){ if (D.patients[pid]) D.patients[pid].vu = Date.now() + 1; return R(); },
     join: function(c){ var pid = D.codes[c]; if(!pid) return Promise.reject(new Error("code")); D.patients[pid].membres = 1; delete D.codes[c]; return R(pid); },
     get: function(pid){ var o = full(pid); if (o) { delete o.notes; } return R(o); },

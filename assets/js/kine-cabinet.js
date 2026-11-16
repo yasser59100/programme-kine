@@ -93,6 +93,35 @@ var KineCabinet = (function () {
   }
   // Hôpital : ce que les patients ont déclaré ce matin (gêne, humeur, marche), pour adapter la séance de groupe
   var ZL = { dos: "Dos", bas: "Jambes ou genoux", haut: "Épaules ou bras", fatigue: "Fatigué·e" }, ML = { 1: "humeur pas top", 2: "humeur moyenne", 3: "humeur bonne" };
+  // Messages envoyés par les patients : « non lus » tant que la fiche n'a pas été ouverte
+  function mseenGet() { try { return JSON.parse(localStorage.getItem("kf-msgseen") || "{}") || {}; } catch (e) { return {}; } }
+  function mseenSet(pid) { var s = mseenGet(); s[pid] = Date.now(); try { localStorage.setItem("kf-msgseen", JSON.stringify(s)); } catch (e) {} }
+  function unread(p) { var t = mseenGet()[p.id] || 0; return (p.msgs || []).filter(function (m) { return (m.t || 0) > t; }); }
+  function hm(t) { var d = new Date(t); return d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + "h" + ("0" + d.getMinutes()).slice(-2); }
+  function msgsHtml() {
+    var M = (C && C.msgs) || [];
+    if (!M.length) return "";
+    return "<div class='su-card kcb-msgs'><div class='su-card-h'><b>Messages du patient</b><span>" + M.length + "</span></div>" +
+      M.slice(0, 6).map(function (m) { return "<div class='kcb-msg'><span>" + esc(hm(m.t)) + "</span><b>" + esc(m.txt) + "</b></div>"; }).join("") + "</div>";
+  }
+  // Cabinet : qui vient aujourd'hui, avec ce qu'ils ont dit ou fait depuis la dernière fois
+  function avant(rows) {
+    var today = iso(), C0 = rows.filter(function (p) { return p.parcours !== "hopital"; });
+    var sel = C0.filter(function (p) { return p.next === today || unread(p).length || (p.ce && (+p.ce.pain >= 5)); });
+    if (!sel.length) return "";
+    sel.sort(function (a, b) { return (b.next === today) - (a.next === today); });
+    var lines = sel.map(function (p) {
+      var f = flags(p), c = p.ce || {}, bits = [], u = unread(p), warn = f.pain || (c.pain != null && +c.pain >= 5) || u.length;
+      if (p.next === today) bits.push("rendez-vous aujourd'hui");
+      if (c.pain != null && c.pain !== "") bits.push("douleur " + c.pain + "/10 ce matin");
+      if (f.pain) bits.push("douleur " + KP.fmt(f.w.dou) + "/10 à la maison");
+      else if (f.w && !c.pain) bits.push(f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine");
+      if (u.length) bits.push(u.length > 1 ? u.length + " messages" : "message");
+      var prev = u.length ? "<small>« " + esc(String(u[0].txt).slice(0, 90)) + (String(u[0].txt).length > 90 ? "…" : "") + " »</small>" : "";
+      return "<button class='kcb-mrow kcb-mrow2" + (warn ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><b>" + esc(p.alias || "Patient") + "</b><span>" + esc(bits.join(" · ")) + "</span>" + prev + "</button>";
+    }).join("");
+    return "<div class='kcb-mat'><div class='kcb-mat-h'><b>Avant ton rendez-vous</b><span>" + sel.length + " patient" + (sel.length > 1 ? "s" : "") + "</span></div>" + lines + "</div>";
+  }
   function matin(rows) {
     var H = rows.filter(function (p) { return p.parcours === "hopital"; });
     if (!H.length) return "";
@@ -103,7 +132,8 @@ var KineCabinet = (function () {
       if (z && ZL[z]) { tally[z] = (tally[z] || 0) + 1; bits.push(ZL[z]); } else if (z === "bien") bits.push("Tout va bien");
       if (c && c.pre) { bits.push(ML[c.pre] || ""); if (c.pre === 1) low++; }
       if (c && c.walk) { bits.push("a marché"); walk++; }
-      var warn = z && ZL[z] || (c && c.pre === 1);
+      var u = unread(p); if (u.length) bits.push(u.length > 1 ? u.length + " messages" : "message");
+      var warn = z && ZL[z] || (c && c.pre === 1) || u.length;
       return "<button class='kcb-mrow" + (warn ? " warn" : "") + (c ? "" : " none") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><b>" + esc(p.alias || "Patient") + "</b><span>" + (bits.length ? esc(bits.filter(Boolean).join(" · ")) : "Pas encore répondu") + "</span></button>";
     }).join("");
     var chips = Object.keys(ZL).filter(function (k) { return tally[k]; }).map(function (k) { return "<em>" + tally[k] + " " + esc(ZL[k].toLowerCase()) + "</em>"; }).join("") + (low ? "<em>" + low + " humeur pas top</em>" : "");
@@ -122,7 +152,7 @@ var KineCabinet = (function () {
     var NR = rows.filter(function (p) { return fresh(p).length; });
     if (NR.length) html += "<div class='kcb-news'><b>" + (NR.length > 1 ? NR.length + " patients ont répondu" : "Un patient a répondu") + "</b>" + NR.slice(0, 4).map(function (p) {
       var x = fresh(p); return "<button onclick='KineCabinet.fiche(" + q(p.id) + ",\"quest\")'><span>" + esc(p.alias || "Patient") + "</span><em>" + esc(x.map(function (y) { return window.KineQuest && KineQuest.Q[y.q] ? KineQuest.Q[y.q].nom + " : " + KineQuest.fmt(y.q, y.score) : y.q; }).join(" · ")) + "</em><i>›</i></button>"; }).join("") + "</div>";
-    html += matin(rows);
+    html += avant(rows) + matin(rows);
     html += "<div class='kcb-filt'>" + [["tous", "Tous"], ["auj", "Bilan aujourd'hui"], ["surv", "À surveiller"]].map(function (f) { return "<button class='" + (filt === f[0] ? "on" : "") + "' onclick='KineCabinet.filter(\"" + f[0] + "\")'>" + f[1] + "</button>"; }).join("") + "</div>";
     var shown = rows.filter(function (p, i) { return filt === "tous" || (filt === "auj" && F[i].due) || (filt === "surv" && (F[i].pain || F[i].due)); });
     if (rows.length > 5) html += "<input class='kcb-in kcb-psearch' type='search' id='kcb-ps' placeholder='Chercher un patient' oninput='KineCabinet.psearch(this.value)' aria-label='Chercher un patient'>";
@@ -385,6 +415,7 @@ var KineCabinet = (function () {
         "<div class='kcb-slab-t'>" + esc(et.nom) + "</div><div class='kcb-bars'>" + bars + "</div>" +
         (km ? "<div class='kcb-slab-m'><div><b>" + KP.fmt(km.v) + km.u + "</b><span>" + esc(P.key.l) + "</span></div>" + (km.next ? "<em>Objectif " + km.next.v + (P.key.lsi ? " %" : km.u) + "<br>étape " + (km.next.e + 1) + "</em>" : "") + "</div>"
             : "<div class='kcb-slab-m'><span>Premier bilan à faire</span></div>") + "</button>";
+    html += msgsHtml(); mseenSet(C.id);
     // le prochain objectif à atteindre, en une ligne
     var todo = et.obj.filter(function (o, i) { return !states[i].done; });
     if (todo.length && E < P.etapes.length - 1) html += "<button class='kcb-nexto' onclick='KineCabinet.etapes()'><span>Prochain objectif</span><b>" + esc(todo[0].t) + "</b>" + (todo.length > 1 ? "<em>et " + (todo.length - 1) + " autre" + (todo.length > 2 ? "s" : "") + "</em>" : "") + "</button>";
