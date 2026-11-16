@@ -1,5 +1,201 @@
 [
  {
+  "t": "Installe-toi confortablement, et pose une main sur ton ventre.",
+  "g": "calme"
+ },
+ {
+  "t": "Inspire doucement par le nez.",
+  "g": "calme"
+ },
+ {
+  "t": "Inspire doucement.",
+  "g": "calme"
+ },
+ {
+  "t": "Souffle lentement par la bouche.",
+  "g": "calme"
+ },
+ {
+  "t": "Souffle doucement.",
+  "g": "calme"
+ },
+ {
+  "t": "Bravo, tu as bien respiré. Reste un instant au calme.",
+  "g": "calme"
+ },
+ {
+  "t": "Quand on est tendu, la respiration devient courte et haute, dans la poitrine. Respirer lentement envoie au corps le signal inverse : le cœur ralentit, les muscles se détendent, l'esprit s'apaise.",
+  "g": "calme"
+ },
+ {
+  "t": "Le diaphragme est un grand muscle en forme de dôme, sous les poumons. Quand tu inspires, il descend et s'aplatit : les poumons se remplissent et le ventre se gonfle doucement. Quand tu souffles, il remonte.",
+  "g": "calme"
+ },
+ {
+  "t": "Pose une main sur le ventre. Inspire par le nez : ta main avance, les épaules restent basses. Souffle lentement par la bouche, comme à travers une paille. Si tu as la tête qui tourne, reprends ton rythme normal.",
+  "g": "calme"
+ },
+ {
+  "t": "Parfait, profite de ta séance du jour.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Un peu mal au dos aujourd'hui ? Essaie la séance « Récupération et étirements ».",
+  "g": "mascotte"
+ },
+ {
+  "t": "Jambes ou genoux sensibles ? Essaie plutôt une séance pour le haut du corps.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Épaule ou bras sensibles ? Essaie plutôt la séance « Membres inférieurs ».",
+  "g": "mascotte"
+ },
+ {
+  "t": "Fatigué aujourd'hui ? Choisis la récupération, ou une marche de 10 minutes : bouger un peu aide souvent à retrouver de l'énergie.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Douleur vive, qui descend dans la jambe ou avec des fourmillements : arrête et préviens ton kiné.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Bien vu !",
+  "g": "mascotte"
+ },
+ {
+  "t": "Pas tout à fait.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Quand on n'a pas le moral, bouger ne sert à rien.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est faux. Au contraire : l'activité physique améliore le moral et diminue l'anxiété. Même une marche tranquille a un effet.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Il faut avoir envie de bouger avant de commencer.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est faux. Souvent, l'envie arrive en commençant. Le plus dur, c'est de démarrer : cinq minutes suffisent pour lancer la machine.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Une marche de 10 minutes, ça compte vraiment.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est vrai. Oui. Les recommandations de l'OMS disent que chaque minute de mouvement compte, quelle que soit la durée.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Pour que le sport serve, il faut transpirer à grosses gouttes.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est faux. Non. Une activité modérée, où tu peux encore parler, apporte déjà beaucoup. On monte l'intensité tout doucement.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Bouger dans la journée aide à mieux dormir.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est vrai. Oui. L'activité physique régulière aide à s'endormir plus vite et à dormir plus profondément. Évite juste les efforts intenses juste avant de te coucher.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Fumer calme l'anxiété.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est faux. En réalité, c'est surtout le manque qui crée la tension, et la cigarette la soulage un instant. Après l'arrêt, l'anxiété est plutôt plus basse.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Être assis toute la journée n'a pas d'importance si on mange bien.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est faux. Le temps assis a un effet en soi sur la santé. Se lever régulièrement et bouger une heure par jour le compense.",
+  "g": "mascotte"
+ },
+ {
+  "t": "L'exercice peut aider la mémoire et l'attention.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est vrai. Oui. Des études montrent que l'activité d'endurance, comme la marche rapide ou le vélo, améliore la mémoire et la concentration.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Il faut faire une heure de sport d'un coup pour que ça serve.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est faux. Non. Plusieurs petites séances dans la journée valent autant. Ce qui compte, c'est la régularité.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Boire de l'eau plutôt que des boissons sucrées est bon pour le corps comme pour l'énergie.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est vrai. Oui. Les boissons sucrées donnent un pic d'énergie bref, suivi d'un coup de fatigue. L'eau hydrate sans cela.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Se muscler, c'est seulement pour les sportifs.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est faux. Non. Des muscles solides aident à se lever, à marcher, à porter ses courses et à rester autonome. Le renforcement fait partie des recommandations pour tous.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Quelques minutes d'étirements ou de respiration peuvent apaiser.",
+  "g": "mascotte"
+ },
+ {
+  "t": "C'est vrai. Oui. Respirer lentement et étirer le corps détend les muscles et aide à retrouver le calme.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Prendre soin de son corps protège aussi sur le long terme. Cet écart vient surtout de maladies du corps (cœur, diabète, respiration), en grande partie évitables. Des chercheurs, réunis par la revue The Lancet Psychiatry, recommandent d'agir tôt sur l'activité physique, l'alimentation et le tabac. Bouger régulièrement est l'un des moyens les plus simples d'agir sur sa santé. Chaque séance compte.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Bouger fait du bien au moral, même quand on n'en a pas envie. Une très grande synthèse d'études montre que l'activité physique améliore les symptômes de dépression, d'anxiété et de détresse. Les efforts plus soutenus donnent souvent un effet un peu plus marqué, mais une activité douce aide déjà. Commence petit : cinq minutes valent mieux que zéro. L'envie vient souvent après avoir démarré.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Bouger dans la journée aide à mieux dormir la nuit. Une revue de nombreuses études montre que l'activité physique améliore le sommeil : on s'endort un peu plus vite, on dort plus profondément. Évite simplement les efforts très intenses juste avant de te coucher. Une séance ou une marche dans la journée, puis des horaires de coucher réguliers.",
+  "g": "mascotte"
+ },
+ {
+  "t": "L'exercice aide la mémoire et l'attention. Dans les essais réunis par cette revue, l'exercice d'endurance (marche rapide, vélo) améliorait le fonctionnement de la pensée, surtout quand il était pratiqué plus souvent, sur plusieurs semaines. Marche d'un bon pas ou pédale un peu chaque jour, la régularité compte plus que la durée.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Arrêter de fumer améliore aussi le moral. Une revue publiée dans le BMJ a suivi des personnes après l'arrêt du tabac : leur anxiété, leur dépression et leur stress étaient plus faibles qu'avant. L'idée que la cigarette calme est surtout liée à l'état de manque. Si tu y penses, parles-en à l'équipe soignante : on peut t'aider avec un accompagnement adapté.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Mieux manger peut alléger les symptômes dépressifs. Des essais contrôlés montrent qu'améliorer son alimentation (moins d'aliments ultra-transformés, plus d'aliments bruts) diminue les symptômes de dépression. Le bénéfice se construit sur la durée. Un changement à la fois : un fruit en plus, de l'eau plutôt qu'une boisson sucrée.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Longtemps assis : une heure de mouvement compense. En réunissant plus d'un million de personnes, les chercheurs ont observé que l'activité modérée effaçait le surrisque lié à beaucoup de temps assis. Les minutes de marche, de ménage et de séance s'additionnent. Lève-toi toutes les heures, même deux minutes. Tout mouvement s'additionne.",
+  "g": "mascotte"
+ },
+ {
+  "t": "Chaque minute de mouvement compte, pas besoin de sport intense. Les recommandations de l'Organisation mondiale de la santé insistent sur le fait que chaque minute d'activité compte, de toute durée. Elles conseillent 150 à 300 minutes par semaine d'activité modérée et du renforcement musculaire 2 fois par semaine. Une séance ici, une marche là : tu construis ta semaine petit à petit.",
+  "g": "mascotte"
+ },
+ {
   "t": "Avant !",
   "g": "seance"
  },
