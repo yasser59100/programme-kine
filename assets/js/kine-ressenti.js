@@ -312,7 +312,8 @@
       if (c.pain != null) kv.push((+c.pain >= 5 ? "!" : "") + "Douleur " + c.pain + "/10" + (c.zones && c.zones.length ? ", " + c.zones.join(", ").toLowerCase() : ""));
       if (c.sleep != null) kv.push("Nuit " + SLEEP[c.sleep].toLowerCase());
       if (c.mood != null) kv.push("Moral " + c.mood + "/5");
-      if (c.feel) kv.push("Séance : " + ["difficile", "moyenne", "bien vécue"][c.feel - 1]);
+      if (c.pre) kv.push("Humeur avant : " + ["pas top", "moyenne", "bonne"][c.pre - 1]);
+      if (c.feel) kv.push((c.pre ? "Humeur après : " : "Séance : ") + (c.pre ? ["pas top", "moyenne", "bonne"] : ["difficile", "moyenne", "bien vécue"])[c.feel - 1]);
       if (c.zone && c.zone !== "bien") kv.push("Gêne signalée : " + ({ dos: "dos", bas: "jambes ou genoux", haut: "épaules ou bras", fatigue: "fatigue" }[c.zone] || c.zone));
       if (c.walk) kv.push("Marche faite");
       if (c.stiff != null) kv.push("Raideur : " + STIFF[c.stiff].toLowerCase());

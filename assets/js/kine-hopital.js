@@ -145,6 +145,7 @@
     var out = [];
     [BR.intro, BR.in[0], BR.in[1], BR.out[0], BR.out[1], BR.end].forEach(function (t) { out.push({ t: t, g: "calme" }); });
     [BR.why1, BR.why2, BR.why3].forEach(function (t) { out.push({ t: t, g: "calme" }); });
+    GR.forEach(function (G) { out.push({ t: G.v, g: "calme" }); }); out.push({ t: GRI, g: "calme" }, { t: GRE, g: "calme" });
     ZONES.forEach(function (z) { out.push({ t: z.v || z.say, g: "mascotte" }); });
     out.push({ t: WARN, g: "mascotte" }, { t: "Bien vu !", g: "mascotte" }, { t: "Pas tout à fait.", g: "mascotte" });
     VF.forEach(function (v) { out.push({ t: v.q, g: "mascotte" }); out.push({ t: vfVoice(v), g: "mascotte" }); });
@@ -230,29 +231,26 @@
 
   /* ── le savais-tu ? ── */
   var cur = 0;
-  function tipOpen(i) {
-    cur = (i + TIPS.length) % TIPS.length;
-    var t = TIPS[cur], sh = $("kh-sheet");
-    if (!sh) { sh = document.createElement("div"); sh.id = "kh-sheet"; sh.className = "kf-sheet ks-sheet"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "Le savais-tu ?"); document.body.appendChild(sh); }
-    sh.innerHTML = "<div class='kf-sheet-body ks-body'>" +
-      "<button class='kf-back' onclick='KineHopital.tipClose()' aria-label='Fermer'>←</button>" +
-      "<div class='ks-tag'>Le savais-tu ? · " + esc(t.theme) + "</div>" +
-      "<h2 class='ks-h'>" + esc(t.title) + "</h2>" +
-      "<div class='ks-stat'><b>" + esc(t.stat) + "</b><span>" + esc(t.statLabel) + "</span></div>" +
-      "<p class='ks-p'>" + esc(t.body) + "</p>" +
-      "<button type='button' class='kh-listen' onclick='KineHopital.listen(" + cur + ")'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12'/></svg>Écouter</button>" +
-      "<div class='ks-do'><strong>Pour toi</strong><span>" + esc(t.action) + "</span></div>" +
-      "<div class='ks-ref'><span>Source</span><strong>" + esc(t.source) + "</strong><a href='" + esc(t.url) + "' target='_blank' rel='noopener'>Voir l'étude</a></div>" +
-      "<p class='ks-note'>Ces informations générales ne remplacent pas l'avis de ton équipe soignante.</p>" +
-      "</div><div class='kf-sheet-foot ks-foot'>" +
-      "<button class='seq-btn-secondary' onclick='KineHopital.tipOpen(" + (cur - 1) + ")' aria-label='Précédent'>‹</button>" +
-      "<span class='ks-count'>" + (cur + 1) + " sur " + TIPS.length + "</span>" +
-      "<button class='seq-btn-secondary' onclick='KineHopital.tipOpen(" + (cur + 1) + ")' aria-label='Suivant'>›</button></div>";
-    sh.classList.add("open");
-    var b = sh.querySelector(".ks-body"); if (b) b.scrollTop = 0;
+  var sl = 0;
+  function reads() { return jget("kf-hop-read", {}); }
+  function markRead(i) { var r = reads(); if (!r[i]) { r[i] = 1; jset("kf-hop-read", r); } }
+  function tipOpen(i, slide) {
+    var n = TIPS.length; cur = (i + n) % n; sl = Math.max(0, Math.min(2, slide || 0));
+    var t = TIPS[cur], th = TH[t.theme] || TH.def, sh = $("kh-sheet");
+    if (!sh) { sh = document.createElement("div"); sh.id = "kh-sheet"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "Le savais-tu ?"); document.body.appendChild(sh); }
+    sh.className = "kh-story open"; sh.style.setProperty("--g1", th.a); sh.style.setProperty("--g2", th.b);
+    var bars = ""; for (var k = 0; k < 3; k++) bars += "<i class='" + (k < sl ? "d" : k === sl ? "c" : "") + "'></i>";
+    var body = "";
+    if (sl === 0) body = "<div class='kh-sk'>Le savais-tu ? · " + esc(t.theme) + "</div><h2>" + esc(t.title) + "</h2><div class='kh-sbig'><b>" + esc(t.stat) + "</b><span>" + esc(t.statLabel) + "</span></div>";
+    else if (sl === 1) body = "<div class='kh-sk'>Ce que montrent les études</div><p class='kh-sp'>" + esc(t.body) + "</p><div class='kh-sref'><span>Source</span><strong>" + esc(t.source) + "</strong><a href='" + esc(t.url) + "' target='_blank' rel='noopener'>Voir l'étude</a></div>";
+    else { markRead(cur); body = "<div class='kh-sk'>Pour toi</div><p class='kh-sp big'>" + esc(t.action) + "</p><button type='button' class='kh-listen on-dark' onclick='KineHopital.listen(" + cur + ")'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12'/></svg>Écouter toute la fiche</button><p class='kh-snote'>Ces informations générales ne remplacent pas l'avis de ton équipe soignante.</p>"; }
+    sh.innerHTML = "<div class='kh-sbars'>" + bars + "</div><button class='kh-bx' onclick='KineHopital.tipClose()' aria-label='Fermer'>×</button>" +
+      "<div class='kh-sbody' key='" + cur + sl + "'>" + body + "</div>" +
+      "<div class='kh-bf kh-sf'>" + (sl > 0 ? "<button type='button' class='ghost sm' onclick='KineHopital.tipOpen(" + cur + "," + (sl - 1) + ")' aria-label='Précédent'>‹</button>" : "") +
+      (sl < 2 ? "<button type='button' onclick='KineHopital.tipOpen(" + cur + "," + (sl + 1) + ")'>Suivant</button>" : "<button type='button' onclick='KineHopital.tipOpen(" + (cur + 1) + ",0)'>Info suivante · " + ((cur + 1) % n + 1) + " sur " + n + "</button>") + "</div>";
   }
   function listen(i) { say(tipVoice(TIPS[i])); }
-  function tipClose() { hush(); var sh = $("kh-sheet"); if (sh) sh.classList.remove("open"); }
+  function tipClose() { hush(); var sh = $("kh-sheet"); if (sh) sh.classList.remove("open"); try { var pg = $("page-hop-learn"); if (pg && pg.classList.contains("active")) paintHop("hop-learn"); } catch (e) {} }
 
   /* ── vrai ou faux ── */
   function vfBlock() {
@@ -346,7 +344,7 @@
         (prev ? "" : "<button type='button' class='kh-go' onclick='KineHopital.walk(this)'" + (done0 ? " disabled" : "") + ">" + (done0 ? "Bravo, c'est noté" : "J'ai marché") + "<span aria-hidden='true'>›</span></button>")) + "</section>";
     // 1 bis. comment va ton corps ?
     var zc = (jget("kf-checkin", {})[iso(new Date())] || {}).zone;
-    if (!prev && P("today")) h += bodyHtml(zc);
+    if (!prev && P("today")) h += moodHtml() + bodyHtml(zc);
     // 2. ma semaine
     if (P("today")) { h += "<section class='kh-week kh-in' style='--i:1'><div class='kh-wk-h'><b>Ma semaine</b><span>" + wk.n + " séance" + (wk.n > 1 ? "s" : "") + "</span></div><div class='kh-dots'>";
     var lab = ["L", "M", "M", "J", "V", "S", "D"], today = iso(new Date());
@@ -367,7 +365,7 @@
         "<button type='button' onclick='KineCamera&&KineCamera.open()'><i class='t1'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 8h4l2-3h6l2 3h4v11H3z'/><circle cx='12' cy='13' r='3.5'/></svg></i><b>Filmer mon mouvement</b><span>Yass vérifie ton geste</span></button>" +
         "<button type='button' onclick='KineHopital.breathe()'><i class='t2'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9c3-3 6-3 9 0s6 3 9 0M3 15c3-3 6-3 9 0s6 3 9 0'/></svg></i><b>Respirer</b><span>3 minutes pour se calmer</span></button>" +
         "<button type='button' onclick=\"showPage('guide')\"><i class='t3'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5h7v14H4zM13 5h7v14h-7z'/></svg></i><b>Bibliothèque</b><span>Variantes plus difficiles</span></button>" +
-        "<button type='button' onclick=\"KineHopital.start(3)\"><i class='t4'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20.5c-4.2 0-7.2-2.2-8.5-5.5 3.2-.2 5.8 1 8.5 4 2.7-3 5.3-4.2 8.5-4-1.3 3.3-4.3 5.5-8.5 5.5z'/><path d='M12 19c-3.2-3.2-3.2-8.2 0-13.5 3.2 5.3 3.2 10.3 0 13.5z'/></svg></i><b>Étirements</b><span>15 minutes, en douceur</span></button></div>";
+        "<button type='button' onclick=\"KineHopital.ground()\"><i class='t4'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20.5c-4.2 0-7.2-2.2-8.5-5.5 3.2-.2 5.8 1 8.5 4 2.7-3 5.3-4.2 8.5-4-1.3 3.3-4.3 5.5-8.5 5.5z'/><path d='M12 19c-3.2-3.2-3.2-8.2 0-13.5 3.2 5.3 3.2 10.3 0 13.5z'/></svg></i><b>Se poser</b><span>Ancrage en 5 étapes</span></button></div>";
     }
     // 4. apprendre : l'info du jour, le vrai ou faux, la respiration, toutes les infos
     if (P("learn")) {
@@ -375,8 +373,9 @@
       h += "<button type='button' class='kh-lh kh-in' style='--i:3;--g1:" + th.a + ";--g2:" + th.b + "' onclick='KineHopital.tipOpen(" + ti + ")'><span class='kh-lh-t'><em>Info du jour · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b><span class='kh-lh-s'><strong>" + esc(t.stat) + "</strong>" + esc(t.statLabel) + "</span><span class='kh-lh-go'>Lire en 1 minute<i aria-hidden='true'>›</i></span></span>" + thPic(th, "lg") + "</button>";
       h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:4'");
       h += "<button type='button' class='kh-br-card kh-in' style='--i:5' onclick='KineHopital.breathe()'><span class='kh-bo' aria-hidden='true'><i></i><i></i><i></i></span><span class='kh-br-t'><em>À essayer</em><b>Pourquoi bien respirer ?</b><span>Le rôle du diaphragme, expliqué simplement, puis 3 minutes guidées.</span></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
-      h += "<div class='kh-sec kh-in' style='--i:6'>À lire ensuite</div><div class='kh-ed kh-in' style='--i:7'>";
-      TIPS.forEach(function (T, i) { var q = TH[T.theme] || TH.def; h += "<button type='button' style='--g1:" + q.a + ";--g2:" + q.b + "' onclick='KineHopital.tipOpen(" + i + ")'><span class='kh-ed-n'><i>" + ("0" + (i + 1)).slice(-2) + "</i><strong>" + esc(T.stat) + "</strong></span><span class='kh-ed-t'><em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b><small>1 min de lecture<i aria-hidden='true'>›</i></small></span></button>"; });
+      h += "<button type='button' class='kh-br-card kh-gr-card kh-in' style='--i:5' onclick='KineHopital.ground()'><span class='kh-bo kh-gb' aria-hidden='true'><b>5</b><b>4</b><b>3</b></span><span class='kh-br-t'><em>À essayer</em><b>Se poser en 5 étapes</b><span>Quand les pensées s'emballent : revenir ici avec les cinq sens.</span></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
+      h += "<div class='kh-sec kh-in' style='--i:6'>À lire ensuite · " + Object.keys(reads()).length + " sur " + TIPS.length + " lues</div><div class='kh-ed kh-in' style='--i:7'>";
+      TIPS.forEach(function (T, i) { var q = TH[T.theme] || TH.def; h += "<button type='button' style='--g1:" + q.a + ";--g2:" + q.b + "' onclick='KineHopital.tipOpen(" + i + ")'><span class='kh-ed-n'><i>" + ("0" + (i + 1)).slice(-2) + "</i><strong>" + esc(T.stat) + "</strong></span><span class='kh-ed-t'><em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b><small>" + (reads()[i] ? "Lue" : "1 min de lecture") + "<i aria-hidden='true'>" + (reads()[i] ? "✓" : "›") + "</i></small></span></button>"; });
       h += "</div>";
     }
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 80);
@@ -455,6 +454,56 @@
   }
   function breatheClose() { hush(); if (BT) clearInterval(BT); BT = null; var sh = $("kh-breath"); if (sh) sh.className = "kh-bro"; }
 
+  /* ── humeur avant / après la séance ── */
+  var MOOD = [{ n: 1, t: "Pas top", f: "#fde8e1", s: "#e6a794", m: "M13 28q7-6 14 0" }, { n: 2, t: "Moyen", f: "#fff1dc", s: "#e6c58a", m: "M13 26h14" }, { n: 3, t: "Bien", f: "#e6f6f3", s: "#9fd8cf", m: "M13 24q7 7 14 0" }];
+  function faceSvg(F, sz) { return "<svg viewBox='0 0 40 40' width='" + sz + "' height='" + sz + "' aria-hidden='true'><circle cx='20' cy='20' r='18' fill='" + F.f + "' stroke='" + F.s + "' stroke-width='1.5'/><circle cx='14' cy='16' r='2' fill='#111c2d'/><circle cx='26' cy='16' r='2' fill='#111c2d'/><path d='" + F.m + "' fill='none' stroke='#111c2d' stroke-width='2' stroke-linecap='round'/></svg>"; }
+  function moodHtml() {
+    var c = (jget("kf-checkin", {})[iso(new Date())] || {}).pre, h = "<section class='kh-mood kh-in' style='--i:1'><div class='kh-mood-q'>Ton humeur ce matin ?</div><div class='kh-feel-r'>";
+    MOOD.forEach(function (F) { h += "<button type='button' class='kh-face" + (c === F.n ? " on" : "") + "' data-n='" + F.n + "' onclick='KineHopital.mood(" + F.n + ",this)'>" + faceSvg(F, 52) + "<span>" + F.t + "</span></button>"; });
+    return h + "</div><div class='kh-mood-s' id='kh-mood-s'>" + (c ? "Noté. Après ta séance, on regarde si ça a changé." : "Un visage suffit, il n'y a pas de bonne réponse.") + "</div></section>";
+  }
+  function mood(n, btn) {
+    var m = jget("kf-checkin", {}), k = iso(new Date()); m[k] = m[k] || {}; m[k].pre = n; jset("kf-checkin", m);
+    [].forEach.call(document.querySelectorAll(".kh-mood .kh-face"), function (b) { b.classList.toggle("on", b === btn); });
+    var s2 = $("kh-mood-s"); if (s2) s2.textContent = "Noté. Après ta séance, on regarde si ça a changé.";
+    haptic(12); if (n === 3) burst(btn.parentNode);
+    try { var st = jget("kf-cab", null); if (st && st.pid && window.KineMonSuivi && KineMonSuivi.sync) KineMonSuivi.sync(); } catch (e) {}
+  }
+  function moiHtml() {
+    var ck = jget("kf-checkin", {}), lab = ["D", "L", "M", "M", "J", "V", "S"], cols = "", both = 0, up = 0, any = 0;
+    for (var i = 6; i >= 0; i--) {
+      var d = new Date(); d.setDate(d.getDate() - i); var c = ck[iso(d)] || {}, pre = MOOD[(c.pre || 0) - 1], post = MOOD[(c.feel || 0) - 1];
+      if (c.pre || c.feel) any++; if (c.pre && c.feel) { both++; if (c.feel > c.pre) up++; }
+      cols += "<div class='kh-mc'><div>" + (pre ? faceSvg(pre, 26) : "<i class='e'></i>") + "</div><div>" + (post ? faceSvg(post, 26) : "<i class='e'></i>") + "</div><em>" + lab[d.getDay()] + "</em></div>";
+    }
+    var msg = both >= 2 ? (up >= both / 2 ? "Après la séance, ton humeur est meilleure " + up + " fois sur " + both + ". Le mouvement te fait du bien." : "Ton humeur varie d'un jour à l'autre, c'est normal. Continue à la noter.") : "Note ton humeur le matin et après la séance : tu verras ici ce que le mouvement change pour toi.";
+    var nr = Object.keys(reads()).length;
+    return "<div class='kh-mcard'><div class='kh-mck'><span>Mon humeur</span><span>7 derniers jours</span></div><div class='kh-mrow'><div class='kh-ml'><span>Avant</span><span>Après</span></div>" + cols + "</div><p class='kh-mmsg'>" + msg + "</p></div>" +
+      "<div class='kh-mcard'><div class='kh-mck'><span>Mes infos lues</span><span>" + nr + " sur " + TIPS.length + "</span></div><div class='kh-mbar'><i style='width:" + Math.round(nr / TIPS.length * 100) + "%'></i></div><button type='button' class='kh-mlink' onclick=\"showPage('hop-learn')\">Aller lire la suite ›</button></div>";
+  }
+
+  /* ── Se poser : ancrage 5-4-3-2-1, voix calme ── */
+  var GR = [
+    { n: 5, t: "choses que tu vois", v: "Regarde autour de toi. Nomme cinq choses que tu vois." },
+    { n: 4, t: "choses que tu touches", v: "Sens quatre choses que tu touches : tes vêtements, la chaise, le sol sous tes pieds." },
+    { n: 3, t: "bruits que tu entends", v: "Écoute. Trois bruits autour de toi, proches ou lointains." },
+    { n: 2, t: "odeurs que tu perçois", v: "Deux odeurs que tu perçois. Si tu n'en trouves pas, imagine ton odeur préférée." },
+    { n: 1, t: "goût que tu imagines", v: "Un goût que tu aimes. Imagine-le doucement." }
+  ];
+  var GRI = "Quand les pensées s'emballent, ramener l'attention sur les sens aide à revenir au moment présent. On le fait en cinq petites étapes, à ton rythme.";
+  var GRE = "Bravo. Respire un grand coup. Tu es ici, maintenant.";
+  function ground(step) {
+    var sh = $("kh-grd"); if (!sh) { sh = document.createElement("div"); sh.id = "kh-grd"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "Se poser"); document.body.appendChild(sh); }
+    sh.className = "kh-bro open"; calmLoad();
+    var x = step == null ? -1 : step;
+    if (x < 0) { hush(); sh.innerHTML = "<button class='kh-bx' onclick='KineHopital.groundClose()' aria-label='Fermer'>×</button><div class='kh-bi'><div class='kh-bk'>Se poser</div><h2>Revenir ici, maintenant</h2><div class='kh-gdots' aria-hidden='true'><i>5</i><i>4</i><i>3</i><i>2</i><i>1</i></div><p class='kh-gp'>" + esc(GRI) + "</p><div style='height:120px'></div></div><div class='kh-bf'><button type='button' class='ghost' onclick='KineHopital.groundListen()'>Écouter</button><button type='button' onclick='KineHopital.ground(0)'>Commencer</button></div>"; return; }
+    if (x >= GR.length) { say(GRE); sh.innerHTML = "<div class='kh-bi kh-gend'><div class='kh-bk'>Se poser</div><h2>Bravo</h2><p class='kh-gp'>" + esc(GRE) + "</p></div><div class='kh-bf'><button type='button' onclick='KineHopital.groundClose()'>Terminer</button></div>"; return; }
+    var G = GR[x]; say(G.v);
+    sh.innerHTML = "<button class='kh-bx' onclick='KineHopital.ground(-1)' aria-label='Retour'>‹</button><div class='kh-bi kh-gstep'><div class='kh-bk'>Étape " + (x + 1) + " sur 5</div><div class='kh-gn'><i></i><b>" + G.n + "</b></div><h2>" + G.n + " " + esc(G.t) + "</h2><p class='kh-gp'>Prends ton temps. Il n'y a pas de bonne réponse.</p></div><div class='kh-bf'><button type='button' onclick='KineHopital.ground(" + (x + 1) + ")'>" + (x === GR.length - 1 ? "Terminer" : "Suivant") + "</button></div>";
+  }
+  function groundListen() { say(GRI); }
+  function groundClose() { hush(); var sh = $("kh-grd"); if (sh) sh.className = "kh-bro"; }
+
   /* ── onglets de l'hôpital : Aujourd'hui, Séances, Apprendre, Moi ── */
   var NAVSAVE = null, PAGES = { "hop-today": "today", "hop-seances": "seances", "hop-learn": "learn" };
   var NI = {
@@ -500,5 +549,5 @@
   document.addEventListener("DOMContentLoaded", function () { setTimeout(mode, 50); });
   if (document.readyState !== "loading") setTimeout(mode, 50);
 
-  window.KineHopital = { mode: mode, breathe: breathe, breatheGo: breatheGo, breatheListen: breatheListen, listen: listen, vfListen: vfListen, voices: voices, breatheClose: breatheClose,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+  window.KineHopital = { mode: mode, mood: mood, moiHtml: moiHtml, ground: ground, groundListen: groundListen, groundClose: groundClose, breathe: breathe, breatheGo: breatheGo, breatheListen: breatheListen, listen: listen, vfListen: vfListen, voices: voices, breatheClose: breatheClose,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();
