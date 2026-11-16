@@ -315,13 +315,19 @@
     }
     h += "</div><div class='kh-wk-s'>" + (wk.n === 0 ? "Une première séance cette semaine ? Je suis avec toi." : wk.n >= goal ? "Objectif de la semaine atteint, bravo !" : "Encore " + (goal - wk.n) + " pour atteindre ton objectif.") + "</div></section>"; }
     // 3. mes séances, en cartes à faire défiler
-    if (P("seances")) h += "<div class='kh-sec kh-in' style='--i:2'>La semaine à l'hôpital</div><div class='kh-rail kh-grid kh-in' style='--i:3'>";
-    if (P("seances")) SEANCES.forEach(function (S, i) {
-      h += "<button type='button' class='kh-card c" + i + "'" + (prev ? " disabled" : " onclick='KineHopital.start(" + i + ")'") + ">" +
-        "<svg viewBox='0 0 24 24' width='34' height='34' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" + ICON[S.id] + "</svg>" +
-        "<b>" + esc(S.nom) + "</b><span>" + S.court + "</span></button>";
-    });
-    if (P("seances")) h += "</div><div class='kh-sec kh-in' style='--i:4'>Aller plus loin</div><div class='kh-more kh-in' style='--i:5'><button type='button' onclick=\"showPage('guide')\"><b>Bibliothèque d'exercices</b><span>Variantes plus difficiles et nouveaux mouvements</span></button><button type='button' onclick=\"showPage('mes');window.KineCompose&&KineCompose.tab()\"><b>Composer ma séance</b><span>Choisis tes exercices, je m'occupe de l'ordre</span></button></div>";
+    if (P("seances")) {
+      h += "<button type='button' class='kh-compose kh-in' style='--i:2' onclick=\"showPage('mes');window.KineCompose&&KineCompose.tab()\"><span class='kh-cp-t'><em>Nouveau</em><b>Composer ma séance</b><span>Choisis tes exercices parmi 372, je m'occupe de l'échauffement, des étirements et de l'ordre.</span></span><span class='kh-cp-go' aria-hidden='true'><svg viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='currentColor' stroke-width='2.4' stroke-linecap='round'><path d='M12 5v14M5 12h14'/></svg></span></button>";
+      h += "<div class='kh-sec kh-in' style='--i:3'>La semaine à l'hôpital</div><div class='kh-rail kh-grid kh-in' style='--i:4'>";
+      SEANCES.forEach(function (S, i) {
+        h += "<button type='button' class='kh-card c" + i + "'" + (prev ? " disabled" : " onclick='KineHopital.start(" + i + ")'") + "><img class='kh-pic' src='assets/hop/" + S.id + ".webp' alt='' width='96' height='96'>" +
+          "<b>" + esc(S.nom) + "</b><span>" + S.court + "</span></button>";
+      });
+      h += "</div><div class='kh-sec kh-in' style='--i:5'>Aller plus loin</div><div class='kh-tiles kh-in' style='--i:6'>" +
+        "<button type='button' onclick='KineCamera&&KineCamera.open()'><i class='t1'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 8h4l2-3h6l2 3h4v11H3z'/><circle cx='12' cy='13' r='3.5'/></svg></i><b>Filmer mon mouvement</b><span>Yass vérifie ton geste</span></button>" +
+        "<button type='button' onclick='KineHopital.breathe()'><i class='t2'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 9c3-3 6-3 9 0s6 3 9 0M3 15c3-3 6-3 9 0s6 3 9 0'/></svg></i><b>Respirer</b><span>3 minutes pour se calmer</span></button>" +
+        "<button type='button' onclick=\"showPage('guide')\"><i class='t3'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5h7v14H4zM13 5h7v14h-7z'/></svg></i><b>Bibliothèque</b><span>Variantes plus difficiles</span></button>" +
+        "<button type='button' onclick=\"KineHopital.start(3)\"><i class='t4'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20.5c-4.2 0-7.2-2.2-8.5-5.5 3.2-.2 5.8 1 8.5 4 2.7-3 5.3-4.2 8.5-4-1.3 3.3-4.3 5.5-8.5 5.5z'/><path d='M12 19c-3.2-3.2-3.2-8.2 0-13.5 3.2 5.3 3.2 10.3 0 13.5z'/></svg></i><b>Étirements</b><span>15 minutes, en douceur</span></button></div>";
+    }
     // 4. le savais-tu
     if (P("learn")) h += "<button type='button' class='kh-tip kh-in' style='--i:4' onclick='KineHopital.tipOpen(" + (day() % TIPS.length) + ")'><span class='kh-bulb' aria-hidden='true'><svg viewBox='0 0 24 24' width='26' height='26' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z'/></svg></span>" +
       "<span class='kh-tt'><em>Le savais-tu ? · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b></span><span class='kh-arr' aria-hidden='true'>›</span></button>";
@@ -354,6 +360,28 @@
     if (good) { burst(n); haptic([14, 40, 14]); } else haptic(30);
   }
 
+
+  /* ── Respirer : cohérence cardiaque, 5 s d'inspiration et 5 s d'expiration pendant 3 minutes ── */
+  var BT = null;
+  function breathe() {
+    var sh = $("kh-breath");
+    if (!sh) { sh = document.createElement("div"); sh.id = "kh-breath"; sh.className = "kf-sheet ks-sheet"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-label", "Respirer"); document.body.appendChild(sh); }
+    sh.innerHTML = "<div class='kf-sheet-body ks-body kh-br'><button class='kf-back' onclick='KineHopital.breatheClose()' aria-label='Fermer'>←</button>" +
+      "<div class='ks-tag'>Respirer</div><h2 class='ks-h'>3 minutes pour se calmer</h2>" +
+      "<div class='kh-orb'><i id='kh-orb' class='" + (reduced() ? "" : "go") + "'></i><b id='kh-bw'>Prépare-toi</b></div>" +
+      "<p class='ks-p'>Inspire par le nez pendant 5 secondes, puis souffle doucement par la bouche pendant 5 secondes. Suis le cercle. Si tu as la tête qui tourne, reprends ta respiration normale.</p>" +
+      "<div class='ks-count' id='kh-bt'>3:00</div></div>";
+    sh.classList.add("open");
+    var t0 = Date.now() + 2000; if (BT) clearInterval(BT);
+    BT = setInterval(function () {
+      var e = Date.now() - t0, w = $("kh-bw"), c = $("kh-bt"); if (!w) { clearInterval(BT); return; }
+      if (e < 0) return;
+      var left = Math.max(0, 180 - Math.floor(e / 1000)); c.textContent = Math.floor(left / 60) + ":" + ("0" + (left % 60)).slice(-2);
+      w.textContent = left === 0 ? "Bravo" : (Math.floor(e / 5000) % 2 === 0 ? "Inspire" : "Souffle");
+      if (left === 0) { clearInterval(BT); haptic([14, 40, 14]); }
+    }, 250);
+  }
+  function breatheClose() { if (BT) clearInterval(BT); BT = null; var sh = $("kh-breath"); if (sh) sh.classList.remove("open"); }
 
   /* ── onglets de l'hôpital : Aujourd'hui, Séances, Apprendre, Moi ── */
   var NAVSAVE = null, PAGES = { "hop-today": "today", "hop-seances": "seances", "hop-learn": "learn" };
@@ -400,5 +428,5 @@
   document.addEventListener("DOMContentLoaded", function () { setTimeout(mode, 50); });
   if (document.readyState !== "loading") setTimeout(mode, 50);
 
-  window.KineHopital = { mode: mode,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
+  window.KineHopital = { mode: mode, breathe: breathe, breatheClose: breatheClose,  isHop: isHop, feelHtml: feelHtml, feel: feel, burst: burst, html: html, start: startSeance, startDay: startDay, zone: zone, walk: walk, tipOpen: tipOpen, tipClose: tipClose, vf: vf, seances: SEANCES, tips: TIPS, vfs: VF };
 })();
