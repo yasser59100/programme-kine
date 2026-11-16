@@ -648,7 +648,7 @@ test("fiche : raccourcis, étapes expliquées, bilan par familles et photos gard
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
-  await expect(page.locator("#kcb-sheet .kcb-tile")).toHaveCount(4);
+  await expect(page.locator("#kcb-sheet .kcb-tile")).toHaveCount(5);
   await page.waitForTimeout(600);
   await shot(page, info, "60-fiche-raccourcis");
   await page.evaluate(() => KineCabinet.etapes());
