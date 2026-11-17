@@ -3987,3 +3987,4 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kh-after li { display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; line-height: 1.4; }
 .kh-after li i { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-dim, #EEF0FF); color: var(--lu-ind2, #3341E0); display: grid; place-items: center; font-style: normal; font-weight: 800; flex-shrink: 0; }
 .kf-cabp .th-switch.th-home, .kf-cabp .th-run { margin-top: 12px; }
+.kcb-pre-s .kcb-two button { white-space: nowrap; padding-left: 10px; padding-right: 10px; font-size: .92rem; }
