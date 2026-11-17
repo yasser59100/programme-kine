@@ -69,6 +69,11 @@
       "<div class='kh-meta'>Tu choisis, Yass s'occupe de l'échauffement et de l'ordre.</div>" +
       "<button type='button' class='kh-go' onclick=\"showPage('mes');window.KineCompose&&KineCompose.tab()\">Composer ma séance<span aria-hidden='true'>›</span></button></section>";
   }
+  // Programme choisi (Coureur, salle…) et journal de course, comme sur l'accueil classique
+  function themesHtml() {
+    if (!window.KineTheme) return "";
+    try { return (KineTheme.homeSwitchHtml ? KineTheme.homeSwitchHtml() : "") + (KineTheme.homeHtml ? KineTheme.homeHtml() : ""); } catch (e) { return ""; }
+  }
   function repriseHtml() {
     var R = null; try { R = window.KineReprise && KineReprise.active ? KineReprise.active() : null; } catch (e) {}
     if (!R || R.e.fini) return "";
@@ -102,7 +107,7 @@
   }
   function todayHtml() {
     var d = new Date();
-    return "<div class='kh-wrap'><div class='kc-date'>" + JOURS[d.getDay()] + " " + d.getDate() + " " + MOIS[d.getMonth()] + "</div><h1 class='lx-title'>Aujourd'hui</h1>" + heroHtml() + repriseHtml() + painHtml() + weekHtml() + rdvHtml() + links() + "</div>";
+    return "<div class='kh-wrap'><div class='kc-date'>" + JOURS[d.getDay()] + " " + d.getDate() + " " + MOIS[d.getMonth()] + "</div><h1 class='lx-title'>Aujourd'hui</h1>" + heroHtml() + themesHtml() + repriseHtml() + painHtml() + weekHtml() + rdvHtml() + links() + "</div>";
   }
 
   /* ── Apprendre : de courtes lectures utiles, avec suivi des lectures ── */

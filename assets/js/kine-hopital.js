@@ -368,6 +368,8 @@
     }
     // 4. apprendre : l'info du jour, le vrai ou faux, la respiration, toutes les infos
     if (P("learn")) {
+      var km = (jget("kf-cab", null) || {}).d; km = km && km.msg && km.msg.t ? km.msg.t : "";
+      if (km) h += "<div class='kh-kmsg kh-in' style='--i:2'><em>Un mot de ton kiné</em><p>« " + esc(km) + " »</p></div>";
       var ti = day() % TIPS.length, th = TH[t.theme] || TH.def;
       h += "<button type='button' class='kh-lh kh-in' style='--i:3;--g1:" + th.a + ";--g2:" + th.b + "' onclick='KineHopital.tipOpen(" + ti + ")'><span class='kh-lh-t'><em>Info du jour · " + esc(t.theme) + "</em><b>" + esc(t.title) + "</b><span class='kh-lh-s'><strong>" + esc(t.stat) + "</strong>" + esc(t.statLabel) + "</span><span class='kh-lh-go'>Lire en 1 minute<i aria-hidden='true'>›</i></span></span>" + thPic(th, "lg") + "</button>";
       h += vfBlock().replace("class='kh-vf'", "class='kh-vf kh-in' style='--i:4'");
@@ -375,6 +377,10 @@
       h += "<div class='kh-sec kh-in' style='--i:6'>À lire ensuite · " + Object.keys(reads()).length + " sur " + TIPS.length + " lues</div><div class='kh-ed kh-in' style='--i:7'>";
       TIPS.forEach(function (T, i) { var q = TH[T.theme] || TH.def; h += "<button type='button' style='--g1:" + q.a + ";--g2:" + q.b + "' onclick='KineHopital.tipOpen(" + i + ")'><span class='kh-ed-n'><i>" + ("0" + (i + 1)).slice(-2) + "</i><strong>" + esc(T.stat) + "</strong></span><span class='kh-ed-t'><em>" + esc(T.theme) + "</em><b>" + esc(T.title) + "</b><small>" + (reads()[i] ? "Lue" : "1 min de lecture") + "<i aria-hidden='true'>" + (reads()[i] ? "✓" : "›") + "</i></small></span></button>"; });
       h += "</div>";
+      h += "<div class='kh-after kh-in' style='--i:8'><b>Et après ton séjour ?</b><p>Ce que tu fais ici peut continuer chez toi, sans pression.</p><ul>" +
+        "<li><i>1</i><span>Garde un moment de marche presque tous les jours, même court.</span></li>" +
+        "<li><i>2</i><span>Refais une séance de l'onglet Séances quand tu en as envie. Le but est de bouger, pas de bien faire.</span></li>" +
+        "<li><i>3</i><span>Si le moral baisse ou si tu hésites, parles-en à ton médecin ou à ton équipe.</span></li></ul></div>";
     }
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 80);
     setTimeout(function () { try { if (window.KineLayout && KineLayout.arm) KineLayout.arm(); } catch (e) {} }, 500);

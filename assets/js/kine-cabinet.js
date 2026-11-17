@@ -688,7 +688,8 @@ var KineCabinet = (function () {
   }
   function prefabHtml() {
     var h = "<div class='su-card kcb-pre'><div class='su-card-h'><b>Séances toutes faites</b><span>" + esc(KP.get(C.parcours).nom) + "</span></div>" +
-      "<div class='kf-sub'>Envoie-les telles quelles, ou ouvre-les pour les modifier avant l'envoi. Les exercices sur machine sont écartés tant qu'il y a assez d'exercices à faire chez soi.</div>";
+      "<div class='kf-sub'>Envoie-les telles quelles, ou ouvre-les pour les modifier avant l'envoi. Les exercices sur machine sont écartés tant qu'il y a assez d'exercices à faire chez soi.</div>" +
+      "<button class='kcb-lock" + (C.exosLock ? " on" : "") + "' role='switch' aria-checked='" + (C.exosLock ? "true" : "false") + "' onclick='KineCabinet.lock()'><span><b>" + (C.exosLock ? "Séance fixée" : "Séance libre") + "</b><em>" + (C.exosLock ? "Le patient ne peut pas la modifier." : "Le patient peut l'adapter ou la supprimer.") + "</em></span><i aria-hidden='true'></i></button>";
     prefabs().forEach(function (L, li) {
       h += "<div class='kcb-pre-l" + (L.now ? " now" : "") + "'><div class='kcb-pre-h'><b>" + L.lvl + "</b><span>" + esc(L.hint) + " · étape " + (L.etape + 1) + "</span>" + (L.now ? "<em>conseillé</em>" : "") + "</div>";
       L.ses.forEach(function (x, si) {
@@ -699,6 +700,11 @@ var KineCabinet = (function () {
       h += "</div>";
     });
     return h + "</div>";
+  }
+  // Séance fixée : le patient ne peut ni la modifier ni la supprimer
+  function lock() {
+    var on = C.exosLock ? 0 : 1, y = sheet().scrollTop;
+    fbCab.save(C.id, { exosLock: on }).then(function () { C.exosLock = on; reView(); sheet().scrollTop = y; say(on ? "Séance fixée : le patient ne peut plus la modifier." : "Le patient peut de nouveau adapter sa séance."); ping("seance"); }, fail);
   }
   function prefab(li, si, send) {
     var L = prefabs()[li]; if (!L || !L.ses[si]) return;
@@ -1518,14 +1524,14 @@ var KineCabinet = (function () {
   function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo", "kcb-fip", "kcb-cr", "kcb-mod"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
   // Aperçu de ce que voit le patient (sans les notes du kiné)
   function asPatient() {
-    var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, fin: C.fin, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, conseil: C.conseil, next: C.next, ref: C.ref, hist: C.hist,
+    var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, fin: C.fin, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, exosLock: C.exosLock, msg: C.msg, conseil: C.conseil, next: C.next, ref: C.ref, hist: C.hist,
       bilans: (C.bilans || []).map(function (b) { return { d: b.d, m: b.m }; }), seances: (C.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; }) }));
     KineMonSuivi.preview(d);
   }
 
   return {
     hopital: hopital, acceptHopital: acceptHopital, open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, sv: sv, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    course: function () { if (window.KineReprise) KineReprise.edit(); }, prefab: prefab, fin: fin, when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    course: function () { if (window.KineReprise) KineReprise.edit(); }, prefab: prefab, lock: lock, fin: fin, when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sswap: sswap, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },

@@ -28,6 +28,10 @@ test("kiné : séances toutes faites, fin de parcours, reprise de course, guide"
   await expect(page.locator("#kcb-sheet .kcb-pre")).toBeVisible();
   expect(await page.locator("#kcb-sheet .kcb-pre-s").count()).toBeGreaterThanOrEqual(3);
   await page.screenshot({ path: "/tmp/kl-prefab.png" });
+  await page.locator("#kcb-sheet .kcb-lock").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-lock")).toHaveAttribute("aria-checked", "true");
+  await expect(page.locator("#kcb-sheet .kcb-lock")).toContainText("Séance fixée");
+  await page.screenshot({ path: "/tmp/kl-lock.png" });
   await page.locator("#kcb-sheet .kcb-pre-l.now .kcb-pre-s").first().locator("button", { hasText: "Modifier" }).dispatchEvent("click");
   await expect(page.locator("#kcb-sheet .kcb-exck.on").first()).toBeVisible();
   await page.evaluate(() => KineCabinet.maison()); await page.waitForTimeout(300);

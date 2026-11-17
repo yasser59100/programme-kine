@@ -144,9 +144,10 @@ var KineMonSuivi = (function () {
     var list = jget("kf-custom", []), ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
     var cur = list.filter(function (x) { return x.id === "kine"; })[0];
     if (!ex.length) { if (cur) { jset("kf-custom", list.filter(function (x) { return x.id !== "kine"; })); try { if (window.KineLayout && KineLayout.render) KineLayout.render(); } catch (e) {} } return; }
-    if (cur && cur.ex.join("|") === ex.join("|")) return;
+    var lk = d.exosLock ? 1 : 0;
+    if (cur && cur.ex.join("|") === ex.join("|") && (cur.lock || 0) === lk) return;
     list = list.filter(function (x) { return x.id !== "kine"; });
-    list.unshift({ id: "kine", name: "La séance de mon kiné", ex: ex, at: Date.now(), kine: 1 });
+    list.unshift({ id: "kine", name: "La séance de mon kiné", ex: ex, at: Date.now(), kine: 1, lock: lk });
     jset("kf-custom", list.slice(0, 12));
     try { if (window.KineProgram) KineProgram.render(); if (window.KineCompose) KineCompose.page(); if (window.KineLayout && KineLayout.render) KineLayout.render(); } catch (e) {}
   }

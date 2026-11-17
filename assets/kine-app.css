@@ -3954,3 +3954,36 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kgq-al { border-radius: 18px; }
 .kgq-how { border-radius: 20px; }
 .kgq-live { border-radius: 18px; box-shadow: 0 8px 20px -16px rgba(15, 29, 46, .5); }
+
+/* Séance fixée par le kiné */
+.kcb-lock { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border-radius: 18px; border: 1px solid var(--border2); background: var(--surface); color: var(--text); text-align: left; font: inherit; }
+.kcb-lock span { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.kcb-lock b { font-weight: 800; font-size: .95rem; } .kcb-lock em { font-style: normal; font-size: .82rem; color: var(--text2); }
+.kcb-lock i { width: 46px; height: 28px; border-radius: 14px; background: var(--border2); position: relative; flex-shrink: 0; transition: background .2s; }
+.kcb-lock i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(15, 29, 46, .3); transition: transform .2s; }
+.kcb-lock.on { border-color: var(--lu-ind2, #3341E0); } .kcb-lock.on i { background: var(--lu-ind2, #3341E0); } .kcb-lock.on i::after { transform: translateX(18px); }
+.kc-lock { font-size: .75rem; font-weight: 700; color: var(--text3); padding: 6px 10px; border-radius: 999px; background: var(--surface3, #EEF0F6); white-space: nowrap; }
+
+/* Cabinet patient : onglets Moi et Progrès au même niveau de finition */
+.kf-cabp #page-monkine .kms-card.kmk-step { background: linear-gradient(160deg, #1B2A44, #0F1D2E); color: #fff; border: none; box-shadow: 0 24px 40px -24px rgba(15, 29, 46, .7); }
+.kf-cabp #page-monkine .kms-card.kmk-step .kms-ck, .kf-cabp #page-monkine .kms-card.kmk-step .kms-cm span { color: rgba(255, 255, 255, .72); }
+.kf-cabp #page-monkine .kms-card.kmk-step .kms-ct { color: #fff; }
+.kf-cabp #page-monkine .kmk-head, .kf-cabp #page-suivi .lx-head { margin-bottom: 12px; }
+.kf-cabp #page-monkine .su-card, .kf-cabp #page-monkine .kmk-fiche, .kf-cabp #page-monkine .kmk-notif, .kf-cabp #page-suivi .su-card, .kf-cabp #page-suivi .chart-card, .kf-cabp #page-suivi .streak-card { border-radius: 24px; border: 1px solid rgba(80, 90, 140, .14); box-shadow: 0 14px 28px -22px rgba(30, 40, 100, .4); }
+.kf-cabp #page-monkine .kmk-notif { border-style: dashed; }
+.kf-cabp #page-monkine .kms-et { border-radius: 20px; }
+.kf-cabp #page-suivi .content > * + * { margin-top: 14px; }
+.kf-cabp #page-suivi .kms-card { margin-top: 14px; }
+.kf-cabp #page-suivi .lx-title, .kf-cabp #page-monkine .lx-title { margin-bottom: 8px; }
+
+/* Hôpital, Apprendre : mot du kiné et « Et après ? » */
+.kh-kmsg { padding: 16px 18px; border-radius: 24px; background: linear-gradient(160deg, #EEF0FF, #fff); border: 1px solid rgba(80, 90, 140, .16); box-shadow: 0 14px 28px -22px rgba(30, 40, 100, .4); }
+.kh-kmsg em { font-style: normal; font-size: .75rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--lu-ind2, #3341E0); }
+.kh-kmsg p { margin: 6px 0 0; font: 700 1.05rem/1.35 var(--lu-head, var(--font)); }
+.kh-after { margin-top: 14px; padding: 18px; border-radius: 24px; background: var(--surface); border: 1px solid rgba(80, 90, 140, .14); box-shadow: 0 14px 28px -22px rgba(30, 40, 100, .4); }
+.kh-after > b { font: 800 1.2rem var(--lu-head, var(--font)); letter-spacing: -.02em; }
+.kh-after > p { margin: 4px 0 10px; color: var(--text2); font-size: .92rem; line-height: 1.4; }
+.kh-after ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.kh-after li { display: flex; gap: 12px; align-items: flex-start; font-size: .95rem; line-height: 1.4; }
+.kh-after li i { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-dim, #EEF0FF); color: var(--lu-ind2, #3341E0); display: grid; place-items: center; font-style: normal; font-weight: 800; flex-shrink: 0; }
+.kf-cabp .th-switch.th-home, .kf-cabp .th-run { margin-top: 12px; }
