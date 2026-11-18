@@ -4055,3 +4055,32 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 #krp-poche .kp-t { color: #3a3a3a; font: 800 1.4rem var(--font); font-variant-numeric: tabular-nums; }
 #krp-poche button { padding: 18px 26px; border-radius: 40px; border: 2px solid #333; background: #000; color: #666; font: 700 1rem var(--font); position: relative; overflow: hidden; }
 #krp-poche button.hold { border-color: #fff; color: #fff; transition: color 1.8s linear, border-color 1.8s linear; }
+
+/* ═══ Reprise de course : refonte du design ═══ */
+.krp-tl { display: flex; gap: 3px; margin-top: 14px; }
+.krp-tl i { flex: 1; height: 10px; border-radius: 6px; position: relative; overflow: hidden; background: rgba(255, 255, 255, .13); }
+.krp-tl i.course { background: rgba(255, 255, 255, .3); } .krp-tl i.echauf, .krp-tl i.retour { background: rgba(255, 255, 255, .08); }
+.krp-tl i.done { background: rgba(255, 255, 255, .85); } .krp-tl i.now u { position: absolute; inset: 0 auto 0 0; width: 0; background: #fff; border-radius: 6px; }
+.krp-tl i.now { box-shadow: 0 0 0 2px rgba(255, 255, 255, .55); }
+#krp-run .krp-big { flex: 1; gap: 4px; } #krp-run .krp-big b { font-size: clamp(3rem, 17vw, 5.2rem); } #krp-run .krp-big em { font-size: clamp(2.4rem, 13vw, 4rem); }
+.krp-card { margin: 0 0 10px; padding: 16px 14px; border-radius: 28px; background: rgba(255, 255, 255, .13); border: 1px solid rgba(255, 255, 255, .18); text-align: center; backdrop-filter: blur(6px); }
+.krp-card .krp-v { margin-top: 0; } .krp-card .krp-line { margin: 6px auto 0; font-size: 1rem; }
+#krp-run .kr-small2 { margin-bottom: 10px; font-size: .9rem; }
+#krp-run .krp-lnk.dark { margin: 0 auto 10px; font-size: .85rem; font-weight: 600; text-decoration: none; padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, .1); }
+.krp-g { margin-top: 12px; }
+/* écran de départ */
+#krp-run .krp-pre { justify-content: flex-start; overflow-y: auto; padding: 14px 0 8px; gap: 10px; -webkit-overflow-scrolling: touch; }
+.krp-pre > b { font-size: 2rem; } .krp-pre .krp-tl { margin-top: 6px; } .krp-pre .krp-tl i.course { background: #fff; } .krp-pre .krp-tl i.marche { background: rgba(255, 255, 255, .35); }
+.krp-leg { display: flex; gap: 16px; font-size: .78rem; opacity: .8; } .krp-leg span::before { content: ""; display: inline-block; width: 12px; height: 8px; border-radius: 4px; margin-right: 6px; vertical-align: 0; background: rgba(255, 255, 255, .35); } .krp-leg .course::before { background: #fff; }
+.krp-al.dark > div { padding: 14px; border-radius: 20px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .12); } .krp-al em { font-style: normal; font-size: .7rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; opacity: .7; }
+.krp-zone { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 14px; border-radius: 20px; background: rgba(16, 163, 127, .25); border: 1px solid rgba(16, 163, 127, .5); } .krp-zone span { width: 100%; font-size: .7rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; opacity: .85; } .krp-zone b { font: 900 1.6rem var(--lu-head, var(--font)); } .krp-zone em { font-style: normal; opacity: .85; font-size: .85rem; }
+.krp-know { padding: 14px 16px; border-radius: 20px; background: rgba(255, 138, 43, .16); border: 1px solid rgba(255, 138, 43, .55); } .krp-know b { display: block; margin-bottom: 6px; color: #FFB470; }
+.krp-know ul { margin: 0; padding-left: 18px; font-size: .86rem; line-height: 1.5; opacity: .92; }
+#krp-run .kr-btns .go { min-height: 60px; font-size: 1.1rem; box-shadow: 0 14px 30px -14px rgba(255, 255, 255, .6); }
+/* questionnaire */
+.krq-bar { height: 6px; border-radius: 3px; background: var(--border2); overflow: hidden; } .krq-bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #5867FF, #3341E0); transition: width .3s; }
+#krp-q h2 { font-size: 2rem; margin-top: 22px; }
+.krq-opts button { position: relative; padding-right: 40px; } .krq-opts button::after { content: "›"; position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: var(--text3); }
+.krq-opts button:active { transform: scale(.98); background: var(--blue-dim, #EEF0FF); }
+/* mode poche */
+#krp-poche .kp-t { color: #333; font-size: 2.4rem; }

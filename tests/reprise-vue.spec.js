@@ -58,6 +58,10 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await page.locator(".krp-ch button", { hasText: "GPS du téléphone" }).click();
   await page.evaluate(() => { window.__geo = null; navigator.geolocation.watchPosition = function (ok) { window.__geo = ok; return 1; }; navigator.geolocation.clearWatch = function () {}; });
   await page.screenshot({ path: "/tmp/ra-pre2.png" });
+  await expect(page.locator(".krp-know")).toContainText("s'arrête quand l'écran se verrouille");
+  await page.evaluate(() => { document.querySelector("#krp-run .krp-pre").scrollTo(0, 99999); }); await page.waitForTimeout(300);
+  await page.screenshot({ path: "/tmp/ra-pre3.png" });
+  await page.evaluate(() => { document.querySelector("#krp-run .krp-pre").scrollTo(0, 0); });
   await page.locator("#krp-start").click();
   await expect(page.locator("#krp-run .krp-big b")).toHaveText("Marche vite");
   await page.evaluate(() => { KineReprise._skip(); KineReprise._skip(); });
@@ -67,6 +71,7 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await expect(page.locator("#krp-g")).toContainText("Un peu trop vite");
   await expect(page.locator("#krp-g")).toContainText("10");
   await page.screenshot({ path: "/tmp/ra-run.png" });
+  await page.screenshot({ path: "/tmp/ra-run2.png" });
   await page.locator(".krp-lnk", { hasText: "Mode poche" }).click();
   await expect(page.locator("#krp-poche.open")).toBeVisible();
   await expect(page.locator("#krp-pt")).toContainText("Course");

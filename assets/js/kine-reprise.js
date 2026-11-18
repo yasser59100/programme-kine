@@ -206,7 +206,7 @@ var KineReprise = (function () {
   }
   function qView() {
     var el = qEl(), S = qSteps(), i = QQ.i, h = "";
-    h += "<div class='krq-top'><button class='kf-back' onclick='" + (i ? "KineReprise.qb()" : "KineReprise.qx()") + "' aria-label='" + (i ? "Retour" : "Fermer") + "'>" + (i ? "‹" : "×") + "</button><span>" + (i < S.length ? "Question " + (i + 1) + " sur " + S.length : "Ton allure") + "</span></div>";
+    h += "<div class='krq-top'><button class='kf-back' onclick='" + (i ? "KineReprise.qb()" : "KineReprise.qx()") + "' aria-label='" + (i ? "Retour" : "Fermer") + "'>" + (i ? "‹" : "×") + "</button><span>" + (i < S.length ? "Question " + (i + 1) + " sur " + S.length : "Ton allure") + "</span></div><div class='krq-bar'><i style='width:" + Math.round(i / S.length * 100) + "%'></i></div>";
     if (i < S.length) {
       var st = S[i];
       if (st.f) {
@@ -281,26 +281,35 @@ var KineReprise = (function () {
   function go() {
     var c = cfgNow(); if (!c) return; var e = etat(c); if (e.fini) return;
     var P = prof(c); if (!P) { q(); return; }
-    PRE = { where: P.lieu !== "mixte" ? P.lieu : (P.where || "dehors"), montre: !!P.montre && !P.gps, gps: !!P.gps };
+    PRE = { where: P.lieu !== "mixte" ? P.lieu : (P.where || "dehors"), montre: !!P.montre && !P.gps, gps: !!P.gps, auto: P.auto != null ? !!P.auto : !!P.gps };
     preView();
   }
+  // La frise de la séance : une barre découpée en étapes (marche, course), avec l'étape en cours qui se remplit
+  function tlHtml(steps, cur) {
+    return "<div class='krp-tl' aria-hidden='true'>" + steps.map(function (st, i) { return "<i class='" + st[0] + (i < cur ? " done" : i === cur ? " now" : "") + "' style='flex:" + st[1] + "'>" + (i === cur ? "<u id='krp-tlu'></u>" : "") + "</i>"; }).join("") + "</div>";
+  }
+  function stepsFor(e) { var pl = PALIERS[e.palier - 1], st = [["echauf", 5]]; for (var i = 0; i < pl[2]; i++) { if (pl[0]) st.push(["marche", pl[0]]); st.push(["course", pl[1]]); } st.push(["retour", 3]); return st; }
   function preView() {
     var c = cfgNow(), P = prof(c), e = etat(c), p = PALIERS[e.palier - 1], el = screen();
     el.style.background = "#0E141F";
     var chip = function (on, fn, txt) { return "<button type='button' class='" + (on ? "on" : "") + "' onclick='" + fn + "'>" + txt + "</button>"; };
+    var z = hrOf(P), tot = total(e.palier - 1) + 8;
     el.innerHTML = "<div class='kr-top'><span>Palier " + e.palier + " sur 10</span><button class='krp-x' onclick='KineReprise.close()' aria-label='Fermer'>×</button></div>" +
-      "<div class='krp-pre'><b>Séance du palier " + e.palier + "</b><span>" + esc(palTxt(e.palier - 1)) + " · " + (total(e.palier - 1) + 8) + " min en tout avec l'échauffement et le retour au calme</span>" +
-      "<div class='krp-al dark'><div><b>" + fmtV(P.v) + " km/h</b><span>course · " + pace(P.v) + " /km</span></div><div><b>" + fmtV(P.vw) + " km/h</b><span>marche rapide · " + pace(P.vw) + " /km</span></div></div>" +
-      (hrOf(P) ? "<div class='krp-al dark one'><div><b>" + hrOf(P).lo + " à " + hrOf(P).hi + "</b><span>zone cardio en course, battements par minute</span></div></div>" : P.coeur === "oui" ? "<p class='krp-note'>Pas de zone cardio : tu te fies à la parole.</p>" : "") +
+      "<div class='krp-pre'><b>Séance du palier " + e.palier + "</b><span>" + tot + " min en tout, avec l'échauffement et le retour au calme</span>" + tlHtml(stepsFor(e), -1) +
+      "<div class='krp-leg'><span class='marche'>Marche</span><span class='course'>Course</span></div>" +
+      "<div class='krp-al dark'><div><em>Course</em><b>" + fmtV(P.v) + " km/h</b><span>" + pace(P.v) + " par km</span></div><div><em>Marche rapide</em><b>" + fmtV(P.vw) + " km/h</b><span>" + pace(P.vw) + " par km</span></div></div>" +
+      (z ? "<div class='krp-zone'><span>Zone cardio en course</span><b>" + z.lo + " à " + z.hi + "</b><em>battements par minute</em></div>" : P.coeur === "oui" ? "<p class='krp-note'>Pas de zone cardio : tu te fies à la parole.</p>" : "") +
       (P.lieu === "mixte" ? "<span class='krp-lab'>Où cours-tu aujourd'hui ?</span><div class='krp-ch'>" + chip(PRE.where === "tapis", "KineReprise.pw(\"tapis\")", "Sur tapis") + chip(PRE.where === "dehors", "KineReprise.pw(\"dehors\")", "Dehors") + "</div>" : "") +
-      (PRE.where === "dehors" ? "<span class='krp-lab'>Comment suivre ton allure ?</span><div class='krp-ch three'>" + chip(PRE.montre, "KineReprise.pm(1)", "Ma montre") + chip(PRE.gps, "KineReprise.pm(2)", "GPS du téléphone") + chip(!PRE.montre && !PRE.gps, "KineReprise.pm(0)", "Aucun") + "</div>" + (PRE.gps ? "<p class='krp-note'>Le téléphone mesure ta vitesse et te prévient si tu vas trop vite. Garde l'écran allumé et le téléphone sur toi : le GPS s'arrête souvent quand l'écran se verrouille, surtout sur iPhone.</p>" : "") : "") +
-      "<p class='krp-note'>Chaque changement est annoncé par un bip, même écran verrouillé. Mets le volume. La voix de Yass demande l'écran allumé.</p>" +
-      (P.src === "attente" ? "<p class='krp-note'>Allure prudente en attendant ton kiné.</p>" : "") + "</div>" +
+      (PRE.where === "dehors" ? "<span class='krp-lab'>Comment suivre ton allure ?</span><div class='krp-ch three'>" + chip(PRE.montre, "KineReprise.pm(1)", "Ma montre") + chip(PRE.gps, "KineReprise.pm(2)", "GPS du téléphone") + chip(!PRE.montre && !PRE.gps, "KineReprise.pm(0)", "Aucun") + "</div>" : "") +
+      (PRE.where === "dehors" && PRE.gps ? "<div class='krp-know'><b>Bon à savoir sur le GPS</b><ul><li>Sur un téléphone, le GPS d'une page web s'arrête quand l'écran se verrouille.</li><li>Le mode poche garde l'écran allumé mais noir, avec les touches bloquées : le GPS continue et rien ne se déclenche dans ta poche.</li><li>Pour réveiller l'écran, maintiens le bouton 2 secondes.</li><li>Avec une montre, tu n'as pas besoin du GPS du téléphone.</li></ul></div>" : "") +
+      "<span class='krp-lab'>Écran noir automatique, touches bloquées</span><div class='krp-ch'>" + chip(PRE.auto, "KineReprise.pa(1)", "Oui, après 10 s") + chip(!PRE.auto, "KineReprise.pa(0)", "Non") + "</div>" +
+      "<p class='krp-note'>Chaque changement est annoncé par un bip, même écran verrouillé. Mets le volume. La voix de Yass demande l'écran allumé." + (P.src === "attente" ? " Allure prudente en attendant ton kiné." : "") + "</p></div>" +
       "<div class='kr-btns one'><button type='button' id='krp-start' class='go' onclick='KineReprise.start()'>C'est parti</button></div><button class='krp-lnk dark' onclick='KineReprise.q()'>Régler mon allure</button>";
     el.classList.add("open");
   }
   function pw(w) { PRE.where = w; preView(); }
-  function pm(v) { PRE.montre = v === 1; PRE.gps = v === 2; preView(); }
+  function pm(v) { PRE.montre = v === 1; PRE.gps = v === 2; if (v === 2) PRE.auto = true; preView(); }
+  function pa(v) { PRE.auto = !!v; preView(); }
 
   // Une piste audio préparée à l'avance : les bips tombent à la seconde près, même quand le téléphone est verrouillé
   function buildTrack(starts, steps) {
@@ -320,7 +329,7 @@ var KineReprise = (function () {
 
   function start() {
     var c = cfgNow(); if (!c) return; var e = etat(c), P = prof(c); if (e.fini || !P) return;
-    P.where = PRE ? PRE.where : "dehors"; P.montre = PRE ? PRE.montre : false; P.gps = PRE ? PRE.gps && P.where === "dehors" : false; saveProf(P);
+    P.where = PRE ? PRE.where : "dehors"; P.montre = PRE ? PRE.montre : false; P.gps = PRE ? PRE.gps && P.where === "dehors" : false; P.auto = PRE ? !!PRE.auto : false; saveProf(P);
     var pl = PALIERS[e.palier - 1], steps = [["echauf", 5]];
     for (var i = 0; i < pl[2]; i++) { if (pl[0]) steps.push(["marche", pl[0]]); steps.push(["course", pl[1]]); }
     steps.push(["retour", 3]);
@@ -329,7 +338,7 @@ var KineReprise = (function () {
     if (typeof getAudioCtx === "function") { var ctx = getAudioCtx(); if (ctx && ctx.state === "suspended") ctx.resume(); }
     try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e2) {}
     document.body.style.overflow = "hidden";
-    var run = RUN, go1 = function () { if (RUN !== run) return; run.t0 = Date.now(); if (P.gps) gpsStart(); clearInterval(run.tm); run.tm = setInterval(tick, 250); tick(); };
+    var run = RUN, go1 = function () { if (RUN !== run) return; run.t0 = Date.now(); if (P.gps) gpsStart(); if (P.auto) run.pk = setTimeout(function () { if (RUN === run && !run.paused && run.i >= 0) poche(); }, 10000); clearInterval(run.tm); run.tm = setInterval(tick, 250); tick(); };
     try {
       run.au = new Audio(buildTrack(starts, steps)); run.au.setAttribute("playsinline", ""); run.au.preload = "auto";
       var pr = run.au.play();
@@ -400,14 +409,16 @@ var KineReprise = (function () {
     var nCourse = RUN.steps.filter(function (x) { return x[0] === "course"; }).length, kC = RUN.steps.slice(0, RUN.i + 1).filter(function (x) { return x[0] === "course"; }).length;
     var nx = RUN.steps[RUN.i + 1];
     el.style.background = L[2];
-    el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (k === "course" ? "Course " + kC + " sur " + nCourse : esc(L[0])) + "</span></div>" +
-      "<div class='krp-big'><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em>" +
-      "<div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" + (RUN.gps ? "<div class='krp-g wait' id='krp-g'></div>" : "") + (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") + "</div>" +
-      "<div class='kr-small2' id='krp-r'>" + (nx ? "Ensuite : " + esc(LAB[nx[0]][0].toLowerCase()) + " · " + fmtV(spd(nx[0])) + " km/h · " + nx[1] + " min" : "Dernière étape") + " · encore " + Math.max(0, rest) + " min après celle-ci</div>" +
+    el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (k === "course" ? "Course " + kC + " sur " + nCourse : esc(L[0])) + "</span></div>" + tlHtml(RUN.steps, RUN.i) +
+      "<div class='krp-big'><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em></div>" +
+      "<div class='krp-card'><div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" +
+      (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") +
+      (RUN.gps ? "<div class='krp-g wait' id='krp-g'></div>" : "") + "</div>" +
+      "<div class='kr-small2' id='krp-r'>" + (nx ? "Ensuite : " + esc(LAB[nx[0]][0].toLowerCase()) + " · " + fmtV(spd(nx[0])) + " km/h · " + nx[1] + " min" : "Dernière étape") + "</div>" +
       (k === "course" && RUN.p.v - 0.5 >= 5 && !RUN.paused ? "<button type='button' class='krp-slow' onclick='KineReprise.slower()'>Je n'arrive pas à tenir cette allure<span>Ralentir de 0,5 km/h" + (RUN.slow ? " · déjà " + RUN.slow + " fois" : "") + "</span></button>" : "") +
-      (RUN.gps ? "<button type='button' class='krp-lnk dark' onclick='KineReprise.poche()'>Mode poche : écran noir et touches bloquées, le GPS continue</button>" : "") +
+      "<button type='button' class='krp-lnk dark' onclick='KineReprise.poche()'>Mode poche : écran noir et touches bloquées" + (RUN.gps ? ", le GPS continue" : "") + "</button>" +
       "<div class='kr-btns'><button type='button' onclick='KineReprise.pause()'>" + (RUN.paused ? "Reprendre" : "Pause") + "</button><button type='button' onclick='KineReprise.quit()'>Arrêter</button></div>";
-    el.classList.add("open");
+    el.classList.add("open"); upd();
   }
   // Mode poche : l'écran reste allumé (donc le GPS tourne) mais il est noir et ne réagit pas aux touches ; on le réveille en maintenant le bouton
   var PT = null;
@@ -461,14 +472,14 @@ var KineReprise = (function () {
     close(); refresh();
   }
   function close() {
-    if (RUN) { clearInterval(RUN.tm); gpsStop(); try { if (RUN.au) { RUN.au.pause(); URL.revokeObjectURL(RUN.au.src); } } catch (e) {} }
+    if (RUN) { clearInterval(RUN.tm); clearTimeout(RUN.pk); gpsStop(); try { if (RUN.au) { RUN.au.pause(); URL.revokeObjectURL(RUN.au.src); } } catch (e) {} }
     RUN = null; PRE = null; var pk = $("krp-poche"); if (pk) pk.classList.remove("open"); var el = $("krp-run"); if (el) el.classList.remove("open"); document.body.style.overflow = "";
     try { if (wake) wake.release(); } catch (e) {} wake = null; if (typeof stopSpeech === "function") stopSpeech();
     try { if (navigator.mediaSession) navigator.mediaSession.metadata = null; } catch (e) {}
   }
 
   return { journal: journal, active: active, PALIERS: PALIERS, MODELES: MODELES, etat: etat, kineCard: kineCard, edit: edit, m: setM, k: setK, vs: vStep, vf: vFix, vc: vClear, send: send, stop: stop,
-    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn, poche: poche, adv: applyAdvice,
+    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn, poche: poche, pa: pa, adv: applyAdvice,
     pace: pace, hrOf: hrOf, prof: function () { return prof(cfgNow()); }, _setProf: function (o) { var c = cfgNow(); saveProf(Object.assign({ cid: c.id, v: 9, vw: 6, lieu: "tapis", montre: false, src: "patient", d: iso(), vk: c.v || null }, o || {})); },
     _run: function () { return RUN; }, _skip: function () { if (RUN && RUN.i >= 0) { RUN.off += RUN.starts[RUN.i + 1] - pos() + 0.05; tick(); } } };
 })();
