@@ -55,7 +55,7 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await page.evaluate(() => KineReprise.go()); await page.waitForTimeout(400);
   await expect(page.locator("#krp-start")).toBeVisible();
   await page.screenshot({ path: "/tmp/ra-pre.png" });
-  await page.locator(".krp-ch button", { hasText: "GPS du téléphone" }).click();
+  await page.locator(".krp-seg button", { hasText: "GPS du téléphone" }).click();
   await page.evaluate(() => { window.__geo = null; navigator.geolocation.watchPosition = function (ok) { window.__geo = ok; return 1; }; navigator.geolocation.clearWatch = function () {}; });
   await page.screenshot({ path: "/tmp/ra-pre2.png" });
   await expect(page.locator(".krp-know")).toContainText("s'arrête quand l'écran se verrouille");

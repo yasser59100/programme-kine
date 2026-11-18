@@ -4084,3 +4084,23 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .krq-opts button:active { transform: scale(.98); background: var(--blue-dim, #EEF0FF); }
 /* mode poche */
 #krp-poche .kp-t { color: #333; font-size: 2.4rem; }
+
+/* Écran de départ, version sobre : de la typographie et des filets plutôt que des cartes */
+#krp-run .krp-pre { gap: 0; padding: 18px 0 8px; }
+#krp-run .krp-pre h2 { margin: 0; font: 900 clamp(2rem, 9vw, 2.6rem)/1.05 var(--lu-head, var(--font)); letter-spacing: -.03em; }
+.krp-meta { margin: 8px 0 0; opacity: .7; font-size: .95rem; }
+#krp-run .krp-pre .krp-tl { margin-top: 22px; } #krp-run .krp-pre .krp-leg { margin-top: 10px; }
+.krp-stats { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; margin-top: 26px; border-top: 1px solid rgba(255, 255, 255, .16); border-bottom: 1px solid rgba(255, 255, 255, .16); }
+.krp-stats > div { padding: 16px 0 16px 14px; border-left: 1px solid rgba(255, 255, 255, .16); display: flex; flex-direction: column; gap: 6px; }
+.krp-stats > div:first-child { padding-left: 0; border-left: 0; }
+.krp-stats b { font: 900 clamp(1.7rem, 8vw, 2.3rem)/1 var(--lu-head, var(--font)); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.krp-stats span { font-size: .78rem; line-height: 1.35; opacity: .7; }
+.krp-opt { display: flex; flex-direction: column; gap: 8px; margin-top: 22px; } .krp-opt > span { font-size: .9rem; opacity: .75; }
+.krp-seg { display: flex; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .09); }
+.krp-seg button { flex: 1; min-height: 44px; padding: 0 6px; border: 0; border-radius: 11px; background: transparent; color: rgba(255, 255, 255, .75); font: 700 .92rem var(--font); }
+.krp-seg button.on { background: #fff; color: #0E141F; }
+.krp-know { margin-top: 14px; font-size: .9rem; line-height: 1.5; opacity: .9; } .krp-know p { margin: 0; } .krp-know details { margin-top: 6px; } .krp-know summary { cursor: pointer; text-decoration: underline; opacity: .8; } .krp-know details p { margin-top: 6px; opacity: .85; }
+#krp-run .krp-pre .krp-note { margin-top: 22px; }
+.krp-stats { grid-auto-columns: auto; } .krp-stats > div { flex: 1; } .krp-stats b { white-space: nowrap; font-size: clamp(1.5rem, 7vw, 2rem); }
+#krp-run .krp-know { background: none !important; border: 0 !important; border-left: 2px solid rgba(255, 255, 255, .35) !important; border-radius: 0 !important; padding: 2px 0 2px 14px !important; color: inherit; }
+#krp-run .krp-pre { padding-bottom: 150px; }

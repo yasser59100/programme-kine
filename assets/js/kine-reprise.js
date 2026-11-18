@@ -294,16 +294,17 @@ var KineReprise = (function () {
     el.style.background = "#0E141F";
     var chip = function (on, fn, txt) { return "<button type='button' class='" + (on ? "on" : "") + "' onclick='" + fn + "'>" + txt + "</button>"; };
     var z = hrOf(P), tot = total(e.palier - 1) + 8;
+    var seg = function (items) { return "<div class='krp-seg'>" + items.map(function (it) { return chip(it[0], it[1], it[2]); }).join("") + "</div>"; };
     el.innerHTML = "<div class='kr-top'><span>Palier " + e.palier + " sur 10</span><button class='krp-x' onclick='KineReprise.close()' aria-label='Fermer'>×</button></div>" +
-      "<div class='krp-pre'><b>Séance du palier " + e.palier + "</b><span>" + tot + " min en tout, avec l'échauffement et le retour au calme</span>" + tlHtml(stepsFor(e), -1) +
+      "<div class='krp-pre'><h2>Séance du palier " + e.palier + "</h2><p class='krp-meta'>" + tot + " minutes, échauffement et retour au calme compris</p>" + tlHtml(stepsFor(e), -1) +
       "<div class='krp-leg'><span class='marche'>Marche</span><span class='course'>Course</span></div>" +
-      "<div class='krp-al dark'><div><em>Course</em><b>" + fmtV(P.v) + " km/h</b><span>" + pace(P.v) + " par km</span></div><div><em>Marche rapide</em><b>" + fmtV(P.vw) + " km/h</b><span>" + pace(P.vw) + " par km</span></div></div>" +
-      (z ? "<div class='krp-zone'><span>Zone cardio en course</span><b>" + z.lo + " à " + z.hi + "</b><em>battements par minute</em></div>" : P.coeur === "oui" ? "<p class='krp-note'>Pas de zone cardio : tu te fies à la parole.</p>" : "") +
-      (P.lieu === "mixte" ? "<span class='krp-lab'>Où cours-tu aujourd'hui ?</span><div class='krp-ch'>" + chip(PRE.where === "tapis", "KineReprise.pw(\"tapis\")", "Sur tapis") + chip(PRE.where === "dehors", "KineReprise.pw(\"dehors\")", "Dehors") + "</div>" : "") +
-      (PRE.where === "dehors" ? "<span class='krp-lab'>Comment suivre ton allure ?</span><div class='krp-ch three'>" + chip(PRE.montre, "KineReprise.pm(1)", "Ma montre") + chip(PRE.gps, "KineReprise.pm(2)", "GPS du téléphone") + chip(!PRE.montre && !PRE.gps, "KineReprise.pm(0)", "Aucun") + "</div>" : "") +
-      (PRE.where === "dehors" && PRE.gps ? "<div class='krp-know'><b>Bon à savoir sur le GPS</b><ul><li>Sur un téléphone, le GPS d'une page web s'arrête quand l'écran se verrouille.</li><li>Le mode poche garde l'écran allumé mais noir, avec les touches bloquées : le GPS continue et rien ne se déclenche dans ta poche.</li><li>Pour réveiller l'écran, maintiens le bouton 2 secondes.</li><li>Avec une montre, tu n'as pas besoin du GPS du téléphone.</li></ul></div>" : "") +
-      "<span class='krp-lab'>Écran noir automatique, touches bloquées</span><div class='krp-ch'>" + chip(PRE.auto, "KineReprise.pa(1)", "Oui, après 10 s") + chip(!PRE.auto, "KineReprise.pa(0)", "Non") + "</div>" +
-      "<p class='krp-note'>Chaque changement est annoncé par un bip, même écran verrouillé. Mets le volume. La voix de Yass demande l'écran allumé." + (P.src === "attente" ? " Allure prudente en attendant ton kiné." : "") + "</p></div>" +
+      "<div class='krp-stats'><div><b>" + fmtV(P.v) + "</b><span>km/h en course<br>" + pace(P.v) + " par km</span></div><div><b>" + fmtV(P.vw) + "</b><span>km/h en marche<br>" + pace(P.vw) + " par km</span></div>" + (z ? "<div><b>" + z.lo + "–" + z.hi + "</b><span>battements<br>par minute</span></div>" : "") + "</div>" +
+      (z ? "" : P.coeur === "oui" ? "<p class='krp-note'>Pas de zone cardio pour toi : tu te fies à la parole.</p>" : "") +
+      (P.lieu === "mixte" ? "<div class='krp-opt'><span>Où cours-tu aujourd'hui</span>" + seg([[PRE.where === "tapis", "KineReprise.pw(\"tapis\")", "Tapis"], [PRE.where === "dehors", "KineReprise.pw(\"dehors\")", "Dehors"]]) + "</div>" : "") +
+      (PRE.where === "dehors" ? "<div class='krp-opt'><span>Suivre mon allure avec</span>" + seg([[PRE.montre, "KineReprise.pm(1)", "Ma montre"], [PRE.gps, "KineReprise.pm(2)", "GPS du téléphone"], [!PRE.montre && !PRE.gps, "KineReprise.pm(0)", "Rien"]]) + "</div>" : "") +
+      (PRE.where === "dehors" && PRE.gps ? "<div class='krp-know'><p>Le GPS d'une page web s'arrête quand l'écran se verrouille. Active le mode poche : l'écran reste allumé mais noir, et le GPS continue.</p><details><summary>Comment ça marche</summary><p>Les touches sont bloquées, donc rien ne se déclenche dans ta poche. Pour réveiller l'écran, maintiens le bouton 2 secondes. Avec une montre, tu n'as pas besoin du GPS du téléphone.</p></details></div>" : "") +
+      "<div class='krp-opt'><span>Écran noir au bout de 10 secondes</span>" + seg([[PRE.auto, "KineReprise.pa(1)", "Oui"], [!PRE.auto, "KineReprise.pa(0)", "Non"]]) + "</div>" +
+      "<p class='krp-note'>Chaque changement est annoncé par un bip, même écran verrouillé. Pense à monter le volume." + (P.src === "attente" ? " Allure prudente en attendant ton kiné." : "") + "</p></div>" +
       "<div class='kr-btns one'><button type='button' id='krp-start' class='go' onclick='KineReprise.start()'>C'est parti</button></div><button class='krp-lnk dark' onclick='KineReprise.q()'>Régler mon allure</button>";
     el.classList.add("open");
   }
