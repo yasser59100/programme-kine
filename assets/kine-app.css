@@ -4048,3 +4048,10 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .krp-adv > b { font-weight: 800; color: var(--lu-ind2, #3341E0); } .krp-adv p { margin: 0; font-weight: 700; line-height: 1.4; }
 .krp-adv ul { margin: 0; padding-left: 18px; color: var(--text2); font-size: .85rem; line-height: 1.45; } .krp-adv small { color: var(--text3); }
 .krq-ck { display: flex; gap: 12px; align-items: flex-start; margin: 12px 0 4px; font-size: .9rem; line-height: 1.4; color: var(--text2); } .krq-ck input { width: 22px; height: 22px; margin-top: 2px; flex-shrink: 0; }
+
+/* Mode poche : écran noir, touches bloquées */
+#krp-poche { position: fixed; inset: 0; z-index: 10090; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 40px; background: #000; touch-action: none; user-select: none; -webkit-user-select: none; }
+#krp-poche.open { display: flex; }
+#krp-poche .kp-t { color: #3a3a3a; font: 800 1.4rem var(--font); font-variant-numeric: tabular-nums; }
+#krp-poche button { padding: 18px 26px; border-radius: 40px; border: 2px solid #333; background: #000; color: #666; font: 700 1rem var(--font); position: relative; overflow: hidden; }
+#krp-poche button.hold { border-color: #fff; color: #fff; transition: color 1.8s linear, border-color 1.8s linear; }

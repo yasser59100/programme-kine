@@ -67,6 +67,14 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await expect(page.locator("#krp-g")).toContainText("Un peu trop vite");
   await expect(page.locator("#krp-g")).toContainText("10");
   await page.screenshot({ path: "/tmp/ra-run.png" });
+  await page.locator(".krp-lnk", { hasText: "Mode poche" }).click();
+  await expect(page.locator("#krp-poche.open")).toBeVisible();
+  await expect(page.locator("#krp-pt")).toContainText("Course");
+  await page.locator("#krp-pw").click();   // un simple toucher ne réveille pas
+  await expect(page.locator("#krp-poche.open")).toBeVisible();
+  const bb = await page.locator("#krp-pw").boundingBox();
+  await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await page.mouse.down(); await page.waitForTimeout(2100); await page.mouse.up();
+  await expect(page.locator("#krp-poche.open")).toHaveCount(0);
   // 3. ralentir en direct
   await page.locator(".krp-slow").click();
   await expect(page.locator("#krp-run .krp-v strong")).toHaveText("8");

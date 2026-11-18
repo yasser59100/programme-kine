@@ -405,10 +405,22 @@ var KineReprise = (function () {
       "<div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" + (RUN.gps ? "<div class='krp-g wait' id='krp-g'></div>" : "") + (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") + "</div>" +
       "<div class='kr-small2' id='krp-r'>" + (nx ? "Ensuite : " + esc(LAB[nx[0]][0].toLowerCase()) + " · " + fmtV(spd(nx[0])) + " km/h · " + nx[1] + " min" : "Dernière étape") + " · encore " + Math.max(0, rest) + " min après celle-ci</div>" +
       (k === "course" && RUN.p.v - 0.5 >= 5 && !RUN.paused ? "<button type='button' class='krp-slow' onclick='KineReprise.slower()'>Je n'arrive pas à tenir cette allure<span>Ralentir de 0,5 km/h" + (RUN.slow ? " · déjà " + RUN.slow + " fois" : "") + "</span></button>" : "") +
+      (RUN.gps ? "<button type='button' class='krp-lnk dark' onclick='KineReprise.poche()'>Mode poche : écran noir et touches bloquées, le GPS continue</button>" : "") +
       "<div class='kr-btns'><button type='button' onclick='KineReprise.pause()'>" + (RUN.paused ? "Reprendre" : "Pause") + "</button><button type='button' onclick='KineReprise.quit()'>Arrêter</button></div>";
     el.classList.add("open");
   }
-  function upd() { var t = $("krp-t"); if (t && RUN) t.textContent = mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))); }
+  // Mode poche : l'écran reste allumé (donc le GPS tourne) mais il est noir et ne réagit pas aux touches ; on le réveille en maintenant le bouton
+  var PT = null;
+  function poche() {
+    if (!RUN) return; var el = $("krp-poche");
+    if (!el) { el = document.createElement("div"); el.id = "krp-poche"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Mode poche"); document.body.appendChild(el); }
+    el.innerHTML = "<div class='kp-t' id='krp-pt'></div><button type='button' id='krp-pw'>Maintiens 2 secondes pour réveiller</button>";
+    var b = $("krp-pw"), go = function () { clearTimeout(PT); b.classList.add("hold"); PT = setTimeout(function () { el.classList.remove("open"); }, 1800); }, no = function () { clearTimeout(PT); b.classList.remove("hold"); };
+    b.addEventListener("pointerdown", go); b.addEventListener("pointerup", no); b.addEventListener("pointerleave", no); b.addEventListener("pointercancel", no);
+    el.classList.add("open"); upd();
+  }
+  function upd() {
+    var pt = $("krp-pt"); if (pt && RUN && RUN.i >= 0) pt.textContent = LAB[RUN.steps[RUN.i][0]][0] + " " + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))); var t = $("krp-t"); if (t && RUN) t.textContent = mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))); }
   // Le patient ne tient pas l'allure : on la baisse tout de suite, pour la suite de la séance et pour les prochaines
   function slower() {
     if (!RUN || RUN.p.v - 0.5 < 5) return;
@@ -430,6 +442,7 @@ var KineReprise = (function () {
     var el = screen(); el.style.background = "#0E141F";
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (RUN.partial ? "arrêtée" : "terminée") + "</span></div><div class='krp-end'><b>" + (RUN.partial ? "Séance arrêtée" : "Bravo !") + "</b>" +
       (RUN.gps && RUN.km >= 0.05 ? "<p>Distance mesurée : " + String(Math.round(RUN.km * 100) / 100).replace(".", ",") + " km.</p>" : "") + (RUN.slow ? "<p>Tu as ralenti " + RUN.slow + " fois : ta prochaine allure est de " + fmtV(RUN.p.v) + " km/h" + (RUN.slow >= 2 ? ", et tu refais ce palier pour te l'approprier." : ".") + "</p>" : "") +
+      (RUN.gps ? "" : "<label class='krp-hrf'><span>Distance affichée par ta montre ou le tapis, en km (si tu veux)</span><input id='krp-km' type='number' inputmode='decimal' step='0.01' min='0' max='60' placeholder='facultatif' /></label>") +
       "<label class='krp-hrf'><span>Rythme cardiaque moyen en course (si ta montre le donne)</span><input id='krp-hr' type='number' inputmode='numeric' min='60' max='220' placeholder='facultatif' /></label>" +
       "<span>Douleur pendant la séance, de 0 à 10</span><div class='krp-scale'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button onclick='KineReprise.done(" + v + ")'>" + v + "</button>"; }).join("") + "</div>" +
       "<p>Demain matin, l'appli te demandera ta douleur au réveil : c'est elle qui décide du palier suivant. La séance s'ajoute aussi à ton journal de course.</p></div>";
@@ -439,6 +452,7 @@ var KineReprise = (function () {
     var run = { id: Date.now().toString(36), t: Date.now(), d: iso(), min: min, eff: 2, pain: pain, rp: r.rp, cid: r.c.id, v0: r.v0, v1: r.p.v, slow: r.slow, lieu: r.where };
     var hrEl = $("krp-hr"), hr = hrEl ? num(hrEl.value, 60, 220) : null;
     if (r.gps && r.km >= 0.05) { run.km = Math.round(r.km * 100) / 100; run.gps = 1; }
+    var kmEl = $("krp-km"), km = kmEl ? num(kmEl.value, 0.05, 60) : null; if (km) run.km = Math.round(km * 100) / 100;
     if (r.z) run.hz = r.z.lo + "-" + r.z.hi; if (r.imc) run.imc = r.imc;
     if (hr) { run.hr = Math.round(hr); if (r.z && hr > r.z.hi + 3) { run.hot = 1; var PP = prof(r.c); if (PP && PP.v - 0.5 >= 5) { PP.v = round5(PP.v - 0.5); saveProf(PP); } if (window.showToast) showToast("Ton cœur était au-dessus de la zone : prochaine séance à " + fmtV(PP ? PP.v : r.p.v) + " km/h"); } }
     if (r.partial || pain > r.c.max) run.stop = 1;
@@ -448,13 +462,13 @@ var KineReprise = (function () {
   }
   function close() {
     if (RUN) { clearInterval(RUN.tm); gpsStop(); try { if (RUN.au) { RUN.au.pause(); URL.revokeObjectURL(RUN.au.src); } } catch (e) {} }
-    RUN = null; PRE = null; var el = $("krp-run"); if (el) el.classList.remove("open"); document.body.style.overflow = "";
+    RUN = null; PRE = null; var pk = $("krp-poche"); if (pk) pk.classList.remove("open"); var el = $("krp-run"); if (el) el.classList.remove("open"); document.body.style.overflow = "";
     try { if (wake) wake.release(); } catch (e) {} wake = null; if (typeof stopSpeech === "function") stopSpeech();
     try { if (navigator.mediaSession) navigator.mediaSession.metadata = null; } catch (e) {}
   }
 
   return { journal: journal, active: active, PALIERS: PALIERS, MODELES: MODELES, etat: etat, kineCard: kineCard, edit: edit, m: setM, k: setK, vs: vStep, vf: vFix, vc: vClear, send: send, stop: stop,
-    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn, adv: applyAdvice,
+    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn, poche: poche, adv: applyAdvice,
     pace: pace, hrOf: hrOf, prof: function () { return prof(cfgNow()); }, _setProf: function (o) { var c = cfgNow(); saveProf(Object.assign({ cid: c.id, v: 9, vw: 6, lieu: "tapis", montre: false, src: "patient", d: iso(), vk: c.v || null }, o || {})); },
     _run: function () { return RUN; }, _skip: function () { if (RUN && RUN.i >= 0) { RUN.off += RUN.starts[RUN.i + 1] - pos() + 0.05; tick(); } } };
 })();
