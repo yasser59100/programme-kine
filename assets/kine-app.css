@@ -3988,3 +3988,39 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .kh-after li i { width: 28px; height: 28px; border-radius: 50%; background: var(--blue-dim, #EEF0FF); color: var(--lu-ind2, #3341E0); display: grid; place-items: center; font-style: normal; font-weight: 800; flex-shrink: 0; }
 .kf-cabp .th-switch.th-home, .kf-cabp .th-run { margin-top: 12px; }
 .kcb-pre-s .kcb-two button { white-space: nowrap; padding-left: 10px; padding-right: 10px; font-size: .92rem; }
+
+/* Reprise de course : allure, questionnaire, départ, bouton ralentir */
+.krp-st { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px; border-radius: 18px; background: var(--surface3, #EEF0F6); }
+.krp-st b { flex: 1; text-align: center; font: 900 1.5rem var(--lu-head, var(--font)); font-variant-numeric: tabular-nums; }
+.krp-st button { width: 48px; height: 48px; border-radius: 14px; border: 0; background: var(--surface); color: var(--text); font: 800 1.5rem var(--font); box-shadow: 0 2px 8px rgba(15, 29, 46, .12); }
+.krp-al { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.krp-al > div { padding: 12px; border-radius: 16px; background: rgba(255, 255, 255, .16); display: flex; flex-direction: column; gap: 2px; }
+.krp-al b { font: 900 1.35rem var(--lu-head, var(--font)); letter-spacing: -.02em; } .krp-al span { font-size: .78rem; opacity: .85; }
+.krp-al.dark > div { background: rgba(255, 255, 255, .1); }
+.krp-ask { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; } .krp-ask b { font: 800 1.1rem var(--lu-head, var(--font)); } .krp-ask span { font-size: .88rem; opacity: .9; }
+.krp-lnk { display: block; margin: 8px auto 0; padding: 8px; border: 0; background: none; color: inherit; font: 700 .88rem var(--font); text-decoration: underline; opacity: .9; }
+.krp-lnk.dark { color: #fff; margin-bottom: 4px; }
+/* écran de départ */
+.krp-x { width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255, 255, 255, .14); color: #fff; font: 700 1.4rem var(--font); }
+.krp-pre { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.krp-pre > b { font: 900 2.1rem var(--lu-head, var(--font)); letter-spacing: -.02em; } .krp-pre > span { opacity: .85; line-height: 1.4; }
+.krp-lab { margin-top: 10px; font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
+.krp-ch { display: flex; gap: 8px; } .krp-ch button { flex: 1; min-height: 46px; border-radius: 14px; border: 2px solid rgba(255, 255, 255, .3); background: transparent; color: #fff; font: 700 .95rem var(--font); }
+.krp-ch button.on { background: #fff; color: #0E141F; border-color: #fff; }
+.krp-note { margin: 8px 0 0; font-size: .85rem; line-height: 1.4; opacity: .8; }
+#krp-run .kr-btns.one { grid-template-columns: 1fr; } #krp-run .kr-btns .go { background: #fff; color: #0E141F; border-color: #fff; }
+/* pendant la séance */
+.krp-v { display: flex; align-items: baseline; justify-content: center; gap: 8px; margin-top: 6px; }
+.krp-v strong { font: 900 clamp(2.6rem, 15vw, 4.2rem)/1 var(--lu-head, var(--font)); font-variant-numeric: tabular-nums; } .krp-v span { font: 800 1.2rem var(--font); opacity: .9; } .krp-v i { font: 700 1rem var(--font); font-style: normal; opacity: .75; margin-left: 6px; }
+.krp-line { margin: 4px 0 0; font-weight: 700; font-size: 1.05rem; line-height: 1.35; max-width: 30ch; opacity: .95; }
+.krp-slow { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-bottom: 10px; padding: 14px; border-radius: 20px; border: 0; background: #FF8A2B; color: #fff; font: 800 1.05rem var(--font); } .krp-slow span { font-weight: 600; font-size: .82rem; opacity: .95; }
+/* questionnaire */
+#krp-q { position: fixed; inset: 0; z-index: 10070; display: none; flex-direction: column; gap: 10px; background: var(--bg, #F5F7FB); color: var(--text); padding: calc(14px + env(safe-area-inset-top, 0px)) 18px calc(18px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; }
+#krp-q.open { display: flex; }
+.krq-top { display: flex; align-items: center; gap: 12px; font-weight: 700; color: var(--text2); }
+#krp-q h2 { margin: 18px 0 0; font: 900 1.8rem/1.15 var(--lu-head, var(--font)); letter-spacing: -.02em; } #krp-q > p { margin: 0; color: var(--text2); line-height: 1.45; }
+.krq-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.krq-opts button { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 18px; border-radius: 20px; border: 1.5px solid var(--border2); background: var(--surface); color: var(--text); font: inherit; text-align: left; box-shadow: 0 10px 22px -18px rgba(15, 29, 46, .5); }
+.krq-opts button b { font-weight: 800; font-size: 1.05rem; } .krq-opts button span { color: var(--text3); font-size: .85rem; }
+.krq-res { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 22px; background: var(--surface); border: 1px solid var(--border2); margin-top: 8px; }
+.krq-res > span { font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); margin-top: 6px; } .krq-res em { font-style: normal; color: var(--text2); text-align: center; }

@@ -904,6 +904,9 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await page.evaluate(() => { KineCabinet.maison(); KineReprise.edit(); });
   await page.locator("#krp-ed .krp-mods button", { hasText: "Tendinopathie" }).click();
   await expect(page.locator("#krp-ed .kf-chips button.sel").first()).toHaveText("3");
+  await page.locator("#krp-ed button", { hasText: "Fixer l'allure" }).click();
+  await page.locator("#krp-ed .krp-st button", { hasText: "+" }).first().click();
+  await expect(page.locator("#krp-ed .krp-st b").first()).toHaveText("9,5 km/h");
   await page.waitForTimeout(400);
   await shot(page, info, "92-reprise-kine");
   await page.locator("#krp-ed .seq-btn-main").click();
@@ -914,9 +917,11 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await page.evaluate(() => KineMonSuivi.doJoin());
   await page.evaluate(() => KineMonSuivi.consent(0));
   await expect(page.locator("#kms-sheet .krp-p")).toContainText("Palier 3 sur 10");
+  await expect(page.locator("#kms-sheet .krp-p")).toContainText("9,5 km/h");
   await page.waitForTimeout(400);
   await shot(page, info, "93-reprise-patient");
   await page.evaluate(() => { KineMonSuivi.close(); KineReprise.go(); });
+  await page.locator("#krp-start").click();
   await expect(page.locator("#krp-run.open .krp-big b")).toHaveText("Marche vite");
   await page.evaluate(() => KineReprise._skip());
   await expect(page.locator("#krp-run .krp-big b")).toHaveText("Marche");
