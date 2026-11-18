@@ -4038,3 +4038,13 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .krp-al.one { grid-template-columns: 1fr; }
 .krp-line.hr { font-weight: 800; opacity: 1; }
 .krp-hrf { display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: .9rem; opacity: .95; } .krp-hrf input { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: #fff; min-height: 46px; }
+
+/* GPS pendant la course, conseil du kiné, accord du patient */
+.krp-g { display: flex; align-items: baseline; justify-content: center; gap: 10px; margin-top: 10px; padding: 8px 14px; border-radius: 16px; background: rgba(255, 255, 255, .14); font-size: .95rem; flex-wrap: wrap; }
+.krp-g b { font: 900 1.2rem var(--font); } .krp-g span { font-weight: 800; } .krp-g em { font-style: normal; opacity: .8; font-weight: 600; }
+.krp-g.ok { background: rgba(16, 163, 127, .35); } .krp-g.hot { background: #FF8A2B; } .krp-g.low { background: rgba(255, 255, 255, .22); }
+.krp-ch.three button { font-size: .82rem; padding: 0 4px; }
+.krp-adv { margin: 10px 0; padding: 14px; border-radius: 18px; background: linear-gradient(160deg, #EEF0FF, #fff); border: 1px solid rgba(80, 90, 140, .18); display: flex; flex-direction: column; gap: 6px; }
+.krp-adv > b { font-weight: 800; color: var(--lu-ind2, #3341E0); } .krp-adv p { margin: 0; font-weight: 700; line-height: 1.4; }
+.krp-adv ul { margin: 0; padding-left: 18px; color: var(--text2); font-size: .85rem; line-height: 1.45; } .krp-adv small { color: var(--text3); }
+.krq-ck { display: flex; gap: 12px; align-items: flex-start; margin: 12px 0 4px; font-size: .9rem; line-height: 1.4; color: var(--text2); } .krq-ck input { width: 22px; height: 22px; margin-top: 2px; flex-shrink: 0; }

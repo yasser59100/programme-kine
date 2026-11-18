@@ -86,15 +86,33 @@ var KineReprise = (function () {
     return "<div class='su-card krp-k'><div class='su-card-h'><b>Reprise de la course</b><span>" + esc(MODELES[c.m] ? MODELES[c.m].n : "") + "</span></div>" +
       "<div class='krp-pals'>" + PALIERS.map(function (p, i) { return "<i class='" + (i + 1 < e.palier ? "ok" : i + 1 === e.palier ? "now" : "") + "'></i>"; }).join("") + "</div>" +
       "<div class='kf-sub'>" + (e.fini ? "Reprise terminée : 30 minutes de course continue. Le patient continue avec son journal de course (charge par semaine et douleur)." : "Palier " + e.palier + " sur 10 : " + esc(palTxt(e.palier - 1)) + ".") + " Seuil de douleur : " + c.max + " sur 10, " + c.f + " séances par semaine." + (function () { var l = R.filter(function (r) { return r.imc || r.hz; }).slice(-1)[0]; return l ? " Profil du patient : " + (l.imc ? "IMC " + String(l.imc).replace(".", ",") : "") + (l.imc && l.hz ? ", " : "") + (l.hz ? "zone cardio estimée " + l.hz.replace("-", " à ") + " battements" : "") + "." : ""; })() + (c.v ? " Allure fixée : " + fmtV(c.v) + " km/h (" + pace(c.v) + " /km)." : " Allure réglée par le patient.") + "</div>" +
-      (R.length ? R.slice(-4).reverse().map(function (r) { return "<div class='kcb-srow'><b>" + esc(dfr(r.d)) + "</b><span>Palier " + r.rp + " · douleur pendant " + (r.pain || 0) + "/10" + (r.next != null ? ", le lendemain " + r.next + "/10" : ", lendemain pas encore noté") + (r.hr ? " · FC " + r.hr + (r.hz ? " (zone " + r.hz.replace("-", " à ") + ")" : "") : "") + (r.v0 ? " · " + (r.v1 && r.v1 !== r.v0 ? fmtV(r.v0) + " puis " + fmtV(r.v1) : fmtV(r.v0)) + " km/h" + (r.slow ? ", ralenti " + r.slow + " fois" : "") : "") + "</span></div>"; }).join("")
+      (R.length ? R.slice(-4).reverse().map(function (r) { return "<div class='kcb-srow'><b>" + esc(dfr(r.d)) + "</b><span>Palier " + r.rp + " · douleur pendant " + (r.pain || 0) + "/10" + (r.next != null ? ", le lendemain " + r.next + "/10" : ", lendemain pas encore noté") + (r.km ? " · " + String(r.km).replace(".", ",") + " km" : "") + (r.hr ? " · FC " + r.hr + (r.hz ? " (zone " + r.hz.replace("-", " à ") + ")" : "") : "") + (r.v0 ? " · " + (r.v1 && r.v1 !== r.v0 ? fmtV(r.v0) + " puis " + fmtV(r.v1) : fmtV(r.v0)) + " km/h" + (r.slow ? ", ralenti " + r.slow + " fois" : "") : "") + "</span></div>"; }).join("")
         : "<p class='kcb-hint'>" + (C.membres ? "Les séances apparaîtront ici si le patient sauvegarde son journal." : "Le patient la verra dès que son téléphone sera relié.") + "</p>") +
       "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineReprise.edit()'>Modifier</button><button class='seq-btn-secondary kcb-danger' onclick='KineReprise.stop()'>Arrêter</button></div></div>";
   }
   function edit() {
     var C = KineCabinet._C(), c = C.course || {};
-    CFG = { id: c.id || Date.now().toString(36), m: c.m || "standard", d: c.d || 1, max: c.max != null ? c.max : 3, f: c.f || 3, s: c.s || MODELES.standard.s, c: c.c != null ? c.c : MODELES.standard.c, v: c.v || null, vw: c.vw || 6, lieu: c.lieu || "mixte" };
+    CFG = { id: c.id || Date.now().toString(36), m: c.m || "standard", d: c.d || 1, max: c.max != null ? c.max : 3, f: c.f || 3, s: c.s || MODELES.standard.s, c: c.c != null ? c.c : MODELES.standard.c, v: c.v || null, vw: c.vw || 6, lieu: c.lieu || "mixte", niv: c.niv || (declared(C) || {}).niv || "", vit: c.vit || (declared(C) || {}).vit || 0 };
     view();
   }
+  // Ce que le patient a déclaré lui-même dans son questionnaire (message avec profil), le plus récent
+  function declared(C) { var M = (C && C.msgs) || [], i; for (i = 0; i < M.length; i++) if (M[i].p && M[i].p.v) return M[i].p; return null; }
+  // Le conseil de départ pour ce patient : palier, allure, et pourquoi
+  function advise() {
+    var C = KineCabinet._C(), M = MODELES[CFG.m], dc = declared(C), why = [], d = M.d, v = null, niv = CFG.niv, hab = CFG.vit || (niv && NIV[niv] ? NIV[niv][1] : 0);
+    why.push("Modèle « " + M.n + " » : on part du palier " + M.d + ", douleur acceptée " + M.max + " sur 10, " + M.f + " séances par semaine.");
+    if (niv === "n") { d = 1; why.push("Il ne courait pas régulièrement : on repart du palier 1."); }
+    else if (niv) why.push("Avant sa blessure : " + NIV[niv][0].toLowerCase() + (CFG.vit ? ", vers " + CFG.vit + " km/h" : "") + ".");
+    if (hab) { v = Math.max(6.5, Math.min(14, round5(hab * 0.85))); why.push("Allure de reprise : environ 85 % de son allure d'avant (" + fmtV(hab) + " km/h), pour partir plus doucement qu'avant.") ; }
+    else { v = dc && dc.v ? dc.v : 8; why.push(dc && dc.v ? "Allure choisie par le patient dans son questionnaire." : "Sans niveau connu, 8 km/h est une allure de départ prudente."); }
+    if (dc && dc.v && hab && Math.abs(dc.v - v) >= 1) why.push("Le patient s'est réglé lui-même à " + fmtV(dc.v) + " km/h" + (dc.z ? ", zone cardio estimée " + String(dc.z).replace("-", " à ") : "") + (dc.imc ? ", IMC " + String(dc.imc).replace(".", ",") : "") + ".");
+    else if (dc && (dc.z || dc.imc)) why.push("Profil déclaré : " + (dc.age ? dc.age + " ans, " : "") + (dc.imc ? "IMC " + String(dc.imc).replace(".", ",") + ", " : "") + (dc.z ? "zone cardio estimée " + String(dc.z).replace("-", " à ") + " battements." : "").replace(/, $/, "."));
+    var P = window.KineParcours && C.parcours ? KineParcours.get(C.parcours) : null, nE = P && P.etapes ? P.etapes.length : 0, e = (+C.etape || 0) + 1;
+    if (nE) why.push("Son parcours en est à l'étape " + e + " sur " + nE + (e < nE ? " : la reprise de la course vient en général quand le parcours est bien avancé. À toi de juger si c'est le moment." : "."));
+    why.push("Surface : " + M.s.charAt(0).toLowerCase() + M.s.slice(1) + ".");
+    return { d: d, v: v, vw: niv === "n" ? 5.5 : 6, why: why };
+  }
+  function applyAdvice() { var a = advise(), M = MODELES[CFG.m]; CFG.d = a.d; CFG.v = a.v; CFG.vw = a.vw; CFG.max = M.max; CFG.f = M.f; view(); }
   function setM(m) { var M = MODELES[m]; CFG.m = m; CFG.d = M.d; CFG.max = M.max; CFG.f = M.f; CFG.s = M.s; CFG.c = M.c; view(); }
   function setK(k, v) { CFG[k] = v; view(); }
   function vStep(key, dir) { var lo = key === "v" ? 5 : 4, hi = key === "v" ? 18 : 8; CFG[key] = Math.max(lo, Math.min(hi, round5((CFG[key] || (key === "v" ? 9 : 6)) + dir * 0.5))); view(); }
@@ -105,10 +123,13 @@ var KineReprise = (function () {
     var chips = function (k, list, fmt) { return "<div class='kf-chips'>" + list.map(function (v) { return "<button type='button' class='" + (CFG[k] === v ? "sel" : "") + "' onclick='KineReprise.k(" + JSON.stringify(k) + "," + JSON.stringify(v).replace(/'/g, "&#39;") + ")'>" + esc(fmt ? fmt(v) : v) + "</button>"; }).join("") + "</div>"; };
     el.innerHTML = "<div class='kcb-incl-card kcb-qcard'><div class='kcb-mh'><span>Reprise de la course</span><button class='kf-back' onclick='document.getElementById(\"krp-ed\").classList.remove(\"open\")' aria-label='Fermer'>×</button></div>" +
       "<span class='kcb-lab'>Modèle</span><div class='krp-mods'>" + Object.keys(MODELES).map(function (m) { return "<button class='" + (CFG.m === m ? "on" : "") + "' onclick='KineReprise.m(\"" + m + "\")'>" + esc(MODELES[m].n) + "</button>"; }).join("") + "</div>" +
+      "<span class='kcb-lab'>Niveau avant la blessure</span>" + chips("niv", ["n", "o", "r", "c"], function (v) { return NIV[v][0]; }) +
+      "<span class='kcb-lab'>Vitesse de course d'avant, à l'aise</span>" + chips("vit", [0, 8, 9, 10, 11, 12, 13], function (v) { return v ? v + " km/h" : "Inconnue"; }) +
+      (function () { var a = advise(); return "<div class='krp-adv'><b>Conseil pour ce patient</b><p>Démarre au palier " + a.d + ", à " + fmtV(a.v) + " km/h (" + pace(a.v) + " par km), marche rapide à " + fmtV(a.vw) + " km/h.</p><ul>" + a.why.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul><button type='button' class='seq-btn-secondary' onclick='KineReprise.adv()'>Appliquer ce conseil</button><small>Ce n'est qu'une aide : tu règles toi-même le palier et la vitesse juste en dessous.</small></div>"; })() +
       "<span class='kcb-lab'>Palier de départ</span>" + chips("d", [1, 2, 3, 4, 5, 6, 7, 8]) + "<p class='kcb-hint'>" + esc(palTxt(CFG.d - 1)) + ", soit " + total(CFG.d - 1) + " minutes.</p>" +
       "<span class='kcb-lab'>Douleur acceptée, pendant et le lendemain matin</span>" + chips("max", [2, 3, 4, 5], function (v) { return v + " sur 10"; }) +
       "<span class='kcb-lab'>Séances par semaine</span>" + chips("f", [2, 3, 4], function (v) { return v + " par semaine"; }) +
-      "<span class='kcb-lab'>Allure de course</span>" + (CFG.v ?
+      "<span class='kcb-lab'>Allure de course au départ</span>" + (CFG.v ?
         "<div class='krp-st'><button type='button' onclick='KineReprise.vs(\"v\",-1)' aria-label='Moins vite'>−</button><b>" + fmtV(CFG.v) + " km/h</b><button type='button' onclick='KineReprise.vs(\"v\",1)' aria-label='Plus vite'>+</button></div>" +
         "<p class='kcb-hint'>Soit " + pace(CFG.v) + " par km. Une allure où le patient peut encore parler. Le patient pourra la baisser en direct, jamais la monter.</p>" +
         "<span class='kcb-lab'>Marche rapide</span><div class='krp-st'><button type='button' onclick='KineReprise.vs(\"vw\",-1)' aria-label='Moins vite'>−</button><b>" + fmtV(CFG.vw) + " km/h</b><button type='button' onclick='KineReprise.vs(\"vw\",1)' aria-label='Plus vite'>+</button></div>" +
@@ -199,9 +220,17 @@ var KineReprise = (function () {
       h += "<h2>Voici ton allure de reprise</h2><p>Elle est plus douce que ton allure d'avant : le tendon ou l'articulation a besoin de temps. Tu pourras la baisser en direct pendant la séance.</p>" +
         "<div class='krq-res'><span>Course</span><div class='krp-st'><button onclick='KineReprise.qv(-1)' aria-label='Moins vite'>−</button><b>" + fmtV(QQ.v) + " km/h</b><button onclick='KineReprise.qv(1)' aria-label='Plus vite'>+</button></div><em>" + pace(QQ.v) + " par kilomètre</em>" +
         "<span>Marche rapide</span><div class='krp-st'><b>" + fmtV(QQ.vw) + " km/h</b></div><em>" + pace(QQ.vw) + " par kilomètre</em></div>" +
-        zoneCard(QQ.a) + "<button class='seq-btn-main' onclick='KineReprise.qs()'>Valider mon allure</button>";
+        zoneCard(QQ.a) + (linked() ? "<label class='krq-ck'><input type='checkbox' id='krq-tell' checked /><span>Prévenir mon kiné de cette allure, de mon niveau, de mon âge, de mon IMC et de ma zone cardio</span></label>" : "") + "<button class='seq-btn-main' onclick='KineReprise.qs()'>Valider mon allure</button>";
     }
     el.innerHTML = h; el.classList.add("open");
+  }
+  function linked() { var s = window.KineMonSuivi && KineMonSuivi.state(); return !!(s && s.pid && window.fbPat && fbPat.msgSend); }
+  function tellKine(P0) {
+    var s = KineMonSuivi.state(), z = hrOf(P0), im = imcOf(P0), nv = P0.niv && NIV[P0.niv] ? NIV[P0.niv][0] : "";
+    var txt = "Allure de course réglée : " + fmtV(P0.v) + " km/h (" + pace(P0.v) + " par km), marche " + fmtV(P0.vw) + " km/h." + (nv ? " Avant : " + nv.toLowerCase() + (P0.vit ? ", " + P0.vit + " km/h" : "") + "." : "") +
+      " " + (P0.lieu === "tapis" ? "Sur tapis." : P0.lieu === "dehors" ? "Dehors." : "Tapis et dehors.") + (P0.age ? " " + P0.age + " ans." : "") + (im ? " IMC " + String(im).replace(".", ",") + "." : "") + (z ? " Zone cardio estimée " + z.lo + " à " + z.hi + "." : "");
+    var ex = { v: P0.v, vw: P0.vw, niv: P0.niv || "", lieu: P0.lieu }; if (P0.vit) ex.vit = P0.vit; if (P0.age) ex.age = P0.age; if (im) ex.imc = im; if (z) ex.z = z.lo + "-" + z.hi;
+    try { fbPat.msgSend(s.pid, txt, ex).then(function () {}, function () {}); } catch (e) {}
   }
   function zoneCard(A) {
     var P = { age: num(A.age, 14, 90), hrm: num(A.hrm, 120, 220), hrr: num(A.hrr, 35, 110), coeur: A.coeur2 === "oui" ? "oui" : "", kg: num(A.kg, 30, 250), cm: num(A.cm, 120, 220) }, z = hrOf(P), im = imcOf(P), h = "";
@@ -225,7 +254,9 @@ var KineReprise = (function () {
     var c = cfgNow(); if (!c || !QQ) return;
     var A = QQ.a, P0 = { cid: c.id, v: QQ.v, vw: QQ.vw, lieu: A.lieu || "mixte", montre: A.montre === "oui", src: "patient", niv: A.niv || "", d: iso(), vk: c.v || null,
       age: num(A.age, 14, 90), kg: num(A.kg, 30, 250), cm: num(A.cm, 120, 220), hrr: num(A.hrr, 35, 110), hrm: num(A.hrm, 120, 220), coeur: A.coeur2 === "oui" ? "oui" : "" };
+    if (A.vit && A.vit !== "?") P0.vit = +A.vit;
     saveProf(P0);
+    var tell = $("krq-tell"); if (tell && tell.checked && linked()) tellKine(P0);
     qx(); refresh();
   }
   // « Avec mon kiné » : une allure prudente en attendant, et le kiné est prévenu par message
@@ -250,7 +281,7 @@ var KineReprise = (function () {
   function go() {
     var c = cfgNow(); if (!c) return; var e = etat(c); if (e.fini) return;
     var P = prof(c); if (!P) { q(); return; }
-    PRE = { where: P.lieu !== "mixte" ? P.lieu : (P.where || "dehors"), montre: !!P.montre };
+    PRE = { where: P.lieu !== "mixte" ? P.lieu : (P.where || "dehors"), montre: !!P.montre && !P.gps, gps: !!P.gps };
     preView();
   }
   function preView() {
@@ -262,14 +293,14 @@ var KineReprise = (function () {
       "<div class='krp-al dark'><div><b>" + fmtV(P.v) + " km/h</b><span>course · " + pace(P.v) + " /km</span></div><div><b>" + fmtV(P.vw) + " km/h</b><span>marche rapide · " + pace(P.vw) + " /km</span></div></div>" +
       (hrOf(P) ? "<div class='krp-al dark one'><div><b>" + hrOf(P).lo + " à " + hrOf(P).hi + "</b><span>zone cardio en course, battements par minute</span></div></div>" : P.coeur === "oui" ? "<p class='krp-note'>Pas de zone cardio : tu te fies à la parole.</p>" : "") +
       (P.lieu === "mixte" ? "<span class='krp-lab'>Où cours-tu aujourd'hui ?</span><div class='krp-ch'>" + chip(PRE.where === "tapis", "KineReprise.pw(\"tapis\")", "Sur tapis") + chip(PRE.where === "dehors", "KineReprise.pw(\"dehors\")", "Dehors") + "</div>" : "") +
-      (PRE.where === "dehors" ? "<span class='krp-lab'>Ta montre</span><div class='krp-ch'>" + chip(PRE.montre, "KineReprise.pm(1)", "Avec montre") + chip(!PRE.montre, "KineReprise.pm(0)", "Sans montre") + "</div>" : "") +
+      (PRE.where === "dehors" ? "<span class='krp-lab'>Comment suivre ton allure ?</span><div class='krp-ch three'>" + chip(PRE.montre, "KineReprise.pm(1)", "Ma montre") + chip(PRE.gps, "KineReprise.pm(2)", "GPS du téléphone") + chip(!PRE.montre && !PRE.gps, "KineReprise.pm(0)", "Aucun") + "</div>" + (PRE.gps ? "<p class='krp-note'>Le téléphone mesure ta vitesse et te prévient si tu vas trop vite. Garde l'écran allumé et le téléphone sur toi : le GPS s'arrête souvent quand l'écran se verrouille, surtout sur iPhone.</p>" : "") : "") +
       "<p class='krp-note'>Chaque changement est annoncé par un bip, même écran verrouillé. Mets le volume. La voix de Yass demande l'écran allumé.</p>" +
       (P.src === "attente" ? "<p class='krp-note'>Allure prudente en attendant ton kiné.</p>" : "") + "</div>" +
       "<div class='kr-btns one'><button type='button' id='krp-start' class='go' onclick='KineReprise.start()'>C'est parti</button></div><button class='krp-lnk dark' onclick='KineReprise.q()'>Régler mon allure</button>";
     el.classList.add("open");
   }
   function pw(w) { PRE.where = w; preView(); }
-  function pm(v) { PRE.montre = !!v; preView(); }
+  function pm(v) { PRE.montre = v === 1; PRE.gps = v === 2; preView(); }
 
   // Une piste audio préparée à l'avance : les bips tombent à la seconde près, même quand le téléphone est verrouillé
   function buildTrack(starts, steps) {
@@ -289,22 +320,51 @@ var KineReprise = (function () {
 
   function start() {
     var c = cfgNow(); if (!c) return; var e = etat(c), P = prof(c); if (e.fini || !P) return;
-    P.where = PRE ? PRE.where : "dehors"; P.montre = PRE ? PRE.montre : false; saveProf(P);
+    P.where = PRE ? PRE.where : "dehors"; P.montre = PRE ? PRE.montre : false; P.gps = PRE ? PRE.gps && P.where === "dehors" : false; saveProf(P);
     var pl = PALIERS[e.palier - 1], steps = [["echauf", 5]];
     for (var i = 0; i < pl[2]; i++) { if (pl[0]) steps.push(["marche", pl[0]]); steps.push(["course", pl[1]]); }
     steps.push(["retour", 3]);
     var starts = [0]; steps.forEach(function (s, i) { starts.push(starts[i] + s[1] * 60); });
-    RUN = { c: c, rp: e.palier, steps: steps, starts: starts, tot: starts[steps.length], i: -1, left: -1, paused: false, t0: 0, pausedMs: 0, off: 0, p: { v: P.v, vw: P.vw }, z: hrOf(P), imc: imcOf(P), v0: P.v, slow: 0, where: P.where, montre: P.montre, au: null, auOk: false };
+    RUN = { c: c, rp: e.palier, steps: steps, starts: starts, tot: starts[steps.length], i: -1, left: -1, paused: false, t0: 0, pausedMs: 0, off: 0, p: { v: P.v, vw: P.vw }, z: hrOf(P), imc: imcOf(P), v0: P.v, slow: 0, where: P.where, montre: P.montre || P.gps, gps: false, km: 0, pts: [], sp: null, au: null, auOk: false };
     if (typeof getAudioCtx === "function") { var ctx = getAudioCtx(); if (ctx && ctx.state === "suspended") ctx.resume(); }
     try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e2) {}
     document.body.style.overflow = "hidden";
-    var run = RUN, go1 = function () { if (RUN !== run) return; run.t0 = Date.now(); clearInterval(run.tm); run.tm = setInterval(tick, 250); tick(); };
+    var run = RUN, go1 = function () { if (RUN !== run) return; run.t0 = Date.now(); if (P.gps) gpsStart(); clearInterval(run.tm); run.tm = setInterval(tick, 250); tick(); };
     try {
       run.au = new Audio(buildTrack(starts, steps)); run.au.setAttribute("playsinline", ""); run.au.preload = "auto";
       var pr = run.au.play();
       if (pr && pr.then) pr.then(function () { run.auOk = true; go1(); }, function () { run.au = null; go1(); }); else { run.auOk = true; go1(); }
     } catch (e3) { run.au = null; go1(); }
     if (!window._krpVis) { window._krpVis = 1; document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && RUN) { tick(); try { if (!wake && navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e4) {} } }); }
+  }
+  /* ── GPS du téléphone : vitesse lissée sur 15 s, distance, alerte si trop vite ── */
+  function hav(a, b) { var R = 6371000, r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lon - a.lon) * r, x = Math.sin(dLa / 2) * Math.sin(dLa / 2) + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2); return 2 * R * Math.asin(Math.sqrt(x)); }
+  function gpsStart() {
+    if (!navigator.geolocation) { if (window.showToast) showToast("GPS indisponible sur ce téléphone : la séance continue sans"); return; }
+    RUN.gps = true;
+    try { RUN.gw = navigator.geolocation.watchPosition(gpsPos, gpsErr, { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 }); } catch (e) { RUN.gps = false; }
+  }
+  function gpsStop() { try { if (RUN && RUN.gw != null && navigator.geolocation) navigator.geolocation.clearWatch(RUN.gw); } catch (e) {} if (RUN) RUN.gw = null; }
+  function gpsErr(e) { if (RUN && e && e.code === 1) { RUN.gps = false; gpsStop(); if (window.showToast) showToast("GPS refusé : la séance continue sans"); paint(); } }
+  function gpsPos(po) {
+    if (!RUN || RUN.paused || !RUN.gps) return;
+    var c = po.coords, t = po.timestamp || Date.now(); if (c.accuracy > 40) return;
+    var pt = { lat: c.latitude, lon: c.longitude, t: t }, last = RUN.pts[RUN.pts.length - 1];
+    if (last) { var dt = (t - last.t) / 1000, d = hav(last, pt); if (dt <= 0 || d / dt * 3.6 > 30) return; RUN.km += d / 1000; }
+    RUN.pts.push(pt); if (RUN.pts.length > 40) RUN.pts.shift();
+    var w = RUN.pts.filter(function (q) { return t - q.t <= 15000; });
+    if (w.length >= 2 && (w[w.length - 1].t - w[0].t) >= 5000) RUN.sp = hav(w[0], w[w.length - 1]) / ((w[w.length - 1].t - w[0].t) / 1000) * 3.6;
+    RUN.spT = Date.now();
+  }
+  function gpsTick() {
+    if (!RUN || !RUN.gps) return;
+    var el = $("krp-g"), k = RUN.steps[RUN.i] && RUN.steps[RUN.i][0], now = Date.now(), tgt = RUN.p.v, st = "", cls = "";
+    if (RUN.sp == null || now - (RUN.spT || 0) > 10000) { st = "Recherche du signal GPS"; cls = "wait"; RUN.hotSince = 0; }
+    else if (k === "course") {
+      if (RUN.sp > tgt * 1.08) { st = "Un peu trop vite"; cls = "hot"; if (!RUN.hotSince) RUN.hotSince = now; if (now - RUN.hotSince > 12000 && now - (RUN.lastWarn || 0) > 45000) { RUN.lastWarn = now; say("Un peu trop vite. Ralentis."); if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} } } }
+      else { RUN.hotSince = 0; st = RUN.sp < tgt * 0.92 ? "Plus lent que prévu" : "Dans la cible"; cls = RUN.sp < tgt * 0.92 ? "low" : "ok"; }
+    } else { RUN.hotSince = 0; }
+    if (el) { el.className = "krp-g " + cls; el.innerHTML = (RUN.sp != null && cls !== "wait" ? "<b>" + fmtV(RUN.sp) + " km/h</b> mesurés" : "") + "<span>" + st + "</span><em>" + (RUN.km >= 0.05 ? String(Math.round(RUN.km * 100) / 100).replace(".", ",") + " km" : "") + "</em>"; }
   }
   function pos() { var base = RUN.auOk && RUN.au && !RUN.au.paused ? RUN.au.currentTime : (Date.now() - RUN.t0 - RUN.pausedMs) / 1000; return base + RUN.off; }
   function stepAt(t) { var i = 0; while (i < RUN.steps.length - 1 && t >= RUN.starts[i + 1]) i++; return i; }
@@ -331,6 +391,7 @@ var KineReprise = (function () {
     var i = stepAt(t);
     if (i !== RUN.i) { RUN.i = i; RUN.left = -1; announce(); paint(); }
     var left = Math.ceil(RUN.starts[i + 1] - t);
+    gpsTick();
     if (left !== RUN.left) { RUN.left = left; if (left === 10 && RUN.steps[i][1] >= 1) say("Encore 10 secondes."); if (left <= 3 && left > 0 && !RUN.auOk) beep(520, 0.08); upd(); }
   }
   function paint() {
@@ -341,7 +402,7 @@ var KineReprise = (function () {
     el.style.background = L[2];
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (k === "course" ? "Course " + kC + " sur " + nCourse : esc(L[0])) + "</span></div>" +
       "<div class='krp-big'><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em>" +
-      "<div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" + (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") + "</div>" +
+      "<div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" + (RUN.gps ? "<div class='krp-g wait' id='krp-g'></div>" : "") + (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") + "</div>" +
       "<div class='kr-small2' id='krp-r'>" + (nx ? "Ensuite : " + esc(LAB[nx[0]][0].toLowerCase()) + " · " + fmtV(spd(nx[0])) + " km/h · " + nx[1] + " min" : "Dernière étape") + " · encore " + Math.max(0, rest) + " min après celle-ci</div>" +
       (k === "course" && RUN.p.v - 0.5 >= 5 && !RUN.paused ? "<button type='button' class='krp-slow' onclick='KineReprise.slower()'>Je n'arrive pas à tenir cette allure<span>Ralentir de 0,5 km/h" + (RUN.slow ? " · déjà " + RUN.slow + " fois" : "") + "</span></button>" : "") +
       "<div class='kr-btns'><button type='button' onclick='KineReprise.pause()'>" + (RUN.paused ? "Reprendre" : "Pause") + "</button><button type='button' onclick='KineReprise.quit()'>Arrêter</button></div>";
@@ -365,10 +426,10 @@ var KineReprise = (function () {
   }
   function quit() { if (!RUN) return; if (RUN.i >= 0 && pos() > 120 && confirm("Arrêter la séance ? Tu pourras noter ta douleur pour que ton kiné le sache.")) { RUN.partial = true; endRun(); return; } close(); }
   function endRun() {
-    clearInterval(RUN.tm); try { if (RUN.au) RUN.au.pause(); } catch (e) {} say(RUN.partial ? "Séance arrêtée." : "Séance terminée, bravo !");
+    clearInterval(RUN.tm); gpsStop(); try { if (RUN.au) RUN.au.pause(); } catch (e) {} say(RUN.partial ? "Séance arrêtée." : "Séance terminée, bravo !");
     var el = screen(); el.style.background = "#0E141F";
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (RUN.partial ? "arrêtée" : "terminée") + "</span></div><div class='krp-end'><b>" + (RUN.partial ? "Séance arrêtée" : "Bravo !") + "</b>" +
-      (RUN.slow ? "<p>Tu as ralenti " + RUN.slow + " fois : ta prochaine allure est de " + fmtV(RUN.p.v) + " km/h" + (RUN.slow >= 2 ? ", et tu refais ce palier pour te l'approprier." : ".") + "</p>" : "") +
+      (RUN.gps && RUN.km >= 0.05 ? "<p>Distance mesurée : " + String(Math.round(RUN.km * 100) / 100).replace(".", ",") + " km.</p>" : "") + (RUN.slow ? "<p>Tu as ralenti " + RUN.slow + " fois : ta prochaine allure est de " + fmtV(RUN.p.v) + " km/h" + (RUN.slow >= 2 ? ", et tu refais ce palier pour te l'approprier." : ".") + "</p>" : "") +
       "<label class='krp-hrf'><span>Rythme cardiaque moyen en course (si ta montre le donne)</span><input id='krp-hr' type='number' inputmode='numeric' min='60' max='220' placeholder='facultatif' /></label>" +
       "<span>Douleur pendant la séance, de 0 à 10</span><div class='krp-scale'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button onclick='KineReprise.done(" + v + ")'>" + v + "</button>"; }).join("") + "</div>" +
       "<p>Demain matin, l'appli te demandera ta douleur au réveil : c'est elle qui décide du palier suivant. La séance s'ajoute aussi à ton journal de course.</p></div>";
@@ -377,6 +438,7 @@ var KineReprise = (function () {
     var r = RUN, min = Math.max(1, Math.round(Math.min(pos(), r.tot) / 60));
     var run = { id: Date.now().toString(36), t: Date.now(), d: iso(), min: min, eff: 2, pain: pain, rp: r.rp, cid: r.c.id, v0: r.v0, v1: r.p.v, slow: r.slow, lieu: r.where };
     var hrEl = $("krp-hr"), hr = hrEl ? num(hrEl.value, 60, 220) : null;
+    if (r.gps && r.km >= 0.05) { run.km = Math.round(r.km * 100) / 100; run.gps = 1; }
     if (r.z) run.hz = r.z.lo + "-" + r.z.hi; if (r.imc) run.imc = r.imc;
     if (hr) { run.hr = Math.round(hr); if (r.z && hr > r.z.hi + 3) { run.hot = 1; var PP = prof(r.c); if (PP && PP.v - 0.5 >= 5) { PP.v = round5(PP.v - 0.5); saveProf(PP); } if (window.showToast) showToast("Ton cœur était au-dessus de la zone : prochaine séance à " + fmtV(PP ? PP.v : r.p.v) + " km/h"); } }
     if (r.partial || pain > r.c.max) run.stop = 1;
@@ -385,14 +447,14 @@ var KineReprise = (function () {
     close(); refresh();
   }
   function close() {
-    if (RUN) { clearInterval(RUN.tm); try { if (RUN.au) { RUN.au.pause(); URL.revokeObjectURL(RUN.au.src); } } catch (e) {} }
+    if (RUN) { clearInterval(RUN.tm); gpsStop(); try { if (RUN.au) { RUN.au.pause(); URL.revokeObjectURL(RUN.au.src); } } catch (e) {} }
     RUN = null; PRE = null; var el = $("krp-run"); if (el) el.classList.remove("open"); document.body.style.overflow = "";
     try { if (wake) wake.release(); } catch (e) {} wake = null; if (typeof stopSpeech === "function") stopSpeech();
     try { if (navigator.mediaSession) navigator.mediaSession.metadata = null; } catch (e) {}
   }
 
   return { journal: journal, active: active, PALIERS: PALIERS, MODELES: MODELES, etat: etat, kineCard: kineCard, edit: edit, m: setM, k: setK, vs: vStep, vf: vFix, vc: vClear, send: send, stop: stop,
-    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn,
+    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn, adv: applyAdvice,
     pace: pace, hrOf: hrOf, prof: function () { return prof(cfgNow()); }, _setProf: function (o) { var c = cfgNow(); saveProf(Object.assign({ cid: c.id, v: 9, vw: 6, lieu: "tapis", montre: false, src: "patient", d: iso(), vk: c.v || null }, o || {})); },
     _run: function () { return RUN; }, _skip: function () { if (RUN && RUN.i >= 0) { RUN.off += RUN.starts[RUN.i + 1] - pos() + 0.05; tick(); } } };
 })();

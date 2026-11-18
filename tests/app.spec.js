@@ -903,7 +903,13 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
   await page.evaluate(() => { KineCabinet.maison(); KineReprise.edit(); });
   await page.locator("#krp-ed .krp-mods button", { hasText: "Tendinopathie" }).click();
-  await expect(page.locator("#krp-ed .kf-chips button.sel").first()).toHaveText("3");
+  await expect(page.locator("#krp-ed .kf-chips").nth(2).locator("button.sel")).toHaveText("3");
+  await expect(page.locator("#krp-ed .krp-adv")).toContainText("palier 3");
+  await page.locator("#krp-ed .kf-chips button", { hasText: "3 fois par semaine" }).click();
+  await page.locator("#krp-ed .kf-chips button", { hasText: "10 km/h" }).click();
+  await expect(page.locator("#krp-ed .krp-adv p")).toContainText("8,5 km/h");
+  await page.locator("#krp-ed .krp-adv").scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
+  await page.screenshot({ path: "/tmp/ra-kine.png" });
   await page.locator("#krp-ed button", { hasText: "Fixer l'allure" }).click();
   await page.locator("#krp-ed .krp-st button", { hasText: "+" }).first().click();
   await expect(page.locator("#krp-ed .krp-st b").first()).toHaveText("9,5 km/h");

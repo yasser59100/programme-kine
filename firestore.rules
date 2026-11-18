@@ -186,7 +186,8 @@ service cloud.firestore {
       match /msgs/{id} {
         allow read, write: if isAdmin();
         allow create: if isMember(pid)
-          && request.resource.data.keys().hasOnly(['txt', 't'])
+          && request.resource.data.keys().hasOnly(['txt', 't', 'p'])
+          && (!('p' in request.resource.data) || (request.resource.data.p is map && request.resource.data.p.size() <= 12))
           && request.resource.data.txt is string && request.resource.data.txt.size() >= 1 && request.resource.data.txt.size() <= 500
           && request.resource.data.t == request.time;
       }

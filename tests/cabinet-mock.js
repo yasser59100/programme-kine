@@ -38,7 +38,7 @@ window.__db = { patients: {}, codes: {}, demandes: {}, liens: {} };
     photos: function(pid){ return window.fbCab.photos(pid); },
     notifSave: function(pid, id, sub){ var P0 = D.patients[pid]; P0.notif = P0.notif || {}; P0.notif[id] = { sub: sub }; return R(); },
     notifDel: function(pid, id){ delete (D.patients[pid].notif || {})[id]; return R(); },
-    msgSend: function(pid, txt){ var P0 = D.patients[pid]; P0.msgs = P0.msgs || []; P0.msgs.push({ txt: String(txt).slice(0, 500), t: Date.now() }); return R(); },
+    msgSend: function(pid, txt, extra){ var P0 = D.patients[pid]; P0.msgs = P0.msgs || []; P0.msgs.unshift({ txt: String(txt).slice(0, 500), t: Date.now(), p: extra || null }); return R(); },
     seen: function(pid){ if (D.patients[pid]) D.patients[pid].vu = Date.now() + 1; return R(); },
     join: function(c){ var pid = D.codes[c]; if(!pid) return Promise.reject(new Error("code")); D.patients[pid].membres = 1; delete D.codes[c]; return R(pid); },
     get: function(pid){ var o = full(pid); if (o) { delete o.notes; } return R(o); },

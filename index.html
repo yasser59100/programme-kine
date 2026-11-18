@@ -156,7 +156,7 @@ window.fbCab = {
     await Promise.all(rows.map(async function (p) {
       try { p.maison = cabRows(await getDocs(query(collection(db, CAB, p.id, "maison"), orderBy("w", "desc"), limit(2)))); } catch (e) { p.maison = []; }
       // hôpital : ce que le patient a déclaré aujourd'hui (document du mois du journal, un seul document)
-      try { p.msgs = cabRows(await getDocs(query(collection(db, CAB, p.id, "msgs"), orderBy("t", "desc"), limit(5)))).map(function (x) { return { txt: x.txt, t: x.t && x.t.toMillis ? x.t.toMillis() : 0 }; }); } catch (e) { p.msgs = []; }
+      try { p.msgs = cabRows(await getDocs(query(collection(db, CAB, p.id, "msgs"), orderBy("t", "desc"), limit(5)))).map(function (x) { return { txt: x.txt, t: x.t && x.t.toMillis ? x.t.toMillis() : 0, p: x.p || null }; }); } catch (e) { p.msgs = []; }
       if (p.parcours) { try { var n = new Date(), ym = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2), ds = ym + "-" + ("0" + n.getDate()).slice(-2), js = await getDoc(doc(db, CAB, p.id, "journal", ym)); p.ce = js.exists() && js.data().r ? (js.data().r[ds] || null) : null; } catch (e) { p.ce = null; } }
       // téléphone relié ou non (un seul document suffit)
       try { p.membres = (await getDocs(query(collection(db, CAB, p.id, "membres"), limit(1)))).size; } catch (e) { p.membres = null; }
@@ -199,7 +199,7 @@ window.fbCab = {
       getDocs(collection(db, CAB, pid, "journal")).catch(function () { return { docs: [] }; }),
       getDocs(collection(db, CAB, pid, "quest")).catch(function () { return { docs: [] }; }),
       getDocs(query(collection(db, CAB, pid, "msgs"), orderBy("t", "desc"), limit(30))).catch(function () { return { docs: [] }; })]);
-    o.msgs = cabRows(r[7]).map(function (x) { return { txt: x.txt, t: x.t && x.t.toMillis ? x.t.toMillis() : 0 }; });
+    o.msgs = cabRows(r[7]).map(function (x) { return { txt: x.txt, t: x.t && x.t.toMillis ? x.t.toMillis() : 0, p: x.p || null }; });
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]); o.journal = cabRows(r[5]); o.quest = cabRows(r[6]);
     // Dernière fois que le téléphone du patient a reçu sa fiche (accusé de réception)
     o.vu = 0; r[3].docs.forEach(function (m) { var v = m.data().vu; if (v && v.toMillis && v.toMillis() > o.vu) o.vu = v.toMillis(); });
@@ -276,7 +276,11 @@ window.fbPat = {
   notifSave: async function (pid, id, sub) { await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "notif", id), { sub: sub, t: serverTimestamp() }); },
   notifDel: async function (pid, id) { await cabAnon(); await deleteDoc(doc(cabDb, CAB, pid, "notif", id)); },
   // Message du patient à son kiné (court, une fiche = une conversation lue par le kiné)
-  msgSend: async function (pid, txt) { await cabAnon(); await addDoc(collection(cabDb, CAB, pid, "msgs"), { txt: String(txt).slice(0, 500), t: serverTimestamp() }); },
+  msgSend: async function (pid, txt, extra) {
+    await cabAnon(); var d = { txt: String(txt).slice(0, 500), t: serverTimestamp() };
+    if (extra && typeof extra === "object") { var q = {}, n = 0; Object.keys(extra).forEach(function (k) { var v = extra[k]; if (n < 12 && /^[a-z0-9]{1,8}$/.test(k) && (typeof v === "number" || (typeof v === "string" && v.length <= 24))) { q[k] = v; n++; } }); if (n) d.p = q; }
+    await addDoc(collection(cabDb, CAB, pid, "msgs"), d);
+  },
   // Accusé de réception : le téléphone du patient note qu'il a reçu sa fiche à jour
   seen: async function (pid) { var u = await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "membres", u.uid), { vu: serverTimestamp() }, { merge: true }); },
   // Demande d'accès sans code : prénom, nom, un mot facultatif

@@ -46,17 +46,26 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await page.screenshot({ path: "/tmp/ra-q2.png" });
   await page.locator("#krp-q .krq-z summary").click(); await page.evaluate(() => document.querySelector("#krp-q").scrollTo(0, 99999)); await page.waitForTimeout(300);
   await page.screenshot({ path: "/tmp/ra-q3.png" });
+  await expect(page.locator("#krq-tell")).toBeChecked();
   await page.locator("#krp-q .seq-btn-main").click();
   expect(await page.evaluate(() => KineReprise.prof().v)).toBe(8.5);
+  const msg = await page.evaluate(() => { const P = window.__db.patients[Object.keys(window.__db.patients)[0]]; return P.msgs[0]; });
+  expect(msg.txt).toContain("8,5 km/h"); expect([msg.p.v, msg.p.age, msg.p.z, msg.p.niv, msg.p.vit]).toEqual([8.5, 40, "115-137", "r", 10]);
   // 2. écran de départ
   await page.evaluate(() => KineReprise.go()); await page.waitForTimeout(400);
   await expect(page.locator("#krp-start")).toBeVisible();
   await page.screenshot({ path: "/tmp/ra-pre.png" });
+  await page.locator(".krp-ch button", { hasText: "GPS du téléphone" }).click();
+  await page.evaluate(() => { window.__geo = null; navigator.geolocation.watchPosition = function (ok) { window.__geo = ok; return 1; }; navigator.geolocation.clearWatch = function () {}; });
+  await page.screenshot({ path: "/tmp/ra-pre2.png" });
   await page.locator("#krp-start").click();
   await expect(page.locator("#krp-run .krp-big b")).toHaveText("Marche vite");
   await page.evaluate(() => { KineReprise._skip(); KineReprise._skip(); });
   await expect(page.locator("#krp-run .krp-big b")).toHaveText("Cours");
   await expect(page.locator("#krp-run .krp-v strong")).toHaveText("8,5");
+  await page.evaluate(() => { const t0 = Date.now(); for (let i = 0; i < 8; i++) window.__geo({ coords: { latitude: 50 + i * 2 * 2.78 / 111320, longitude: 3, accuracy: 5 }, timestamp: t0 + i * 2000 }); });
+  await expect(page.locator("#krp-g")).toContainText("Un peu trop vite");
+  await expect(page.locator("#krp-g")).toContainText("10");
   await page.screenshot({ path: "/tmp/ra-run.png" });
   // 3. ralentir en direct
   await page.locator(".krp-slow").click();
