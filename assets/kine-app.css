@@ -4024,3 +4024,17 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .krq-opts button b { font-weight: 800; font-size: 1.05rem; } .krq-opts button span { color: var(--text3); font-size: .85rem; }
 .krq-res { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 22px; background: var(--surface); border: 1px solid var(--border2); margin-top: 8px; }
 .krq-res > span { font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--text3); margin-top: 6px; } .krq-res em { font-style: normal; color: var(--text2); text-align: center; }
+
+/* Reprise de course : mesures et zone cardio */
+.krq-f { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.krq-f label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; }
+.krq-f label > div { display: flex; align-items: center; gap: 10px; }
+.krq-f input, .krp-hrf input { flex: 1; min-height: 54px; padding: 0 16px; border-radius: 16px; border: 1.5px solid var(--border2); background: var(--surface); color: var(--text); font: 800 1.3rem var(--font); }
+.krq-f em { font-style: normal; color: var(--text3); font-weight: 600; font-size: .85rem; min-width: 5.5em; }
+.krq-z { margin-top: 10px; padding: 16px; border-radius: 22px; background: linear-gradient(160deg, #EEF0FF, #fff); border: 1px solid rgba(80, 90, 140, .16); display: flex; flex-direction: column; gap: 6px; }
+.krq-z > span { font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--lu-ind2, #3341E0); } .krq-z > b { font: 900 1.4rem var(--lu-head, var(--font)); }
+.krq-z p, .krq-n { margin: 0; color: var(--text2); line-height: 1.45; font-size: .92rem; } .krq-z details { color: var(--text2); font-size: .88rem; } .krq-z summary { font-weight: 700; color: var(--text); }
+.krq-n { margin-top: 8px; }
+.krp-al.one { grid-template-columns: 1fr; }
+.krp-line.hr { font-weight: 800; opacity: 1; }
+.krp-hrf { display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: .9rem; opacity: .95; } .krp-hrf input { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: #fff; min-height: 46px; }

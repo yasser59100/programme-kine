@@ -47,6 +47,19 @@ var KineReprise = (function () {
   }
   function saveProf(p) { try { localStorage.setItem(PKEY, JSON.stringify(p)); } catch (e) {} }
 
+  /* ── Zone cardio estimée : FC max (Tanaka 2001 : 208 − 0,7 × âge, ou FC max connue), puis zone « modérée » des recommandations ACSM :
+        64 à 76 % de la FC max, ou 40 à 59 % de la réserve cardiaque (Karvonen) si la FC de repos est connue.
+        Aucune formule d'âge n'est précise : l'écart type est d'environ 10 battements. Le test de la parole reste la référence sur le terrain. ── */
+  function num(v, lo, hi) { v = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(v) && v >= lo && v <= hi ? v : null; }
+  function hrOf(P) {
+    if (!P || P.coeur === "oui" || (!P.age && !P.hrm)) return null;
+    var mx = P.hrm || Math.round(208 - 0.7 * P.age), lo, hi, meth;
+    if (P.hrr && P.hrr < mx - 40) { lo = Math.round(P.hrr + 0.40 * (mx - P.hrr)); hi = Math.round(P.hrr + 0.59 * (mx - P.hrr)); meth = "reserve"; }
+    else { lo = Math.round(mx * 0.64); hi = Math.round(mx * 0.76); meth = "fcmax"; }
+    return { mx: mx, lo: lo, hi: hi, meas: !!P.hrm, meth: meth };
+  }
+  function imcOf(P) { return P && P.kg && P.cm ? Math.round(P.kg / Math.pow(P.cm / 100, 2) * 10) / 10 : null; }
+
   /* ── Où en est le patient : à partir de ses sorties de reprise (kf-runs, champ rp) ── */
   function runs() { try { return (JSON.parse(localStorage.getItem("kf-runs") || "[]") || []).filter(function (r) { return r.rp; }); } catch (e) { return []; } }
   function etat(cfg, list) {
@@ -55,7 +68,7 @@ var KineReprise = (function () {
     R.forEach(function (r) {
       if (r.next == null) return;
       var worst = Math.max(+r.pain || 0, +r.next || 0);
-      if (worst <= cfg.max && (+r.slow || 0) >= 2) { msg = "Allure trop rapide : même palier, à une allure plus douce"; }   // ralenti deux fois ou plus : on ne monte pas
+      if (worst <= cfg.max && ((+r.slow || 0) >= 2 || r.hot)) { msg = r.hot ? "Cœur au-dessus de la zone : même palier, à une allure plus douce" : "Allure trop rapide : même palier, à une allure plus douce"; }   // ralenti deux fois ou plus : on ne monte pas
       else if (worst <= cfg.max) { if (r.rp >= cur) cur = Math.min(PALIERS.length + 1, r.rp + 1); msg = "Palier " + r.rp + " validé"; }
       else if (worst > cfg.max) { cur = Math.max(1, r.rp - 1); msg = "Douleur au-dessus du seuil : on redescend d'un palier"; }
     });
@@ -72,8 +85,8 @@ var KineReprise = (function () {
     var R = (C.journal || []).reduce(function (a, d) { return a.concat((d.c || []).filter(function (r) { return r.cid === c.id; })); }, []), e = etat(c, R);
     return "<div class='su-card krp-k'><div class='su-card-h'><b>Reprise de la course</b><span>" + esc(MODELES[c.m] ? MODELES[c.m].n : "") + "</span></div>" +
       "<div class='krp-pals'>" + PALIERS.map(function (p, i) { return "<i class='" + (i + 1 < e.palier ? "ok" : i + 1 === e.palier ? "now" : "") + "'></i>"; }).join("") + "</div>" +
-      "<div class='kf-sub'>" + (e.fini ? "Reprise terminée : 30 minutes de course continue. Le patient continue avec son journal de course (charge par semaine et douleur)." : "Palier " + e.palier + " sur 10 : " + esc(palTxt(e.palier - 1)) + ".") + " Seuil de douleur : " + c.max + " sur 10, " + c.f + " séances par semaine." + (c.v ? " Allure fixée : " + fmtV(c.v) + " km/h (" + pace(c.v) + " /km)." : " Allure réglée par le patient.") + "</div>" +
-      (R.length ? R.slice(-4).reverse().map(function (r) { return "<div class='kcb-srow'><b>" + esc(dfr(r.d)) + "</b><span>Palier " + r.rp + " · douleur pendant " + (r.pain || 0) + "/10" + (r.next != null ? ", le lendemain " + r.next + "/10" : ", lendemain pas encore noté") + (r.v0 ? " · " + (r.v1 && r.v1 !== r.v0 ? fmtV(r.v0) + " puis " + fmtV(r.v1) : fmtV(r.v0)) + " km/h" + (r.slow ? ", ralenti " + r.slow + " fois" : "") : "") + "</span></div>"; }).join("")
+      "<div class='kf-sub'>" + (e.fini ? "Reprise terminée : 30 minutes de course continue. Le patient continue avec son journal de course (charge par semaine et douleur)." : "Palier " + e.palier + " sur 10 : " + esc(palTxt(e.palier - 1)) + ".") + " Seuil de douleur : " + c.max + " sur 10, " + c.f + " séances par semaine." + (function () { var l = R.filter(function (r) { return r.imc || r.hz; }).slice(-1)[0]; return l ? " Profil du patient : " + (l.imc ? "IMC " + String(l.imc).replace(".", ",") : "") + (l.imc && l.hz ? ", " : "") + (l.hz ? "zone cardio estimée " + l.hz.replace("-", " à ") + " battements" : "") + "." : ""; })() + (c.v ? " Allure fixée : " + fmtV(c.v) + " km/h (" + pace(c.v) + " /km)." : " Allure réglée par le patient.") + "</div>" +
+      (R.length ? R.slice(-4).reverse().map(function (r) { return "<div class='kcb-srow'><b>" + esc(dfr(r.d)) + "</b><span>Palier " + r.rp + " · douleur pendant " + (r.pain || 0) + "/10" + (r.next != null ? ", le lendemain " + r.next + "/10" : ", lendemain pas encore noté") + (r.hr ? " · FC " + r.hr + (r.hz ? " (zone " + r.hz.replace("-", " à ") + ")" : "") : "") + (r.v0 ? " · " + (r.v1 && r.v1 !== r.v0 ? fmtV(r.v0) + " puis " + fmtV(r.v1) : fmtV(r.v0)) + " km/h" + (r.slow ? ", ralenti " + r.slow + " fois" : "") : "") + "</span></div>"; }).join("")
         : "<p class='kcb-hint'>" + (C.membres ? "Les séances apparaîtront ici si le patient sauvegarde son journal." : "Le patient la verra dès que son téléphone sera relié.") + "</p>") +
       "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineReprise.edit()'>Modifier</button><button class='seq-btn-secondary kcb-danger' onclick='KineReprise.stop()'>Arrêter</button></div></div>";
   }
@@ -154,6 +167,9 @@ var KineReprise = (function () {
     if (!QQ.a.lieu || QQ.a.lieu !== "tapis") s.push({ k: "montre", t: "Tu as une montre ou une appli qui donne ton allure ?", sub: "Sans montre, on te donne une vitesse et tu te fies à ta respiration.", o: [["oui", "Oui"], ["non", "Non"]] });
     s.push({ k: "niv", t: "Avant ta blessure, tu courais…", sub: "", o: Object.keys(NIV).map(function (k) { return [k, NIV[k][0]]; }) });
     s.push({ k: "vit", t: "À quelle vitesse courais-tu à l'aise ?", sub: "Celle où tu pouvais encore parler. La reprise démarrera plus doucement, c'est voulu.", o: [["?", "Je ne sais pas"]].concat([8, 9, 10, 11, 12, 13].map(function (v) { return [String(v), v + " km/h", pace(v) + " /km"]; })) });
+    s.push({ k: "profil", t: "Quelques mesures", sub: "Pour estimer ta zone d'endurance au rythme cardiaque. Tu peux passer cette étape.", f: [["age", "Âge", "ans", 14, 90], ["kg", "Poids", "kg", 30, 250], ["cm", "Taille", "cm", 120, 220]] });
+    s.push({ k: "coeur", t: "Ton cœur", sub: "Si tu les connais. Sinon, laisse vide : on estimera avec ton âge.", f: [["hrr", "Rythme au repos, le matin au réveil", "battements/min", 35, 110], ["hrm", "Rythme maximal déjà mesuré (test, montre)", "battements/min", 120, 220]] });
+    s.push({ k: "coeur2", t: "Un traitement pour le cœur ?", sub: "Un médicament qui ralentit le cœur (bêtabloquant), ou une consigne d'un médecin de limiter l'effort pour le cœur.", o: [["non", "Non"], ["oui", "Oui"], ["?", "Je ne sais pas"]] });
     return s;
   }
   function qCalc() {
@@ -172,15 +188,34 @@ var KineReprise = (function () {
     h += "<div class='krq-top'><button class='kf-back' onclick='" + (i ? "KineReprise.qb()" : "KineReprise.qx()") + "' aria-label='" + (i ? "Retour" : "Fermer") + "'>" + (i ? "‹" : "×") + "</button><span>" + (i < S.length ? "Question " + (i + 1) + " sur " + S.length : "Ton allure") + "</span></div>";
     if (i < S.length) {
       var st = S[i];
+      if (st.f) {
+        h += "<h2>" + esc(st.t) + "</h2><p>" + esc(st.sub) + "</p><div class='krq-f'>" + st.f.map(function (f) { return "<label><span>" + esc(f[1]) + "</span><div><input id='krq-" + f[0] + "' type='number' inputmode='decimal' min='" + f[3] + "' max='" + f[4] + "' value='" + esc(QQ.a[f[0]] || "") + "' /><em>" + esc(f[2]) + "</em></div></label>"; }).join("") + "</div>" +
+          "<button class='seq-btn-main' onclick='KineReprise.qn()'>Continuer</button><button class='krp-lnk' style='color:inherit' onclick='KineReprise.qn(1)'>Passer</button>";
+        el.innerHTML = h; el.classList.add("open"); return;
+      }
       h += "<h2>" + esc(st.t) + "</h2>" + (st.sub ? "<p>" + esc(st.sub) + "</p>" : "") + "<div class='krq-opts'>" + st.o.map(function (o) { return "<button onclick='KineReprise.qa(" + JSON.stringify(st.k) + "," + JSON.stringify(o[0]) + ")'><b>" + esc(o[1]) + "</b>" + (o[2] ? "<span>" + esc(o[2]) + "</span>" : "") + "</button>"; }).join("") + "</div>";
     } else {
       var R = qCalc(); QQ.v = QQ.v || R.v; QQ.vw = QQ.vw || R.vw;
       h += "<h2>Voici ton allure de reprise</h2><p>Elle est plus douce que ton allure d'avant : le tendon ou l'articulation a besoin de temps. Tu pourras la baisser en direct pendant la séance.</p>" +
         "<div class='krq-res'><span>Course</span><div class='krp-st'><button onclick='KineReprise.qv(-1)' aria-label='Moins vite'>−</button><b>" + fmtV(QQ.v) + " km/h</b><button onclick='KineReprise.qv(1)' aria-label='Plus vite'>+</button></div><em>" + pace(QQ.v) + " par kilomètre</em>" +
         "<span>Marche rapide</span><div class='krp-st'><b>" + fmtV(QQ.vw) + " km/h</b></div><em>" + pace(QQ.vw) + " par kilomètre</em></div>" +
-        "<button class='seq-btn-main' onclick='KineReprise.qs()'>Valider mon allure</button>";
+        zoneCard(QQ.a) + "<button class='seq-btn-main' onclick='KineReprise.qs()'>Valider mon allure</button>";
     }
     el.innerHTML = h; el.classList.add("open");
+  }
+  function zoneCard(A) {
+    var P = { age: num(A.age, 14, 90), hrm: num(A.hrm, 120, 220), hrr: num(A.hrr, 35, 110), coeur: A.coeur2 === "oui" ? "oui" : "", kg: num(A.kg, 30, 250), cm: num(A.cm, 120, 220) }, z = hrOf(P), im = imcOf(P), h = "";
+    if (P.coeur === "oui") h += "<div class='krq-z'><b>Pas de zone cardio pour toi</b><p>Avec un traitement ou une consigne pour le cœur, les battements ne sont pas fiables. Tu te fies à la parole : tu dois pouvoir tenir une conversation en phrases complètes. Parles-en à ton kiné ou à ton médecin.</p></div>";
+    else if (z) h += "<div class='krq-z'><span>Ta zone d'endurance (rythme cardiaque)</span><b>" + z.lo + " à " + z.hi + " battements par minute</b><p>" + (z.meas ? "À partir de ton rythme maximal mesuré (" + z.mx + ")" : "Rythme maximal estimé à " + z.mx + " avec ton âge") + (z.meth === "reserve" ? ", et de ton rythme au repos." : ".") + " C'est une estimation, à ± 10 battements : si tu peux parler en phrases complètes, tu es dans la bonne zone, même si le chiffre dit autre chose.</p>" +
+      "<details><summary>Comment c'est calculé</summary><p>" + (z.meas ? "Rythme maximal : celui que tu as donné. " : "Rythme maximal : 208 − 0,7 × âge (Tanaka et coll., 2001, synthèse de 351 études). ") + (z.meth === "reserve" ? "Zone : 40 à 59 % de la réserve cardiaque (méthode de Karvonen), l'intensité « modérée » des recommandations de l'ACSM." : "Zone : 64 à 76 % du rythme maximal, l'intensité « modérée » des recommandations de l'ACSM.") + " Les formules d'âge se trompent de 10 battements en moyenne, et davantage selon les personnes : c'est pourquoi la parole passe avant le chiffre. Le poids ne change pas ce calcul.</p></details></div>";
+    if (im && im >= 30) h += "<p class='krq-n'>Ton indice de masse corporelle est de " + String(im).replace(".", ",") + ". Parles-en à ton kiné : ta reprise peut demander des paliers plus longs.</p>";
+    return h;
+  }
+  // Étape à champs numériques : on lit les cases, vides autorisées
+  function qn(skip) {
+    var st = qSteps()[QQ.i]; if (!st || !st.f) return;
+    st.f.forEach(function (f) { var el = $("krq-" + f[0]), v = skip || !el ? null : num(el.value, f[3], f[4]); if (v == null) delete QQ.a[f[0]]; else QQ.a[f[0]] = v; });
+    QQ.i++; QQ.v = QQ.vw = null; qView();
   }
   function qa(k, v) { QQ.a[k] = v; QQ.i++; if (k === "lieu" && v === "tapis") delete QQ.a.montre; QQ.v = QQ.vw = null; qView(); }
   function qb() { QQ.i = Math.max(0, QQ.i - 1); qView(); }
@@ -188,7 +223,9 @@ var KineReprise = (function () {
   function qv(dir) { QQ.v = Math.max(5, Math.min(18, round5(QQ.v + dir * 0.5))); qView(); }
   function qs() {
     var c = cfgNow(); if (!c || !QQ) return;
-    saveProf({ cid: c.id, v: QQ.v, vw: QQ.vw, lieu: QQ.a.lieu || "mixte", montre: QQ.a.montre === "oui", src: "patient", niv: QQ.a.niv || "", d: iso(), vk: c.v || null });
+    var A = QQ.a, P0 = { cid: c.id, v: QQ.v, vw: QQ.vw, lieu: A.lieu || "mixte", montre: A.montre === "oui", src: "patient", niv: A.niv || "", d: iso(), vk: c.v || null,
+      age: num(A.age, 14, 90), kg: num(A.kg, 30, 250), cm: num(A.cm, 120, 220), hrr: num(A.hrr, 35, 110), hrm: num(A.hrm, 120, 220), coeur: A.coeur2 === "oui" ? "oui" : "" };
+    saveProf(P0);
     qx(); refresh();
   }
   // « Avec mon kiné » : une allure prudente en attendant, et le kiné est prévenu par message
@@ -223,6 +260,7 @@ var KineReprise = (function () {
     el.innerHTML = "<div class='kr-top'><span>Palier " + e.palier + " sur 10</span><button class='krp-x' onclick='KineReprise.close()' aria-label='Fermer'>×</button></div>" +
       "<div class='krp-pre'><b>Séance du palier " + e.palier + "</b><span>" + esc(palTxt(e.palier - 1)) + " · " + (total(e.palier - 1) + 8) + " min en tout avec l'échauffement et le retour au calme</span>" +
       "<div class='krp-al dark'><div><b>" + fmtV(P.v) + " km/h</b><span>course · " + pace(P.v) + " /km</span></div><div><b>" + fmtV(P.vw) + " km/h</b><span>marche rapide · " + pace(P.vw) + " /km</span></div></div>" +
+      (hrOf(P) ? "<div class='krp-al dark one'><div><b>" + hrOf(P).lo + " à " + hrOf(P).hi + "</b><span>zone cardio en course, battements par minute</span></div></div>" : P.coeur === "oui" ? "<p class='krp-note'>Pas de zone cardio : tu te fies à la parole.</p>" : "") +
       (P.lieu === "mixte" ? "<span class='krp-lab'>Où cours-tu aujourd'hui ?</span><div class='krp-ch'>" + chip(PRE.where === "tapis", "KineReprise.pw(\"tapis\")", "Sur tapis") + chip(PRE.where === "dehors", "KineReprise.pw(\"dehors\")", "Dehors") + "</div>" : "") +
       (PRE.where === "dehors" ? "<span class='krp-lab'>Ta montre</span><div class='krp-ch'>" + chip(PRE.montre, "KineReprise.pm(1)", "Avec montre") + chip(!PRE.montre, "KineReprise.pm(0)", "Sans montre") + "</div>" : "") +
       "<p class='krp-note'>Chaque changement est annoncé par un bip, même écran verrouillé. Mets le volume. La voix de Yass demande l'écran allumé.</p>" +
@@ -256,7 +294,7 @@ var KineReprise = (function () {
     for (var i = 0; i < pl[2]; i++) { if (pl[0]) steps.push(["marche", pl[0]]); steps.push(["course", pl[1]]); }
     steps.push(["retour", 3]);
     var starts = [0]; steps.forEach(function (s, i) { starts.push(starts[i] + s[1] * 60); });
-    RUN = { c: c, rp: e.palier, steps: steps, starts: starts, tot: starts[steps.length], i: -1, left: -1, paused: false, t0: 0, pausedMs: 0, off: 0, p: { v: P.v, vw: P.vw }, v0: P.v, slow: 0, where: P.where, montre: P.montre, au: null, auOk: false };
+    RUN = { c: c, rp: e.palier, steps: steps, starts: starts, tot: starts[steps.length], i: -1, left: -1, paused: false, t0: 0, pausedMs: 0, off: 0, p: { v: P.v, vw: P.vw }, z: hrOf(P), imc: imcOf(P), v0: P.v, slow: 0, where: P.where, montre: P.montre, au: null, auOk: false };
     if (typeof getAudioCtx === "function") { var ctx = getAudioCtx(); if (ctx && ctx.state === "suspended") ctx.resume(); }
     try { if (navigator.wakeLock) navigator.wakeLock.request("screen").then(function (w) { wake = w; }).catch(function () {}); } catch (e2) {}
     document.body.style.overflow = "hidden";
@@ -303,7 +341,7 @@ var KineReprise = (function () {
     el.style.background = L[2];
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (k === "course" ? "Course " + kC + " sur " + nCourse : esc(L[0])) + "</span></div>" +
       "<div class='krp-big'><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em>" +
-      "<div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p></div>" +
+      "<div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" + (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") + "</div>" +
       "<div class='kr-small2' id='krp-r'>" + (nx ? "Ensuite : " + esc(LAB[nx[0]][0].toLowerCase()) + " · " + fmtV(spd(nx[0])) + " km/h · " + nx[1] + " min" : "Dernière étape") + " · encore " + Math.max(0, rest) + " min après celle-ci</div>" +
       (k === "course" && RUN.p.v - 0.5 >= 5 && !RUN.paused ? "<button type='button' class='krp-slow' onclick='KineReprise.slower()'>Je n'arrive pas à tenir cette allure<span>Ralentir de 0,5 km/h" + (RUN.slow ? " · déjà " + RUN.slow + " fois" : "") + "</span></button>" : "") +
       "<div class='kr-btns'><button type='button' onclick='KineReprise.pause()'>" + (RUN.paused ? "Reprendre" : "Pause") + "</button><button type='button' onclick='KineReprise.quit()'>Arrêter</button></div>";
@@ -331,12 +369,16 @@ var KineReprise = (function () {
     var el = screen(); el.style.background = "#0E141F";
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (RUN.partial ? "arrêtée" : "terminée") + "</span></div><div class='krp-end'><b>" + (RUN.partial ? "Séance arrêtée" : "Bravo !") + "</b>" +
       (RUN.slow ? "<p>Tu as ralenti " + RUN.slow + " fois : ta prochaine allure est de " + fmtV(RUN.p.v) + " km/h" + (RUN.slow >= 2 ? ", et tu refais ce palier pour te l'approprier." : ".") + "</p>" : "") +
+      "<label class='krp-hrf'><span>Rythme cardiaque moyen en course (si ta montre le donne)</span><input id='krp-hr' type='number' inputmode='numeric' min='60' max='220' placeholder='facultatif' /></label>" +
       "<span>Douleur pendant la séance, de 0 à 10</span><div class='krp-scale'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button onclick='KineReprise.done(" + v + ")'>" + v + "</button>"; }).join("") + "</div>" +
       "<p>Demain matin, l'appli te demandera ta douleur au réveil : c'est elle qui décide du palier suivant. La séance s'ajoute aussi à ton journal de course.</p></div>";
   }
   function done(pain) {
     var r = RUN, min = Math.max(1, Math.round(Math.min(pos(), r.tot) / 60));
     var run = { id: Date.now().toString(36), t: Date.now(), d: iso(), min: min, eff: 2, pain: pain, rp: r.rp, cid: r.c.id, v0: r.v0, v1: r.p.v, slow: r.slow, lieu: r.where };
+    var hrEl = $("krp-hr"), hr = hrEl ? num(hrEl.value, 60, 220) : null;
+    if (r.z) run.hz = r.z.lo + "-" + r.z.hi; if (r.imc) run.imc = r.imc;
+    if (hr) { run.hr = Math.round(hr); if (r.z && hr > r.z.hi + 3) { run.hot = 1; var PP = prof(r.c); if (PP && PP.v - 0.5 >= 5) { PP.v = round5(PP.v - 0.5); saveProf(PP); } if (window.showToast) showToast("Ton cœur était au-dessus de la zone : prochaine séance à " + fmtV(PP ? PP.v : r.p.v) + " km/h"); } }
     if (r.partial || pain > r.c.max) run.stop = 1;
     try { var a = JSON.parse(localStorage.getItem("kf-runs") || "[]"); a.push(run); localStorage.setItem("kf-runs", JSON.stringify(a)); } catch (e) {}
     if (window.KineStats) try { KineStats.ev("p", "reprise"); } catch (e) {}
@@ -350,7 +392,7 @@ var KineReprise = (function () {
   }
 
   return { journal: journal, active: active, PALIERS: PALIERS, MODELES: MODELES, etat: etat, kineCard: kineCard, edit: edit, m: setM, k: setK, vs: vStep, vf: vFix, vc: vClear, send: send, stop: stop,
-    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close,
-    pace: pace, prof: function () { return prof(cfgNow()); }, _setProf: function (o) { var c = cfgNow(); saveProf(Object.assign({ cid: c.id, v: 9, vw: 6, lieu: "tapis", montre: false, src: "patient", d: iso(), vk: c.v || null }, o || {})); },
+    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn,
+    pace: pace, hrOf: hrOf, prof: function () { return prof(cfgNow()); }, _setProf: function (o) { var c = cfgNow(); saveProf(Object.assign({ cid: c.id, v: 9, vw: 6, lieu: "tapis", montre: false, src: "patient", d: iso(), vk: c.v || null }, o || {})); },
     _run: function () { return RUN; }, _skip: function () { if (RUN && RUN.i >= 0) { RUN.off += RUN.starts[RUN.i + 1] - pos() + 0.05; tick(); } } };
 })();

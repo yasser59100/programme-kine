@@ -32,9 +32,20 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await page.locator("#krp-q .krq-opts button", { hasText: "Oui" }).click();
   await page.locator("#krp-q .krq-opts button", { hasText: "3 fois" }).click();
   await page.locator("#krp-q .krq-opts button", { hasText: "10 km/h" }).click();
+  await expect(page.locator("#krp-q h2")).toContainText("Quelques mesures");
+  await page.fill("#krq-age", "40"); await page.fill("#krq-kg", "88"); await page.fill("#krq-cm", "170");
+  await page.screenshot({ path: "/tmp/ra-mes.png" });
+  await page.locator("#krp-q .seq-btn-main").click();
+  await expect(page.locator("#krp-q h2")).toContainText("Ton cœur");
+  await page.locator("#krp-q .seq-btn-main").click();
+  await page.locator("#krp-q .krq-opts button", { hasText: "Non" }).click();
   await expect(page.locator("#krp-q h2")).toContainText("allure de reprise");
+  await expect(page.locator("#krp-q .krq-z > b")).toHaveText("115 à 137 battements par minute");
+  await expect(page.locator("#krp-q .krq-n")).toContainText("30,4");
   await expect(page.locator("#krp-q .krq-res b").first()).toHaveText("8,5 km/h");
   await page.screenshot({ path: "/tmp/ra-q2.png" });
+  await page.locator("#krp-q .krq-z summary").click(); await page.evaluate(() => document.querySelector("#krp-q").scrollTo(0, 99999)); await page.waitForTimeout(300);
+  await page.screenshot({ path: "/tmp/ra-q3.png" });
   await page.locator("#krp-q .seq-btn-main").click();
   expect(await page.evaluate(() => KineReprise.prof().v)).toBe(8.5);
   // 2. écran de départ
@@ -55,12 +66,16 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await page.screenshot({ path: "/tmp/ra-slow.png" });
   for (let i = 0; i < 14; i++) { if (await page.locator("#krp-run .krp-end").count()) break; await page.evaluate(() => KineReprise._skip()); }
   await page.screenshot({ path: "/tmp/ra-end.png" });
+  await page.fill("#krp-hr", "150");
   await page.locator("#krp-run .krp-scale button", { hasText: "1" }).first().click();
   const r = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-runs")).pop());
   expect([r.v0, r.v1, r.slow]).toEqual([8.5, 7.5, 2]);
-  expect(await page.evaluate(() => KineReprise.prof().v)).toBe(7.5);   // la prochaine séance part plus doucement
+  expect([r.hr, r.hz, r.hot]).toEqual([150, "115-137", 1]);
+  expect(await page.evaluate(() => KineReprise.prof().v)).toBe(7);   // 7,5 puis encore 0,5 : cœur au-dessus de la zone
   // 4. ralenti deux fois : on ne monte pas de palier, même sans douleur
   const e = await page.evaluate(() => { const c = { id: "x", d: 3, max: 3, f: 3 }; return [KineReprise.etat(c, [{ cid: "x", rp: 3, d: "2026-10-01", pain: 1, next: 1, slow: 2 }]).palier, KineReprise.etat(c, [{ cid: "x", rp: 3, d: "2026-10-01", pain: 1, next: 1, slow: 1 }]).palier]; });
   expect(e).toEqual([3, 4]);
+  const z = await page.evaluate(() => [KineReprise.hrOf({ age: 40 }), KineReprise.hrOf({ age: 40, hrr: 60 }), KineReprise.hrOf({ age: 40, hrm: 190 }), KineReprise.hrOf({ age: 40, coeur: "oui" })]);
+  expect([z[0].mx, z[0].lo, z[0].hi, z[1].lo, z[1].hi, z[2].mx, z[3]]).toEqual([180, 115, 137, 108, 131, 190, null]);
   expect(errs).toEqual([]);
 });
