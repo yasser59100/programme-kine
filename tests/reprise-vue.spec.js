@@ -70,6 +70,7 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await page.evaluate(() => { const t0 = Date.now(); for (let i = 0; i < 8; i++) window.__geo({ coords: { latitude: 50 + i * 2 * 2.78 / 111320, longitude: 3, accuracy: 5 }, timestamp: t0 + i * 2000 }); });
   await expect(page.locator("#krp-g")).toContainText("Un peu trop vite");
   await expect(page.locator("#krp-g")).toContainText("10");
+  await page.waitForTimeout(700);
   await page.screenshot({ path: "/tmp/ra-run.png" });
   await page.screenshot({ path: "/tmp/ra-run2.png" });
   await page.locator(".krp-lnk", { hasText: "Mode poche" }).click();

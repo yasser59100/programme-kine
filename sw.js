@@ -85,6 +85,8 @@ const APP_FILES = [
   'assets/lumiere/yass-anim/biceps.webp',
   'assets/lumiere/yass-anim/etire.webp',
   'assets/lumiere/yass-anim/pouce.webp',
+  'assets/lumiere/yass-anim/course.webp',
+  'assets/lumiere/yass-anim/st-marche.webp',
   'assets/illus/walk.webp',
   'assets/illus/back.webp',
   'assets/illus/knee.webp',

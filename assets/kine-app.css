@@ -4104,3 +4104,17 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 .krp-stats { grid-auto-columns: auto; } .krp-stats > div { flex: 1; } .krp-stats b { white-space: nowrap; font-size: clamp(1.5rem, 7vw, 2rem); }
 #krp-run .krp-know { background: none !important; border: 0 !important; border-left: 2px solid rgba(255, 255, 255, .35) !important; border-radius: 0 !important; padding: 2px 0 2px 14px !important; color: inherit; }
 #krp-run .krp-pre { padding-bottom: 150px; }
+
+/* Yass court ou marche pendant la séance (12 images, boucle fluide) */
+.krp-yass { display: block; width: min(46vw, 190px); aspect-ratio: 1; margin: 0 auto 4px; background: 0 0 / 1200% 100% no-repeat; filter: drop-shadow(0 12px 14px rgba(0, 0, 0, .3)); animation: krpY var(--cy, .6s) steps(12) infinite; }
+.krp-yass.run { background-image: url(lumiere/yass-anim/course.webp); --cy: .6s; }
+.krp-yass.walk { background-image: url(lumiere/yass-anim/st-marche.webp); --cy: .95s; }
+@keyframes krpY { to { background-position: 109.0909% 0; } }
+@media (prefers-reduced-motion: reduce) { .krp-yass { animation: none; } }
+/* carte d'allure : un filet au lieu d'une boîte */
+#krp-run .krp-card { background: none; border: 0; border-top: 1px solid rgba(255, 255, 255, .22); border-radius: 0; padding: 14px 0 0; }
+#krp-run .krp-slow { background: #FF8A2B; box-shadow: 0 14px 28px -14px rgba(255, 138, 43, .8); }
+#krp-run .krp-yass { flex: none; width: min(34vw, 150px); }
+#krp-run .krp-big { min-height: 0; }
+#krp-run .krp-yass { width: min(28vw, 118px); margin-bottom: 0; }
+#krp-run .krp-big { gap: 2px; padding: 4px 0; } #krp-run .krp-big b { font-size: clamp(2.4rem, 13vw, 3.6rem); } #krp-run .krp-big em { font-size: clamp(2rem, 10vw, 3rem); }

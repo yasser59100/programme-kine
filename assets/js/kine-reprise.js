@@ -411,7 +411,7 @@ var KineReprise = (function () {
     var nx = RUN.steps[RUN.i + 1];
     el.style.background = L[2];
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (k === "course" ? "Course " + kC + " sur " + nCourse : esc(L[0])) + "</span></div>" + tlHtml(RUN.steps, RUN.i) +
-      "<div class='krp-big'><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em></div>" +
+      "<div class='krp-big'><i class='krp-yass " + (k === "course" ? "run" : "walk") + "' aria-hidden='true'></i><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em></div>" +
       "<div class='krp-card'><div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" +
       (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") +
       (RUN.gps ? "<div class='krp-g wait' id='krp-g'></div>" : "") + "</div>" +
