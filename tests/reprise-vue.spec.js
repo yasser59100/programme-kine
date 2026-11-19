@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 async function boot(page) {
   await page.addInitScript(() => { localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-masc-off", "1"); sessionStorage.setItem("kf-ressenti-later", "1"); });
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.addInitScript(() => { window.__vib = []; navigator.vibrate = (p) => { window.__vib.push(p); return true; }; });
   await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
 }
@@ -81,6 +82,9 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   }
   await page.locator(".krp-lnk", { hasText: "Mode poche" }).click();
   await expect(page.locator("#krp-poche.open")).toBeVisible();
+  await expect.poll(() => page.evaluate(() => JSON.stringify(window.__vib || []))).toContain("[700]");   // trop lent : vibration lente
+  await page.evaluate(([la, T]) => { const d = 12 / 3.6 * 2 / 111320; KineReprise._run().lastVib = 0; for (let i = 1; i <= 12; i++) window.__geo({ coords: { latitude: la + i * d, longitude: 3, accuracy: 5 }, timestamp: T + i * 2000 }); }, [lat0, tEnd]);
+  await expect.poll(() => page.evaluate(() => JSON.stringify(window.__vib || []))).toContain("[70,50,70,50,70,50,70]");   // trop vite : vibrations rapides
   await expect(page.locator("#krp-pt")).toContainText("Course");
   await page.locator("#krp-pw").click();   // un simple toucher ne réveille pas
   await expect(page.locator("#krp-poche.open")).toBeVisible();

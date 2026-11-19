@@ -383,6 +383,9 @@ var KineReprise = (function () {
       else { RUN.hotSince = 0; st = RUN.sp < tgt * 0.92 ? "Plus lent que prévu" : "Dans la cible"; cls = RUN.sp < tgt * 0.92 ? "low" : "ok"; }
     } else { RUN.hotSince = 0; }
     track(cls);
+    // En mode poche : le téléphone vibre vite si trop rapide, lentement si trop lent (toutes les 6 s tant que ça dure)
+    var pk = $("krp-poche"), vb = cls === "hot" ? [70, 50, 70, 50, 70, 50, 70] : cls === "low" ? [700] : null;
+    if (vb && pk && pk.classList.contains("open") && now - (RUN.lastVib || 0) > 6000) { RUN.lastVib = now; if (navigator.vibrate) { try { navigator.vibrate(vb); } catch (e) {} } }
     if (el) { el.className = "krp-g " + cls; el.innerHTML = (RUN.sp != null && cls !== "wait" ? "<b>" + fmtV(RUN.sp) + " km/h</b> mesurés" : "") + "<span>" + st + "</span><em>" + (RUN.km >= 0.05 ? String(Math.round(RUN.km * 100) / 100).replace(".", ",") + " km" : "") + "</em>"; }
   }
   function pos() { var base = RUN.auOk && RUN.au && !RUN.au.paused ? RUN.au.currentTime : (Date.now() - RUN.t0 - RUN.pausedMs) / 1000; return base + RUN.off; }
