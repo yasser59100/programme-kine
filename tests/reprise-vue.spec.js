@@ -73,6 +73,12 @@ test("reprise de course : allure, questionnaire, alertes, bouton ralentir", asyn
   await page.waitForTimeout(700);
   await page.screenshot({ path: "/tmp/ra-run.png" });
   await page.screenshot({ path: "/tmp/ra-run2.png" });
+  let lat0 = 50 + 7 * 2 * 2.78 / 111320, tEnd = Date.now() + 30000;
+  for (const [nm, kmh] of [["ok", 8.5], ["lent", 5.5]]) {
+    await page.evaluate(([kmh, lat0, T]) => { const d = kmh / 3.6 * 2 / 111320; for (let i = 1; i <= 12; i++) window.__geo({ coords: { latitude: lat0 + i * d, longitude: 3, accuracy: 5 }, timestamp: T + i * 2000 }); }, [kmh, lat0, tEnd]);
+    lat0 += 12 * kmh / 3.6 * 2 / 111320; tEnd += 24000;
+    await page.waitForTimeout(2200); await page.screenshot({ path: "/tmp/ra-piste-" + nm + ".png" });
+  }
   await page.locator(".krp-lnk", { hasText: "Mode poche" }).click();
   await expect(page.locator("#krp-poche.open")).toBeVisible();
   await expect(page.locator("#krp-pt")).toContainText("Course");

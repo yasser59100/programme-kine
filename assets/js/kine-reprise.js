@@ -366,6 +366,14 @@ var KineReprise = (function () {
     if (w.length >= 2 && (w[w.length - 1].t - w[0].t) >= 5000) RUN.sp = hav(w[0], w[w.length - 1]) / ((w[w.length - 1].t - w[0].t) / 1000) * 3.6;
     RUN.spT = Date.now();
   }
+  // La piste : Yass se place selon la vitesse mesurée (centre = bonne allure, droite = trop vite, gauche = trop lent)
+  function track(st) {
+    var y = $("krp-y"), t = $("krp-track"); if (!y || !t) return;
+    var tgt = RUN.p.v, r = RUN.sp != null && st !== "wait" ? RUN.sp / tgt : 1, state = r > 1.08 ? "fast" : r < 0.92 ? "slow" : "ok";
+    y.style.left = Math.max(8, Math.min(92, 50 + (r - 1) / 0.24 * 50)) + "%";
+    t.setAttribute("data-s", st === "wait" || RUN.sp == null ? "none" : state);
+    y.className = "krp-yass " + (state === "slow" ? "walk" : "run");
+  }
   function gpsTick() {
     if (!RUN || !RUN.gps) return;
     var el = $("krp-g"), k = RUN.steps[RUN.i] && RUN.steps[RUN.i][0], now = Date.now(), tgt = RUN.p.v, st = "", cls = "";
@@ -374,6 +382,7 @@ var KineReprise = (function () {
       if (RUN.sp > tgt * 1.08) { st = "Un peu trop vite"; cls = "hot"; if (!RUN.hotSince) RUN.hotSince = now; if (now - RUN.hotSince > 12000 && now - (RUN.lastWarn || 0) > 45000) { RUN.lastWarn = now; say("Un peu trop vite. Ralentis."); if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200]); } catch (e) {} } } }
       else { RUN.hotSince = 0; st = RUN.sp < tgt * 0.92 ? "Plus lent que prévu" : "Dans la cible"; cls = RUN.sp < tgt * 0.92 ? "low" : "ok"; }
     } else { RUN.hotSince = 0; }
+    track(cls);
     if (el) { el.className = "krp-g " + cls; el.innerHTML = (RUN.sp != null && cls !== "wait" ? "<b>" + fmtV(RUN.sp) + " km/h</b> mesurés" : "") + "<span>" + st + "</span><em>" + (RUN.km >= 0.05 ? String(Math.round(RUN.km * 100) / 100).replace(".", ",") + " km" : "") + "</em>"; }
   }
   function pos() { var base = RUN.auOk && RUN.au && !RUN.au.paused ? RUN.au.currentTime : (Date.now() - RUN.t0 - RUN.pausedMs) / 1000; return base + RUN.off; }
@@ -383,7 +392,7 @@ var KineReprise = (function () {
   function instr(kind) {
     var v = spd(kind), tp = RUN.where === "tapis", m = RUN.montre, big = kind === "course";
     if (tp) return { line: "Règle le tapis sur " + fmtV(v) + " km/h", say: (big ? "Cours." : "Marche.") + " Tapis à " + fmtV(v) + "." };
-    if (m && big) return { line: "Entre " + pace(v * 1.04) + " et " + pace(v * 0.96) + " par km", say: "Cours. Allure " + paceSay(v) + " par kilomètre." };
+    if (m && big) return { line: "Entre " + pace(v * 1.08) + " et " + pace(v * 0.92) + " par km", say: "Cours. Allure " + paceSay(v) + " par kilomètre." };
     if (m) return { line: kind === "retour" ? "Marche lente" : "Marche à environ " + pace(v) + " par km", say: LAB[kind][3] };
     return { line: big ? "Allure où tu peux parler, environ " + fmtV(v) + " km/h" : kind === "retour" ? "Marche lente" : "Marche d'un bon pas", say: LAB[kind][3] };
   }
@@ -411,18 +420,19 @@ var KineReprise = (function () {
     var nx = RUN.steps[RUN.i + 1];
     el.style.background = L[2];
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (k === "course" ? "Course " + kC + " sur " + nCourse : esc(L[0])) + "</span></div>" + tlHtml(RUN.steps, RUN.i) +
-      "<div class='krp-big'><i class='krp-yass " + (k === "course" ? "run" : "walk") + "' aria-hidden='true'></i><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em></div>" +
-      "<div class='krp-card'><div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" +
+      "<div class='krp-big'>" + (k === "course" ? "<div class='krp-track' id='krp-track' data-s='none'><span class='krp-l'>Trop lent</span><span class='krp-r'>Trop vite</span><div class='krp-zone2'><strong>" + fmtV(v * 0.92) + " à " + fmtV(v * 1.08) + " km/h</strong><small>" + pace(v * 1.08) + " à " + pace(v * 0.92) + " par km</small></div><i id='krp-y' class='krp-yass run' style='left:50%' aria-hidden='true'></i></div>" : "<i class='krp-yass walk' aria-hidden='true'></i>") + "<b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em></div>" +
+      "<div class='krp-card" + (RUN.more ? " more" : "") + "'><div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" +
       (k === "course" ? "<p class='krp-line hr'>" + (RUN.z ? "Cœur : " + RUN.z.lo + " à " + RUN.z.hi + " par minute" : "Tu dois pouvoir parler en phrases") + "</p>" : "") +
       (RUN.gps ? "<div class='krp-g wait' id='krp-g'></div>" : "") + "</div>" +
       "<div class='kr-small2' id='krp-r'>" + (nx ? "Ensuite : " + esc(LAB[nx[0]][0].toLowerCase()) + " · " + fmtV(spd(nx[0])) + " km/h · " + nx[1] + " min" : "Dernière étape") + "</div>" +
       (k === "course" && RUN.p.v - 0.5 >= 5 && !RUN.paused ? "<button type='button' class='krp-slow' onclick='KineReprise.slower()'>Trop vite pour moi<span>Ralentir de 0,5 km/h" + (RUN.slow ? " · déjà " + RUN.slow + " fois" : "") + "</span></button>" : "") +
-      "<button type='button' class='krp-lnk dark' onclick='KineReprise.poche()'>Mode poche (écran noir)" + "</button>" +
+      "<button type='button' class='krp-lnk dark' onclick='KineReprise.more()'>" + (RUN.more ? "Afficher moins" : "Afficher plus") + "</button>" + ((RUN.more || RUN.gps) ? "<button type='button' class='krp-lnk dark' onclick='KineReprise.poche()'>Mode poche (écran noir)</button>" : "") +
       "<div class='kr-btns'><button type='button' onclick='KineReprise.pause()'>" + (RUN.paused ? "Reprendre" : "Pause") + "</button><button type='button' onclick='KineReprise.quit()'>Arrêter</button></div>";
-    el.classList.add("open"); upd();
+    el.classList.add("open"); upd(); gpsTick();
   }
   // Mode poche : l'écran reste allumé (donc le GPS tourne) mais il est noir et ne réagit pas aux touches ; on le réveille en maintenant le bouton
   var PT = null;
+  function more() { if (!RUN) return; RUN.more = !RUN.more; paint(); }
   function poche() {
     if (!RUN) return; var el = $("krp-poche");
     if (!el) { el = document.createElement("div"); el.id = "krp-poche"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Mode poche"); document.body.appendChild(el); }
@@ -480,7 +490,7 @@ var KineReprise = (function () {
   }
 
   return { journal: journal, active: active, PALIERS: PALIERS, MODELES: MODELES, etat: etat, kineCard: kineCard, edit: edit, m: setM, k: setK, vs: vStep, vf: vFix, vc: vClear, send: send, stop: stop,
-    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn, poche: poche, pa: pa, adv: applyAdvice,
+    patientCard: patientCard, lendemain: lendemain, go: go, start: start, pw: pw, pm: pm, q: q, qa: qa, qb: qb, qx: qx, qv: qv, qs: qs, withKine: withKine, slower: slower, pause: pause, quit: quit, done: done, close: close, qn: qn, poche: poche, more: more, pa: pa, adv: applyAdvice,
     pace: pace, hrOf: hrOf, prof: function () { return prof(cfgNow()); }, _setProf: function (o) { var c = cfgNow(); saveProf(Object.assign({ cid: c.id, v: 9, vw: 6, lieu: "tapis", montre: false, src: "patient", d: iso(), vk: c.v || null }, o || {})); },
     _run: function () { return RUN; }, _skip: function () { if (RUN && RUN.i >= 0) { RUN.off += RUN.starts[RUN.i + 1] - pos() + 0.05; tick(); } } };
 })();
