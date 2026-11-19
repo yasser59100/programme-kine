@@ -325,7 +325,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   }
   function shortCue(d) {
     d = String(d || "").trim(); if (d.length <= 110) return d;
-    var parts = d.split(/(?<=[.!?])\s+/), out = "";
+    var parts = d.replace(/([.!?])\s+/g, "$1\u0000").split("\u0000"), out = "";
     for (var i = 0; i < parts.length; i++) { if (out && (out + " " + parts[i]).length > 110) break; out = out ? out + " " + parts[i] : parts[i]; }
     return out.length > 140 ? out.slice(0, 120).replace(/[\s,;:]+\S*$/, "") + "…" : out;
   }
