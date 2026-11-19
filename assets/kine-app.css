@@ -4118,3 +4118,12 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 #krp-run .krp-big { min-height: 0; }
 #krp-run .krp-yass { width: min(28vw, 118px); margin-bottom: 0; }
 #krp-run .krp-big { gap: 2px; padding: 4px 0; } #krp-run .krp-big b { font-size: clamp(2.4rem, 13vw, 3.6rem); } #krp-run .krp-big em { font-size: clamp(2rem, 10vw, 3rem); }
+/* Écran de séance : une seule info forte, le reste discret */
+#krp-run .krp-card { padding-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#krp-run .krp-line { margin: 0; font-size: .95rem; opacity: .85; font-weight: 600; } #krp-run .krp-line.hr { font-size: .85rem; opacity: .65; }
+#krp-run .krp-g.wait, #krp-run .krp-g.ok { display: none; }
+#krp-run .krp-g.hot, #krp-run .krp-g.low { margin-top: 6px; padding: 8px 14px; font-size: .9rem; }
+#krp-run .krp-g.hot b, #krp-run .krp-g.low b { font-size: 1rem; }
+#krp-run .kr-small2 { opacity: .65; font-size: .85rem; }
+#krp-run .krp-lnk.dark { background: none; opacity: .6; font-size: .8rem; padding: 4px; margin-bottom: 6px; }
+#krp-run .krp-slow { padding: 16px; font-size: 1.15rem; }

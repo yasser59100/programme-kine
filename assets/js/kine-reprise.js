@@ -383,7 +383,7 @@ var KineReprise = (function () {
   function instr(kind) {
     var v = spd(kind), tp = RUN.where === "tapis", m = RUN.montre, big = kind === "course";
     if (tp) return { line: "Règle le tapis sur " + fmtV(v) + " km/h", say: (big ? "Cours." : "Marche.") + " Tapis à " + fmtV(v) + "." };
-    if (m && big) return { line: "Vise " + pace(v) + " par km, entre " + pace(v * 1.04) + " et " + pace(v * 0.96), say: "Cours. Allure " + paceSay(v) + " par kilomètre." };
+    if (m && big) return { line: "Entre " + pace(v * 1.04) + " et " + pace(v * 0.96) + " par km", say: "Cours. Allure " + paceSay(v) + " par kilomètre." };
     if (m) return { line: kind === "retour" ? "Marche lente" : "Marche à environ " + pace(v) + " par km", say: LAB[kind][3] };
     return { line: big ? "Allure où tu peux parler, environ " + fmtV(v) + " km/h" : kind === "retour" ? "Marche lente" : "Marche d'un bon pas", say: LAB[kind][3] };
   }
@@ -413,11 +413,11 @@ var KineReprise = (function () {
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (k === "course" ? "Course " + kC + " sur " + nCourse : esc(L[0])) + "</span></div>" + tlHtml(RUN.steps, RUN.i) +
       "<div class='krp-big'><i class='krp-yass " + (k === "course" ? "run" : "walk") + "' aria-hidden='true'></i><b>" + esc(L[1]) + "</b><em id='krp-t'>" + mmss(Math.max(0, Math.ceil(RUN.starts[RUN.i + 1] - pos()))) + "</em></div>" +
       "<div class='krp-card'><div class='krp-v'><strong>" + fmtV(v) + "</strong><span>km/h</span><i>" + pace(v) + " /km</i></div><p class='krp-line'>" + esc(I.line) + "</p>" +
-      (k === "course" && RUN.z ? "<p class='krp-line hr'>Zone cardio : " + RUN.z.lo + " à " + RUN.z.hi + " battements</p>" : k === "course" ? "<p class='krp-line hr'>Tu dois pouvoir parler en phrases complètes</p>" : "") +
+      (k === "course" ? "<p class='krp-line hr'>" + (RUN.z ? "Cœur : " + RUN.z.lo + " à " + RUN.z.hi + " par minute" : "Tu dois pouvoir parler en phrases") + "</p>" : "") +
       (RUN.gps ? "<div class='krp-g wait' id='krp-g'></div>" : "") + "</div>" +
       "<div class='kr-small2' id='krp-r'>" + (nx ? "Ensuite : " + esc(LAB[nx[0]][0].toLowerCase()) + " · " + fmtV(spd(nx[0])) + " km/h · " + nx[1] + " min" : "Dernière étape") + "</div>" +
-      (k === "course" && RUN.p.v - 0.5 >= 5 && !RUN.paused ? "<button type='button' class='krp-slow' onclick='KineReprise.slower()'>Je n'arrive pas à tenir cette allure<span>Ralentir de 0,5 km/h" + (RUN.slow ? " · déjà " + RUN.slow + " fois" : "") + "</span></button>" : "") +
-      "<button type='button' class='krp-lnk dark' onclick='KineReprise.poche()'>Mode poche : écran noir et touches bloquées" + (RUN.gps ? ", le GPS continue" : "") + "</button>" +
+      (k === "course" && RUN.p.v - 0.5 >= 5 && !RUN.paused ? "<button type='button' class='krp-slow' onclick='KineReprise.slower()'>Trop vite pour moi<span>Ralentir de 0,5 km/h" + (RUN.slow ? " · déjà " + RUN.slow + " fois" : "") + "</span></button>" : "") +
+      "<button type='button' class='krp-lnk dark' onclick='KineReprise.poche()'>Mode poche (écran noir)" + "</button>" +
       "<div class='kr-btns'><button type='button' onclick='KineReprise.pause()'>" + (RUN.paused ? "Reprendre" : "Pause") + "</button><button type='button' onclick='KineReprise.quit()'>Arrêter</button></div>";
     el.classList.add("open"); upd();
   }
