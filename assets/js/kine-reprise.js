@@ -463,7 +463,7 @@ var KineReprise = (function () {
   }
   function quit() { if (!RUN) return; if (RUN.i >= 0 && pos() > 120 && confirm("Arrêter la séance ? Tu pourras noter ta douleur pour que ton kiné le sache.")) { RUN.partial = true; endRun(); return; } close(); }
   function endRun() {
-    clearInterval(RUN.tm); gpsStop(); try { if (RUN.au) RUN.au.pause(); } catch (e) {} say(RUN.partial ? "Séance arrêtée." : "Séance terminée, bravo !");
+    clearInterval(RUN.tm); clearTimeout(RUN.pk); gpsStop(); clearTimeout(PT); var pk0 = $("krp-poche"); if (pk0) pk0.classList.remove("open"); try { if (RUN.au) RUN.au.pause(); } catch (e) {} say(RUN.partial ? "Séance arrêtée." : "Séance terminée, bravo !");
     var el = screen(); el.style.background = "#0E141F";
     el.innerHTML = "<div class='kr-top'><span>Palier " + RUN.rp + " sur 10</span><span>" + (RUN.partial ? "arrêtée" : "terminée") + "</span></div><div class='krp-end'><b>" + (RUN.partial ? "Séance arrêtée" : "Bravo !") + "</b>" +
       (RUN.gps && RUN.km >= 0.05 ? "<p>Distance mesurée : " + String(Math.round(RUN.km * 100) / 100).replace(".", ",") + " km.</p>" : "") + (RUN.slow ? "<p>Tu as ralenti " + RUN.slow + " fois : ta prochaine allure est de " + fmtV(RUN.p.v) + " km/h" + (RUN.slow >= 2 ? ", et tu refais ce palier pour te l'approprier." : ".") + "</p>" : "") +
