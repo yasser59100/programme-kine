@@ -4145,3 +4145,6 @@ html.kf-scroll-down .kcb-fab { transform: translateY(90px); opacity: 0; pointer-
 /* détails seulement avec « Afficher plus » */
 #krp-run .krp-card:not(.more) .krp-line, #krp-run .krp-card:not(.more) .krp-g { display: none; }
 #krp-run .krp-card:not(.more) ~ .kr-small2 { display: none; }
+
+/* Mobilité et étirements : note de précaution pour le kiné */
+.kcb-mob-note { margin: 0; font-size: .8rem; line-height: 1.45; color: var(--muted, #5b6478); padding: 8px 10px; border-left: 3px solid #c9d1ff; background: rgba(255, 255, 255, .6); border-radius: 0 10px 10px 0; }

@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v153';
+const VERSION = 'kineforce-v154';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
@@ -37,6 +37,8 @@ const APP_FILES = [
   'assets/js/kine-cheville-ex.js',
   'assets/js/kine-epaule-ex.js',
   'assets/js/kine-hanche-dos-ex.js',
+  'assets/js/kine-etirements-ex.js',
+  'assets/js/kine-mobilite.js',
   'assets/js/kine-renfo-ex.js',
   'assets/js/kine-quest.js',
   'assets/js/kine-salle.js',

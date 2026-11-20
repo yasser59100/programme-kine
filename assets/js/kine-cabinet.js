@@ -508,7 +508,7 @@ var KineCabinet = (function () {
         "<button class='kcb-link' onclick='KineCabinet.papier()'>Imprimer la fiche d'exercices (papier ou PDF)</button></div>";
     } else {
       if (!sel) sel = sent.length ? sent.slice() : [];
-      if (!sel.length) html += prefabHtml();
+      if (!sel.length) html += prefabHtml() + mobHtml();
             html += "<div class='su-card'><div class='su-card-h'><b>Exercices de l'étape " + (E + 1) + "</b><span>" + sel.length + " choisi" + (sel.length > 1 ? "s" : "") + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient (10 au plus) : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
         // les exercices sur machine (salle ou cabinet) en fin de liste, signalés : le patient ne les a pas chez lui
         ex.slice().sort(function (a, b) { return (gymOf(a) ? 1 : 0) - (gymOf(b) ? 1 : 0); }).map(function (n) {
@@ -700,6 +700,30 @@ var KineCabinet = (function () {
       h += "</div>";
     });
     return h + "</div>";
+  }
+  /* ── Séances de mobilité et d'étirement, par pathologie (catalogue KineMob) ── */
+  var MOBZ = "";
+  function mobBlock(x) {
+    return "<div class='kcb-pre-s'><div class='kcb-pre-n'><b>" + esc(x.nom) + "</b><span>" + x.ex.length + " exercices · " + KineMob.minutes(x) + " min</span></div>" +
+      "<div class='kcb-pre-x'>" + x.ex.map(function (n) { return "<span><i class='kb-dot c" + (window.KineBiblio ? KineBiblio.color(n) : 0) + "' aria-hidden='true'></i>" + esc(n) + "</span>"; }).join("") + "</div>" +
+      "<p class='kcb-mob-note'>" + esc(x.note) + "</p>" +
+      "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.mob(" + q(x.id) + ",0)'>Modifier</button><button class='seq-btn-main' onclick='KineCabinet.mob(" + q(x.id) + ",1)'>" + (WHEN && WHEN > iso() ? "Programmer" : "Envoyer tel quel") + "</button></div></div>";
+  }
+  function mobHtml() {
+    if (!window.KineMob) return "";
+    var mine = KineMob.forParcours(C.parcours), shown = {}, h = "<div class='su-card kcb-mob'><div class='su-card-h'><b>Mobilité et étirements</b><span>par pathologie</span></div>" +
+      "<div class='kf-sub'>Des séances de mobilité et d'étirement prêtes à envoyer, avec la note de précaution de chaque pathologie. Ouvre-les pour les modifier avant l'envoi.</div>";
+    if (mine.length) { h += "<div class='kcb-pre-l now'><div class='kcb-pre-h'><b>Pour ce patient</b><span>" + esc(KP.get(C.parcours).nom) + "</span><em>conseillé</em></div>"; mine.forEach(function (x) { shown[x.id] = 1; h += mobBlock(x); }); h += "</div>"; }
+    h += "<div class='kcb-pre-l'><div class='kcb-pre-h'><b>" + (mine.length ? "Autres pathologies" : "Choisir une pathologie") + "</b></div><div class='kf-chips'>" +
+      KineMob.ZONES.map(function (z) { return "<button type='button'" + (MOBZ === z[0] ? " class='sel'" : "") + " onclick='KineCabinet.mobZone(" + q(z[0]) + ")'>" + esc(z[1]) + "</button>"; }).join("") + "</div>";
+    if (MOBZ) KineMob.S.filter(function (x) { return x.zone === MOBZ && !shown[x.id]; }).forEach(function (x) { h += mobBlock(x); });
+    return h + "</div></div>";
+  }
+  function mobZone(z) { MOBZ = MOBZ === z ? "" : z; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
+  function mob(id, send) {
+    var x = window.KineMob && KineMob.get(id); if (!x) return;
+    sel = x.ex.slice(); if (send) { sendExos(); return; }
+    var y = sheet().scrollTop; reView(); sheet().scrollTop = y;
   }
   // Séance fixée : le patient ne peut ni la modifier ni la supprimer
   function lock() {
@@ -1531,7 +1555,7 @@ var KineCabinet = (function () {
 
   return {
     hopital: hopital, acceptHopital: acceptHopital, open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, sv: sv, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    course: function () { if (window.KineReprise) KineReprise.edit(); }, prefab: prefab, lock: lock, fin: fin, when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    course: function () { if (window.KineReprise) KineReprise.edit(); }, prefab: prefab, mob: mob, mobZone: mobZone, lock: lock, fin: fin, when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sswap: sswap, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },
