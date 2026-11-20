@@ -1,0 +1,123 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - paragraph [ref=e6]: Vendredi 20 novembre
+    - heading "Bonjour" [level=1] [ref=e7]
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - text: Lun
+        - generic [ref=e10]: "16"
+        - generic [ref=e11]: J1
+      - generic [ref=e12]:
+        - text: Mar
+        - generic [ref=e13]: "17"
+        - generic [ref=e14]: J2
+      - generic [ref=e15]:
+        - text: Mer
+        - generic [ref=e16]: "18"
+        - generic [ref=e17]: J3
+      - generic [ref=e18]:
+        - text: Jeu
+        - generic [ref=e19]: "19"
+        - generic [ref=e20]: repos
+      - generic [ref=e21]:
+        - text: Ven
+        - generic [ref=e22]: "20"
+        - generic [ref=e23]: J4
+      - generic [ref=e24]:
+        - text: Sam
+        - generic [ref=e25]: "21"
+        - generic [ref=e26]: J5
+      - generic [ref=e27]:
+        - text: Dim
+        - generic [ref=e28]: "22"
+        - generic [ref=e29]: repos
+    - generic [ref=e30]:
+      - button "Yass" [ref=e31] [cursor=pointer]
+      - paragraph [ref=e32]: Séance du jour, semaine 1 sur 4
+      - heading "Fessiers et bassin" [level=2] [ref=e33]
+      - paragraph [ref=e34]: 6 exercices, 40 minutes, avec une marche et un mur
+      - button "Commencer" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]
+        - text: Commencer
+      - button "Voir les exercices" [ref=e38] [cursor=pointer]
+    - generic [ref=e39]:
+      - button "Tester en vidéo Yass regarde ton mouvement et te corrige" [ref=e40] [cursor=pointer]:
+        - img [ref=e42]
+        - generic [ref=e45]: Tester en vidéo
+        - generic [ref=e46]: Yass regarde ton mouvement et te corrige
+      - button "10 minutes Séance express, pas le temps" [ref=e47] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e51]: 10 minutes
+        - generic [ref=e52]: Séance express, pas le temps
+    - button "Bonjour, comment ça va aujourd'hui ? Note ton ressenti en 30 secondes" [ref=e53] [cursor=pointer]:
+      - img [ref=e54]
+      - generic [ref=e56]:
+        - generic [ref=e57]: Bonjour, comment ça va aujourd'hui ?
+        - text: Note ton ressenti en 30 secondes
+    - button "Le savais-tu ? L'exercice soulage l'arthrose du genou." [ref=e58] [cursor=pointer]:
+      - generic [ref=e59]:
+        - generic [ref=e61]:
+          - generic [ref=e62]: Douleur au genou
+          - text: 7/10
+        - generic [ref=e74]:
+          - generic [ref=e75]: 54 essais
+          - generic [ref=e76]: analysés, avec une baisse nette de la douleur
+      - generic [ref=e78]:
+        - img [ref=e79]
+        - text: Le savais-tu ?
+      - generic [ref=e81]: L'exercice soulage l'arthrose du genou.
+      - generic [ref=e82]:
+        - text: Cochrane, 2015
+        - generic [ref=e83]: ›
+    - generic [ref=e84]:
+      - generic [ref=e85]:
+        - img [ref=e86]
+        - text: Vrai ou faux du jour
+      - 'generic "Carte à balayer : à droite pour vrai, à gauche pour faux" [ref=e91]':
+        - generic [ref=e92]: Vrai
+        - generic [ref=e93]: Faux
+        - paragraph [ref=e95]: « Le moral influence la récupération. »
+        - generic [ref=e96]:
+          - generic [ref=e97]: ‹ Faux
+          - generic [ref=e98]: Vrai ›
+        - generic:
+          - img
+  - text: ›
+  - generic [ref=e99]:
+    - text: Programme établi par
+    - strong [ref=e100]: Yasser Ladraa, Kinésithérapeute
+    - text: ", Renforcement musculaire poids du corps, Cycle 4 semaines, Usage thérapeutique post-hospitalisation"
+    - generic [ref=e101]:
+      - text: Ne remplace pas un avis médical. Arrête en cas de douleur vive.
+      - button "Santé et confidentialité" [ref=e102] [cursor=pointer]
+  - dialog "Bienvenue" [ref=e103]:
+    - generic [ref=e104]:
+      - button "Retour" [ref=e106] [cursor=pointer]:
+        - img [ref=e107]
+      - generic [ref=e109]:
+        - emphasis [ref=e111]
+        - generic [ref=e112]: Ta rééducation commence ici
+      - heading "Ton kiné utilise KinéForce ?" [level=1] [ref=e113]
+      - button "ABC J'ai un code de mon kiné 6 caractères, donnés au cabinet" [ref=e114] [cursor=pointer]:
+        - generic [ref=e115]: ABC
+        - generic [ref=e116]:
+          - generic [ref=e117]: J'ai un code de mon kiné
+          - generic [ref=e118]: 6 caractères, donnés au cabinet
+        - img [ref=e119]
+      - button "Demander un accès Pas de code ? Ton kiné reçoit ta demande" [ref=e121] [cursor=pointer]:
+        - img [ref=e123]
+        - generic [ref=e126]:
+          - generic [ref=e127]: Demander un accès
+          - generic [ref=e128]: Pas de code ? Ton kiné reçoit ta demande
+        - img [ref=e129]
+      - 'button "Je m''entraîne seul Programme général : prévention et entretien" [ref=e131] [cursor=pointer]':
+        - img [ref=e133]
+        - generic [ref=e135]:
+          - generic [ref=e136]: Je m'entraîne seul
+          - generic [ref=e137]: "Programme général : prévention et entretien"
+        - img [ref=e138]
+      - paragraph [ref=e140]: Tu pourras relier ton kiné plus tard, avec le bouton en haut à droite.
+```

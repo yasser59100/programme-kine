@@ -1,0 +1,192 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "Progrès" [level=1] [ref=e6]
+      - button "Suivi au cabinet Étape 1 sur 4 Protéger et remettre en mouvement Ton premier bilan arrive au cabinet." [ref=e8] [cursor=pointer]:
+        - generic [ref=e9]:
+          - generic [ref=e10]: Suivi au cabinet
+          - generic [ref=e11]: Étape 1 sur 4
+        - generic [ref=e12]: Protéger et remettre en mouvement
+        - generic [ref=e13]: Ton premier bilan arrive au cabinet.
+      - generic [ref=e14]:
+        - heading "Ton suivi commence ici" [level=2] [ref=e15]
+        - list [ref=e16]:
+          - listitem [ref=e17]:
+            - generic [ref=e18]: "1"
+            - generic [ref=e19]:
+              - strong [ref=e20]: Fais ta première séance
+              - text: Yass te guide, mouvement par mouvement.
+          - listitem [ref=e21]:
+            - generic [ref=e22]: "2"
+            - generic [ref=e23]:
+              - strong [ref=e24]: Note ton ressenti
+              - text: "30 secondes par jour : douleur, sommeil, moral."
+          - listitem [ref=e25]:
+            - generic [ref=e26]: "3"
+            - generic [ref=e27]:
+              - strong [ref=e28]: Vois tes progrès
+              - text: Ta semaine, ta régularité et tes courbes s'affichent ici.
+        - button "Commencer ma première séance" [ref=e29] [cursor=pointer]
+      - 'button "Comment ça va aujourd''hui ? 30 secondes : douleur, sommeil, moral" [ref=e30] [cursor=pointer]':
+        - img [ref=e31]
+        - generic [ref=e33]:
+          - text: Comment ça va aujourd'hui ?
+          - generic [ref=e34]: "30 secondes : douleur, sommeil, moral"
+      - generic [ref=e35]:
+        - button "Lundi 16 novembre" [ref=e36] [cursor=pointer]:
+          - generic [ref=e37]: Lun
+          - generic [ref=e38]: "16"
+          - emphasis
+        - button "Mardi 17 novembre" [ref=e39] [cursor=pointer]:
+          - generic [ref=e40]: Mar
+          - generic [ref=e41]: "17"
+          - emphasis
+        - button "Mercredi 18 novembre" [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: Mer
+          - generic [ref=e44]: "18"
+          - emphasis
+        - button "Jeudi 19 novembre" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: Jeu
+          - generic [ref=e47]: "19"
+          - emphasis
+        - button "Vendredi 20 novembre" [ref=e48] [cursor=pointer]:
+          - generic [ref=e49]: Ven
+          - generic [ref=e50]: "20"
+          - emphasis
+        - button "Samedi 21 novembre" [ref=e51] [cursor=pointer]:
+          - generic [ref=e52]: Sam
+          - generic [ref=e53]: "21"
+          - emphasis
+        - button "Dimanche 22 novembre" [ref=e54] [cursor=pointer]:
+          - generic [ref=e55]: Dim
+          - generic [ref=e56]: "22"
+          - emphasis
+      - heading "Mon objectif" [level=2] [ref=e57]
+      - generic [ref=e58]:
+        - paragraph [ref=e59]:
+          - text: Qu'aimerais-tu
+          - strong [ref=e60]: refaire au quotidien
+          - text: grâce au programme ? Choisis un geste, note-le de 0 à 10, et vois-le progresser.
+        - button "Choisir mon objectif" [ref=e61] [cursor=pointer]
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - img [ref=e64]
+          - text: Tes tendances
+        - generic [ref=e67]: Note ton ressenti encore 10 jours pour découvrir ce que tes données montrent.
+        - generic [ref=e69]: "Par exemple : ta douleur est-elle plus basse les lendemains de séance ? Ton sommeil joue-t-il sur la douleur ?"
+      - heading "Mon historique" [level=2] [ref=e70]
+      - generic [ref=e71]:
+        - button "Calendrier" [ref=e72] [cursor=pointer]:
+          - generic [ref=e73]: Calendrier
+          - img [ref=e75]
+        - button "Douleur et effort, la courbe" [ref=e77] [cursor=pointer]:
+          - generic [ref=e78]: Douleur et effort, la courbe
+          - img [ref=e80]
+        - button "Historique des séances" [ref=e82] [cursor=pointer]:
+          - generic [ref=e83]: Historique des séances
+          - img [ref=e85]
+        - button "Douleurs signalées" [ref=e87] [cursor=pointer]:
+          - generic [ref=e88]: Douleurs signalées
+          - img [ref=e90]
+      - button "Envoyer mon bilan à mon kiné" [ref=e92] [cursor=pointer]
+      - heading "Avant / maintenant" [level=2] [ref=e93]
+      - paragraph [ref=e94]: "Note ton ressenti et fais tes séances : dans deux semaines, tu verras ici ce qui a changé."
+    - group [ref=e95]:
+      - generic "Ajouter une séance faite sans l'appli ›" [ref=e96] [cursor=pointer]
+  - navigation [ref=e97]:
+    - button "Aujourd'hui" [ref=e98] [cursor=pointer]:
+      - img [ref=e100]
+      - generic [ref=e102]: Aujourd'hui
+    - button "Exercices" [ref=e103] [cursor=pointer]:
+      - img [ref=e105]
+      - generic [ref=e107]: Exercices
+    - button "Ma séance" [ref=e108] [cursor=pointer]:
+      - generic [ref=e110]: Ma séance
+    - button "Progrès" [ref=e111] [cursor=pointer]:
+      - img [ref=e113]
+      - generic [ref=e115]: Progrès
+    - button "Mon kiné" [ref=e116] [cursor=pointer]:
+      - img [ref=e118]
+      - generic [ref=e122]: Mon kiné
+  - generic [ref=e123]:
+    - text: Programme établi par
+    - strong [ref=e124]: Yasser Ladraa, Kinésithérapeute
+    - text: ", Renforcement musculaire poids du corps, Cycle 4 semaines, Usage thérapeutique post-hospitalisation"
+    - generic [ref=e125]:
+      - text: Ne remplace pas un avis médical. Arrête en cas de douleur vive.
+      - button "Santé et confidentialité" [ref=e126] [cursor=pointer]
+  - button "Couper le son" [ref=e127] [cursor=pointer]:
+    - img [ref=e128]
+  - button "Mon espace" [ref=e130] [cursor=pointer]:
+    - img [ref=e131]
+  - button "Appeler Yass" [ref=e135] [cursor=pointer]
+  - status:
+    - generic [ref=e136]:
+      - paragraph [ref=e138]: Tu n'as pas encore donné ton ressenti aujourd'hui. Ça prend 30 secondes !
+      - generic [ref=e139]:
+        - button "Noter mon ressenti" [ref=e140] [cursor=pointer]
+        - button "Plus tard" [ref=e141] [cursor=pointer]
+        - button "Ne plus afficher" [ref=e142] [cursor=pointer]
+    - button "Poser une question à Yass" [ref=e143] [cursor=pointer]
+  - dialog "Mon suivi au cabinet" [ref=e144]:
+    - generic [ref=e145]:
+      - button "Retour" [ref=e147] [cursor=pointer]:
+        - img [ref=e148]
+      - generic [ref=e150]:
+        - generic [ref=e151]: Avec ton kiné
+        - generic [ref=e152]: Ta progression
+      - generic [ref=e153]:
+        - generic [ref=e154]:
+          - generic [ref=e155]: La séance de ton kiné
+          - generic [ref=e156]: 1 exercice
+        - button "Pompe de cheville couché Voir" [ref=e157] [cursor=pointer]:
+          - generic [ref=e158]: Pompe de cheville couché
+          - emphasis [ref=e159]: Voir
+        - button "Faire cette séance" [ref=e160] [cursor=pointer]
+      - button "Écrire à mon kiné Une question, un souci, une nouvelle" [ref=e161] [cursor=pointer]:
+        - img [ref=e163]
+        - generic [ref=e165]:
+          - generic [ref=e166]: Écrire à mon kiné
+          - generic [ref=e167]: Une question, un souci, une nouvelle
+      - button "Comprendre ma rééducation Ce qui est normal, ce qui aide, quand appeler ›" [ref=e168] [cursor=pointer]:
+        - img [ref=e170]
+        - generic [ref=e173]:
+          - generic [ref=e174]: Comprendre ma rééducation
+          - emphasis [ref=e175]: Ce qui est normal, ce qui aide, quand appeler
+        - generic [ref=e176]: ›
+      - generic [ref=e177]: "Ton premier bilan se fait au cabinet : tes mesures et ta courbe apparaîtront ici."
+      - generic [ref=e178]: Tes étapes
+      - generic [ref=e179]:
+        - generic [ref=e180]:
+          - generic [ref=e181]: "1"
+          - generic [ref=e182]:
+            - generic [ref=e183]: Protéger et remettre en mouvement
+            - generic [ref=e184]: En cours
+        - generic [ref=e185]: Pour passer à l'étape suivante
+        - generic [ref=e188]: Ton kiné a vérifié qu'il n'y a pas de fracture
+        - generic [ref=e191]: Tu marches normalement, sans béquilles
+        - generic [ref=e194]: Ta cheville a dégonflé
+        - generic [ref=e197]: La douleur a bien baissé
+      - generic [ref=e198]:
+        - img [ref=e200]
+        - generic [ref=e203]:
+          - generic [ref=e204]: 2 · Renforcer et équilibrer
+          - generic [ref=e205]: Se débloque avec ton kiné, au cabinet
+      - generic [ref=e206]:
+        - img [ref=e208]
+        - generic [ref=e211]:
+          - generic [ref=e212]: 3 · Sauter et changer de direction
+          - generic [ref=e213]: Se débloque avec ton kiné, au cabinet
+      - generic [ref=e214]:
+        - img [ref=e216]
+        - generic [ref=e219]:
+          - generic [ref=e220]: 4 · Retour au sport
+          - generic [ref=e221]: Se débloque avec ton kiné, au cabinet
+      - generic [ref=e222]:
+        - generic [ref=e223]: Pourquoi passer au cabinet ?
+        - generic [ref=e224]: Tes exercices ici sont tes devoirs entre deux séances. Au cabinet, ton kiné mesure ta force, corrige ton geste et décide quand tu passes à l'étape suivante.
+      - button "Délier ce téléphone" [ref=e225] [cursor=pointer]
+```
