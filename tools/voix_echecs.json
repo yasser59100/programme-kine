@@ -1,1 +1,1214 @@
-[]
+[
+ [
+  "Une main en appui sur l'assise d'une chaise, buste penché et dos plat, une bouteille d'eau dans l'autre main, bras tendu vers le sol.",
+  "budget"
+ ],
+ [
+  "Debout, genoux légèrement fléchis, buste penché à environ 45°, dos plat, une bouteille dans chaque main.",
+  "budget"
+ ],
+ [
+  "Allongé sous une table très solide, mains au bord du plateau, talons au sol, corps aligné.",
+  "budget"
+ ],
+ [
+  "Debout, une bouteille dans chaque main, paumes vers l'avant, coudes collés au corps.",
+  "budget"
+ ],
+ [
+  "Debout, bras levés, coudes pliés, bouteilles derrière la tête.",
+  "budget"
+ ],
+ [
+  "Debout, une bouteille dans chaque main, pouces vers l'avant.",
+  "budget"
+ ],
+ [
+  "Debout près d'un mur ou d'un meuble, place un pied juste devant l'autre, le talon contre les orteils.",
+  "budget"
+ ],
+ [
+  "Debout près d'un mur ou d'un meuble, sur une jambe, bras croisés. Ferme les yeux et garde l'équilibre.",
+  "budget"
+ ],
+ [
+  "Debout sur un coussin ferme posé au sol, sur une jambe, près d'un appui.",
+  "budget"
+ ],
+ [
+  "À quatre pattes, mains sous les épaules, genoux sous les hanches.",
+  "budget"
+ ],
+ [
+  "À quatre pattes.",
+  "budget"
+ ],
+ [
+  "Un genou au sol sur un coussin, l'autre pied devant.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux fléchis, pieds au sol, bras écartés.",
+  "budget"
+ ],
+ [
+  "Debout, marche sur place en montant les genoux à hauteur de hanches, bras qui accompagnent le mouvement, à un rythme régulier.",
+  "budget"
+ ],
+ [
+  "Debout, l'élastique accroché à hauteur de coude (poignée de porte) du côté opposé au bras qui travaille.",
+  "budget"
+ ],
+ [
+  "Debout, l'élastique accroché à hauteur de coude du même côté que le bras qui travaille.",
+  "budget"
+ ],
+ [
+  "Debout, l'élastique tenu à deux mains devant toi à hauteur d'épaules, bras tendus.",
+  "budget"
+ ],
+ [
+  "Debout face à une porte, l'élastique accroché à hauteur de poitrine.",
+  "budget"
+ ],
+ [
+  "Debout face à une porte, l'élastique accroché au-dessus de la tête.",
+  "budget"
+ ],
+ [
+  "Debout de profil par rapport à la porte, l'élastique accroché à hauteur de poitrine, tenu à deux mains contre le sternum.",
+  "budget"
+ ],
+ [
+  "Debout, un élastique en boucle juste au-dessus des genoux, pieds largeur de hanches.",
+  "budget"
+ ],
+ [
+  "Debout, l'élastique accroché devant toi à un pied de meuble, la boucle derrière le genou.",
+  "budget"
+ ],
+ [
+  "Élastique en boucle autour des chevilles, genoux légèrement fléchis, buste un peu penché.",
+  "budget"
+ ],
+ [
+  "Debout, une bouteille d'eau de 1,5 L ou un haltère tenu à deux mains contre la poitrine.",
+  "budget"
+ ],
+ [
+  "Debout, une charge dans chaque main, genoux légèrement fléchis.",
+  "budget"
+ ],
+ [
+  "Assis droit sur une chaise, une charge dans chaque main à hauteur d'épaules.",
+  "budget"
+ ],
+ [
+  "Debout, une charge dans chaque main, bras le long du corps.",
+  "budget"
+ ],
+ [
+  "Le haut du dos sur le bord d'un canapé, une charge posée sur le bassin et tenue à deux mains.",
+  "budget"
+ ],
+ [
+  "Debout, pieds largeur de hanches, le bâton tenu à deux mains devant les cuisses, mains un peu plus écartées que les épaules.",
+  "budget"
+ ],
+ [
+  "Debout, pieds un peu écartés, genoux souples, le bâton posé derrière la nuque sur le haut des épaules, tenu à deux mains.",
+  "budget"
+ ],
+ [
+  "Debout, pieds largeur de hanches, genoux légèrement fléchis, le bâton posé derrière la nuque.",
+  "budget"
+ ],
+ [
+  "Assis droit sur une chaise, pieds à plat, un ballon (ou un coussin roulé) entre les genoux.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés, pieds à plat, un ballon entre les genoux.",
+  "budget"
+ ],
+ [
+  "Debout, pieds largeur d'épaules, un ballon tenu contre la poitrine.",
+  "budget"
+ ],
+ [
+  "Debout, une serviette tendue entre les mains au-dessus de la tête, mains larges.",
+  "budget"
+ ],
+ [
+  "Debout, bras tendus devant toi à hauteur des épaules, une serviette tenue à deux mains.",
+  "budget"
+ ],
+ [
+  "Debout, une bouteille dans chaque main à hauteur des épaules.",
+  "budget"
+ ],
+ [
+  "Debout, une charge dans chaque main (bouteilles, sacs de courses), bras le long du corps.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, une jambe pliée pied à plat, l'autre tendue au sol.",
+  "budget"
+ ],
+ [
+  "Debout face à un mur, mains en appui.",
+  "budget"
+ ],
+ [
+  "En planche sur les mains, bras tendus, pieds un peu écartés, corps aligné.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, bras le long du corps, hanches et genoux pliés à 90°.",
+  "budget"
+ ],
+ [
+  "Debout, fais une fente arrière jusqu'à ce que les deux genoux soient à 90°, puis remonte en poussant sur la jambe avant…",
+  "budget"
+ ],
+ [
+  "Dos au mur, un ballon coincé entre le bas du dos et le mur, pieds un pas devant toi, largeur de hanches.",
+  "budget"
+ ],
+ [
+  "Un livre léger posé à plat sur la tête, marche lentement en ligne droite en posant le talon d'un pied juste devant les orteils de l'autre.",
+  "budget"
+ ],
+ [
+  "Debout, pieds écartés, un ballon tenu à deux mains au-dessus d'une épaule.",
+  "budget"
+ ],
+ [
+  "Debout, pieds décalés, genoux souples, poings à hauteur du menton.",
+  "budget"
+ ],
+ [
+  "Allongé sur le ventre, front au-dessus du sol, bras tendus devant.",
+  "budget"
+ ],
+ [
+  "Debout, fais comme si tu grimpais à une échelle : un bras monte au-dessus de la tête pendant que le genou opposé monte…",
+  "budget"
+ ],
+ [
+  "Debout, pieds largeur de hanches, plie les genoux et bascule le buste en avant comme un skieur en descente, fesses en…",
+  "budget"
+ ],
+ [
+  "Debout, fais un grand pas en arrière et pose doucement un genou au sol, sur un coussin, l'autre pied à plat devant.",
+  "budget"
+ ],
+ [
+  "Debout sur un pied, l'autre genou légèrement levé.",
+  "budget"
+ ],
+ [
+  "Allongé sur le ventre, une serviette tendue entre les mains, bras tendus devant.",
+  "budget"
+ ],
+ [
+  "Debout, pieds bien écartés et pointes vers l'extérieur, un ballon contre la poitrine.",
+  "budget"
+ ],
+ [
+  "Assis au bord d'une chaise, dos droit, un ballon tenu à deux mains devant la poitrine.",
+  "budget"
+ ],
+ [
+  "Debout, pieds largeur de hanches, bras tendus au-dessus de la tête.",
+  "budget"
+ ],
+ [
+  "Debout, un ballon tenu devant la poitrine.",
+  "budget"
+ ],
+ [
+  "Debout, pieds à largeur de hanches.",
+  "budget"
+ ],
+ [
+  "Sur une jambe, genou légèrement fléchi.",
+  "budget"
+ ],
+ [
+  "Face à un mur, mains posées dessus, un pied devant à environ 10 cm du mur, l'autre derrière.",
+  "budget"
+ ],
+ [
+  "Assis, pied à plat, un élastique autour de l'avant du pied, tenu ou accroché du côté intérieur.",
+  "budget"
+ ],
+ [
+  "Debout sur une marche, sur une jambe, l'autre pied dans le vide sur le côté.",
+  "budget"
+ ],
+ [
+  "Assis bien droit, regard à l'horizontale.",
+  "budget"
+ ],
+ [
+  "Assis bien droit.",
+  "budget"
+ ],
+ [
+  "Debout ou assis, coudes pliés à 90° le long du corps.",
+  "budget"
+ ],
+ [
+  "Debout, penché en avant, une main en appui sur le dossier d'une chaise ou sur une table.",
+  "budget"
+ ],
+ [
+  "Face au mur, coude plié à 90° le long du corps, poing contre le mur.",
+  "budget"
+ ],
+ [
+  "Mains contre le mur à hauteur d'épaules, corps droit.",
+  "budget"
+ ],
+ [
+  "Couché sur le côté, hanches et genoux pliés à 90°, bras tendus devant toi, mains l'une sur l'autre.",
+  "budget"
+ ],
+ [
+  "Assis, avant-bras posé sur la cuisse, paume vers le sol, la main dépasse du genou avec une bouteille.",
+  "budget"
+ ],
+ [
+  "Assis, avant-bras posé sur la cuisse, une balle souple dans la main.",
+  "budget"
+ ],
+ [
+  "Assis, avant-bras posé sur la cuisse, pouce vers le haut, tenant un marteau par le manche.",
+  "budget"
+ ],
+ [
+  "Élastique fixé devant toi, passé derrière les deux genoux, assez tendu.",
+  "budget"
+ ],
+ [
+  "Debout, talons posés sur un livre épais (3 à 5 cm), pieds largeur de hanches.",
+  "budget"
+ ],
+ [
+  "Assis au fond de la chaise.",
+  "budget"
+ ],
+ [
+  "Assis, pied à plat au sol.",
+  "budget"
+ ],
+ [
+  "Assis, pied posé sur une serviette étalée au sol.",
+  "budget"
+ ],
+ [
+  "Monte sur la pointe des pieds et marche à petits pas, talons hauts, buste droit, en gardant la hauteur tout du long.",
+  "budget"
+ ],
+ [
+  "Assis, pied à plat, un élastique autour de l'avant du pied, accroché du côté extérieur.",
+  "budget"
+ ],
+ [
+  "Couché sur le côté, appui sur l'avant-bras, coude sous l'épaule.",
+  "budget"
+ ],
+ [
+  "Même position que la planche Copenhague : malléole interne du pied du dessus sur la chaise, genou du dessous plié à 90°.",
+  "budget"
+ ],
+ [
+  "Même position que la Copenhague inversée : malléole externe du pied du dessous sur la chaise.",
+  "budget"
+ ],
+ [
+  "Même position que la planche Copenhague genou : intérieur du genou du dessus sur la chaise, les deux genoux pliés à 90°.",
+  "budget"
+ ],
+ [
+  "Allongé sur le ventre, mains à plat sous les épaules.",
+  "budget"
+ ],
+ [
+  "Debout, une charge dans une seule main, bras le long du corps.",
+  "budget"
+ ],
+ [
+  "Debout dos au mur, à une vingtaine de centimètres, genoux légèrement fléchis, bras croisés.",
+  "budget"
+ ],
+ [
+  "À genoux, cuisses verticales, bras croisés sur la poitrine.",
+  "budget"
+ ],
+ [
+  "Debout, une main sur un appui.",
+  "budget"
+ ],
+ [
+  "Debout, pieds serrés.",
+  "budget"
+ ],
+ [
+  "Debout, un pied posé sur une serviette.",
+  "budget"
+ ],
+ [
+  "Debout sur une marche, sur une jambe, talon levé, genou plié vers l'avant au-dessus des orteils ; l'autre pied dans le vide devant.",
+  "budget"
+ ],
+ [
+  "Dos plaqué au mur, descends en chaise, genoux à 90° au-dessus des chevilles.",
+  "budget"
+ ],
+ [
+  "Une charge dans chaque main, bras le long du corps.",
+  "budget"
+ ],
+ [
+  "Couché sur le côté, hanches et genoux pliés, élastique autour des genoux.",
+  "budget"
+ ],
+ [
+  "Même position que le coquillage, élastique autour des genoux.",
+  "budget"
+ ],
+ [
+  "Debout sur une marche, sur une jambe, l'autre pied dans le vide sur le côté, jambes tendues.",
+  "budget"
+ ],
+ [
+  "Sur une jambe, penché en avant dos droit, l'autre jambe tendue en arrière, bras écartés.",
+  "budget"
+ ],
+ [
+  "Élastique autour des chevilles, genoux fléchis, buste un peu penché en avant.",
+  "budget"
+ ],
+ [
+  "Debout, le pied arrière posé sur une serviette.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés, talons au sol.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, un talon sur une serviette, l'autre jambe tendue vers le plafond.",
+  "budget"
+ ],
+ [
+  "Dos et fesses contre le mur, talons à environ 30 cm du mur.",
+  "budget"
+ ],
+ [
+  "Assis, pieds à plat, un sac lourd posé sur les genoux.",
+  "budget"
+ ],
+ [
+  "Assis, pieds à plat.",
+  "budget"
+ ],
+ [
+  "Assis, une jambe tendue devant toi, talon posé ou pied en l'air.",
+  "budget"
+ ],
+ [
+  "Debout pieds joints à côté d'une ligne.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, une jambe pliée, l'autre tendue, mains sous le bas du dos pour garder son creux.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés, pieds au sol.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, bras tendus derrière la tête, hanches et genoux pliés à 90°.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, bras tendus derrière la tête, jambes tendues décollées du sol.",
+  "budget"
+ ],
+ [
+  "À quatre pattes, genoux décollés de 2 cm, dos plat.",
+  "budget"
+ ],
+ [
+  "Debout, élastique accroché devant toi. Coude à hauteur d'épaule, plié à 90°, avant-bras vers l'avant.",
+  "budget"
+ ],
+ [
+  "En appui sur les mains et les genoux, bras tendus, corps aligné.",
+  "budget"
+ ],
+ [
+  "Debout, une bouteille tenue bras tendu au-dessus de la tête, coude verrouillé.",
+  "budget"
+ ],
+ [
+  "Couché sur le côté à étirer, bras devant toi à hauteur d'épaule, coude plié à 90°, avant-bras vers le plafond.",
+  "budget"
+ ],
+ [
+  "Debout, bras tendus devant toi, une serviette roulée tenue à deux mains.",
+  "budget"
+ ],
+ [
+  "Assis, avant-bras posé sur la cuisse.",
+  "budget"
+ ],
+ [
+  "Assis, avant-bras posé sur la cuisse, paume vers le haut, bouteille en main.",
+  "budget"
+ ],
+ [
+  "Main levée devant toi, poignet droit.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés.",
+  "budget"
+ ],
+ [
+  "À quatre pattes, dos plat.",
+  "budget"
+ ],
+ [
+  "Debout, une carte tenue bras tendu devant toi (ou collée au mur).",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe, près d'un appui.",
+  "budget"
+ ],
+ [
+  "Marche droit devant toi, dans un couloir, en tournant la tête à droite puis à gauche tous les deux pas, sans dévier de ta ligne.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos.",
+  "budget"
+ ],
+ [
+  "Debout, un pied (ou les deux) sur l'élastique, une poignée dans chaque main, paumes vers l'avant, coudes collés au corps.",
+  "budget"
+ ],
+ [
+  "Debout, l'élastique accroché en haut d'une porte, une poignée dans chaque main, coudes pliés collés au corps.",
+  "budget"
+ ],
+ [
+  "En position de pompe, les mains proches l'une de l'autre sous la poitrine, pouces et index qui se touchent.",
+  "budget"
+ ],
+ [
+  "Dos et bassin bien plaqués au dossier, pieds à largeur de hanches au milieu du plateau.",
+  "budget"
+ ],
+ [
+  "Assis au fond du siège, genou aligné avec l'axe de la machine, boudin sur le bas du tibia.",
+  "budget"
+ ],
+ [
+  "Comme le leg extension, mais on travaille seulement entre 90° et 45° de flexion du genou : on ne tend pas complètement la jambe.",
+  "budget"
+ ],
+ [
+  "Assis, genoux alignés avec l'axe de la machine, boudin derrière le bas des mollets, cuisses maintenues.",
+  "budget"
+ ],
+ [
+  "Barre posée sur le haut du dos, pas sur la nuque, pieds largeur d'épaules.",
+  "budget"
+ ],
+ [
+  "Debout, barre tenue bras tendus, genoux légèrement fléchis.",
+  "budget"
+ ],
+ [
+  "Haut du dos sur le banc, barre sur les hanches (avec une mousse), pieds à plat.",
+  "budget"
+ ],
+ [
+  "Un haltère dans chaque main.",
+  "budget"
+ ],
+ [
+  "Debout de côté par rapport à la poulie, sangle à la cheville du côté opposé à la poulie, une main sur le montant.",
+  "budget"
+ ],
+ [
+  "Allongé sur le banc, pieds au sol, un haltère dans chaque main au-dessus de la poitrine.",
+  "budget"
+ ],
+ [
+  "Assis, cuisses bloquées, barre tenue mains un peu plus larges que les épaules.",
+  "budget"
+ ],
+ [
+  "Assis face à la poulie, buste droit, genoux légèrement fléchis.",
+  "budget"
+ ],
+ [
+  "Assis, dos droit, haltères à hauteur d'épaules.",
+  "budget"
+ ],
+ [
+  "Une main et un genou sur le banc, dos plat.",
+  "budget"
+ ],
+ [
+  "De côté par rapport à la poulie réglée à hauteur de coude, coude collé au corps plié à 90°.",
+  "budget"
+ ],
+ [
+  "Face à la poulie réglée à hauteur de visage, corde tenue à deux mains.",
+  "budget"
+ ],
+ [
+  "De côté par rapport à la poulie à hauteur de poitrine, poignée contre le sternum.",
+  "budget"
+ ],
+ [
+  "Assis dans la presse, jambes presque tendues, seulement l'avant des pieds sur le bas du plateau, talons dans le vide.",
+  "budget"
+ ],
+ [
+  "Comme la presse à cuisses, mais un seul pied au centre du plateau, l'autre posé à côté.",
+  "budget"
+ ],
+ [
+  "De côté, la poulie du côté de la jambe qui travaille, sangle à la cheville, une main sur le montant.",
+  "budget"
+ ],
+ [
+  "Face à la poulie, sangle à la cheville, mains sur le montant, buste légèrement penché.",
+  "budget"
+ ],
+ [
+  "Hanches sur l'appui, pieds calés, bras croisés sur la poitrine.",
+  "budget"
+ ],
+ [
+  "Debout, un pied devant, le bout de la barre dans une main à hauteur d'épaule.",
+  "budget"
+ ],
+ [
+  "Mains sur les montants, buste penché et gainé, bras presque tendus.",
+  "budget"
+ ],
+ [
+  "Face à la poulie, coudes collés au corps et pliés.",
+  "budget"
+ ],
+ [
+  "Face à la poulie haute, buste un peu penché, bras tendus devant toi.",
+  "budget"
+ ],
+ [
+  "Un poids lourd dans chaque main, bras le long du corps.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, jambes tendues.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, jambe tendue, une serviette roulée sous le genou si tu veux.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, jambe tendue.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, le talon posé sur un rouleau ou une serviette roulée épaisse, rien sous le genou.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genou un peu plié.",
+  "budget"
+ ],
+ [
+  "Assis au bord d'une chaise.",
+  "budget"
+ ],
+ [
+  "Assis sur le bord d'une table, les jambes dans le vide.",
+  "budget"
+ ],
+ [
+  "Règle la selle pour que le genou reste un peu plié quand la pédale est en bas.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, un rouleau sous le genou.",
+  "budget"
+ ],
+ [
+  "Debout, pieds à largeur de hanches, bras devant toi.",
+  "budget"
+ ],
+ [
+  "Marche à reculons, lentement, dans un couloir dégagé.",
+  "budget"
+ ],
+ [
+  "Debout de profil sur une marche, sur une jambe.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, les talons posés loin des fesses, genoux à peine pliés, pointes de pied levées.",
+  "budget"
+ ],
+ [
+  "Debout, un grand pas d'écart, pied arrière sur la pointe, mains sur les hanches.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe, l'autre pied décollé.",
+  "budget"
+ ],
+ [
+  "Debout devant une chaise, sur une jambe, l'autre tendue devant toi.",
+  "budget"
+ ],
+ [
+  "Debout sur une marche.",
+  "budget"
+ ],
+ [
+  "Face à une marche solide.",
+  "budget"
+ ],
+ [
+  "Sur une jambe, saute vers l'avant d'une petite distance et réceptionne-toi sur la même jambe, genou souple.",
+  "budget"
+ ],
+ [
+  "Bondis sur le côté d'une jambe à l'autre, comme un patineur de vitesse.",
+  "budget"
+ ],
+ [
+  "En position de fente, saute et change de jambe en l'air pour retomber en fente de l'autre côté.",
+  "budget"
+ ],
+ [
+  "Debout, pieds très écartés.",
+  "budget"
+ ],
+ [
+  "Accroupi, fesses basses, avance à petits pas en restant accroupi, comme un canard.",
+  "budget"
+ ],
+ [
+  "Pieds joints, plie les genoux, bras en arrière, puis bondis vers l'avant le plus loin possible.",
+  "budget"
+ ],
+ [
+  "Dos au mur, descends comme pour t'asseoir sur une chaise invisible, genoux au-dessus des pieds.",
+  "budget"
+ ],
+ [
+  "Une bouteille d'eau ou un haltère dans chaque main, bras tendus au-dessus de la tête.",
+  "budget"
+ ],
+ [
+  "Assis au bord d'une chaise, la jambe tendue devant toi, le talon posé au sol.",
+  "budget"
+ ],
+ [
+  "Assis de côté contre un mur, le bord extérieur du pied collé au mur.",
+  "budget"
+ ],
+ [
+  "Assis, les pieds à plat au sol.",
+  "budget"
+ ],
+ [
+  "Debout, pieds écartés. Fais passer doucement le poids du corps sur un pied, tiens 1 seconde, puis sur l'autre.",
+  "budget"
+ ],
+ [
+  "Assis, une balle de tennis sous le pied.",
+  "budget"
+ ],
+ [
+  "Assis, la cheville posée sur l'autre genou.",
+  "budget"
+ ],
+ [
+  "Face au mur, les mains posées dessus, une jambe en avant pliée, l'autre loin derrière, genou tendu, talon au sol.",
+  "budget"
+ ],
+ [
+  "Même position face au mur, mais le pied arrière plus près et le genou arrière plié.",
+  "budget"
+ ],
+ [
+  "Debout face à un mur, les mains posées dessus.",
+  "budget"
+ ],
+ [
+  "Debout sur le bord d'une marche, l'avant des pieds posé, les talons dans le vide, une main au mur.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe face au mur, le genou d'appui un peu plié.",
+  "budget"
+ ],
+ [
+  "Sur une jambe, sur une marche, les orteils posés sur une serviette roulée pour les relever.",
+  "budget"
+ ],
+ [
+  "Debout sur un pied, l'autre genou levé.",
+  "budget"
+ ],
+ [
+  "Debout sur un pied, une main au mur. Monte sur la pointe et reste tout en haut, sans redescendre, 30 secondes.",
+  "budget"
+ ],
+ [
+  "Debout pieds joints derrière une ligne.",
+  "budget"
+ ],
+ [
+  "Dessine une croix au sol avec du scotch.",
+  "budget"
+ ],
+ [
+  "Debout sur une marche. Saute en avant et réceptionne-toi sur une seule jambe, genou souple.",
+  "budget"
+ ],
+ [
+  "Saute sur place comme avec une corde à sauter, en faisant tourner les poignets.",
+  "budget"
+ ],
+ [
+  "Sur un pied, l'autre pied posé contre le genou, les bras ouverts comme des ailes.",
+  "budget"
+ ],
+ [
+  "Marche sur les talons, les pointes de pieds bien relevées, les bras le long du corps, les mains écartées comme des ailerons de pingouin.",
+  "budget"
+ ],
+ [
+  "Sur un pied, une bouteille tenue bien haut au-dessus de la tête comme une torche, l'autre main sur la poitrine.",
+  "budget"
+ ],
+ [
+  "Avance à pas lents et silencieux sur la pointe des pieds, genoux pliés, bras en garde, comme un ninja qui ne veut pas être entendu.",
+  "budget"
+ ],
+ [
+  "Sur la pointe des pieds, tends un bras le plus haut possible en diagonale, comme pour cueillir une pomme tout en haut…",
+  "budget"
+ ],
+ [
+  "Face au mur, à une longueur d'avant-bras.",
+  "budget"
+ ],
+ [
+  "Assis face à une table, la main posée sur un chiffon.",
+  "budget"
+ ],
+ [
+  "Debout ou assis, bras détendus.",
+  "budget"
+ ],
+ [
+  "Debout, coudes collés au corps et pliés à 90°, un bâton tenu dans les deux mains.",
+  "budget"
+ ],
+ [
+  "Debout, une bouteille dans chaque main.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, le bras tendu vers le plafond avec une bouteille.",
+  "budget"
+ ],
+ [
+  "Allongé à plat ventre, bras le long du corps, une petite bouteille dans chaque main.",
+  "budget"
+ ],
+ [
+  "Face à un mur, à 2 ou 3 mètres.",
+  "budget"
+ ],
+ [
+  "Debout face au mur, à un grand pas, bras tendus devant.",
+  "budget"
+ ],
+ [
+  "En position de pompe.",
+  "budget"
+ ],
+ [
+  "Face au mur, les deux mains posées dessus, à hauteur des épaules.",
+  "budget"
+ ],
+ [
+  "Debout, le bras levé au-dessus de la tête, fais tourner un lasso imaginaire avec des cercles réguliers du poignet et du bras.",
+  "budget"
+ ],
+ [
+  "Debout ou assis, les mains derrière la tête.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés, pieds à plat.",
+  "budget"
+ ],
+ [
+  "Assis au bord d'une chaise, dos droit. Lève un genou vers la poitrine, tiens une seconde, puis repose le pied.",
+  "budget"
+ ],
+ [
+  "Debout de profil contre un mur, sur la jambe éloignée du mur.",
+  "budget"
+ ],
+ [
+  "De profil à côté d'une marche.",
+  "budget"
+ ],
+ [
+  "Debout, pieds écartés, mains sur les hanches.",
+  "budget"
+ ],
+ [
+  "Marche comme un mannequin sur un podium : chaque pied se pose devant l'autre, sur une ligne imaginaire, mains sur les…",
+  "budget"
+ ],
+ [
+  "Accroupi à mi-hauteur, avance sur le côté à petits pas chassés, sans te relever, comme un crabe.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe, l'autre genou levé devant toi.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés, une main sur le ventre, l'autre sur la poitrine.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, ramène doucement les deux genoux vers la poitrine, mains sous les genoux, et tiens en respirant.",
+  "budget"
+ ],
+ [
+  "Allongé sur le ventre, relève le buste en t'appuyant sur les avant-bras, coudes sous les épaules.",
+  "budget"
+ ],
+ [
+  "Assis, dos droit.",
+  "budget"
+ ],
+ [
+  "Assis, le dos un peu arrondi. Tends la jambe en relevant la tête, puis plie la jambe en baissant la tête.",
+  "budget"
+ ],
+ [
+  "Debout, le bras sur le côté à hauteur d'épaule.",
+  "budget"
+ ],
+ [
+  "Debout, un objet léger au sol devant toi.",
+  "budget"
+ ],
+ [
+  "Debout, un sac dans chaque main.",
+  "budget"
+ ],
+ [
+  "Debout, bras tendus sur les côtés.",
+  "budget"
+ ],
+ [
+  "Debout, bras tendus au-dessus de la tête.",
+  "budget"
+ ],
+ [
+  "Debout, une main au mur. Plie un genou et attrape ton pied derrière toi, talon vers la fesse.",
+  "budget"
+ ],
+ [
+  "Assis au bord d'une chaise ou au sol, une jambe tendue devant toi, talon posé, l'autre pliée.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés. Pose la cheville droite sur le genou gauche.",
+  "budget"
+ ],
+ [
+  "Un genou au sol sur un coussin, l'autre pied loin devant toi.",
+  "budget"
+ ],
+ [
+  "Assis au sol, jambes écartées sans forcer, le dos droit.",
+  "budget"
+ ],
+ [
+  "Debout à côté d'un mur, avant-bras posé contre le mur, coude à hauteur d'épaule.",
+  "budget"
+ ],
+ [
+  "Lève un bras, plie le coude pour poser la main derrière la tête.",
+  "budget"
+ ],
+ [
+  "À quatre pattes, assieds-toi doucement sur les talons et glisse les mains loin devant, front vers le sol.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, genoux pliés serrés, bras en croix.",
+  "budget"
+ ],
+ [
+  "Assis bien droit sur une chaise, bras croisés sur la poitrine.",
+  "budget"
+ ],
+ [
+  "Pied arrière posé sur une chaise, une charge dans chaque main.",
+  "budget"
+ ],
+ [
+  "Même position que le squat bulgare.",
+  "budget"
+ ],
+ [
+  "Debout sur une marche, une charge dans chaque main.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe, l'autre tendue devant toi.",
+  "budget"
+ ],
+ [
+  "Élastique derrière les genoux, accroché à un point fixe devant toi.",
+  "budget"
+ ],
+ [
+  "À genoux, le corps droit des genoux à la tête.",
+  "budget"
+ ],
+ [
+  "Une charge dans chaque main.",
+  "budget"
+ ],
+ [
+  "Pieds à largeur d'épaules.",
+  "budget"
+ ],
+ [
+  "Dos au mur, genoux à 90°, une charge dans chaque main ou posée sur les cuisses. Tiens la position sans bouger.",
+  "budget"
+ ],
+ [
+  "À la machine, tends la jambe, puis laisse redescendre la charge lentement, en 4 secondes, sur une seule jambe.",
+  "budget"
+ ],
+ [
+  "À la presse, une seule jambe : pousse, puis laisse revenir la charge lentement en 4 secondes jusqu'à 90° de flexion du genou.",
+  "budget"
+ ],
+ [
+  "Barre sur le haut du dos.",
+  "budget"
+ ],
+ [
+  "À genoux, talons bloqués sous un meuble lourd ou tenus par quelqu'un.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe, une charge dans chaque main.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, un talon posé sur une chaise, l'autre jambe levée.",
+  "budget"
+ ],
+ [
+  "À la machine, plie les genoux, puis laisse revenir la charge lentement, en 4 secondes.",
+  "budget"
+ ],
+ [
+  "Allongé sur le dos, bassin décollé, un talon sur une serviette.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe au bord d'une marche, une charge dans la main du même côté, l'autre main au mur.",
+  "budget"
+ ],
+ [
+  "Assis, une charge lourde posée sur les genoux (sac, haltère). Monte les talons, puis redescends en 3 secondes.",
+  "budget"
+ ],
+ [
+  "Sur une jambe, enchaîne de petits rebonds rapides sur l'avant du pied, cheville raide, comme un ressort.",
+  "budget"
+ ],
+ [
+  "Assis, élastique autour de l'avant-pied.",
+  "budget"
+ ],
+ [
+  "Une charge lourde dans chaque main, marche sur la pointe des pieds, talons hauts, sans redescendre.",
+  "budget"
+ ],
+ [
+  "Une charge dans chaque main, marche sur les talons, pointes de pieds bien relevées.",
+  "budget"
+ ],
+ [
+  "Saute à la corde sur une seule jambe, petits sauts sur l'avant du pied, l'autre genou plié.",
+  "budget"
+ ],
+ [
+  "Haut du dos appuyé sur un canapé, un pied au sol, l'autre jambe levée.",
+  "budget"
+ ],
+ [
+  "En planche sur le côté, le pied du dessus posé sur le banc.",
+  "budget"
+ ],
+ [
+  "En planche sur le côté, sur l'avant-bras.",
+  "budget"
+ ],
+ [
+  "Pieds très écartés, pointes vers l'extérieur, une charge tenue à deux mains entre les jambes.",
+  "budget"
+ ],
+ [
+  "Debout, une main au mur, un élastique autour des chevilles.",
+  "budget"
+ ],
+ [
+  "Couché sur le côté, la jambe du dessus pliée devant toi, pied au sol.",
+  "budget"
+ ],
+ [
+  "Assis, un élastique autour de la cheville attaché sur le côté.",
+  "budget"
+ ],
+ [
+  "Assis, un élastique autour de la cheville attaché de l'autre côté.",
+  "budget"
+ ],
+ [
+  "Couché sur le côté, coude collé au corps, une charge dans la main du dessus.",
+  "budget"
+ ],
+ [
+  "Debout, coude au corps à 90°, élastique attaché sur le côté.",
+  "budget"
+ ],
+ [
+  "Bras écarté à 90°, coude à 90°, élastique devant toi.",
+  "budget"
+ ],
+ [
+  "En position de pompe, descends lentement, en 4 secondes, jusqu'à frôler le sol, puis remonte.",
+  "budget"
+ ],
+ [
+  "Fais une pompe, et pousse assez fort pour que les mains décollent du sol, puis réceptionne-toi souplement et enchaîne.",
+  "budget"
+ ],
+ [
+  "Assis, une charge dans chaque main à hauteur d'épaules.",
+  "budget"
+ ],
+ [
+  "Une charge tenue bras tendu au-dessus de la tête, marche lentement en gardant le bras bien vertical.",
+  "budget"
+ ],
+ [
+  "Mains au bord d'une chaise derrière toi. Descends en pliant les coudes, lentement en 4 secondes, puis remonte.",
+  "budget"
+ ],
+ [
+  "Allongé sous une table solide, mains au bord.",
+  "budget"
+ ],
+ [
+  "À plat ventre, une petite bouteille dans chaque main.",
+  "budget"
+ ],
+ [
+  "À genoux, les mains sur une serviette.",
+  "budget"
+ ],
+ [
+  "En planche sur le côté. Descends le bassin presque jusqu'au sol, puis remonte au-dessus de l'alignement.",
+  "budget"
+ ],
+ [
+  "À plat ventre, une bouteille dans chaque main, bras le long du corps.",
+  "budget"
+ ],
+ [
+  "Couché sur le dos, une bouteille dans chaque main, bras tendus vers le plafond, jambes à 90°.",
+  "budget"
+ ],
+ [
+  "Un sac dans chaque main.",
+  "budget"
+ ],
+ [
+  "En planche sur les mains. Monte une jambe tendue sans que le bassin bouge, tiens, puis repose, et alterne.",
+  "budget"
+ ],
+ [
+  "Debout, pieds joints.",
+  "budget"
+ ],
+ [
+  "Dos à la chaise, pose le dessus du pied arrière sur l'assise, le pied avant un grand pas devant.",
+  "budget"
+ ],
+ [
+  "Debout au centre, légèrement fléchi.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe au centre, genou légèrement fléchi.",
+  "budget"
+ ],
+ [
+  "Debout, pieds largeur d'épaules.",
+  "budget"
+ ],
+ [
+  "Debout sur une jambe au centre.",
+  "budget"
+ ],
+ [
+  "Debout au centre.",
+  "budget"
+ ],
+ [
+  "Assis au bord d'une chaise, pieds à plat.",
+  "budget"
+ ],
+ [
+  "Debout, pieds largeur de bassin, face au téléphone. Au bip « Saute », saute bien haut sur tes deux pieds.",
+  "budget"
+ ],
+ [
+  "Debout, face au téléphone posé à 2 ou 3 mètres, pieds largeur de bassin.",
+  "budget"
+ ]
+]
