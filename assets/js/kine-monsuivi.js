@@ -62,6 +62,7 @@ var KineMonSuivi = (function () {
       if (fbPat.seen) fbPat.seen(s.pid).catch(function () {});   // accusé de réception pour le kiné
       if ($("kms-sheet") && $("kms-sheet").classList.contains("open")) view();
       page();
+      if (window.KineLayout && KineLayout.render && d.course) try { KineLayout.render(); } catch (e) {}   // reprise de course rappelée sur l'accueil
       return ns;
     }, function (e) { busy = false; console.log("Suivi cabinet indisponible", e); return s; });
   }
@@ -80,8 +81,11 @@ var KineMonSuivi = (function () {
     arr("kf-pain").forEach(function (x) { add(String(x.date || "").slice(0, 10), "p", x); });
     var R = obj("kf-checkin"); Object.keys(R).forEach(function (d) { add(d, "r", R[d]); });
     Object.keys(B).forEach(function (k) { B[k].s = B[k].s.slice(0, 300); B[k].p = B[k].p.slice(0, 300); });
-    // sorties de la reprise de course réglée par le kiné
-    arr("kf-runs").forEach(function (x) { var id = m(x.d); if (!x.rp || !/^\d{4}-\d{2}$/.test(id)) return; B[id] = B[id] || { s: [], p: [], r: {} }; (B[id].c = B[id].c || []).push(x); });
+    // sorties de course : celles de la reprise réglée par le kiné et celles du journal de course
+    arr("kf-runs").forEach(function (x) { var id = m(x.d); if (!/^\d{4}-\d{2}$/.test(id)) return; B[id] = B[id] || { s: [], p: [], r: {} }; B[id].c = B[id].c || []; if (B[id].c.length < 120) B[id].c.push(x); });
+    // réglages faits à la maison : variantes choisies (plus facile / plus difficile) et ajustements de temps ou de répétitions
+    var VL = arr("kf-variant-log"), SW = obj("kf-variant"), LV = window.KineLevel && KineLevel.summaryLines ? KineLevel.summaryLines().filter(function (l) { return /^• /.test(l); }).map(function (l) { return l.slice(2); }) : [];
+    if (VL.length || Object.keys(SW).length || LV.length) B.niveaux = { v: { log: VL.slice(0, 20), sw: Object.keys(SW).slice(0, 60).map(function (k) { return { a: k, b: SW[k] }; }), lv: LV.slice(0, 40) } };
     var G = obj("kf-salle-log"); if (Object.keys(G).length) B.salle = { g: G };
     return B;
   }
@@ -123,7 +127,7 @@ var KineMonSuivi = (function () {
   // Demandé une fois, juste après le lien avec le kiné
   function askConsent(then) {
     if (consent() != null) { if (then) then(); return; }
-    show(back() + "<div><div class='kf-h1 kcb-h1'>Sauvegarder tes séances ?</div><div class='kf-sub'>Tes séances faites à la maison, tes douleurs signalées et ton ressenti du jour peuvent être enregistrés dans ton suivi.</div></div>" +
+    show(back() + "<div class='kcb-ok kms-linked'>" + ICON_OK + "C'est relié : ton appli est connectée à ton kiné.</div><div><div class='kf-h1 kcb-h1'>Sauvegarder tes séances ?</div><div class='kf-sub'>Tes séances faites à la maison, tes douleurs signalées et ton ressenti du jour peuvent être enregistrés dans ton suivi.</div></div>" +
       "<div class='su-card'><b>Ce que ça change</b><div class='kf-sub'>Ton kiné voit le détail de ce que tu fais chez toi. Et tu retrouves tout si tu changes de téléphone.</div></div>" +
       "<p class='kcb-hint'>Sinon, tout reste uniquement sur ton téléphone et ton kiné ne voit qu'un résumé de la semaine. Tu pourras changer d'avis dans « Mon espace ».</p>",
       "<button class='seq-btn-main' onclick='KineMonSuivi.consent(1)'>Oui, sauvegarder</button><button class='seq-btn-secondary' onclick='KineMonSuivi.consent(0)'>Non, garder sur mon téléphone</button>");
@@ -139,12 +143,13 @@ var KineMonSuivi = (function () {
   function syncSeance(d) {
     var list = jget("kf-custom", []), ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
     var cur = list.filter(function (x) { return x.id === "kine"; })[0];
-    if (!ex.length) { if (cur) jset("kf-custom", list.filter(function (x) { return x.id !== "kine"; })); return; }
-    if (cur && cur.ex.join("|") === ex.join("|")) return;
+    if (!ex.length) { if (cur) { jset("kf-custom", list.filter(function (x) { return x.id !== "kine"; })); try { if (window.KineLayout && KineLayout.render) KineLayout.render(); } catch (e) {} } return; }
+    var lk = d.exosLock ? 1 : 0;
+    if (cur && cur.ex.join("|") === ex.join("|") && (cur.lock || 0) === lk) return;
     list = list.filter(function (x) { return x.id !== "kine"; });
-    list.unshift({ id: "kine", name: "La séance de mon kiné", ex: ex, at: Date.now(), kine: 1 });
+    list.unshift({ id: "kine", name: "La séance de mon kiné", ex: ex, at: Date.now(), kine: 1, lock: lk });
     jset("kf-custom", list.slice(0, 12));
-    try { if (window.KineProgram) KineProgram.render(); if (window.KineCompose) KineCompose.page(); } catch (e) {}
+    try { if (window.KineProgram) KineProgram.render(); if (window.KineCompose) KineCompose.page(); if (window.KineLayout && KineLayout.render) KineLayout.render(); } catch (e) {}
   }
   // Résumé de la semaine pour le kiné : nombre de séances, douleur et effort moyens, date de la dernière
   function pushHome(pid) {
@@ -196,7 +201,7 @@ var KineMonSuivi = (function () {
     var d = s.d; if (!d) { el.innerHTML = "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; refresh(true); return; }
     if (!kpReady()) { el.innerHTML = "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; need().then(slot); return; }
     var P = KP.get(d.parcours), E = d.etape || 0, m = metric(d);
-    el.innerHTML = (window.KineQuest ? KineQuest.patientCard(d, s.pid) : "") + "<button class='kms-card' onclick='KineMonSuivi.open()'><div class='kms-ck'><span>Suivi au cabinet</span><span>Étape " + (E + 1) + (P ? " sur " + P.etapes.length : "") + "</span></div>" +
+    el.innerHTML = (window.KineQuest ? KineQuest.patientCard(d, s.pid) : "") + "<button class='kms-card' onclick='KineMonSuivi.open()'><div class='kms-ck'><span>Suivi au cabinet</span><span>" + (d.fin ? "Parcours terminé" : "Étape " + (E + 1) + (P ? " sur " + P.etapes.length : "")) + "</span></div>" +
       "<div class='kms-ct'>" + esc(P ? P.etapes[Math.min(E, P.etapes.length - 1)].nom : "Ton parcours") + "</div>" +
       (m ? "<div class='kms-cm'><b>" + KP.fmt(m.v) + m.u + "</b><span>" + esc(m.lab) + "</span></div>" : "<div class='kms-cm'><span>Ton premier bilan arrive au cabinet.</span></div>") +
       (d.msg && d.msg.t ? "<div class='kms-cmsg'>« " + esc(d.msg.t) + " »</div>" : "") + "</button>";
@@ -248,7 +253,7 @@ var KineMonSuivi = (function () {
   /* ════════ Onglet « Mon kiné » : le suivi au cabinet, sans ouvrir de fenêtre ════════ */
   function page(force) {
     var el = $("monkine-body"), pg = $("page-monkine"); if (!el || !pg || !pg.classList.contains("active")) return;
-    var s = state(), h = "<div class='kmk-head'><h1 class='lx-title'>Mon kiné</h1></div>";
+    var s = state(), h = "<div class='kmk-head'><h1 class='lx-title'>" + (window.KineHopital && KineHopital.isHop() ? "Moi" : "Mon kiné") + "</h1></div>";
     if (s && s.pid && !kpReady()) { el.innerHTML = h + "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>"; need().then(function () { page(force); }); return; }
     if (s && s.pid && s.d) h += body(s, false, true);
     else if (s && s.pid) h += "<div class='kms-card'><b>Suivi au cabinet</b><span>Chargement…</span></div>";
@@ -261,17 +266,60 @@ var KineMonSuivi = (function () {
           "<button class='krl-row dash' onclick='KineRole.loginForm(\"restore\")'><span class='krl-ic grey'>↺</span><span class='krl-t'><b>J'avais déjà un suivi</b><span>Avec mon identifiant ou Google</span></span></button>" : "") + "</div>";
     }
     el.innerHTML = h;
+    try { if (window.KineHopital) KineHopital.mode(); } catch (e) {}
+    if (s && s.pid && s.d) photos(s.pid);
     if (force) refresh(true);
+  }
+  /* ════════ Photos avant / après : la première et la dernière de chaque mesure, côte à côte ════════ */
+  var PHS = { pid: null, at: 0, list: null };
+  function phLab(x) { var M0 = x.m && KP.M && KP.M[x.m]; return M0 ? M0.l + (x.sd ? (x.sd === "a" ? ", côté opéré ou blessé" : ", autre côté") : "") : (x.cap || "Photo"); }
+  function phVal(x) { var M0 = x.m && KP.M && KP.M[x.m]; return x.v != null ? KP.fmt(x.v) + (M0 && M0.u || "") : ""; }
+  function photos(pid) {
+    var el = $("kmk-photos"); if (!el || !window.fbPat || !fbPat.photos) return;
+    if (PHS.pid === pid && PHS.list && Date.now() - PHS.at < 300000) { el.innerHTML = photosHtml(PHS.list); return; }
+    fbPat.photos(pid).then(function (l) { PHS = { pid: pid, at: Date.now(), list: l || [] }; var e2 = $("kmk-photos"); if (e2) e2.innerHTML = photosHtml(PHS.list); }, function () {});
+  }
+  function photosHtml(l) {
+    if (!l || !l.length) return "";
+    var G = {}, order = [];
+    l.slice().sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; }).forEach(function (x) { var k = (x.m || "") + "|" + (x.sd || "") + "|" + (x.m ? "" : x.cap || ""); if (!G[k]) { G[k] = []; order.push(k); } G[k].push(x); });
+    var pairs = order.filter(function (k) { return G[k].length > 1; }), one = order.filter(function (k) { return G[k].length === 1; });
+    function fig(x, t) { return "<figure onclick='KineMonSuivi.phZoom(" + JSON.stringify(x.id) + ")'><img src='" + esc(x.img) + "' alt='' loading='lazy'><figcaption><b>" + t + "</b><span>" + esc(dfr(x.d)) + (phVal(x) ? " · " + esc(phVal(x)) : "") + "</span></figcaption></figure>"; }
+    var h = "<div class='su-card kmk-ph'><div class='su-card-h'><b>Tes photos, avant et après</b><span>prises au cabinet</span></div>";
+    pairs.forEach(function (k) {
+      var a = G[k][0], b = G[k][G[k].length - 1], dv = a.v != null && b.v != null ? b.v - a.v : null, M0 = a.m && KP.M && KP.M[a.m];
+      h += "<div class='kmk-ph-t'>" + esc(phLab(b)) + (dv ? "<em>" + (dv > 0 ? "+" : "−") + KP.fmt(Math.abs(dv)) + (M0 && M0.u || "") + "</em>" : "") + "</div><div class='kmk-ph-pair'>" + fig(a, "Avant") + fig(b, "Maintenant") + "</div>";
+    });
+    if (one.length) h += (pairs.length ? "<div class='kmk-ph-t'>Autres photos</div>" : "") + "<div class='kmk-ph-pair'>" + one.slice(-4).map(function (k) { return fig(G[k][0], esc(phLab(G[k][0]))); }).join("") + "</div>" +
+      (pairs.length ? "" : "<p class='kcb-hint'>Au prochain bilan, la nouvelle photo s'affichera à côté pour voir le chemin parcouru.</p>");
+    return h + "</div>";
+  }
+  function phZoom(id) {
+    var x = (PHS.list || []).filter(function (p) { return p.id === id; })[0]; if (!x) return;
+    var el = $("kmk-phz"); if (!el) { el = document.createElement("div"); el.id = "kmk-phz"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Photo"); document.body.appendChild(el); }
+    el.onclick = function () { el.classList.remove("open"); };
+    el.innerHTML = "<img src='" + esc(x.img) + "' alt=''><div><b>" + esc(phLab(x)) + "</b><span>" + esc(dfr(x.d)) + (phVal(x) ? " · " + esc(phVal(x)) : "") + "</span></div><button class='kf-back' aria-label='Fermer'>×</button>";
+    el.classList.add("open");
   }
   function body(s, prev, inline) {
     var d = s.d, P = KP.get(d.parcours); if (!P) return "<div class='kf-note'>Ton kiné prépare ton parcours.</div>";
     var PREV = prev;
     var E = Math.min(d.etape || 0, P.etapes.length - 1), m = metric(d), cx = ctx(d), B = d.bilans || [];
     var html = (inline ? "" : "<div><div class='kf-sub'>" + (B[0] ? "Bilan du " + dfr(B[0].d) : "Avec ton kiné") + "</div><div class='kf-h1 kcb-h1'>Ta progression</div></div>") + (!PREV && window.KineQuest ? KineQuest.patientCard(d, s.pid) : "");
-    if (inline) html += "<div class='kms-card kmk-step'><div class='kms-ck'><span>" + esc(P.nom) + "</span><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span></div><div class='kms-ct'>" + esc(P.etapes[E].nom) + "</div>" +
+    if (inline) html += "<div class='kms-card kmk-step'><div class='kms-ck'><span>" + esc(P.nom) + "</span><span>" + (d.fin ? "Parcours terminé, bravo !" : "Étape " + (E + 1) + " sur " + P.etapes.length) + "</span></div><div class='kms-ct'>" + esc(P.etapes[E].nom) + "</div>" +
       (P.etapes[E].but ? "<div class='kms-cm'><span>" + esc(P.etapes[E].but) + "</span></div>" : "") + "</div>";
     // Comprendre sa rééducation : la fiche du parcours et les conseils personnalisés du kiné
     if (window.KineReprise && d.course && !PREV) html += KineReprise.patientCard(d);
+    // séance du kiné
+    var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
+    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercice" + (ex.length > 1 ? "s" : "") + "</span></div>" + ex.map(function (n) { return "<button type='button' class='kms-ex' data-n='" + esc(n) + "' onclick='KineMonSuivi.demo(this)'><span>" + esc(n) + "</span><em>Voir</em></button>"; }).join("") +
+      (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
+    // patient de l'hôpital : séances toutes prêtes, le savais-tu, vrai ou faux
+    if (d.parcours === "hopital" && window.KineHopital) html += PREV ? KineHopital.html(PREV) : (KineHopital.moiHtml ? KineHopital.moiHtml() : "");
+    if (!PREV && s.pid) html += "<button class='kms-write' onclick='KineMonSuivi.msg()'><i aria-hidden='true'><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z'/></svg></i><div><b>Écrire à mon kiné</b><span>Une question, un souci, une nouvelle</span></div></button>";
+    // mot du kiné
+    if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
+    if (d.next) html += "<p class='kf-sub kcb-center'>Prochain bilan au cabinet : <b>" + dfr(d.next) + "</b></p>";
     if (!PREV && inline && window.KineNotifs && KineNotifs.supported && KineNotifs.supported() && !KineNotifs.kineState(s.pid) && !jget("kf-cab-notif-non", false))
       html += "<div class='kmk-notif'><div><b>Être prévenu par ton kiné</b><span>Une notification quand il t'envoie une séance, un questionnaire ou débloque une étape.</span><em id='kmk-nmsg'></em></div><div class='kcb-two'><button class='seq-btn-secondary' onclick='KineMonSuivi.notifNo()'>Non merci</button><button class='seq-btn-main' onclick='KineMonSuivi.notifOn()'>Activer</button></div></div>";
     if (window.KineFiches && (KineFiches.get(d.parcours) || d.conseil)) html += "<button class='kmk-fiche' onclick='KineMonSuivi.fiche()'><i aria-hidden='true'><svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z'/><path d='M8 7h6M8 11h6'/></svg></i><span><b>Comprendre ma rééducation</b><em>" + (d.conseil ? "Avec les conseils de ton kiné" : "Ce qui est normal, ce qui aide, quand appeler") + "</em></span><u>›</u></button>";
@@ -295,26 +343,21 @@ var KineMonSuivi = (function () {
       else { var a0 = f && f !== b ? KP.val(f, t[0], "a") : null; tiles.push([t[1], KP.fmt(a) + t[2], a0 != null && a > a0 ? "+" + KP.fmt(a - a0) + t[2] + " depuis le début" : ""]); }
     });
     if (tiles.length) html += "<div class='kcb-two'>" + tiles.map(function (t) { return "<div class='su-card kms-tile'><span>" + esc(t[0]) + "</span><b>" + esc(t[1]) + "</b><em>" + esc(t[2]) + "</em></div>"; }).join("") + "</div>";
-    // mot du kiné
-    if (d.msg && d.msg.t) html += "<div class='kms-msg'><span>Ton kiné · " + dfr(d.msg.d) + "</span><b>" + esc(d.msg.t) + "</b></div>";
-    if (d.next) html += "<p class='kf-sub kcb-center'>Prochain bilan au cabinet : <b>" + dfr(d.next) + "</b></p>";
+    // photos avant / après (chargées à part : elles sont lourdes)
+    if (inline && !PREV) html += "<div id='kmk-photos'></div>";
     // étapes
     html += "<div class='kcb-v2h'>Tes étapes</div>";
     var hist = d.hist || [];
     P.etapes.forEach(function (e, i) {
       if (i < E) { var h = hist.filter(function (x) { return x.e === i + 1; }).pop(); html += "<div class='kms-et done'><i>" + ICON_OK + "</i><div><b>" + (i + 1) + " · " + esc(e.nom) + "</b><span>" + (h ? "Validée au cabinet le " + dfr(h.d) : "Validée") + "</span></div></div>"; return; }
-      if (i > E) { html += "<div class='kms-et lock'><i>" + ICON_LOCK + "</i><div><b>" + (i + 1) + " · " + esc(e.nom) + "</b><span>Se débloque avec ton kiné, au cabinet</span></div></div>"; return; }
+      if (i > E) { html += "<div class='kms-et lock'><i>" + ICON_LOCK + "</i><div><b>" + (i + 1) + " · " + esc(e.nom) + "</b><span>Se débloque avec ton kiné, " + (d.parcours === "hopital" ? "à l'hôpital" : "au cabinet") + "</span></div></div>"; return; }
       html += "<div class='kms-et now'><div class='kms-eh'><i>" + (i + 1) + "</i><div><b>" + esc(e.nom) + "</b><span>En cours</span></div></div>" + (i < P.etapes.length - 1 ? "<div class='kms-k'>Pour passer à l'étape suivante</div>" : "") +
         e.obj.map(function (o) { var a = o.a ? KP.evalObj(o.a, cx) : null, ok = !!(d.done && d.done[o.id]) || !!(a && a.ok); return "<div class='kms-o" + (ok ? " ok" : "") + "'><i>" + (ok ? ICON_OK : "") + "</i><span>" + esc(o.p || o.t) + "</span>" + (a && !ok && a.ok === false ? "<b>" + esc(a.v) + "</b>" : "") + "</div>"; }).join("") + "</div>";
     });
-    // séance du kiné
-    var ex = effEx(d).filter(function (n) { return window.KineBiblio && KineBiblio.find(n); });
-    if (ex.length) html += "<div class='su-card'><div class='su-card-h'><b>La séance de ton kiné</b><span>" + ex.length + " exercices</span></div>" + ex.map(function (n) { return "<div class='kms-ex'>" + esc(n) + "</div>"; }).join("") +
-      (PREV ? "" : "<button class='seq-btn-main' onclick='KineMonSuivi.go()'>Faire cette séance</button>") + "</div>";
     // charge au cabinet
     var ref = d.ref || P.ref, S = (d.seances || []).filter(function (x) { return x.ex === ref && x.kg != null; }).slice().reverse();
     if (S.length > 1 && window.KineCabinet) html += "<div class='su-card'><div class='su-card-h'><b>" + esc(ref) + "</b><span>au cabinet</span></div>" + KineCabinet._bars(S) + "</div>";
-    html += "<div class='kms-why'><b>Pourquoi passer au cabinet ?</b><span>Tes exercices ici sont tes devoirs entre deux séances. Au cabinet, ton kiné mesure ta force, corrige ton geste et décide quand tu passes à l'étape suivante.</span></div>" +
+    html += (d.parcours === "hopital" ? "<div class='kms-why'><b>Comment on avance ?</b><span>Les séances encadrées ont lieu à l'hôpital avec ton kiné. Ici, tu complètes entre les séances. C'est lui qui évalue ta progression et décide quand tu passes à l'étape suivante.</span></div>" : "<div class='kms-why'><b>Pourquoi passer au cabinet ?</b><span>Tes exercices ici sont tes devoirs entre deux séances. Au cabinet, ton kiné mesure ta force, corrige ton geste et décide quand tu passes à l'étape suivante.</span></div>") +
       (PREV ? "" : "<button class='kcb-link' onclick='KineMonSuivi.unlink()'>Délier ce téléphone</button>");
     return html;
   }
@@ -342,8 +385,61 @@ var KineMonSuivi = (function () {
     show(back().replace("KineMonSuivi.close()", was ? (PREV ? "KineMonSuivi.view()" : "KineMonSuivi.open()") : "KineMonSuivi.close()") + "<div><div class='kf-sub'>Ta rééducation</div><div class='kf-h1 kcb-h1'>" + esc(f ? f.t : "Les conseils de ton kiné") + "</div></div>" + KineFiches.html(d.parcours, d.conseil));
     sheet().scrollTop = 0;
   }
+  /* ════════ Message au kiné ════════ */
+  function msgList() { return jget("kf-msgs", []); }
+  function msg(err, keep) {
+    var H = msgList().slice(-4), sent = H.length ? "<div class='kms-sent'>" + H.map(function (m) { return "<div><small>" + esc(dfr(m.d)) + "</small>" + esc(m.t) + "</div>"; }).join("") + "</div>" : "";
+    show(back() + "<div><div class='kf-h1 kcb-h1'>Écrire à mon kiné</div><div class='kf-sub'>Il le lira avant ta prochaine séance. Pour une urgence, appelle-le ou le 15.</div></div>" +
+      "<textarea class='kms-ta' id='kms-msg' maxlength='500' placeholder='Ton message' aria-label='Ton message'>" + esc(keep || "") + "</textarea>" +
+      (err ? "<div class='kcb-alert'><b>" + esc(err) + "</b></div>" : "") + sent,
+      "<button class='seq-btn-main' id='kms-msgb' onclick='KineMonSuivi.msgSend()'>Envoyer</button>");
+    setTimeout(function () { var i = $("kms-msg"); if (i) i.focus(); }, 100);
+  }
+  function msgSend() {
+    var i = $("kms-msg"), t = i ? i.value.trim() : "", s = state();
+    if (!t) { msg("Écris ton message d'abord.", ""); return; }
+    var last = msgList().slice(-1)[0];
+    if (last && Date.now() - (last.ts || 0) < 20000) { msg("Un instant avant d'en envoyer un autre.", t); return; }
+    if (!s || !s.pid || !window.fbPat || !fbPat.msgSend) { msg("Message impossible pour l'instant.", t); return; }
+    var b = $("kms-msgb"); if (b) { b.disabled = true; b.textContent = "Envoi…"; }
+    fbPat.msgSend(s.pid, t).then(function () {
+      var H = msgList(); H.push({ t: t, d: new Date().toISOString().slice(0, 10), ts: Date.now() }); jset("kf-msgs", H.slice(-20));
+      show(back() + "<div class='kcb-ok kms-linked'>" + ICON_OK + "C'est envoyé : ton kiné le lira.</div>", "<button class='seq-btn-main' onclick='KineMonSuivi.close()'>Fermer</button>");
+    }, function () { msg("Le message n'est pas parti. Vérifie ta connexion et réessaie.", t); });
+  }
   function close() { var el = $("kms-sheet"); if (el) el.classList.remove("open"); PREV = null; page(); }
   function forget() { try { localStorage.removeItem(KEY); } catch (e) {} slot(); }
 
-  return { notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+  // Voir un exercice de la séance du kiné (Yass le montre)
+  function demo(b) { var n = b && b.getAttribute("data-n"); if (n && window.KineBiblio) KineBiblio.demo(n); }
+  return { msg: msg, msgSend: msgSend, demo: demo, phZoom: phZoom, _photosHtml: photosHtml, notifOn: notifOn, notifNo: notifNo, fiche: fiche, view: view, page: page, state: state, consent: consentPick, setConsent: setConsent, syncOn: function () { return consent() === "1"; }, journalSync: journalSync, journalMerge: journalMerge, preview: preview, cancelRequest: cancelRequest, forget: forget, slot: slot, rowHtml: rowHtml, join: join, doJoin: doJoin, open: open, close: close, go: go, unlink: unlink, refresh: refresh, linked: linked, _week: week };
+})();
+
+/* Lien « un seul geste » : le kiné envoie …/#code=ABC123 ; le patient touche le lien, l'appli s'ouvre sur « Relier mon téléphone »
+   avec le code déjà tapé, il n'a plus qu'à valider. Le code est dans la partie après le # : il n'est jamais envoyé au serveur,
+   et il est retiré de la barre d'adresse dès la lecture. Fonctionne aussi si l'appli était déjà ouverte (le # change seulement). */
+(function () {
+  function lire() {
+    try {
+      var m = /[#&]code=([A-Za-z0-9]{6})(?![A-Za-z0-9])/.exec(location.hash || "");
+      if (!m) return;
+      var code = m[1].toUpperCase();
+      try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+      try {
+        if (!localStorage.getItem("kf-role")) localStorage.setItem("kf-role", "patient");   // qui a un code de kiné est patient
+        localStorage.setItem("kf-tour-v2", "1");                                            // pas de visite guidée avant le code
+      } catch (e) {}
+      var essais = 0;
+      (function ouvrir() {
+        if (window.KineMonSuivi && window.KineRole && document.readyState === "complete") {
+          KineMonSuivi.join();
+          var i = document.getElementById("kms-code"); if (i) i.value = code;
+          return;
+        }
+        if (++essais < 120) setTimeout(ouvrir, 250);
+      })();
+    } catch (e) {}
+  }
+  lire();
+  window.addEventListener("hashchange", lire);
 })();

@@ -91,6 +91,55 @@ var KineCabinet = (function () {
     var due = !!(p.next && p.next <= today);
     return { pain: pain, due: due, today: p.next === today, w: w };
   }
+  // Hôpital : ce que les patients ont déclaré ce matin (gêne, humeur, marche), pour adapter la séance de groupe
+  var ZL = { dos: "Dos", bas: "Jambes ou genoux", haut: "Épaules ou bras", fatigue: "Fatigué·e" }, ML = { 1: "humeur pas top", 2: "humeur moyenne", 3: "humeur bonne" };
+  // Messages envoyés par les patients : « non lus » tant que la fiche n'a pas été ouverte
+  function mseenGet() { try { return JSON.parse(localStorage.getItem("kf-msgseen") || "{}") || {}; } catch (e) { return {}; } }
+  function mseenSet(pid) { var s = mseenGet(); s[pid] = Date.now(); try { localStorage.setItem("kf-msgseen", JSON.stringify(s)); } catch (e) {} }
+  function unread(p) { var t = mseenGet()[p.id] || 0; return (p.msgs || []).filter(function (m) { return (m.t || 0) > t; }); }
+  function hm(t) { var d = new Date(t); return d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + "h" + ("0" + d.getMinutes()).slice(-2); }
+  function msgsHtml() {
+    var M = (C && C.msgs) || [];
+    if (!M.length) return "";
+    return "<div class='su-card kcb-msgs'><div class='su-card-h'><b>Messages du patient</b><span>" + M.length + "</span></div>" +
+      M.slice(0, 6).map(function (m) { return "<div class='kcb-msg'><span>" + esc(hm(m.t)) + "</span><b>" + esc(m.txt) + "</b></div>"; }).join("") + "</div>";
+  }
+  // Cabinet : qui vient aujourd'hui, avec ce qu'ils ont dit ou fait depuis la dernière fois
+  function avant(rows) {
+    var today = iso(), C0 = rows.filter(function (p) { return p.parcours !== "hopital"; });
+    var sel = C0.filter(function (p) { return p.next === today || unread(p).length || (p.ce && (+p.ce.pain >= 5)); });
+    if (!sel.length) return "";
+    sel.sort(function (a, b) { return (b.next === today) - (a.next === today); });
+    var lines = sel.map(function (p) {
+      var f = flags(p), c = p.ce || {}, bits = [], u = unread(p), warn = f.pain || (c.pain != null && +c.pain >= 5) || u.length;
+      if (p.next === today) bits.push("rendez-vous aujourd'hui");
+      if (c.pain != null && c.pain !== "") bits.push("douleur " + c.pain + "/10 ce matin");
+      if (f.pain) bits.push("douleur " + KP.fmt(f.w.dou) + "/10 à la maison");
+      else if (f.w && !c.pain) bits.push(f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine");
+      if (u.length) bits.push(u.length > 1 ? u.length + " messages" : "message");
+      var prev = u.length ? "<small>« " + esc(String(u[0].txt).slice(0, 90)) + (String(u[0].txt).length > 90 ? "…" : "") + " »</small>" : "";
+      return "<button class='kcb-mrow kcb-mrow2" + (warn ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><b>" + esc(p.alias || "Patient") + "</b><span>" + esc(bits.join(" · ")) + "</span>" + prev + "</button>";
+    }).join("");
+    return "<div class='kcb-mat'><div class='kcb-mat-h'><b>Avant ton rendez-vous</b><span>" + sel.length + " patient" + (sel.length > 1 ? "s" : "") + "</span></div>" + lines + "</div>";
+  }
+  function matin(rows) {
+    var H = rows.filter(function (p) { return p.parcours === "hopital"; });
+    if (!H.length) return "";
+    var tally = {}, ans = 0, low = 0, walk = 0;
+    var lines = H.map(function (p) {
+      var c = p.ce, z = c && c.zone, bits = [];
+      if (c) ans++;
+      if (z && ZL[z]) { tally[z] = (tally[z] || 0) + 1; bits.push(ZL[z]); } else if (z === "bien") bits.push("Tout va bien");
+      if (c && c.pre) { bits.push(ML[c.pre] || ""); if (c.pre === 1) low++; }
+      if (c && c.walk) { bits.push("a marché"); walk++; }
+      var u = unread(p); if (u.length) bits.push(u.length > 1 ? u.length + " messages" : "message");
+      var warn = z && ZL[z] || (c && c.pre === 1) || u.length;
+      return "<button class='kcb-mrow" + (warn ? " warn" : "") + (c ? "" : " none") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><b>" + esc(p.alias || "Patient") + "</b><span>" + (bits.length ? esc(bits.filter(Boolean).join(" · ")) : "Pas encore répondu") + "</span></button>";
+    }).join("");
+    var chips = Object.keys(ZL).filter(function (k) { return tally[k]; }).map(function (k) { return "<em>" + tally[k] + " " + esc(ZL[k].toLowerCase()) + "</em>"; }).join("") + (low ? "<em>" + low + " humeur pas top</em>" : "");
+    return "<div class='kcb-mat'><div class='kcb-mat-h'><b>Ce matin à l'hôpital</b><span>" + ans + "/" + H.length + " ont répondu</span></div>" +
+      (chips ? "<div class='kcb-mat-c'>" + chips + "</div>" : (ans ? "<div class='kcb-mat-c'><em>Rien à signaler</em></div>" : "")) + lines + "</div>";
+  }
   function list() {
     var rows = (L || []).slice().sort(function (a, b) { return (b.maj && b.maj.seconds || 0) - (a.maj && a.maj.seconds || 0); });
     var F = rows.map(function (p) { return flags(p); });
@@ -103,16 +152,21 @@ var KineCabinet = (function () {
     var NR = rows.filter(function (p) { return fresh(p).length; });
     if (NR.length) html += "<div class='kcb-news'><b>" + (NR.length > 1 ? NR.length + " patients ont répondu" : "Un patient a répondu") + "</b>" + NR.slice(0, 4).map(function (p) {
       var x = fresh(p); return "<button onclick='KineCabinet.fiche(" + q(p.id) + ",\"quest\")'><span>" + esc(p.alias || "Patient") + "</span><em>" + esc(x.map(function (y) { return window.KineQuest && KineQuest.Q[y.q] ? KineQuest.Q[y.q].nom + " : " + KineQuest.fmt(y.q, y.score) : y.q; }).join(" · ")) + "</em><i>›</i></button>"; }).join("") + "</div>";
+    html += avant(rows) + matin(rows);
     html += "<div class='kcb-filt'>" + [["tous", "Tous"], ["auj", "Bilan aujourd'hui"], ["surv", "À surveiller"]].map(function (f) { return "<button class='" + (filt === f[0] ? "on" : "") + "' onclick='KineCabinet.filter(\"" + f[0] + "\")'>" + f[1] + "</button>"; }).join("") + "</div>";
     var shown = rows.filter(function (p, i) { return filt === "tous" || (filt === "auj" && F[i].due) || (filt === "surv" && (F[i].pain || F[i].due)); });
+    if (rows.length > 5) html += "<input class='kcb-in kcb-psearch' type='search' id='kcb-ps' placeholder='Chercher un patient' oninput='KineCabinet.psearch(this.value)' aria-label='Chercher un patient'>";
     if (!rows.length) html += "<div class='kf-note'>Aucun patient pour l'instant. Crée une fiche avec le bouton +, ou accepte une demande d'accès : le téléphone du patient se relie à sa fiche.</div>";
     else if (!shown.length) html += "<div class='kf-note'>Personne dans ce filtre.</div>";
+    var isH = function (p) { return p.parcours === "hopital"; }, nH = rows.filter(isH).length, lastG = "";
+    if (nH) shown = shown.filter(isH).concat(shown.filter(function (p) { return !isH(p); }));
     html += shown.map(function (p) {
       var P = KP.get(p.parcours), n = P ? P.etapes.length : 0, e = (p.etape || 0) + 1, f = flags(p);
       var sub = (P ? P.nom : "Parcours à choisir") + (p.cote && p.cote !== "2" ? ", " + (p.cote === "D" ? "droit" : "gauche") : "");
       var info = f.pain ? "douleur " + KP.fmt(f.w.dou) + "/10 à la maison" : f.due ? "bilan prévu" + (f.today ? " aujourd'hui" : "") : f.w ? f.w.n + " séance" + (f.w.n > 1 ? "s" : "") + " cette semaine" : "";
       var nr = fresh(p).length;
-      return "<button class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + "</span></div>" +
+      var gn = isH(p) ? "Hôpital" : "Cabinet", hd = nH && gn !== lastG ? "<div class='kcb-grp'><span>" + gn + "</span><em>" + (isH(p) ? nH : rows.length - nH) + "</em></div>" : ""; lastG = gn;
+      return hd + "<button data-n='" + esc(nrm((p.alias || "") + " " + (P ? P.nom : ""))) + "' class='kcb-pat" + (f.pain ? " warn" : "") + "' onclick='KineCabinet.fiche(" + q(p.id) + ")'><i>" + esc(initials(p.alias)) + "</i><div><b>" + esc(p.alias || "Patient") + (nr ? " <u class='kcb-new'>" + (nr > 1 ? nr + " réponses" : "réponse") + "</u>" : "") + "</b><span>" + esc(sub + (info ? " · " + info : "")) + (p.membres === 0 ? " <u class='kcb-nr'>pas relié</u>" : "") + "</span></div>" +
         (P ? "<em>Étape " + e + "/" + n + "</em>" : "") + "</button>";
     }).join("");
     var tee = window.KineAvatar && KineAvatar.shirt ? KineAvatar.shirt() : null;
@@ -120,6 +174,7 @@ var KineCabinet = (function () {
     show(html + "<button class='kcb-fab' onclick='KineCabinet.nouveau()' aria-label='Nouveau patient'>" + ICON.plus + "</button>", null, "list");
   }
   function filter(f) { filt = f; list(); }
+  function psearch(t) { t = nrm(t).trim(); [].forEach.call(sheet().querySelectorAll(".kcb-pat"), function (b) { b.style.display = !t || (b.getAttribute("data-n") || "").indexOf(t) >= 0 ? "" : "none"; }); }
   // Le nom imprimé sur le t-shirt de Yass : sur ce téléphone, et sur celui de chaque patient (recopié sur sa fiche)
   function tee() {
     var t = (window.KineAvatar && KineAvatar.shirt && KineAvatar.shirt()) || ["", ""];
@@ -150,7 +205,7 @@ var KineCabinet = (function () {
       if (!rows.length) html += "<div class='kgd-empty'><b>Aucune demande</b><span>Un patient qui n'a pas de code peut demander un accès depuis l'appli, avec son prénom et son nom. La demande arrive ici.</span></div>";
       html += rows.map(function (d) {
         var t = d.t && d.t.toDate ? d.t.toDate() : null;
-        return "<button class='kcb-pat' onclick='KineCabinet.accept(" + q(d.id) + ")'><i>" + esc(initials(d.prenom + " " + d.nom)) + "</i><div><b>" + esc(d.prenom + " " + d.nom) + "</b><span>" + esc([t ? "Le " + t.getDate() + " " + MOIS[t.getMonth()] : "", d.msg ? "« " + d.msg + " »" : ""].filter(Boolean).join(" · ")) + "</span></div><em>Voir</em></button>";
+        return "<button class='kcb-pat' onclick='KineCabinet.accept(" + q(d.id) + ")'><i>" + esc(initials(d.prenom + " " + d.nom)) + "</i><div><b>" + esc(d.prenom + " " + d.nom) + "</b><span>" + esc([t ? "Le " + t.getDate() + " " + MOIS[t.getMonth()] : "", d.msg ? "« " + d.msg + " »" : ""].filter(Boolean).join(" · ")) + "</span></div><em>Voir</em></button><div class='kcb-two2'><button class='kcb-pick' onclick='KineCabinet.accept(" + q(d.id) + ")'><b>Patient du cabinet</b><span>Je choisis un bilan</span></button><button class='kcb-pick hop kcb-hopq' onclick='KineCabinet.acceptHopital(" + q(d.id) + ")'><b>Patient de l'hôpital</b><span>Sport adapté, en un geste</span></button></div>";
       }).join("");
       html += "<p class='kcb-hint'>Les noms complets ne sont visibles que par toi. Une demande est effacée dès que tu l'acceptes ou la refuses, et au bout de 30 jours sinon.</p>";
       show(html, null, "demandes");
@@ -219,7 +274,7 @@ var KineCabinet = (function () {
     formPid = pid;
     var d = draft, P = KP.get(d.parcours);
     var chips = KP.ZONES.map(function (z) {
-      return "<span class='kcb-zone'>" + esc(z[1]) + "</span><div class='kf-chips'>" + KP.ORDER.filter(function (id) { return KP.P[id].zone === z[0]; }).map(function (id) { return "<button type='button' class='" + (d.parcours === id ? "sel" : "") + "' onclick='KineCabinet.set(\"parcours\"," + q(id) + ")'>" + esc(KP.P[id].nom) + "</button>"; }).join("") + "</div>";
+      return "<span class='kcb-zone'>" + esc(z[1]) + "</span><div class='kf-chips kcb-pchips'>" + KP.ORDER.filter(function (id) { return KP.P[id].zone === z[0]; }).map(function (id) { return "<button type='button' data-z='" + esc(z[1]) + "' class='" + (d.parcours === id ? "sel" : "") + "' onclick='KineCabinet.set(\"parcours\"," + q(id) + ")'>" + esc(KP.P[id].nom) + "</button>"; }).join("") + "</div>";
     }).join("");
     var opts = P && P.opts ? P.opts.map(function (o) {
       return "<div class='kcb-field'><span class='kcb-lab'>" + esc(o.l) + "</span><div class='kf-chips'>" + o.ch.map(function (c) {
@@ -230,11 +285,13 @@ var KineCabinet = (function () {
       (dem ? "<div><div class='kf-h1 kcb-h1'>" + esc(d.full) + "</div>" + (d.msg ? "<div class='kf-sub'>« " + esc(d.msg) + " »</div>" : "") + "</div>" : "<div class='kf-h1 kcb-h1'>" + (pid ? "Modifier la fiche" : "Nouveau patient") + "</div>") +
       "<label class='kcb-field'><span class='kcb-lab'>Pseudonyme ou initiales</span><input class='kcb-in' id='kcb-alias' maxlength='24' value='" + esc(d.alias) + "' placeholder='Par exemple : Samir B.' oninput='KineCabinet.set(\"alias\",this.value,1)'></label>" +
       "<p class='kcb-hint'>" + (dem ? "Le nom complet est effacé dès que tu acceptes : la fiche reste pseudonyme." : "Pas de nom complet : la fiche reste pseudonyme.") + "</p>" +
-      "<div class='kcb-field'><span class='kcb-lab'>Parcours</span>" + chips +
+      "<div class='kcb-field'><span class='kcb-lab'>Patient de l'hôpital ?</span><button type='button' class='kcb-hop" + (d.parcours === "hopital" ? " sel" : "") + "' onclick='KineCabinet.hopital()'><b>Mode hôpital</b><span>Sport adapté, sans bilan articulaire ni côté à choisir</span></button></div>" +
+      "<div class='kcb-field'><span class='kcb-lab'>Parcours</span>" + (P ? "<div class='kcb-pnow'>" + ICON.ok + "<b>" + esc(P.nom) + "</b></div>" : "") +
+      "<input class='kcb-in kcb-psearch' type='search' placeholder='Chercher : lombalgie, épaule, LCA…' oninput='KineCabinet.pfilter(this.value)' aria-label='Chercher un parcours'>" + chips +
       "<button type='button' class='kcb-link' onclick='KineCabinet.guide(\"new\")'>Pas de diagnostic ? Ouvrir le guide d'orientation</button></div>" +
-      "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
-        [["D", "Droit"], ["G", "Gauche"], ["2", "Les deux"]].map(function (c) { return "<button type='button' class='" + (d.cote === c[0] ? "sel" : "") + "' onclick='KineCabinet.set(\"cote\"," + q(c[0]) + ")'>" + c[1] + "</button>"; }).join("") + "</div></div>" +
-      "<label class='kcb-field'><span class='kcb-lab'>" + (P && P.d0 ? P.d0 : P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1)'></label>" +
+      (P && P.nocote ? "" : "<div class='kcb-field'><span class='kcb-lab'>Côté atteint</span><div class='kf-chips'>" +
+        [["D", "Droit"], ["G", "Gauche"], ["2", "Les deux"]].map(function (c) { return "<button type='button' class='" + (d.cote === c[0] ? "sel" : "") + "' onclick='KineCabinet.set(\"cote\"," + q(c[0]) + ")'>" + c[1] + "</button>"; }).join("") + "</div></div>") +
+      "<label class='kcb-field' id='kcb-d0f'><span class='kcb-lab'>" + (P && P.d0 ? P.d0 : P && P.op ? "Date de l'opération" : "Date de début") + "</span><input class='kcb-in' type='date' value='" + esc(d.date0) + "' onchange='KineCabinet.set(\"date0\",this.value,1);KineCabinet.set(\"d0ok\",1,1)'></label>" +
       opts +
       (pid ? "<label class='kcb-field'><span class='kcb-lab'>Exercice de référence au cabinet</span><input class='kcb-in' list='kcb-allex' value='" + esc(d.ref || (P ? P.ref : "")) + "' onchange='KineCabinet.set(\"ref\",this.value,1)'></label>" + datalist() : "");
     if (dem) html += "<div class='kcb-ok'>" + ICON.ok + "Son téléphone se reliera tout seul : pas de code à donner.</div>";
@@ -247,12 +304,28 @@ var KineCabinet = (function () {
     var all = window.KineBiblio ? KineBiblio.all(true).map(function (e) { return e.name; }) : [];
     return "<datalist id='kcb-allex'>" + all.map(function (n) { return "<option value='" + esc(n) + "'></option>"; }).join("") + "</datalist>";
   }
-  function set(k, v, quiet) { draft[k] = v; if (k === "parcours") draft.opts = {}; if (!quiet) form(formPid); }
-  function opt(k, v) { draft.opts[k] = v; form(formPid); }
+  // On garde la position dans la page : choisir un parcours en bas de liste ne renvoie plus tout en haut
+  function reForm() { var y = sheet().scrollTop; form(formPid); sheet().scrollTop = y; }
+  // Mode hôpital : un geste règle le parcours « sport adapté » ; pas de côté ni de date d'opération à renseigner
+  function hopital() { draft.parcours = "hopital"; draft.opts = {}; draft.cote = "2"; reForm(); }
+  function acceptHopital(uid) { accept(uid); if (draft) { draft.parcours = "hopital"; draft.cote = "2"; saveForm(null); } }
+  function set(k, v, quiet) { draft[k] = v; if (k === "parcours") draft.opts = {}; if (!quiet) reForm(); }
+  function opt(k, v) { draft.opts[k] = v; reForm(); }
+  // Filtre des parcours (35) : on tape « lomb », « épaule », « LCA »…
+  function pfilter(t) {
+    t = nrm(t).trim();
+    [].forEach.call(sheet().querySelectorAll(".kcb-pchips"), function (box) {
+      var n = 0; [].forEach.call(box.querySelectorAll("button"), function (b) { var ok = !t || nrm(b.textContent + " " + (b.getAttribute("data-z") || "")).indexOf(t) >= 0; b.style.display = ok ? "" : "none"; if (ok) n++; });
+      box.style.display = n ? "" : "none"; var z = box.previousElementSibling; if (z && z.classList.contains("kcb-zone")) z.style.display = n ? "" : "none";
+    });
+  }
   function saveForm(pid) {
     var d = draft;
     if (!String(d.alias || "").trim()) { say("Indique un pseudonyme ou des initiales."); return; }
     if (!d.parcours) { say("Choisis un parcours (ou « Genou, sans diagnostic précis »)."); return; }
+    // Patient opéré : la date de l'opération règle J+ et les étapes ; on la fait vérifier une fois si elle est restée à aujourd'hui
+    var P0 = KP.get(d.parcours);
+    if (!pid && P0 && P0.op && !d.d0ok && d.date0 === iso()) { d.d0ok = 1; var f = $("kcb-d0f"); if (f) { f.classList.add("kcb-check"); f.scrollIntoView({ block: "center", behavior: "smooth" }); } say("Vérifie la date de l'opération : elle est réglée sur aujourd'hui."); return; }
     var data = { alias: String(d.alias).trim().slice(0, 24), parcours: d.parcours, cote: d.cote, date0: d.date0 || iso(), opts: d.opts || {} };
     if (pid) {
       if (d.ref) data.ref = d.ref;
@@ -280,11 +353,27 @@ var KineCabinet = (function () {
         "<div class='kf-h1 kcb-h1'>" + (fresh ? "Fiche créée" : "Code du patient") + "</div>" +
         (C.membres ? "<div class='kcb-ok'>" + ICON.ok + "Le téléphone du patient est relié à cette fiche.</div>" : "") +
         (valid ? "<div class='kcb-code' aria-label='Code'>" + c.split("").map(function (x) { return "<b>" + esc(x) + "</b>"; }).join("") + "</div>" +
-          "<p class='kf-sub kcb-center'>Valable jusqu'au " + exp.getDate() + " " + MOIS[exp.getMonth()] + ", une seule fois.</p>" : "<div class='kf-note'>Aucun code valable. Crée-en un nouveau pour relier (ou relier à nouveau) le téléphone du patient.</div>") +
-        "<div class='su-card'><b>Pour le patient</b><div class='kf-sub'>Dans KinéForce, onglet Suivi : « J'ai un code de mon kiné », puis il tape ce code. Il voit alors ses étapes, ses bilans et ses courbes. Il ne peut rien modifier.</div></div>",
+          "<p class='kf-sub kcb-center'>Valable jusqu'au " + exp.getDate() + " " + MOIS[exp.getMonth()] + ", une seule fois.</p>" +
+          "<button class='kcb-share' onclick='KineCabinet.codeShare(" + q(c) + "," + q(exp.getDate() + " " + MOIS[exp.getMonth()]) + ")'>" + ICON_SHARE + "Envoyer le code au patient</button>" : "<div class='kf-note'>Aucun code valable. Crée-en un nouveau pour relier (ou relier à nouveau) le téléphone du patient.</div>") +
+        "<div class='su-card'><b>Pour le patient</b><div class='kf-sub'>Dans KinéForce, onglet Mon kiné : « J'ai un code de mon kiné », puis il tape ce code. Il voit alors ses étapes, ses bilans et ses courbes. Il ne peut rien modifier.</div></div>",
         "<button class='seq-btn-main' onclick='KineCabinet.fiche(" + q(pid) + ")'>Ouvrir la fiche</button><button class='seq-btn-secondary' onclick='KineCabinet.newCode(" + q(pid) + ")'>Nouveau code</button>");
     };
     loading(); fbCab.get(pid).then(function (p) { C = p; go(); }, fail);
+  }
+  // Le code part par message (SMS, WhatsApp, mail) avec le lien de l'appli ; sinon il est copié
+  var ICON_SHARE = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7'/><path d='M16 6l-4-4-4 4'/><path d='M12 2v14'/></svg>";
+  // L'aide « Comment ça marche » s'ouvre la toute première fois, puis reste repliée pour laisser voir l'étape en cours
+  function aideVue() {
+    try { if (localStorage.getItem("kf-aide-etapes")) return ""; localStorage.setItem("kf-aide-etapes", "1"); } catch (e) { return ""; }
+    return " open";
+  }
+  function codeShare(c, until) {
+    var url = location.origin + location.pathname.replace(/index\.html$/, "");
+    var t = "Bonjour, voici ton code pour relier KinéForce à ton suivi au cabinet : " + c + " (valable jusqu'au " + until + ", une seule fois).\nTouche ce lien, le code est déjà rempli, il n'y a plus qu'à valider : " + url + "#code=" + c + "\nSi le lien ne s'ouvre pas : ouvre KinéForce (" + url + "), onglet « Mon kiné », « J'ai un code de mon kiné », et tape le code.";
+    if (navigator.share) { navigator.share({ title: "Code KinéForce", text: t }).catch(function () {}); return; }
+    var done = function () { say("Message copié : colle-le dans un SMS ou un mail."); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function () { prompt("Copie ce message :", t); });
+    else prompt("Copie ce message :", t);
   }
   function newCode(pid) { loading("Nouveau code…"); fbCab.code(pid).then(function () { codeView(pid); }, fail); }
 
@@ -320,10 +409,13 @@ var KineCabinet = (function () {
     var states = et.obj.map(objState), nDone = states.filter(function (s) { return s.done; }).length;
     var html = top("KineCabinet.open()", "Mes patients", "<button class='kf-back' onclick='KineCabinet.reglages()' aria-label='Réglages'><svg width='18' height='18' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><circle cx='5' cy='12' r='1.9'/><circle cx='12' cy='12' r='1.9'/><circle cx='19' cy='12' r='1.9'/></svg></button>") +
       "<div><div class='kf-h1 kcb-h1'>" + esc(C.alias) + "</div><div class='kf-sub'>" + esc(P.long) + (C.cote && C.cote !== "2" ? ", " + (C.cote === "D" ? "droit" : "gauche") : "") + (when ? " · " + when : "") + "</div></div>" +
-      "<button class='kcb-slab kcb-slab-b' onclick='KineCabinet.etapes()'><div class='kcb-slab-k'><span>Étape " + (E + 1) + " sur " + P.etapes.length + "</span><span>" + nDone + "/" + et.obj.length + " objectifs ›</span></div>" +
+      // téléphone pas encore relié : le code à envoyer, tout de suite visible
+      (!C.membres ? "<button class='kcb-relier' onclick='KineCabinet.code(" + q(C.id) + ")'><span><b>Son téléphone n'est pas encore relié</b><em>Envoie-lui le code pour qu'il reçoive ses exercices</em></span><i aria-hidden='true'>›</i></button>" : "") +
+      "<button class='kcb-slab kcb-slab-b' onclick='KineCabinet.etapes()'><div class='kcb-slab-k'><span>" + (C.fin ? "Parcours terminé" : "Étape " + (E + 1) + " sur " + P.etapes.length) + "</span><span>" + nDone + "/" + et.obj.length + " objectifs ›</span></div>" +
         "<div class='kcb-slab-t'>" + esc(et.nom) + "</div><div class='kcb-bars'>" + bars + "</div>" +
         (km ? "<div class='kcb-slab-m'><div><b>" + KP.fmt(km.v) + km.u + "</b><span>" + esc(P.key.l) + "</span></div>" + (km.next ? "<em>Objectif " + km.next.v + (P.key.lsi ? " %" : km.u) + "<br>étape " + (km.next.e + 1) + "</em>" : "") + "</div>"
             : "<div class='kcb-slab-m'><span>Premier bilan à faire</span></div>") + "</button>";
+    html += msgsHtml(); mseenSet(C.id);
     // le prochain objectif à atteindre, en une ligne
     var todo = et.obj.filter(function (o, i) { return !states[i].done; });
     if (todo.length && E < P.etapes.length - 1) html += "<button class='kcb-nexto' onclick='KineCabinet.etapes()'><span>Prochain objectif</span><b>" + esc(todo[0].t) + "</b>" + (todo.length > 1 ? "<em>et " + (todo.length - 1) + " autre" + (todo.length > 2 ? "s" : "") + "</em>" : "") + "</button>";
@@ -335,12 +427,13 @@ var KineCabinet = (function () {
     html += "<div class='kcb-tiles'>" +
       tile("bilans()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19V9M10 19V5M16 19v-7M22 19H2'/></svg>", "Bilan",
         B.length ? "Dernier le " + dfr(B[0].d) : "Premier bilan à faire", BNEEDF(P, E) ? "hot" : "") +
-      tile("seance()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12'/></svg>", "Séance au cabinet",
+      tile("seance()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12'/></svg>", (C.parcours === "hopital" ? "Séance à l'hôpital" : "Séance au cabinet"),
         lastS ? "Dernière le " + dfr(lastS.d) : "Noter la charge et la douleur") +
       tile("maison()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 11l9-7 9 7v9H3z'/><path d='M9 20v-6h6v6'/></svg>", "Exercices à la maison",
         sent.length ? sent.length + " exercices envoyés" + (C.exosAt && C.vu >= C.exosAt ? ", reçus" : "") : "Aucune séance envoyée", sent.length ? "" : "hot") +
       tile("questView()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4h6l1 2h3v14H5V6h3z'/><path d='M9 12l2 2 4-4'/></svg>", "Questionnaires et tests",
-        qPend ? qPend + " en attente de réponse" : qCons ? qCons + " conseillé" + (qCons > 1 ? "s" : "") : "Envoyer au patient", qCons && !qPend ? "hot" : "") + "</div>";
+        qPend ? qPend + " en attente de réponse" : qCons ? qCons + " conseillé" + (qCons > 1 ? "s" : "") : "Envoyer au patient", qCons && !qPend ? "hot" : "") +
+      (C.parcours !== "hopital" && window.KineReprise ? tile("course()", "<svg width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='14' cy='4.5' r='2'/><path d='M7 21l3-6 3 2 2-5-3-2-3 2-2 3M12 11l4 1 3-2'/></svg>", "Reprise de la course", C.course ? "En cours pour ce patient" : "Donner la version course : 10 paliers", "wide") : "") + "</div>";
     // pour le patient
     html += "<div class='su-card'><div class='su-card-h'><b>Pour le patient</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div><label class='kcb-field'><span class='kcb-lab'>Un mot (il le voit dans l'appli)</span><input class='kcb-in' id='kcb-msg' maxlength='160' value='" + esc(C.msg && C.msg.t || "") + "' placeholder='Belle séance, on vise 80 % dans 2 semaines.'></label>" +
       "<label class='kcb-field'><span class='kcb-lab'>Prochain bilan</span><input class='kcb-in' id='kcb-next' type='date' value='" + esc(C.next || "") + "'></label>" +
@@ -379,7 +472,7 @@ var KineCabinet = (function () {
   function etapes() {
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1);
     var html = back2() + "<div class='kf-h1 kcb-h1'>Les étapes</div><div class='kf-sub'>" + esc(P.long) + "</div>" +
-      "<div class='kcb-explain'><b>Comment ça marche</b><span>Les étapes avancent sur critères, pas sur le calendrier : on passe à la suivante quand les objectifs sont atteints. Ils se cochent tout seuls à partir des bilans, ou c'est toi qui les coches. Les délais indiqués sont des minimums. Touche un objectif pour le valider à la main.</span></div>";
+      "<details class='kcb-explain'" + aideVue() + "><summary>Comment ça marche</summary><span>Les étapes avancent sur critères, pas sur le calendrier : on passe à la suivante quand les objectifs sont atteints. Ils se cochent tout seuls à partir des bilans, ou c'est toi qui les coches. Les délais indiqués sont des minimums. Touche un objectif pour le valider à la main.</span></details>";
     P.etapes.forEach(function (et, i) {
       var st = et.obj.map(objState), nd = st.filter(function (s) { return s.done; }).length, j = et.obj.filter(function (o) { return o.a && o.a.j; }).map(function (o) { return o.a.j; })[0];
       var ex = KP.exos(C.parcours, i, C.opts);
@@ -391,15 +484,16 @@ var KineCabinet = (function () {
             (a ? "<em class='" + (a.ok ? "ok" : a.ok === false ? "no" : "") + "'>" + esc(a.v) + "</em>" : s.man ? "<em class='ok'>validé</em>" : "") + "</button><p class='kcb-why'>" + esc(why(o)) + "</p></div>";
         }).join("") +
         "<div class='kcb-et-h'>Exercices de l'étape</div><p class='kcb-et-ex'>" + esc(ex.slice(0, 8).join(" · ")) + (ex.length > 8 ? " · et " + (ex.length - 8) + " autres" : "") + "</p>";
-      if (i === E) body += (i < P.etapes.length - 1 ? "<button class='" + (nd === et.obj.length ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.etape(1)'>" + (nd === et.obj.length ? "Débloquer l'étape " + (i + 2) : "Débloquer l'étape " + (i + 2) + " quand même") + "</button>" : "<div class='kcb-ok'>" + ICON.ok + "Dernière étape du parcours.</div>") +
+      if (i === E) body += (i < P.etapes.length - 1 ? "<button class='" + (nd === et.obj.length ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.etape(1)'>" + (nd === et.obj.length ? "Débloquer l'étape " + (i + 2) : "Débloquer l'étape " + (i + 2) + " quand même") + "</button>" : (C.fin ? "<div class='kcb-ok'>" + ICON.ok + "Parcours validé le " + dfr(C.fin) + " Bravo au patient.</div><button class='kcb-link' onclick='KineCabinet.fin(0)'>Rouvrir le parcours</button>" : "<button class='" + (nd === et.obj.length ? "seq-btn-main" : "seq-btn-secondary") + "' onclick='KineCabinet.fin(1)'>" + (nd === et.obj.length ? "Valider la fin du parcours" : "Valider la fin du parcours quand même") + "</button>")) +
         (i > 0 ? "<button class='kcb-link' onclick='KineCabinet.etape(-1)'>Revenir à l'étape " + i + "</button>" : "");
-      html += "<details class='kcb-et" + (i < E ? " done" : i === E ? " now" : "") + "'" + (i === E ? " open" : "") + "><summary><i>" + (i < E ? ICON.ok : i + 1) + "</i><span><b>" + esc(et.nom) + "</b><em>" + (i < E ? "validée" : i === E ? "en cours · " + nd + "/" + et.obj.length + " objectifs" : "à venir") + "</em></span></summary>" + body + "</details>";
+      html += "<details class='kcb-et" + (i < E ? " done" : i === E ? " now" : "") + "'" + (i === E ? " open" : "") + "><summary><i>" + (i < E ? ICON.ok : i + 1) + "</i><span><b>" + esc(et.nom) + "</b><em>" + (i < E || (i === E && C.fin) ? "validée" : i === E ? "en cours · " + nd + "/" + et.obj.length + " objectifs" : "à venir") + "</em></span></summary>" + body + "</details>";
     });
     html += "<details class='kf-acc kcb-acc'><summary>Sources du parcours</summary><ul class='kcb-src'>" + P.src.map(function (s) { return "<li>" + esc(KP.SRC[s]) + "</li>"; }).join("") + "</ul></details>";
     sub = "etapes"; var y = sheet().scrollTop, again = sheet().querySelector(".kcb-et"); show(html); if (again) sheet().scrollTop = y;
   }
 
   /* ── Exercices à la maison : la séance envoyée, puis ce que le patient fait chez lui ── */
+  function gymOf(n) { var e = window.KineBiblio && KineBiblio.find(n); return !!(e && e.gym); }
   function maison() {
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1);
     var html = back2() + "<div class='kf-h1 kcb-h1'>Exercices à la maison</div>";
@@ -414,10 +508,12 @@ var KineCabinet = (function () {
         "<button class='kcb-link' onclick='KineCabinet.papier()'>Imprimer la fiche d'exercices (papier ou PDF)</button></div>";
     } else {
       if (!sel) sel = sent.length ? sent.slice() : [];
-      html += "<div class='su-card'><div class='su-card-h'><b>Exercices de l'étape " + (E + 1) + "</b><span>" + sel.length + " choisi" + (sel.length > 1 ? "s" : "") + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient (10 au plus) : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
-        ex.map(function (n) {
-          var on = sel.indexOf(n) >= 0, c = window.KineBiblio ? KineBiblio.color(n) : 0;
-          return "<div class='kcb-ex'><button class='kcb-exck" + (on ? " on" : "") + "' onclick='KineCabinet.pick(" + q(n) + ")' aria-pressed='" + on + "'><i>" + (on ? ICON.ok : "") + "</i><span>" + "<i class='kb-dot c" + c + "' aria-hidden='true'></i>" + esc(n) + "</span></button>" +
+      if (!sel.length) html += prefabHtml() + mobHtml();
+            html += "<div class='su-card'><div class='su-card-h'><b>Exercices de l'étape " + (E + 1) + "</b><span>" + sel.length + " choisi" + (sel.length > 1 ? "s" : "") + "</span></div><div class='kf-sub'>Coche ceux que tu veux donner au patient (10 au plus) : ils deviennent « La séance de mon kiné » sur son téléphone.</div>" +
+        // les exercices sur machine (salle ou cabinet) en fin de liste, signalés : le patient ne les a pas chez lui
+        ex.slice().sort(function (a, b) { return (gymOf(a) ? 1 : 0) - (gymOf(b) ? 1 : 0); }).map(function (n) {
+          var on = sel.indexOf(n) >= 0, c = window.KineBiblio ? KineBiblio.color(n) : 0, gy = gymOf(n);
+          return "<div class='kcb-ex'><button class='kcb-exck" + (on ? " on" : "") + "' onclick='KineCabinet.pick(" + q(n) + ")' aria-pressed='" + on + "'><i>" + (on ? ICON.ok : "") + "</i><span>" + "<i class='kb-dot c" + c + "' aria-hidden='true'></i>" + esc(n) + (gy ? " <u class='kcb-gym'>machine</u>" : "") + "</span></button>" +
             "<button class='kcb-demo' onclick='KineBiblio.demo(" + q(n) + ")' aria-label='Voir l&#39;exercice'>" + ICON.play + "</button></div>";
         }).join("") +
         (sel.filter(function (n) { return ex.indexOf(n) < 0; }).length ? "<div class='kf-sub'>Aussi envoyés : " + esc(sel.filter(function (n) { return ex.indexOf(n) < 0; }).join(", ")) + "</div>" : "") +
@@ -430,7 +526,7 @@ var KineCabinet = (function () {
     html += "<div class='su-card'><div class='su-card-h'><b>Ce qu'il fait chez lui</b><span>" + (C.membres ? "téléphone relié" : "pas encore relié") + "</span></div>" +
       (w ? "<div class='kcb-3'><div><b>" + w.n + "</b><span>séance" + (w.n > 1 ? "s" : "") + " sem. " + esc(String(w.w).split("-W")[1] || "") + "</span></div><div><b>" + (w.dou != null ? KP.fmt(w.dou) + "/10" : "–") + "</b><span>douleur moyenne</span></div><div><b>" + (w.der ? dfr(w.der) : "–") + "</b><span>dernière séance</span></div></div>"
          : "<div class='kf-sub'>" + (C.membres ? "Aucune séance faite à la maison cette semaine." : "Donne le code au patient pour voir ses séances à la maison.") + "</div>") +
-      journalHtml(4) + "</div>" + (window.KineReprise ? KineReprise.kineCard(C) : "");
+      journalHtml(4) + "</div>" + niveauxHtml() + (window.KineReprise ? KineReprise.kineCard(C) : "") + courseHtml();
     sub = "maison";
     var y = sheet().scrollTop, stay = sheet().querySelector(".kcb-ex, .kcb-sent");
     if (!(sent.length && !exEdit)) html += whenPick("maison");
@@ -470,6 +566,41 @@ var KineCabinet = (function () {
     var J = jdata();
     return "<div class='kcb-jh'>Dernières séances à la maison</div>" + (J.S.slice(0, n).map(sesRow).join("") || "<div class='kf-sub'>Aucune séance enregistrée.</div>") +
       "<button class='kcb-link' onclick='KineCabinet.journal()'>Tout le journal (" + J.S.length + " séance" + (J.S.length > 1 ? "s" : "") + ", " + J.P.length + " douleur" + (J.P.length > 1 ? "s" : "") + " signalée" + (J.P.length > 1 ? "s" : "") + ")</button>";
+  }
+  /* Réglages faits par le patient à la maison : variantes prises, temps ou répétitions ajustés */
+  function niveauxHtml() {
+    var V = null; (C.journal || []).forEach(function (d) { if (d.v) V = d.v; }); if (!V) return "";
+    var sw = (V.sw || []).filter(function (x) { return x && x.a && x.b && x.a !== x.b; }), lv = V.lv || [], log = V.log || [];
+    if (!sw.length && !lv.length && !log.length) return "";
+    return "<div class='su-card kcb-niv'><div class='su-card-h'><b>Ses réglages à la maison</b><span>plus facile, plus difficile</span></div>" +
+      (sw.length ? "<div class='kcb-jh'>Variantes qu'il fait à la place</div>" + sw.slice(0, 8).map(function (x) { return "<div class='kcb-nv'><span>" + esc(x.a) + "</span><i aria-hidden='true'>→</i><b>" + esc(x.b) + "</b></div>"; }).join("") : "") +
+      (lv.length ? "<div class='kcb-jh'>Temps ou répétitions ajustés</div>" + lv.slice(0, 8).map(function (t) { return "<div class='kcb-srow'><span>" + esc(t) + "</span></div>"; }).join("") : "") +
+      (log.length ? "<details class='kcb-how'><summary>Derniers changements (" + log.length + ")</summary>" + log.slice(0, 12).map(function (x) { return "<div class='kcb-srow'><b>" + esc(x.d || "") + "</b><span>" + esc(x.t || "") + "</span></div>"; }).join("") + "</details>" : "") +
+      (sw.some(function (x) { return (C.exos || []).indexOf(x.a) >= 0 && KineBiblio.find(x.b); }) ? "<button class='seq-btn-secondary' onclick='KineCabinet.varTake()'>Mettre ces variantes dans sa séance</button>" : "") + "</div>";
+  }
+  // Reprend dans la séance à la maison les variantes que le patient fait déjà (à vérifier puis envoyer)
+  function varTake() {
+    var V = null; (C.journal || []).forEach(function (d) { if (d.v) V = d.v; }); if (!V) return;
+    exEdit = true; sel = (C.exos || []).slice(); var n = 0;
+    (V.sw || []).forEach(function (x) { var i = sel.indexOf(x.a); if (i >= 0 && KineBiblio.find(x.b) && sel.indexOf(x.b) < 0) { sel[i] = x.b; n++; } });
+    reView(); sheet().scrollTop = 0;
+    say(n ? n + " variante" + (n > 1 ? "s mises" : " mise") + " dans la séance : vérifie puis envoie." : "Rien à changer.");
+  }
+  /* Journal de course du patient (sorties libres) : minutes par semaine et dernières sorties */
+  function courseHtml() {
+    var R = []; (C.journal || []).forEach(function (d) { (d.c || []).forEach(function (r) { if (!r.rp) R.push(r); }); });
+    if (!R.length) return "";
+    R.sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : 0; });
+    var mon = function (s) { var p = String(s).split("-"), d = new Date(+p[0], +p[1] - 1, +p[2], 12); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; };
+    var now = mon(new Date().toISOString().slice(0, 10)), W = [];
+    for (var i = 5; i >= 0; i--) { var a = new Date(now); a.setDate(a.getDate() - 7 * i); W.push({ t: a.getTime(), min: 0, n: 0 }); }
+    R.forEach(function (r) { var t = mon(r.d).getTime(); W.forEach(function (w) { if (w.t === t) { w.min += +r.min || 0; w.n++; } }); });
+    var mx = Math.max.apply(null, W.map(function (w) { return w.min; }).concat([30])), cur = W[5], prev = W.slice(1, 5), avg = prev.reduce(function (s, w) { return s + w.min; }, 0) / 4;
+    var pct = avg > 0 ? Math.round((cur.min - avg) / avg * 100) : null, lvl = pct == null ? "" : pct > 30 ? "r" : pct > 10 ? "o" : "g";
+    return "<div class='su-card kcb-run'><div class='su-card-h'><b>Son journal de course</b><span>" + R.length + " sortie" + (R.length > 1 ? "s" : "") + "</span></div>" +
+      "<div class='kcb-runbars'>" + W.map(function (w, i) { return "<div><i style='height:" + Math.max(4, Math.round(w.min / mx * 64)) + "px'" + (i === 5 ? " class='cur'" : "") + "></i><span>" + (i === 5 ? "cette sem." : dfr(new Date(w.t).toISOString().slice(0, 10))) + "</span></div>"; }).join("") + "</div>" +
+      "<div class='kcb-runmsg " + lvl + "'>" + cur.min + " min cette semaine" + (pct != null ? ", " + (pct >= 0 ? "+" : "") + pct + " % par rapport aux 4 semaines d'avant" : "") + "</div>" +
+      R.slice(0, 4).map(function (r) { var p = Math.max(+r.pain || 0, r.next == null ? 0 : +r.next); return "<div class='kcb-srow'><b>" + dfr(r.d) + "</b><span>" + (+r.min || 0) + " min" + (r.km ? ", " + String(r.km).replace(".", ",") + " km" : "") + (r.pain != null ? " · douleur " + r.pain + (r.next != null ? " puis " + r.next + " au réveil" : "") : "") + (r.zone ? " (" + esc(String(r.zone).toLowerCase()) + ")" : "") + (p >= 4 ? " <em class='kcb-warn'>à surveiller</em>" : "") + "</span></div>"; }).join("") + "</div>";
   }
   function journal() {
     var J = jdata(), days = Object.keys(J.R).sort().reverse().slice(0, 30);
@@ -511,6 +642,14 @@ var KineCabinet = (function () {
     var done = Object.assign({}, C.done || {}); if (done[id]) delete done[id]; else done[id] = iso();
     C.done = done; reView(); fbCab.save(C.id, { done: done }).catch(fail);
   }
+  // Dernière étape : valider (ou rouvrir) la fin du parcours
+  function fin(on) {
+    var P = KP.get(C.parcours), n = P.etapes.length - 1;
+    if (on && !confirm("Valider la fin du parcours « " + P.nom + " » ? Le patient le verra sur son téléphone.")) return;
+    var hist = (C.hist || []).concat([{ e: n, d: iso(), fin: on ? 1 : 0 }]), f = on ? iso() : null;
+    C.fin = f; C.hist = hist;
+    fbCab.save(C.id, { fin: f, hist: hist }).then(function () { if (on) ping("etape"); reView(); }, fail);
+  }
   function etape(dir) {
     var P = KP.get(C.parcours), n = Math.max(0, Math.min(P.etapes.length - 1, (C.etape || 0) + dir));
     if (dir > 0 && !confirm("Débloquer l'étape " + (n + 1) + " : " + P.etapes[n].nom + " ? Le patient le verra sur son téléphone.")) return;
@@ -534,6 +673,67 @@ var KineCabinet = (function () {
     if (!C || !C.exosNext || !C.exosFrom || C.exosFrom > iso()) return;
     var d = { exos: C.exosNext, exosD: C.exosFrom, exosAt: C.exosAtN || Date.now(), exosNext: null, exosFrom: null };
     Object.keys(d).forEach(function (k) { C[k] = d[k]; }); fbCab.save(C.id, d).catch(function () {});
+  }
+  /* ── Séances toutes faites : par parcours et par niveau (étape précédente, étape en cours, étape suivante) ── */
+  function prefabs() {
+    var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1), out = [];
+    [[E - 1, "Niveau 1", "plus doux"], [E, "Niveau 2", "adapté à l'étape en cours"], [E + 1, "Niveau 3", "plus exigeant"]].forEach(function (L) {
+      var i = L[0]; if (i < 0 || i >= P.etapes.length) return;
+      var all = KP.exos(C.parcours, i, C.opts), home = all.filter(function (n) { return !gymOf(n); });
+      var base = home.length >= 4 ? home : all, ses = [];
+      for (var a = 0; a < base.length && ses.length < 2; a += 6) { var part = base.slice(a, a + 6); if (part.length >= 3 || !ses.length) ses.push(part); }
+      out.push({ lvl: L[1], hint: L[2], etape: i, nom: P.etapes[i].nom, now: i === E, ses: ses });
+    });
+    return out;
+  }
+  function prefabHtml() {
+    var h = "<div class='su-card kcb-pre'><div class='su-card-h'><b>Séances toutes faites</b><span>" + esc(KP.get(C.parcours).nom) + "</span></div>" +
+      "<div class='kf-sub'>Envoie-les telles quelles, ou ouvre-les pour les modifier avant l'envoi. Les exercices sur machine sont écartés tant qu'il y a assez d'exercices à faire chez soi.</div>" +
+      "<button class='kcb-lock" + (C.exosLock ? " on" : "") + "' role='switch' aria-checked='" + (C.exosLock ? "true" : "false") + "' onclick='KineCabinet.lock()'><span><b>" + (C.exosLock ? "Séance fixée" : "Séance libre") + "</b><em>" + (C.exosLock ? "Le patient ne peut pas la modifier." : "Le patient peut l'adapter ou la supprimer.") + "</em></span><i aria-hidden='true'></i></button>";
+    prefabs().forEach(function (L, li) {
+      h += "<div class='kcb-pre-l" + (L.now ? " now" : "") + "'><div class='kcb-pre-h'><b>" + L.lvl + "</b><span>" + esc(L.hint) + " · étape " + (L.etape + 1) + "</span>" + (L.now ? "<em>conseillé</em>" : "") + "</div>";
+      L.ses.forEach(function (x, si) {
+        h += "<div class='kcb-pre-s'><div class='kcb-pre-n'><b>" + esc(L.nom) + (L.ses.length > 1 ? " · séance " + "AB".charAt(si) : "") + "</b><span>" + x.length + " exercices</span></div>" +
+          "<div class='kcb-pre-x'>" + x.map(function (n) { return "<span><i class='kb-dot c" + (window.KineBiblio ? KineBiblio.color(n) : 0) + "' aria-hidden='true'></i>" + esc(n) + "</span>"; }).join("") + "</div>" +
+          "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.prefab(" + li + "," + si + ",0)'>Modifier</button><button class='seq-btn-main' onclick='KineCabinet.prefab(" + li + "," + si + ",1)'>" + (WHEN && WHEN > iso() ? "Programmer" : "Envoyer tel quel") + "</button></div></div>";
+      });
+      h += "</div>";
+    });
+    return h + "</div>";
+  }
+  /* ── Séances de mobilité et d'étirement, par pathologie (catalogue KineMob) ── */
+  var MOBZ = "";
+  function mobBlock(x) {
+    return "<div class='kcb-pre-s'><div class='kcb-pre-n'><b>" + esc(x.nom) + "</b><span>" + x.ex.length + " exercices · " + KineMob.minutes(x) + " min</span></div>" +
+      "<div class='kcb-pre-x'>" + x.ex.map(function (n) { return "<span><i class='kb-dot c" + (window.KineBiblio ? KineBiblio.color(n) : 0) + "' aria-hidden='true'></i>" + esc(n) + "</span>"; }).join("") + "</div>" +
+      "<p class='kcb-mob-note'>" + esc(x.note) + "</p>" +
+      "<div class='kcb-two'><button class='seq-btn-secondary' onclick='KineCabinet.mob(" + q(x.id) + ",0)'>Modifier</button><button class='seq-btn-main' onclick='KineCabinet.mob(" + q(x.id) + ",1)'>" + (WHEN && WHEN > iso() ? "Programmer" : "Envoyer tel quel") + "</button></div></div>";
+  }
+  function mobHtml() {
+    if (!window.KineMob) return "";
+    var mine = KineMob.forParcours(C.parcours), shown = {}, h = "<div class='su-card kcb-mob'><div class='su-card-h'><b>Mobilité et étirements</b><span>par pathologie</span></div>" +
+      "<div class='kf-sub'>Des séances de mobilité et d'étirement prêtes à envoyer, avec la note de précaution de chaque pathologie. Ouvre-les pour les modifier avant l'envoi.</div>";
+    if (mine.length) { h += "<div class='kcb-pre-l now'><div class='kcb-pre-h'><b>Pour ce patient</b><span>" + esc(KP.get(C.parcours).nom) + "</span><em>conseillé</em></div>"; mine.forEach(function (x) { shown[x.id] = 1; h += mobBlock(x); }); h += "</div>"; }
+    h += "<div class='kcb-pre-l'><div class='kcb-pre-h'><b>" + (mine.length ? "Autres pathologies" : "Choisir une pathologie") + "</b></div><div class='kf-chips'>" +
+      KineMob.ZONES.map(function (z) { return "<button type='button'" + (MOBZ === z[0] ? " class='sel'" : "") + " onclick='KineCabinet.mobZone(" + q(z[0]) + ")'>" + esc(z[1]) + "</button>"; }).join("") + "</div>";
+    if (MOBZ) KineMob.S.filter(function (x) { return x.zone === MOBZ && !shown[x.id]; }).forEach(function (x) { h += mobBlock(x); });
+    return h + "</div></div>";
+  }
+  function mobZone(z) { MOBZ = MOBZ === z ? "" : z; var y = sheet().scrollTop; reView(); sheet().scrollTop = y; }
+  function mob(id, send) {
+    var x = window.KineMob && KineMob.get(id); if (!x) return;
+    sel = x.ex.slice(); if (send) { sendExos(); return; }
+    var y = sheet().scrollTop; reView(); sheet().scrollTop = y;
+  }
+  // Séance fixée : le patient ne peut ni la modifier ni la supprimer
+  function lock() {
+    var on = C.exosLock ? 0 : 1, y = sheet().scrollTop;
+    fbCab.save(C.id, { exosLock: on }).then(function () { C.exosLock = on; reView(); sheet().scrollTop = y; say(on ? "Séance fixée : le patient ne peut plus la modifier." : "Le patient peut de nouveau adapter sa séance."); ping("seance"); }, fail);
+  }
+  function prefab(li, si, send) {
+    var L = prefabs()[li]; if (!L || !L.ses[si]) return;
+    sel = L.ses[si].slice(); if (send) { sendExos(); return; }
+    var y = sheet().scrollTop; reView(); sheet().scrollTop = y;
   }
   function sendExos() {
     var y = sheet().scrollTop, later = WHEN && WHEN > iso();
@@ -878,7 +1078,7 @@ var KineCabinet = (function () {
     sub = "seance";
     var P = KP.get(C.parcours), E = Math.min(C.etape || 0, P.etapes.length - 1), inL = S.list.map(function (e) { return e.ex; });
     var reco = [C.ref || P.ref].concat(KP.exos(C.parcours, E, C.opts)).filter(function (n, i, a) { return a.indexOf(n) === i && inL.indexOf(n) < 0; });
-    var stp = function (i, k, lab) { var v = S.list[i][k]; return "<div class='kss-st'><span>" + lab + "</span><div><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",-1)' aria-label='Moins'>−</button><b>" + KP.fmt(v) + "</b><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",1)' aria-label='Plus'>+</button></div></div>"; };
+    var stp = function (i, k, lab) { var v = S.list[i][k]; return "<div class='kss-st'><span>" + lab + "</span><div><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",-1)' aria-label='Moins'>−</button><input class='kss-v' inputmode='decimal' aria-label='" + lab + "' value='" + KP.fmt(v) + "' onfocus='this.select()' onchange='KineCabinet.sv(" + i + "," + q(k) + ",this.value)'><button onclick='KineCabinet.sl(" + i + "," + q(k) + ",1)' aria-label='Plus'>+</button></div></div>"; };
     var html = top("KineCabinet.fiche(" + q(C.id) + ")", C.alias) + "<div><div class='kf-h1 kcb-h1'>Séance du jour</div><div class='kf-sub'>Étape " + (E + 1) + " : " + esc(P.etapes[E].nom) + "</div></div>";
     // les exercices de la séance
     html += "<div class='kcb-v2h'>Exercices de la séance" + (S.list.length ? " · " + S.list.length : "") + "</div>";
@@ -914,6 +1114,8 @@ var KineCabinet = (function () {
     sheet().scrollTop = y; snapLater(0);
   }
   function sl(i, k, d) { var e = S.list[i], st0 = k === "kg" ? kgStep(e.kg + (d < 0 ? -0.01 : 0)) : 1; e[k] = Math.max(k === "kg" ? 0 : 1, Math.round((e[k] + d * st0) * 10) / 10); e.sug = null; seanceView(); }
+  // Valeur tapée directement (20 kg sans toucher quarante fois « + »)
+  function sv(i, k, t) { var e = S.list[i], v = parseFloat(String(t).replace(",", ".")); if (!e || isNaN(v)) { seanceView(); return; } e[k] = Math.max(k === "kg" ? 0 : 1, Math.min(k === "kg" ? 400 : 100, Math.round(v * (k === "kg" ? 10 : 1)) / (k === "kg" ? 10 : 1))); e.sug = null; seanceView(); }
   function sr(i, r) { S.list[i].r = S.list[i].r === r ? null : r; seanceView(); }
   function srm(i) { S.list.splice(i, 1); seanceView(); }
   function sadd(n) {
@@ -1346,14 +1548,14 @@ var KineCabinet = (function () {
   function close(force) { if (!force && window.KineRole && KineRole.role() === "kine" && isKine()) { open(); return; } var el = $("kcb-sheet"); if (el) el.classList.remove("open"); ["kcb-qov", "kcb-bsum", "kcb-phv", "kcb-tinfo", "kcb-fip", "kcb-cr", "kcb-mod"].forEach(function (k) { var e = $(k); if (e) e.classList.remove("open"); }); }
   // Aperçu de ce que voit le patient (sans les notes du kiné)
   function asPatient() {
-    var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, msg: C.msg, conseil: C.conseil, next: C.next, ref: C.ref, hist: C.hist,
+    var d = JSON.parse(JSON.stringify({ alias: C.alias, parcours: C.parcours, etape: C.etape, fin: C.fin, done: C.done, date0: C.date0, opts: C.opts, exos: C.exos, exosLock: C.exosLock, msg: C.msg, conseil: C.conseil, next: C.next, ref: C.ref, hist: C.hist,
       bilans: (C.bilans || []).map(function (b) { return { d: b.d, m: b.m }; }), seances: (C.seances || []).map(function (x) { return { d: x.d, ex: x.ex, kg: x.kg, reps: x.reps, series: x.series, dou: x.dou }; }) }));
     KineMonSuivi.preview(d);
   }
 
   return {
-    open: open, close: close, filter: filter, setKine: setKine, push: push, journal: journal, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
-    when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
+    hopital: hopital, acceptHopital: acceptHopital, open: open, close: close, filter: filter, psearch: psearch, setKine: setKine, push: push, journal: journal, varTake: varTake, sv: sv, pfilter: pfilter, codeShare: codeShare, demandes: demandes, accept: accept, refuse: refuse, bilanPick: bilanPick, bilanFor: bilanFor, asPatient: asPatient, nouveau: nouveau, reglages: reglages, set: set, opt: opt, saveForm: saveForm, remove: remove,
+    course: function () { if (window.KineReprise) KineReprise.edit(); }, prefab: prefab, mob: mob, mobZone: mobZone, lock: lock, fin: fin, when: whenSet, exUnplan: exUnplan, modUse: modUse, modSave: modSave, modGerer: modGerer, modDel: modDel, pickAdd: pickAdd, ficheP: ficheP, cr: cr, crGo: crGo, crClose: crClose, papier: function () { papier(0); }, fiche: fiche, code: codeView, newCode: newCode, tick: tick, etape: etape, pick: pick, sendExos: sendExos, exEdit: exEditGo, exCancel: exCancel, recu: function (at) { return recu(at); }, saveMsg: saveMsg,
     bilan: bilan, ch: ch, live: live, saveBilan: saveBilan, delBilan: delBilan, bF: bF, bS: bS, bCheck: bCheck, qOv: qOv,
     etapes: etapes, maison: maison, questView: questView, bilans: bilans, phAdd: phAdd, phDrop: phDrop, phView: phView, phDel: phDel,
     seance: seance, sswap: sswap, sl: sl, sr: sr, srm: srm, sadd: sadd, sd: sd, saveSeance: saveSeance, sall: function () { S.all = !S.all; seanceView(); }, shome: function (v) { S.home = !!v; }, snote: function (v) { S.note = v; },

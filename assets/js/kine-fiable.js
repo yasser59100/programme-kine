@@ -14,6 +14,61 @@
   // ── 3. Vieux réglages retirés (les données du patient ne sont jamais touchées) ──
   try { ["kf-eco", "kf-eco-auto", "kf-masc-peek", "kf-install-dismissed"].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) {}
 
+  // ── 4. Données locales abîmées (JSON cassé, mauvais type) : on les remet d'aplomb avant que quoi que ce soit les lise.
+  //    Liste d'objets : on retire les éléments qui n'en sont pas. Dictionnaire : on exige un objet simple. Sinon la clé est retirée.
+  try {
+    var LISTS = ["kf-sessions", "kf-pain", "kf-runs"];
+    var DICTS = ["kf-kpush", "kf-sign", "kf-seen", "kf-checkin", "kf-salle-log", "kf-mode-start", "kf-mode-seen", "kf-ex"];
+    var isObj = function (x) { return x !== null && typeof x === "object" && !Array.isArray(x); };
+    var fix = function (k, ok) {
+      var raw = localStorage.getItem(k); if (raw == null) return;
+      var v; try { v = JSON.parse(raw); } catch (e) { localStorage.removeItem(k); return; }
+      var n = ok(v); if (n === undefined) localStorage.removeItem(k); else if (n !== v) localStorage.setItem(k, JSON.stringify(n));
+    };
+    LISTS.forEach(function (k) { fix(k, function (v) { return Array.isArray(v) ? (v.every(isObj) ? v : v.filter(isObj)) : undefined; }); });
+    DICTS.forEach(function (k) { fix(k, function (v) { return isObj(v) ? v : undefined; }); });
+    fix("kf-custom", function (v) {
+      if (!Array.isArray(v)) return undefined;
+      var l = v.filter(function (x) { return isObj(x) && typeof x.id === "string" && x.id; }), ch = l.length !== v.length;
+      l.forEach(function (x) {
+        if (!Array.isArray(x.ex)) { x.ex = []; ch = true; }
+        if (typeof x.name !== "string") { x.name = "Ma séance"; ch = true; }
+      });
+      return ch ? l : v;
+    });
+    fix("kf-tee", function (v) { return v === null || Array.isArray(v) ? v : undefined; });
+    fix("kf-cab", function (v) { return v === null || isObj(v) ? v : undefined; });
+  } catch (e) {}
+
+  // ── 5. Boutons flottants du haut : ils s'effacent quand on descend dans la page, reviennent quand on remonte.
+  try {
+    var lastY = 0, ticking = false, root = document.documentElement;
+    window.addEventListener("scroll", function () {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        var y = window.pageYOffset || 0, d = y - lastY;
+        if (y < 80 || d < -6) root.classList.remove("kf-scroll-down");
+        else if (d > 6) root.classList.add("kf-scroll-down");
+        lastY = y;
+      });
+    }, { passive: true });
+  } catch (e) {}
+
+  // ── 6. Message bref en bas de l'écran (showToast) : plusieurs écrans l'appelaient sans qu'il existe, leurs confirmations
+  //    (« Demande envoyée à ton kiné », « Suivi sauvegardé », seuil de douleur dépassé…) ne s'affichaient donc jamais.
+  if (!window.showToast) {
+    window.showToast = function (t) {
+      try {
+        var old = document.querySelectorAll(".ko-toast"); for (var i = 0; i < old.length; i++) old[i].remove();
+        var el = document.createElement("div"); el.className = "ko-toast"; el.setAttribute("role", "status"); el.textContent = String(t);
+        document.body.appendChild(el);
+        setTimeout(function () { el.classList.add("on"); }, 30);
+        setTimeout(function () { el.classList.remove("on"); setTimeout(function () { el.remove(); }, 400); }, 3500);
+      } catch (e) {}
+    };
+  }
+
   function where() {
     try {
       var pg = document.querySelector(".page.active"), ov = document.querySelector("#seq-overlay.open, #kcam-run.open, #kc-sheet.open, #kb-sheet.open, #kf-masc.open, .kf-sheet.open");

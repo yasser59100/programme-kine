@@ -1,0 +1,79 @@
+// Robustesse : l'appli démarre et reste utilisable même si les données enregistrées sur le téléphone sont abîmées
+// (JSON cassé, mauvais type, éléments vides). Aucune erreur JavaScript ne doit remonter.
+const { test, expect } = require("@playwright/test");
+
+const CLES = ["kf-sessions", "kf-pain", "kf-runs", "kf-custom", "kf-kpush", "kf-sign", "kf-seen", "kf-checkin", "kf-salle-log",
+  "kf-mode-start", "kf-mode-seen", "kf-ex", "kf-tee", "kf-cab"];
+const MAUVAIS = { "JSON cassé": "{pas du json", "null": "null", "nombre": "42", "liste au lieu d'objet": "[1,2,3]",
+  "objet au lieu de liste": '{"a":1}', "éléments vides": '[null,1,"x",{"date":"zzz"}]', "chaîne vide": "" };
+
+for (const [nom, val] of Object.entries(MAUVAIS)) {
+  test("données abîmées (" + nom + ") : aucune erreur, appli utilisable", async ({ page }) => {
+    const erreurs = [];
+    page.on("pageerror", (e) => erreurs.push(String(e.message)));
+    await page.addInitScript(([cles, v]) => {
+      cles.forEach((k) => localStorage.setItem(k, v));
+      localStorage.setItem("kf-onboarded", "1"); localStorage.setItem("kf-install-never", "1");
+      localStorage.setItem("kf-tour-v2", "1"); sessionStorage.setItem("kf-ressenti-later", "1");
+    }, [CLES, val]);
+    await page.goto("index.html");
+    await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+    await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
+    const boutons = page.locator("nav button");
+    const n = await boutons.count();
+    for (let i = 0; i < n; i++) {
+      const b = boutons.nth(i);
+      if (await b.isVisible()) { await b.click({ timeout: 2000 }).catch(() => {}); await page.waitForTimeout(250); }
+    }
+    expect(await page.evaluate(() => document.body.innerText.trim().length)).toBeGreaterThan(100);
+    expect(erreurs).toEqual([]);
+  });
+}
+
+// Hors connexion : tout script chargé par l'appli doit être dans la liste de précache de sw.js, et tout fichier de la liste doit exister.
+test("hors connexion : liste de précache complète et sans fichier manquant", async () => {
+  const fs = require("fs"), path = require("path");
+  const racine = path.join(__dirname, "..");
+  const sw = fs.readFileSync(path.join(racine, "sw.js"), "utf8");
+  const liste = [...sw.match(/APP_FILES\s*=\s*\[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  const html = fs.readFileSync(path.join(racine, "index.html"), "utf8");
+  const paresseux = ["kine-parcours", "kine-quest", "kine-saut", "kine-fiches", "kine-reprise", "kine-cabinet"].map((n) => "assets/js/" + n + ".js");
+  const utilises = [...new Set([...[...html.matchAll(/src="(assets\/js\/[^"]+)"/g)].map((m) => m[1]), ...paresseux])];
+  expect(utilises.filter((u) => !liste.includes(u))).toEqual([]);
+  expect(liste.filter((f) => f !== "./" && !fs.existsSync(path.join(racine, f)))).toEqual([]);
+});
+
+// Les confirmations affichées par showToast (« Suivi sauvegardé », seuil de douleur…) doivent réellement apparaître.
+test("message bref : showToast existe et s'affiche", async ({ page }) => {
+  await page.addInitScript(() => { try { localStorage.setItem("kf-onboarded", "1"); localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-tour-v2", "1"); sessionStorage.setItem("kf-ressenti-later", "1"); } catch (e) {} });
+  await page.goto("index.html");
+  await page.evaluate(() => window.showToast("Suivi sauvegardé"));
+  await expect(page.locator(".ko-toast.on")).toHaveText("Suivi sauvegardé");
+  await page.evaluate(() => window.showToast("Autre message"));
+  await expect(page.locator(".ko-toast")).toHaveCount(1);
+});
+
+// Bibliothèque : pas de doublon de nom (le nom sert de clé pour la progression), textes présents, chaînes de variantes valides.
+test("bibliothèque : noms uniques, textes présents, chaînes de variantes valides", async ({ page }) => {
+  const fs = require("fs"), path = require("path");
+  const src = fs.readFileSync(path.join(__dirname, "..", "assets/js/kine-variantes.js"), "utf8");
+  const i = src.indexOf("var CHAINS = "), j = src.indexOf("];", i);
+  const chaines = eval(src.slice(i + "var CHAINS = ".length, j + 1));
+  await page.addInitScript(() => { try { localStorage.setItem("kf-onboarded", "1"); localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-tour-v2", "1"); } catch (e) {} });
+  await page.goto("index.html");
+  await page.waitForFunction(() => window.KineBiblio && window.KineAvatar, null, { timeout: 15000 });
+  const r = await page.evaluate((ch) => {
+    const a = KineBiblio.all(), vus = {}, doublons = [];
+    a.forEach((e) => { const k = e.name.toLowerCase().trim(); if (vus[k]) doublons.push(e.name); vus[k] = 1; });
+    const noms = new Set(a.map((e) => e.name));
+    const inconnus = ch.flat().filter((n) => !noms.has(n));
+    const repetes = ch.flat().filter((n, i, t) => t.indexOf(n) !== i);
+    const sansTexte = a.filter((e) => !e.desc || e.desc.length < 25 || !e.group).map((e) => e.name);
+    return { doublons, inconnus, repetes, sansTexte, n: a.length };
+  }, chaines);
+  expect(r.n).toBeGreaterThan(300);
+  expect(r.doublons).toEqual([]);
+  expect(r.inconnus).toEqual([]);
+  expect(r.repetes).toEqual([]);
+  expect(r.sansTexte).toEqual([]);
+});

@@ -118,13 +118,6 @@ window.fbSignOut = async function() {
   await signOut(auth);
 };
 
-// Anciennes données de la Communauté retirée (messages publiés, compteur de séances) : le kiné peut tout effacer
-window.fbPurgeOld = async function () {
-  if (!window.fbUser || !window.fbUser.isAdmin) throw new Error("admin");
-  var n = 0;
-  for (const c of ["messages", "completions"]) { var snap = await getDocs(collection(db, c)); for (const d of snap.docs) { await deleteDoc(d.ref); n++; } }
-  return n;
-};
 // ── PROGRAMME OFFICIEL : contenu des exercices, publié par le kiné, lu par tous (aucune donnée patient) ──
 window.fbGetProgramme = async function() {
   var snap = await getDoc(doc(db, "programme", "officiel"));
@@ -162,6 +155,11 @@ window.fbCab = {
     var rows = cabRows(await getDocs(collection(db, CAB)));
     await Promise.all(rows.map(async function (p) {
       try { p.maison = cabRows(await getDocs(query(collection(db, CAB, p.id, "maison"), orderBy("w", "desc"), limit(2)))); } catch (e) { p.maison = []; }
+      // hôpital : ce que le patient a déclaré aujourd'hui (document du mois du journal, un seul document)
+      try { p.msgs = cabRows(await getDocs(query(collection(db, CAB, p.id, "msgs"), orderBy("t", "desc"), limit(5)))).map(function (x) { return { txt: x.txt, t: x.t && x.t.toMillis ? x.t.toMillis() : 0, p: x.p || null }; }); } catch (e) { p.msgs = []; }
+      if (p.parcours) { try { var n = new Date(), ym = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2), ds = ym + "-" + ("0" + n.getDate()).slice(-2), js = await getDoc(doc(db, CAB, p.id, "journal", ym)); p.ce = js.exists() && js.data().r ? (js.data().r[ds] || null) : null; } catch (e) { p.ce = null; } }
+      // téléphone relié ou non (un seul document suffit)
+      try { p.membres = (await getDocs(query(collection(db, CAB, p.id, "membres"), limit(1)))).size; } catch (e) { p.membres = null; }
       // réponses aux questionnaires et tests (pour signaler les nouvelles)
       try { p.qdone = cabRows(await getDocs(query(collection(db, CAB, p.id, "quest"), where("fini", ">", "")))).map(function (x) { return { q: x.q, fini: x.fini, score: x.score, tf: x.tf && x.tf.toMillis ? x.tf.toMillis() : 0 }; }); } catch (e) { p.qdone = []; }
     }));
@@ -199,7 +197,9 @@ window.fbCab = {
       getDocs(collection(db, CAB, pid, "membres")),
       getDocs(query(collection(db, CAB, pid, "notes"), limit(60))),
       getDocs(collection(db, CAB, pid, "journal")).catch(function () { return { docs: [] }; }),
-      getDocs(collection(db, CAB, pid, "quest")).catch(function () { return { docs: [] }; })]);
+      getDocs(collection(db, CAB, pid, "quest")).catch(function () { return { docs: [] }; }),
+      getDocs(query(collection(db, CAB, pid, "msgs"), orderBy("t", "desc"), limit(30))).catch(function () { return { docs: [] }; })]);
+    o.msgs = cabRows(r[7]).map(function (x) { return { txt: x.txt, t: x.t && x.t.toMillis ? x.t.toMillis() : 0, p: x.p || null }; });
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.maison = cabRows(r[2]); o.membres = r[3].size; o.notes = cabRows(r[4]); o.journal = cabRows(r[5]); o.quest = cabRows(r[6]);
     // Dernière fois que le téléphone du patient a reçu sa fiche (accusé de réception)
     o.vu = 0; r[3].docs.forEach(function (m) { var v = m.data().vu; if (v && v.toMillis && v.toMillis() > o.vu) o.vu = v.toMillis(); });
@@ -270,9 +270,17 @@ window.fbPat = {
     o.bilans = cabRows(r[0]); o.seances = cabRows(r[1]); o.quest = cabRows(r[2]);
     return o;
   },
+  // Ses photos de bilan (avant / après), chargées seulement quand l'onglet les affiche
+  photos: async function (pid) { await cabAnon(); return cabRows(await getDocs(query(collection(cabDb, CAB, pid, "photos"), orderBy("d", "desc"), limit(60)))); },
   // Notifications de son kiné : l'adresse technique du téléphone, rangée dans sa fiche
   notifSave: async function (pid, id, sub) { await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "notif", id), { sub: sub, t: serverTimestamp() }); },
   notifDel: async function (pid, id) { await cabAnon(); await deleteDoc(doc(cabDb, CAB, pid, "notif", id)); },
+  // Message du patient à son kiné (court, une fiche = une conversation lue par le kiné)
+  msgSend: async function (pid, txt, extra) {
+    await cabAnon(); var d = { txt: String(txt).slice(0, 500), t: serverTimestamp() };
+    if (extra && typeof extra === "object") { var q = {}, n = 0; Object.keys(extra).forEach(function (k) { var v = extra[k]; if (n < 12 && /^[a-z0-9]{1,8}$/.test(k) && (typeof v === "number" || (typeof v === "string" && v.length <= 24))) { q[k] = v; n++; } }); if (n) d.p = q; }
+    await addDoc(collection(cabDb, CAB, pid, "msgs"), d);
+  },
   // Accusé de réception : le téléphone du patient note qu'il a reçu sa fiche à jour
   seen: async function (pid) { var u = await cabAnon(); await setDoc(doc(cabDb, CAB, pid, "membres", u.uid), { vu: serverTimestamp() }, { merge: true }); },
   // Demande d'accès sans code : prénom, nom, un mot facultatif
@@ -455,7 +463,7 @@ window.dispatchEvent(new Event("kf-fb-ready"));
   </div>
 
   <div class="chart-card">
-    <h4>Évolution de l'effort ressenti (Borg)</h4>
+    <h4>Évolution de l'effort ressenti</h4>
     <div id="borg-chart"><div class="chart-empty">Les données apparaîtront après tes premières séances enregistrées.</div></div>
   </div>
 
@@ -717,7 +725,7 @@ function renderAllDays(){['day0','day1','day2','day3','day4'].forEach(renderDay)
 
 // ══ SESSIONS ══
 var sessions=[],borgVal=null;
-var borgLabels=['','Très léger','Léger','Modéré','Difficile','Très difficile'];
+var borgLabels=['','Très facile','Facile','Modéré','Difficile','Épuisant'];
 function loadSessions(){try{var s=localStorage.getItem('kf-sessions');if(s)sessions=JSON.parse(s);}catch(e){}}
 function saveSessions(){try{localStorage.setItem('kf-sessions',JSON.stringify(sessions));}catch(e){}}
 function clearSessions(){if(confirm('Effacer toutes les séances enregistrées ?')){sessions=[];saveSessions();renderAll();}}
@@ -734,7 +742,7 @@ function renderSessions(){
       +'<div class="si-top"><div class="si-date">'+fmtDate(s.date)+'</div><div class="si-seance">'+s.seance+'</div></div>'
       +'<div class="si-tags">'
       +(s.semaine?'<span class="tag blue" style="font-size:0.7rem">'+s.semaine.replace('Semaine ','S').split(' ')[0]+'</span>':'')
-      +(s.borg?'<span class="tag" style="font-size:0.7rem;background:transparent;border-color:'+borgC[s.borg]+';color:'+borgC[s.borg]+'">Borg '+s.borg+' — '+borgLabels[s.borg]+'</span>':'')
+      +(s.borg?'<span class="tag" style="font-size:0.7rem;background:transparent;border-color:'+borgC[s.borg]+';color:'+borgC[s.borg]+'">Effort '+s.borg+', '+borgLabels[s.borg]+'</span>':'')
       +(s.completion?'<span class="tag green" style="font-size:0.7rem">'+s.completion.split('—')[0].trim()+'</span>':'')
       +'</div>'
       +(s.notes?'<div class="si-note">'+s.notes+'</div>':'')
@@ -750,7 +758,7 @@ function renderBorgChart(){
   var borgC=['','#34d399','#6ee7b7','#fcd34d','#fb923c','#f87171'];
   var bars=data.map(function(s){
     var h=Math.round((s.borg/5)*80);
-    return '<div class="bc-col"><div class="bc-val">'+s.borg+'</div><div class="bc-bar" style="height:'+h+'px;background:'+borgC[s.borg]+'" title="+s.seance+ — Borg +s.borg+"></div><div class="bc-label">'+fmtDate(s.date).replace(',','')+'</div></div>';
+    return '<div class="bc-col"><div class="bc-val">'+s.borg+'</div><div class="bc-bar" style="height:'+h+'px;background:'+borgC[s.borg]+'" title="Effort '+s.borg+' sur 5"></div><div class="bc-label">'+fmtDate(s.date).replace(',','')+'</div></div>';
   }).join('');
   el.innerHTML='<div class="bar-chart">'+bars+'</div>'
     +'<div class="chart-legend">'
@@ -847,7 +855,7 @@ function buildSummary(){
     l.push('Date : '+fmtDate(s.date));
     l.push('Type : '+(s.seance||'—'));
     if(s.semaine)l.push('Cycle : '+s.semaine);
-    if(s.borg)l.push('Effort : Borg '+s.borg+' — '+borgLabels[s.borg]);
+    if(s.borg)l.push('Effort ressenti : '+s.borg+' sur 5, '+borgLabels[s.borg]);
     if(s.completion)l.push('Réalisation : '+s.completion);
     if(s.notes)l.push('Remarques : '+s.notes);
     l.push('');
@@ -966,7 +974,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <button class="seq-close" onclick="closeSeq()" aria-label="Quitter la séance"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <div class="seq-header-info">
       <div class="seq-day-label" id="seq-day-label">Séance</div>
-      <div class="seq-ex-counter" id="seq-ex-counter">Exercice 1 / 7</div>
+      <div class="seq-ex-counter" id="seq-ex-counter">Exercice 1</div>
       <div class="seq-progress-bar"><div class="seq-progress-fill" id="seq-progress-fill" style="width:0%"></div></div>
     </div>
     <button class="seq-sound-btn on" id="seq-sound-btn" onclick="toggleSeqSound()" title="Son / Voix" aria-label="Couper ou remettre le son"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7"/></svg></button>
@@ -1090,7 +1098,7 @@ function scheduleReminderCheck() {
   if (!sessions.length) return;
   var lastTs = sessions[0].ts || 0;
   var daysSince = (Date.now() - lastTs) / (1000 * 60 * 60 * 24);
-  if (daysSince >= 2 && Notification.permission === 'granted') {
+  if (daysSince >= 2 && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     new Notification('KinéForce', {
       body: "Ca fait " + Math.floor(daysSince) + " jours sans seance. Ton programme t'attend !",
       icon: 'icon-192.png',
@@ -1120,7 +1128,7 @@ var obSlides = [
   {
     icon: "graph",
     title: "Enregistre tes séances",
-    desc: "Après chaque séance, va dans Mon suivi pour noter ton effort ressenti (Borg 1 à 5). Tes graphiques de progression apparaissent dès la 2ème séance."
+    desc: "Après chaque séance, va dans Mon suivi pour noter ton effort ressenti (de 1 à 5). Tes graphiques de progression apparaissent dès la 2ème séance."
   },
   {
     icon: "people",
@@ -1206,9 +1214,9 @@ var SEQ_DAYS = {
         tip: "Garder les talons appuyés sur la chaise sans pousser avec les orteils ; si crampe à l'arrière de la cuisse, fléchir un peu plus les genoux.",
         stop: "Arrêt si douleur à l'arrière du genou ou douleur lombaire." },
       { variant: "Variante S3–S4 : Unilatéral, ou légère flexion de genou pour cibler le soléaire", name: "Élévation des talons", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
-        desc: "Debout, pieds parallèles. Montée lente 2 secondes, tenir 1 seconde, descente excentrique 3 secondes. Amplitude maximale." },
+        desc: "Debout, pieds parallèles. Montée lente 2 secondes, tenir 1 seconde, descente excentrique 3 secondes. Amplitude maximale.", tip: "Monte bien sur la pointe des pieds, sans laisser les chevilles rouler vers l'extérieur.", stop: "Arrête si tu ressens une douleur vive dans le mollet ou le tendon d'Achille." },
       { variant: "Variante S4 : Marche plus haute ou tempo excentrique 4 sec", name: "Step-up sur marche", phase: "work", series: 3, repsLabel: "10 répétitions par jambe", restAfter: 90,
-        desc: "Poser un pied sur une marche. Monter en poussant sur ce pied sans s'aider de la jambe libre. Descente contrôlée. Alterner les jambes.",
+        desc: "Poser un pied sur une marche. Monter en poussant sur ce pied sans s'aider de la jambe libre. Descente contrôlée. Alterner les jambes.", tip: "Pousse avec la jambe posée sur la marche et garde le genou dans l'axe du pied.",
         stop: "Arrêt si genou en valgus incontrôlé à la montée." },
       { name: "Étirements membres inférieurs", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
         desc: "Quadriceps debout 40 secondes de chaque côté, ischio-jambiers assis 40 secondes, mollets en fente basse 30 secondes, figure 4 décubitus 30 secondes, respiration diaphragmatique 2 minutes.",
@@ -1222,19 +1230,19 @@ var SEQ_DAYS = {
       { name: "Mobilisation membres supérieurs", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Pendules des bras en cercles progressifs 45 s, rétropulsion scapulaire 25 s, rotations dynamiques épaules 25 s, flexions extensions poignets et coudes 25 s, 10 pompes contre mur 1 min." },
       { name: "Rotation externe d'épaule", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
-        desc: "Allongé sur le côté, coude du bras du dessus collé au flanc, fléchi à 90 degrés. Lever l'avant-bras vers le plafond en rotation externe sans décoller le coude. Descente lente 3 secondes. Charge : un haltère de 1 kg ou une bouteille d'eau d'1 litre fait l'affaire.",
+        desc: "Allongé sur le côté, coude du bras du dessus collé au flanc, fléchi à 90 degrés. Lever l'avant-bras vers le plafond en rotation externe sans décoller le coude. Descente lente 3 secondes. Charge : un haltère de 1 kg ou une bouteille d'eau d'1 litre fait l'affaire.", tip: "Garde le coude collé au flanc : s'il décolle, la charge est trop lourde.",
         stop: "Arrêt si douleur profonde dans l'épaule." },
       { variant: "Variante S3–S4 : Pompes complètes sur orteils", name: "Pompes sur genoux", phase: "work", series: 3, repsLabel: "8 à 12 répétitions", restAfter: 90,
         desc: "Mains légèrement plus larges que les épaules, corps aligné. Descente lente 3 secondes, coudes à 45 degrés du tronc. Remontée en 1 seconde.",
-        tip: "Version débutant: pompes contre un mur ou plan incliné.",
+        tip: "Version débutant : pompes contre un mur ou plan incliné.",
         stop: "Arrêt si douleur au poignet ou à l'épaule." },
       { variant: "Variante S3–S4 : Pieds plus éloignés (augmente la charge)", name: "Dips sur chaise", phase: "work", series: 3, repsLabel: "10 répétitions", restAfter: 90,
-        desc: "Mains sur le bord d'une chaise stable, bras tendus. Descendre en fléchissant les coudes jusqu'à 90 degrés maximum. Épaules basses et en arrière.",
+        desc: "Mains sur le bord d'une chaise stable, bras tendus. Descendre en fléchissant les coudes jusqu'à 90 degrés maximum. Épaules basses et en arrière.", tip: "Garde les épaules basses, loin des oreilles, et descends doucement.",
         stop: "Arrêt si douleur à l'arrière de l'épaule." },
       { variant: "Variante S4 : Pieds surélevés sur une chaise", name: "Pike push-up", phase: "work", series: 3, repsLabel: "8 répétitions", restAfter: 90,
-        desc: "Semaines 1 et 2 : sur les genoux, hanches au-dessus des genoux, mains devant. À partir de la semaine 3 : position en V inversé sur les pieds, fessiers en l'air. Fléchir les coudes pour amener la tête entre les mains puis remonter. Travaille les deltoïdes comme un développé épaules." },
+        desc: "Semaines 1 et 2 : sur les genoux, hanches au-dessus des genoux, mains devant. À partir de la semaine 3 : position en V inversé sur les pieds, fessiers en l'air. Fléchir les coudes pour amener la tête entre les mains puis remonter. Travaille les deltoïdes comme un développé épaules.", tip: "Garde le dos long et descends lentement, la tête passe entre les mains.", stop: "Arrête si tu ressens une douleur vive dans l'épaule ou le poignet." },
       { name: "Superman en Y et en W", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 90,
-        desc: "Décubitus ventral. Série A bras en Y à 45 degrés, élever bras et jambes 2 secondes. Série B bras en W coudes fléchis, omoplates rapprochées. Alterner A et B.",
+        desc: "Décubitus ventral. Série A bras en Y à 45 degrés, élever bras et jambes 2 secondes. Série B bras en W coudes fléchis, omoplates rapprochées. Alterner A et B.", stop: "Arrête si tu ressens une douleur dans le bas du dos ou dans le cou.",
         tip: "La variante W cible les rhomboïdes et trapèzes, essentiels pour la posture." },
       { name: "Étirements membres supérieurs", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
         desc: "Pectoraux bras en croix 40 secondes, triceps coude derrière la tête 30 secondes, auto-agrandissement cervical 1 minute, position de l'enfant 1 minute, respiration abdominale 1 minute." }
@@ -1248,28 +1256,28 @@ var SEQ_DAYS = {
         desc: "Respiration diaphragmatique avec activation du transverse au niveau du nombril. Respiration 1 min 10. Chat-vache à quatre pattes 56 s. Rotations de tronc assis 54 s.",
         tip: "Mémorise cette activation du transverse, tu l'utiliseras sur tous les exercices suivants." },
       { variant: "Variante S3–S4 : Crunch avec rotation — pointer un coude vers le genou opposé", name: "Crunch abdominal contrôlé", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 60,
-        desc: "Décubitus dorsal, mains croisées sur la poitrine. Décoller les épaules à 30 degrés maximum, tenir 1 seconde, descente excentrique 3 secondes. Expirer à la montée.",
+        desc: "Décubitus dorsal, mains croisées sur la poitrine. Décoller les épaules à 30 degrés maximum, tenir 1 seconde, descente excentrique 3 secondes. Expirer à la montée.", stop: "Arrête si tu ressens une douleur dans le cou ou le bas du dos.",
         tip: "Ne pas tirer sur la nuque." },
       { name: "Portefeuille (V-up)", phase: "work", series: 2, repsLabel: "10 répétitions", restAfter: 60,
         desc: "Allongé sur le dos, bras tendus derrière la tête, jambes tendues. Lever en même temps les jambes tendues et le buste pour que les mains viennent rejoindre les pieds au-dessus du ventre, comme un portefeuille qui se ferme. Redescendre lentement sans claquer au sol.",
         tip: "Si c'est trop difficile, plier légèrement les genoux. Expirer en montant.",
         stop: "Arrêt si douleur lombaire ou cervicale." },
       { variant: "Variante S3–S4 : Allonger les leviers (jambe plus tendue)", name: "Dead bug", phase: "work", series: 3, repsLabel: "8 à 10 répétitions par côté", restAfter: 60,
-        desc: "Décubitus dorsal, bras tendus au plafond, hanches et genoux à 90 degrés. Abaisser simultanément le bras droit et la jambe gauche sans décoller le bas du dos. Alterner.",
-        stop: "Critère absolu: le bas du dos ne doit pas décoller." },
+        desc: "Décubitus dorsal, bras tendus au plafond, hanches et genoux à 90 degrés. Abaisser simultanément le bras droit et la jambe gauche sans décoller le bas du dos. Alterner.", tip: "Va doucement : un petit mouvement bien contrôlé vaut mieux qu'un grand mouvement qui creuse le dos.",
+        stop: "Critère absolu : le bas du dos ne doit pas décoller." },
       { name: "Superman quadrupédique en gainage", phase: "work", series: 2, repsLabel: "30 secondes par côté", restAfter: 60,
         desc: "À quatre pattes, mains sous les épaules, genoux sous les hanches, dos plat, transverse activé. Tendre la main droite devant et la jambe gauche derrière, et tenir. Puis main gauche et jambe droite. 30 s de chaque côté en semaine 1, 45 s en semaine 2, 1 min à partir de la semaine 3.",
         tip: "Le bassin reste strictement horizontal ; s'il tourne, lever moins haut.",
         stop: "Arrêt si douleur lombaire." },
       { name: "Superman en Y et en W", phase: "work", series: 3, repsLabel: "12 répétitions", restAfter: 90,
-        desc: "Décubitus ventral. Série A bras en Y à 45 degrés, élever bras et jambes 2 secondes. Série B bras en W coudes fléchis, omoplates rapprochées. Alterner A et B.",
+        desc: "Décubitus ventral. Série A bras en Y à 45 degrés, élever bras et jambes 2 secondes. Série B bras en W coudes fléchis, omoplates rapprochées. Alterner A et B.", stop: "Arrête si tu ressens une douleur dans le bas du dos ou dans le cou.",
         tip: "La variante W cible les rhomboïdes et trapèzes, essentiels pour la posture." },
       { name: "Ciseaux et vélo", phase: "work", series: 2, repsLabel: "30 secondes", restAfter: 60,
         desc: "Allongé sur le dos, bas du dos plaqué au sol, bras le long du corps, jambes levées. Alterner toutes les 5 secondes entre les ciseaux (battements jambes tendues de haut en bas) et le vélo (pédalage), dans l'axe du corps. 30 s en semaine 1, 45 s en semaine 2, 1 min à partir de la semaine 3.",
         tip: "Plus les jambes sont basses, plus c'est difficile : remonter les jambes si le dos se décolle.",
         stop: "Arrêt si le bas du dos se décolle ou si douleur lombaire." },
       { variant: "Variante S4 : Plank avec soulèvement alterné d'un bras", name: "Plank — gainage avant-bras", phase: "work", series: 3, repsLabel: "30 à 45 secondes", restAfter: 60,
-        desc: "Appui sur avant-bras et orteils. Corps parfaitement aligné, pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre.",
+        desc: "Appui sur avant-bras et orteils. Corps parfaitement aligné, pas de cambre lombaire, pas de fessiers relevés. Transverse activé. Respiration libre.", tip: "Serre les fessiers et le ventre, et regarde le sol entre tes mains.",
         stop: "Arrêt à la perte d'alignement ou si douleur lombaire." },
       { variant: "Plus facile : sur les genoux (bouton « − Plus facile » pendant la séance)", name: "Planche latérale complète", phase: "work", series: 3, repsLabel: "20 à 30 secondes par côté", restAfter: 60,
         desc: "Sur le côté, appui sur l'avant-bras (coude sous l'épaule) et sur les pieds, jambes tendues. Monte les hanches jusqu'à aligner épaule, hanche et cheville, et tiens. Change de côté.",
@@ -1285,20 +1293,20 @@ var SEQ_DAYS = {
       { name: "Activation ceinture pelvienne", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Cercles de hanches 50 s, abduction alternée contre mur 15 s de chaque côté, leg swings latéraux 15 s de chaque côté, rotations hanche décubitus 35 s, marche genoux hauts 35 s." },
       { variant: "Variante S3–S4 : Pause 2 sec en bas", name: "Squat sumo", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
-        desc: "Pieds très écartés à 150 pour cent de la largeur des épaules, orteils à 45 degrés. Flexion genoux dans l'axe des orteils. Remontée par contraction fessiers et adducteurs." },
+        desc: "Pieds très écartés à 150 pour cent de la largeur des épaules, orteils à 45 degrés. Flexion genoux dans l'axe des orteils. Remontée par contraction fessiers et adducteurs.", tip: "Garde les genoux dans l'axe de tes orteils pendant toute la descente.", stop: "Arrête si tu ressens une douleur vive dans le genou ou dans l'aine." },
       { variant: "Variante S4 : Jambe tendue (plus grand bras de levier)", name: "Donkey kick", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
-        desc: "À quatre pattes, rachis horizontal. Élever la cuisse vers le plafond par extension de hanche pure sans rotation du bassin. Contraction maximale en position haute. Descente lente 2 secondes.",
+        desc: "À quatre pattes, rachis horizontal. Élever la cuisse vers le plafond par extension de hanche pure sans rotation du bassin. Contraction maximale en position haute. Descente lente 2 secondes.", tip: "Le bassin reste face au sol : ne tourne pas le dos pour monter plus haut.",
         stop: "Arrêt si douleur lombaire." },
       { variant: "Variante S3–S4 : Pont unilatéral — une jambe tendue horizontale", name: "Pont de hanche", phase: "work", series: 3, repsLabel: "15 répétitions", restAfter: 90,
-        desc: "Décubitus dorsal, genoux à 90°, pieds à plat. Activer le transverse, décoller le bassin jusqu'à alignement épaules hanches genoux. Tenir 2 secondes en haut, descente lente 3 secondes.",
+        desc: "Décubitus dorsal, genoux à 90°, pieds à plat. Activer le transverse, décoller le bassin jusqu'à alignement épaules hanches genoux. Tenir 2 secondes en haut, descente lente 3 secondes.", stop: "Arrête si tu ressens une douleur dans le bas du dos ou une crampe qui ne passe pas.",
         tip: "Le bas du dos ne doit pas se cambrer en position haute." },
       { variant: "Variante S4 : Pied en l'air (pas d'appui au sol) ou bande élastique", name: "Clamshell", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
-        desc: "Décubitus latéral, hanches fléchies à 45 degrés et genoux à 90 degrés, pieds joints. Ouvrir le genou supérieur vers le plafond comme une coquille. Bassin strictement immobile. Tenir 1 seconde. Exercice clé contre le valgus de genou." },
+        desc: "Décubitus latéral, hanches fléchies à 45 degrés et genoux à 90 degrés, pieds joints. Ouvrir le genou supérieur vers le plafond comme une coquille. Bassin strictement immobile. Tenir 1 seconde. Exercice clé contre le valgus de genou.", tip: "Le bassin ne bascule pas en arrière : seul le genou s'ouvre.", stop: "Arrête si tu ressens une douleur pincée à l'avant de la hanche ou dans le bas du dos." },
       { variant: "Variante S3–S4 : Réduire l'appui progressivement jusqu'à équilibre libre", name: "Abduction hanche debout", phase: "work", series: 3, repsLabel: "15 répétitions par côté", restAfter: 90,
-        desc: "Debout, appui léger sur un mur. Élever latéralement la jambe tendue à 30 à 40 degrés sans incliner le tronc. Descente excentrique 3 secondes.",
+        desc: "Debout, appui léger sur un mur. Élever latéralement la jambe tendue à 30 à 40 degrés sans incliner le tronc. Descente excentrique 3 secondes.", stop: "Arrête si tu ressens une douleur vive dans la hanche ou le bas du dos.",
         tip: "L'inclinaison latérale du tronc est la compensation la plus fréquente." },
       { variant: "Variante S4 : Bras tendus dans le vide (déstabilisation)", name: "Pont fessier unilatéral", phase: "work", series: 3, repsLabel: "10 répétitions par côté", restAfter: 90,
-        desc: "Pont de hanche puis soulever une jambe tendue horizontalement. Toute la poussée vient du fessier de la jambe au sol. Maintenir le bassin horizontal. Tenir 2 secondes en haut." },
+        desc: "Pont de hanche puis soulever une jambe tendue horizontalement. Toute la poussée vient du fessier de la jambe au sol. Maintenir le bassin horizontal. Tenir 2 secondes en haut.", tip: "Garde le bassin à plat : s'il bascule, repose la jambe et reprends.", stop: "Arrête si tu ressens une douleur dans le bas du dos ou à l'arrière de la cuisse." },
       { name: "Étirements fessiers et iliopsoas", phase: "cool", series: 1, repsLabel: "5 minutes", restAfter: 0,
         desc: "Figure 4 décubitus 45 secondes de chaque côté, fente basse iliopsoas 40 secondes, demi-grand écart adducteurs 40 secondes, respiration abdominale 1 minute." }
     ]
@@ -1310,18 +1318,18 @@ var SEQ_DAYS = {
     exercises: [
       { name: "Échauffement global progressif", phase: "warm", series: 1, repsLabel: "3 minutes", restAfter: 0,
         desc: "Marche genoux hauts 45 s, jumping jacks modérés 35 s, rotations complètes de bas en haut 1 min, 5 grandes respirations 40 s.",
-        tip: "Objectif Borg 2 en fin d'échauffement." },
+        tip: "Objectif : effort ressenti à 2 sur 5 en fin d'échauffement." },
       { name: "Squat + élévation bras", phase: "work", series: 3, repsLabel: "40 secondes", restAfter: 120,
-        desc: "Descente en squat, remontée avec élévation coordonnée des deux bras jusqu'à la verticale. Mouvement fluide membres inférieurs et membres supérieurs." },
+        desc: "Descente en squat, remontée avec élévation coordonnée des deux bras jusqu'à la verticale. Mouvement fluide membres inférieurs et membres supérieurs.", tip: "Descends doucement, les talons restent bien au sol.", stop: "Arrête si tu ressens une douleur dans le genou ou le dos, ou un vertige." },
       { name: "Inchworm et pompes", phase: "work", series: 3, repsLabel: "40 secondes", restAfter: 120,
-        desc: "Debout, poser les mains au sol, marcher jusqu'en position planche, 2 pompes, revenir en marchant, redressement lent. Transition sol debout essentielle." },
+        desc: "Debout, poser les mains au sol, marcher jusqu'en position planche, 2 pompes, revenir en marchant, redressement lent. Transition sol debout essentielle.", tip: "Avance et recule lentement en gardant le ventre serré.", stop: "Arrête si tu ressens une douleur dans l'épaule, le poignet ou le bas du dos." },
       { name: "Fente latérale avec toucher sol", phase: "work", series: 3, repsLabel: "40 secondes", restAfter: 120,
-        desc: "Grand pas latéral, plier le genou porteur, toucher le sol avec la main opposée. Coordination croisée. Alterner les côtés." },
+        desc: "Grand pas latéral, plier le genou porteur, toucher le sol avec la main opposée. Coordination croisée. Alterner les côtés.", tip: "Pousse les fesses en arrière et laisse le genou suivre la direction du pied.", stop: "Arrête si tu ressens une douleur vive dans le genou ou dans l'aine." },
       { name: "Burpee modifié sans saut", phase: "work", series: 3, repsLabel: "40 secondes", restAfter: 120,
-        desc: "Mains au sol, reculer en position planche, tenir 2 secondes de gainage, ramener les pieds, remontée lente. Rythme personnel, qualité prime sur vitesse.",
+        desc: "Mains au sol, reculer en position planche, tenir 2 secondes de gainage, ramener les pieds, remontée lente. Rythme personnel, qualité prime sur vitesse.", stop: "Arrête si tu ressens une douleur dans l'épaule, le poignet ou le bas du dos, ou un vertige.",
         tip: "Simule la capacité à se relever du sol, compétence fondamentale." },
       { variant: "Variante S3–S4 : Surface instable (coussin plié) ou yeux fermés dès S2", name: "Équilibre unipodal", phase: "work", series: 3, repsLabel: "40 secondes par côté", restAfter: 120,
-        desc: "Tenir sur un pied, yeux ouverts 20 secondes puis yeux fermés 20 secondes. Oscillations douces des bras pour créer des déstabilisations controlées.",
+        desc: "Tenir sur un pied, yeux ouverts 20 secondes puis yeux fermés 20 secondes. Oscillations douces des bras pour créer des déstabilisations controlées.", stop: "Arrête si tu perds l'équilibre au point de ne plus pouvoir te rattraper, ou si la douleur augmente.",
         tip: "Très bénéfique pour la prévention des chutes." },
       { name: "Étirements globaux et Savasana", phase: "cool", series: 1, repsLabel: "8 minutes", restAfter: 0,
         desc: "Étirements corps entier 3 minutes, 30 secondes par groupe. Savasana: allongé sur le dos, relâchement progressif de bas en haut. Respiration libre. Prends conscience des sensations positives de la séance." }
@@ -2081,7 +2089,7 @@ function qlShowStep(n) {
     sum.innerHTML =
       '<div style="display:flex;gap:12px;flex-wrap:wrap">'
       + '<span>' + qlData.day + '</span>'
-      + (qlData.borg ? '<span>' + borgEmojis[qlData.borg] + ' Borg ' + qlData.borg + ' — ' + borgLabels[qlData.borg] + '</span>' : '')
+      + (qlData.borg ? '<span>' + borgEmojis[qlData.borg] + ' Effort ' + qlData.borg + ', ' + borgLabels[qlData.borg] + '</span>' : '')
       + (qlData.completion ? '<span>' + qlData.completion + '</span>' : '')
       + '</div>';
   }
@@ -2785,6 +2793,7 @@ seqSkipExercise = function() {
 <script src="assets/js/kine-mascotte.js" defer></script>
 <script src="assets/js/kine-biblio.js" defer></script>
 <script src="assets/js/kine-compose.js" defer></script>
+<script src="assets/js/kine-glossaire.js" defer></script>
 <script src="assets/js/kine-createur.js" defer></script>
 <script src="assets/js/kine-capture.js" defer></script>
 <script src="assets/js/kine-eveil.js" defer></script>
@@ -2792,11 +2801,16 @@ seqSkipExercise = function() {
 <script src="assets/js/kine-themes.js" defer></script>
 <script src="assets/js/kine-nouveaux.js" defer></script>
 <script src="assets/js/kine-nouveaux2.js" defer></script>
+<script src="assets/js/kine-nouveaux3.js" defer></script>
+<script src="assets/js/kine-hopital.js" defer></script>
+<script src="assets/js/kine-cabpatient.js" defer></script>
 <script src="assets/js/kine-salle-ex.js" defer></script>
 <script src="assets/js/kine-genou-ex.js" defer></script>
 <script src="assets/js/kine-cheville-ex.js" defer></script>
 <script src="assets/js/kine-epaule-ex.js" defer></script>
 <script src="assets/js/kine-hanche-dos-ex.js" defer></script>
+<script src="assets/js/kine-etirements-ex.js" defer></script>
+<script src="assets/js/kine-mobilite.js" defer></script>
 <script src="assets/js/kine-renfo-ex.js" defer></script>
 <script src="assets/js/kine-salle.js" defer></script>
 <script src="assets/js/kine-modefx.js" defer></script>

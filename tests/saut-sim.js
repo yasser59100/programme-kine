@@ -14,3 +14,6 @@ window.sautSim = function (jumps, opt) {
   hold(2);
   return rows;
 };
+
+// Chromium récent expose requestPermission et la refuse en test : on l'accorde pour simuler un téléphone
+try { if (window.DeviceMotionEvent) window.DeviceMotionEvent.requestPermission = function () { return Promise.resolve("granted"); }; } catch (e) {}

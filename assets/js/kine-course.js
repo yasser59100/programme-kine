@@ -88,6 +88,7 @@ var KineCourse = (function () {
     var el = sheet();
     el.innerHTML = "<div class='kf-sheet-body'><button class='kf-back' onclick='KineCourse.close()' aria-label='Retour'>←</button>" +
       "<div><div class='kf-h1'>Mon journal de course</div><div class='kf-sub'>Note chaque sortie en 20 secondes. Ton kiné pourra voir avec toi comment la charge évolue.</div></div>" +
+      reprise() +
       (q ? "<div class='kco-ask'><b>Et ce matin ?</b><span>Après ta sortie de " + esc(fmtD(q.d)) + " (douleur " + (+q.pain || 0) + " sur 10 pendant), quelle douleur ressens-tu au réveil ?</span>" +
         "<div class='kco-scale'>" + [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return "<button onclick='KineCourse.next(\"" + q.id + "\"," + v + ")'>" + v + "</button>"; }).join("") + "</div></div>" : "") +
       "<div class='kco-kpi'><div><b>" + Math.round(L.cur.min) + "</b><small>minutes cette semaine</small></div><div><b>" + L.cur.n + "</b><small>sortie" + (L.cur.n > 1 ? "s" : "") + "</small></div>" +
@@ -98,13 +99,21 @@ var KineCourse = (function () {
       "<button class='seq-btn-main' onclick='KineCourse.add()'>＋ Ajouter une sortie</button>" +
       (a.length ? "<div class='kf-phase' style='color:var(--text2)'>Mes sorties</div>" + a.slice(0, 20).map(function (r) {
         var p = Math.max(+r.pain || 0, r.next == null ? 0 : +r.next), cls = p >= 6 ? "r" : p >= 4 ? "o" : "";
-        return "<div class='kco-row'><span class='kco-d'>" + esc(fmtD(r.d)) + "</span><span class='kco-t'><b>" + (+r.min || 0) + " min" + (r.km ? ", " + km(+r.km) + " km" : "") + "</b><small>" + esc(EFF[+r.eff] || "") +
+        return "<div class='kco-row'><span class='kco-d'>" + esc(fmtD(r.d)) + "</span><span class='kco-t'><b>" + (+r.min || 0) + " min" + (r.km ? ", " + km(+r.km) + " km" : "") + "</b><small>" + esc(r.rp ? "Reprise, palier " + r.rp : EFF[+r.eff] || "") +
           (r.pain != null ? ", douleur " + (+r.pain) + (r.next != null ? " puis " + r.next + " au réveil" : "") : "") + (r.zone ? " (" + esc(r.zone.toLowerCase()) + ")" : "") + "</small></span>" +
           (cls ? "<i class='kco-dot " + cls + "'></i>" : "") + "<button class='kc-mini' aria-label='Supprimer cette sortie' onclick='KineCourse.del(\"" + r.id + "\")'>✕</button></div>";
       }).join("") : "<p class='kf-sub'>Aucune sortie notée pour l'instant.</p>") +
       "<details class='th-card'><summary>Les repères utilisés</summary><div>La charge est la durée de course de la semaine, comparée à la moyenne des 4 semaines d'avant. Jusqu'à +10 % : vert. De +10 à +30 % : orange. Au-delà : rouge. Ce sont des repères prudents, pas des règles absolues : ton kiné peut les adapter à toi.</div></details>" +
       "</div>";
     el.classList.add("open"); el.scrollTop = 0;
+  }
+  // Reprise de la course réglée par le kiné : rappelée en tête du journal, avec son palier
+  function reprise() {
+    var R = window.KineReprise && KineReprise.active ? KineReprise.active() : null; if (!R) return "";
+    if (R.e.fini) return "<div class='kco-rp done'><b>Reprise terminée avec ton kiné</b><span>30 minutes de course continue atteintes. À partir de maintenant, note ici chaque sortie : l'appli te prévient si la charge monte trop vite.</span></div>";
+    return "<div class='kco-rp'><div class='kco-rp-h'><b>Ta reprise avec ton kiné</b><span>Palier " + R.e.palier + " sur 10</span></div><span>" + esc(R.txt) + " · " + R.min + " min</span>" +
+      (R.e.wait ? "<em>Note d'abord ta douleur au réveil après ta dernière séance.</em>" : R.e.nextD ? "<em>Prochaine séance à partir du " + esc(fmtD(R.e.nextD)) + ".</em>" : "<button class='seq-btn-main' onclick='KineCourse.close();KineReprise.go()'>Lancer la séance avec Yass</button>") +
+      "<small>Pendant la reprise, suis les paliers plutôt que d'ajouter des sorties libres.</small></div>";
   }
   var F = null;
   function add() {

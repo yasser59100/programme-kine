@@ -6,6 +6,12 @@
 ═══════════════════════════════════════════════════════════════ */
 (function () {
   "use strict";
+  // Relié à son kiné avec la sauvegarde des séances : le kiné voit déjà tout, l'envoi par message devient secondaire
+  function sendBtn() {
+    var st = window.KineMonSuivi && KineMonSuivi.state ? KineMonSuivi.state() : null;
+    if (st && st.pid && KineMonSuivi.syncOn && KineMonSuivi.syncOn()) return "<p class='lx-synced'>Ton kiné voit tes séances et tes douleurs dans sa fiche, sans rien envoyer.</p><button class='kcb-link lx-send2' onclick='KineSuivi.open(\"envoyer\")'>Envoyer quand même un résumé par message</button>";
+    return "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>";
+  }
   function $(id) { return document.getElementById(id); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   var WD = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
@@ -39,6 +45,23 @@
   }
 
   /* ════════ Accueil ════════ */
+  // Reprise de la course réglée par le kiné : rappelée sur l'accueil (le patient n'a pas à chercher dans Mon kiné)
+  function repriseHome() {
+    var R = null; try { R = window.KineReprise && KineReprise.active ? KineReprise.active() : null; } catch (e) {}
+    if (!R || R.e.fini) return "";
+    var sub = R.e.wait ? "Note ta douleur de ce matin" : R.e.nextD ? "Prochaine séance à partir du " + String(R.e.nextD).split("-").reverse().slice(0, 2).join("/") : esc(R.txt);
+    return "<button class='lu-rp' onclick=\"" + (R.e.wait || R.e.nextD ? "showPage('monkine')" : "KineReprise.go()") + "\"><span><b>Reprise de la course · palier " + R.e.palier + " sur 10</b><em>" + sub + "</em></span><i aria-hidden='true'>›</i></button>";
+  }
+  function kineSlab(k, ss, today) {
+    var done = ss.some(function (x) { return x.date === today && /kin[ée]/i.test(String(x.seance || "")); });
+    var IPLAY = "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>";
+    return "<div class='lu-slab lu-" + (done ? "done" : "today") + " lu-kine'>" + yassHtml(done ? "done" : "today") +
+      "<p class='lu-k'>" + (done ? "Faite aujourd'hui, bravo !" : "La séance de ton kiné") + "</p>" +
+      "<h2 class='lu-t'>" + k.ex.length + " exercice" + (k.ex.length > 1 ? "s choisis" : " choisi") + " pour toi</h2>" +
+      "<p class='lu-m'>" + esc(k.ex.slice(0, 3).join(", ") + (k.ex.length > 3 ? "…" : "")) + "</p>" +
+      "<button class='lx-cta lu-go' onclick=\"KineCompose.start('kine')\">" + IPLAY + (done ? "La refaire" : "Commencer") + "</button>" +
+      "<button class='lx-link lu-see' onclick=\"showPage('monkine')\">Voir mon suivi avec mon kiné</button></div>";
+  }
   function renderHome() {
     var box = $("today-card"); if (!box || typeof SEQ_DAYS === "undefined") return;
     var now = new Date(), dow = now.getDay(), map = dayMap(), todayId = map[dow];
@@ -70,13 +93,15 @@
       var dd = new Date(mon0); dd.setDate(mon0.getDate() + i);
       days += "<div class='lu-day" + (!id ? " rest" : "") + (done ? " ok" : "") + (d === dow ? " now" : "") + "'>" + WS[d] + "<b>" + (done ? "✓" : dd.getDate()) + "</b><i>" + (c || "repos") + "</i></div>";
     });
-    var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : comme prévu par ton programme, on reprend en semaine 1.</p>"
+    var banner = st.reset ? "<p class='lx-rule'>Plus d'une semaine sans séance : on reprend en semaine " + st.week + (st.week === 1 ? "" : ", un peu plus bas pour repartir en douceur") + ".</p>"
                : st.cycleDone ? "<p class='lx-rule'>Cycle de 4 semaines terminé. Parles-en à ton kinésithérapeute pour la suite.</p>"
                : st.week >= 2 && window.KineProgress && KineProgress.painHold && KineProgress.painHold() ? "<p class='lx-rule red'><b>Douleur de 5 sur 10 ou plus à plusieurs reprises.</b> Par prudence, on reste à 2 tours, sans augmenter la difficulté, jusqu'à ce que la douleur baisse.</p>" : "";
     var others = Object.keys(SEQ_DAYS).filter(function (id) { return id !== target; }).map(function (id) {
       return "<button class='lx-item' onclick=\"openPreview('" + id + "')\"><span class='lx-j'>" + codeOf(id) + "</span><span>" + esc(cap(nameOf(id))) + "</span><span class='lx-t'>" + minutes(id) + " min</span></button>";
     }).join("");
     var nWork = SEQ_DAYS[target].exercises.filter(function (e) { return e.phase === "work"; }).length;
+    // Relié à son kiné avec une séance envoyée : c'est elle, la séance du jour
+    var kine = null; try { kine = (JSON.parse(localStorage.getItem("kf-custom") || "[]") || []).filter(function (x) { return x && x.id === "kine" && x.ex && x.ex.length; })[0] || null; } catch (e) {}
     var h = now.getHours(), who = "";
     var hello = (h >= 18 || h < 4 ? "Bonsoir" : "Bonjour") + (who ? "<br>" + esc(cap(who)) : "");
     var xd = window.KineIdees && KineIdees.defineExpress ? KineIdees.defineExpress(target) : null;
@@ -87,12 +112,14 @@
       "<h1 class='lu-hello'>" + hello + "</h1>" +
       (window.KineTheme && KineTheme.homeSwitchHtml ? KineTheme.homeSwitchHtml() : "") +
       "<div class='lu-days'>" + days + "</div>" + banner +
+      (kine ? kineSlab(kine, ss, today) + "<button class='lx-link lu-gen' onclick=\"openPreview('" + target + "')\">Ou faire le programme général</button>" :
       "<div class='lu-slab lu-" + state + "'>" + yassHtml(state) +
         "<p class='lu-k'>" + esc(kick) + "</p>" +
         "<h2 class='lu-t'>" + esc(cap(nameOf(target))) + "</h2>" +
         "<p class='lu-m'>" + (lede ? esc(lede) + ". " : "") + nWork + " exercices, " + minutes(target) + " minutes, " + kitText(target) + "</p>" +
         "<button class='lx-cta lu-go' onclick=\"openPreview('" + target + "')\"><svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M7 4v16l13-8z'/></svg>" + esc(cta) + "</button>" +
-        "<button class='lx-link lu-see' onclick=\"openExplain('" + target + "')\">Voir les exercices</button></div>" +
+        "<button class='lx-link lu-see' onclick=\"openExplain('" + target + "')\">Voir les exercices</button></div>") +
+      repriseHome() +
       "<div class='lu-duo'>" +
         (window.KineCamera ? "<button class='lu-blk lu-vid' id='lu-video' onclick='KineCamera.open()'><span class='lu-ic'>" + ICAM + "</span><b>Tester en vidéo</b><small>Yass regarde ton mouvement et te corrige</small></button>" : "") +
         (xd ? "<button class='lu-blk lu-exp' id='ki-express' onclick=\"KineIdees.express('" + target + "')\"><span class='lu-ic'>" + IZAP + "</span><b>" + (xd.minutes || 10) + " minutes</b><small>Séance express, pas le temps</small></button>" : "") +
@@ -160,13 +187,13 @@
     }
     var GEAR = "<button class='lu-gear' onclick='KineLumiere.settings()' aria-label='Réglages'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='3'/><path d='M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'/></svg></button>";
     var head = "<div class='lu-ph'><h1 class='lx-title'>Progrès</h1>" + (window.KineLumiere && !window.KineRole ? GEAR : "") + "</div>";
-    // Suivi au cabinet (carte du kiné) et accès « J'ai un code » : en haut, bien visibles
-    var cab = window.KineMonSuivi ? "<div id='kms-slot'></div>" + (KineMonSuivi.linked() ? "" : "<div class='kms-join-wrap'>" + KineMonSuivi.rowHtml() + "</div>") : "";
+    // Suivi au cabinet (carte du kiné) (l'accès « J'ai un code » est dans l'onglet Mon kiné, pas ici)
+    var cab = window.KineMonSuivi ? "<div id='kms-slot'></div>" : "";
     box.innerHTML = head + cab +
       (fresh ? welcome + (C ? C.cta() + C.week() : "")
              : kpis(cyc, wk) + (C ? C.cta() : "") + alert + weekBars(ss) +
                (window.KineIdees ? KineIdees.goalCard() : "") +
-               "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>" +
+               sendBtn() +
                (C ? C.week() : "")) +
       (fresh && window.KineIdees ? KineIdees.goalCard() : "") +
       (C ? C.insights() : "<div class='lx-chart'>" + chart(ss) + "</div>") +
@@ -176,7 +203,7 @@
         "<button onclick='KineSuivi.open(\"historique\")'><span>Historique des séances</span><span aria-hidden='true'>›</span></button>" +
         "<button onclick='KineSuivi.open(\"douleurs\")'><span>Douleurs signalées</span><span aria-hidden='true'>›</span></button>" +
       "</div>" +
-      (fresh ? "<button class='lx-send' onclick='KineSuivi.open(\"envoyer\")'>Envoyer mon bilan à mon kiné</button>" : "") +
+      (fresh ? sendBtn() : "") +
       beforeAfter();
     // Les badges ne sont plus affichés
     ["badges-suivi", "badges-home"].forEach(function (id) {
@@ -332,7 +359,7 @@
   function yassArm() { document.querySelectorAll(".lu-ys:not(.armed)").forEach(function (el) { el.classList.add("armed"); yassPlay(el, el.getAttribute("data-g")); }); }
   function yassTap(el) { var g = yPick("today"); yLast = g; yassPlay(el, g); try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} }
   function renderAllLx() { renderHome(); renderSuivi(); renderProg(); yassArm(); }
-  window.KineLayout = { yass: yassTap, render: renderAllLx, chart: chart, bigText: bigText };
+  window.KineLayout = { arm: yassArm, yass: yassTap, render: renderAllLx, chart: chart, bigText: bigText };
   function init() {
     try { arrangeGuide(); renderAllLx(); } catch (e) {}
     // la nouvelle interface est dessinée : on lève l'écran de démarrage

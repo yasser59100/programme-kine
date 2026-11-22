@@ -1,0 +1,56 @@
+const { test, expect } = require('@playwright/test');
+async function boot(page) {
+  await page.addInitScript(() => { localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-masc-off", "1"); sessionStorage.setItem("kf-ressenti-later", "1"); });
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+}
+test("patient du cabinet : 4 onglets, douleur du matin avec conseil, apprendre", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => {
+    const k = Object.keys(window.__db.patients)[0], d = window.__db.patients[k].doc;
+    d.parcours = "genou"; d.etape = 1; d.cote = "D"; d.date0 = "2026-09-20"; d.exos = ["Squat", "Pont fessier", "Fente arrière"]; d.exosD = "2026-11-12";
+    const n = new Date(); n.setDate(n.getDate() + 3); d.next = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2) + "-" + ("0" + n.getDate()).slice(-2);
+    KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true);
+  });
+  await page.waitForTimeout(1200);
+  await page.evaluate(() => { try { KineMonSuivi.consent(0); } catch (e) {} });
+  await page.evaluate(() => { const c = JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id !== "kine"); c.push({ id: "kine", name: "La séance de mon kiné", ex: ["Squat", "Pont fessier", "Fente arrière"] }); localStorage.setItem("kf-custom", JSON.stringify(c)); });
+  await page.evaluate(() => showPage("home")); await page.waitForTimeout(800);
+  const labs = await page.evaluate(() => ["home", "guide", "suivi", "monkine"].map(i => document.getElementById("bn-" + i).innerText.trim()));
+  expect(labs).toEqual(["Aujourd'hui", "Séances", "Apprendre", "Moi"]);
+  await expect(page.locator("#page-cab-today .kh-hero")).toBeVisible();
+  await expect(page.locator("#page-cab-today .kh-big").first()).toContainText("3 exercices");
+  await page.evaluate(() => document.querySelectorAll(".kf-toast,.toast,#kf-toast").forEach(e => e.remove()));
+  await page.waitForTimeout(1500); await page.screenshot({ path: "/tmp/cab2-today-a.png" });
+  await page.locator("#kc-range").evaluate(el => { el.value = 5; el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); });
+  await expect(page.locator("#kc-adv")).toContainText("un cran plus doucement");
+  await expect(page.locator("#kc-t")).toContainText("Moyenne");
+  expect(await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("kf-checkin")))[0].pain)).toBe(5);
+  await page.locator(".kc-pain").scrollIntoViewIfNeeded(); await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/cab2-today-b.png" });
+  await page.locator("#kc-range").evaluate(el => { el.value = 8; el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); });
+  await expect(page.locator(".kc-w")).toBeVisible();
+  await page.screenshot({ path: "/tmp/cab2-today-c.png" });
+  await page.screenshot({ path: "/tmp/cab2-today-full.png", fullPage: true });
+  await page.locator("#bn-guide").dispatchEvent("click"); await page.waitForTimeout(900);
+  await expect(page.locator("#page-mes")).toHaveClass(/active/);
+  await expect(page.locator(".kc-ses")).toContainText("3 exercices"); await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(300); await page.screenshot({ path: "/tmp/cab2-seances.png" });
+  await page.evaluate(() => showPage("cab-learn")); await page.waitForTimeout(900);
+  await expect(page.locator(".kc-rd")).toHaveCount(8);
+  await page.locator(".kc-rd").nth(2).dispatchEvent("click");
+  await expect(page.locator("#kc-rd-2")).toBeVisible();
+  await page.screenshot({ path: "/tmp/cab2-learn.png" });
+  await page.evaluate(() => showPage("suivi")); await page.waitForTimeout(900);
+  await expect(page.locator("#page-suivi")).toHaveClass(/active/); await page.screenshot({ path: "/tmp/cab2-suivi.png" });
+  await page.evaluate(() => showPage("monkine")); await page.waitForTimeout(900);
+  await page.screenshot({ path: "/tmp/cab2-moi.png" });
+  expect(errs).toEqual([]);
+});

@@ -9,7 +9,8 @@
 /* ═══════════════════════════════════════════════════════════════
    PROGRESSION AUTOMATIQUE (règles de l'onglet Programme)
   , Semaine calculée depuis le début du cycle (S1, puis S4)
-  , Absence de plus d'une semaine, puis reprise en S1, sans exception
+  , Absence de plus d'une semaine : reprise graduée selon la durée de la pause
+    8 à 14 jours : une semaine de moins ; 15 à 28 jours : deux semaines de moins ; au-delà : S1
   , S1 : 2 séries, S2 : 2 à 3 séries ou +2 répétitions (un seul paramètre)
     , S3 : 3 séries, S4 : 3 séries + variante avancée
   , Effort (Borg) à 4–5 sur les 2 dernières séances, puis on ne monte pas
@@ -24,21 +25,32 @@ var KineProgress = (function () {
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
+  // Semaine de reprise après une pause : 8 à 14 jours, une semaine de moins ; 15 à 28 jours, deux de moins ; au-delà, retour en S1
+  function restartWeek(w, gap) {
+    var back = gap <= 14 ? 1 : gap <= 28 ? 2 : 4;
+    return Math.max(1, w - back);
+  }
+
   function state() {
     var today = iso(Date.now()), all = list();
     var dates = all.map(function (s) { return s.date; }).filter(Boolean).sort();
     var last = dates.length ? dates[dates.length - 1] : null;
-    var start = get("kf-start");
-    if (!start && dates.length) { start = dates[0]; set("kf-start", start); } // patients déjà en cours
+    var start = get("kf-start"), resetOn = get("kf-reset");
+    if (!start && !resetOn && dates.length) { start = dates[0]; set("kf-start", start); } // patients déjà en cours
     var reset = false;
     var ref = last && (!start || last >= start) ? last : start;
-    if (start && ref && daysBetween(ref, today) > 7) { // absence de plus d'une semaine
-      start = null; set("kf-start", ""); set("kf-reset", today); reset = true;
+    if (resetOn && (!ref || resetOn > ref)) ref = resetOn;   // une reprise déjà décidée : la pause se compte depuis elle
+    var gap = start && ref ? daysBetween(ref, today) : 0;
+    if (gap > 7) { // absence de plus d'une semaine : on reprend plus bas, d'autant plus que la pause est longue
+      var w1 = restartWeek(Math.min(4, Math.floor(Math.max(0, daysBetween(start, ref)) / 7) + 1), gap);
+      var d0 = new Date(parse(today)); d0.setDate(d0.getDate() - (w1 - 1) * 7);
+      start = iso(d0); resetOn = today; set("kf-start", start); set("kf-reset", today); reset = true;
     }
-    if (get("kf-reset") && daysBetween(get("kf-reset"), today) <= 7) reset = true;
+    if (resetOn && daysBetween(resetOn, today) <= 7) reset = true;
     var elapsed = start ? Math.max(0, daysBetween(start, today)) : 0;
     var week = Math.min(4, Math.floor(elapsed / 7) + 1);
-    var cycle = all.filter(function (s) { return s.date && start && s.date >= start; });
+    var from = start && resetOn && resetOn >= start ? resetOn : start;   // les séances d'avant la pause ne comptent plus pour l'effort
+    var cycle = all.filter(function (s) { return s.date && from && s.date >= from; });
     return { today: today, start: start, week: week, cycleDone: !!start && elapsed >= 28, reset: reset, cycle: cycle, dayInCycle: elapsed + 1 };
   }
 
@@ -51,13 +63,17 @@ var KineProgress = (function () {
     var pp = []; try { pp = JSON.parse(get("kf-pain") || "[]"); } catch (e) {}
     var days = {};
     pp.forEach(function (p) { var d = String(p.date || "").slice(0, 10); if (d && +p.intensite >= 5 && daysBetween(d, today) <= 7) days[d] = 1; });
-    return bad >= 2 || Object.keys(days).length >= 2;
+    return bad >= 2 || Object.keys(days).length >= 2 || painToday();
+  }
+  // Douleur forte notée ce matin dans « Comment ça va aujourd'hui ? » (7 sur 10 ou plus) : la séance du jour reste douce
+  function painToday() {
+    try { var m = JSON.parse(get("kf-checkin") || "{}") || {}, c = m[iso(Date.now())]; return !!c && +c.pain >= 7; } catch (e) { return false; }
   }
   function loadWeek() { var w = state().week; return painHold() ? Math.min(2, w) : w; }
 
   function plan() {
     var st = state(), w = st.week;
-    if (w >= 2 && painHold()) return { week: w, series: 2, repsBonus: 0, high: true, pain: true, reason: "Douleur de 5 sur 10 ou plus à plusieurs reprises : on reste à 2 tours, sans variante avancée. Parles-en à ton kiné.", state: st };
+    if (w >= 2 && painHold()) return { week: w, series: 2, repsBonus: 0, high: true, pain: true, reason: painToday() ? "Douleur forte ce matin : séance en douceur, 2 tours et sans variante avancée. Si elle reste forte, parles-en à ton kiné." : "Douleur de 5 sur 10 ou plus à plusieurs reprises : on reste à 2 tours, sans variante avancée. Parles-en à ton kiné.", state: st };
     var borgs = st.cycle.map(function (s) { return +s.borg; }).filter(function (b) { return b >= 1 && b <= 5; });
     var high = borgs.length >= 2 && borgs[0] >= 4 && borgs[1] >= 4;           // les plus récentes en premier
     var recent = borgs.slice(0, 3), avg = recent.length ? recent.reduce(function (a, b) { return a + b; }, 0) / recent.length : null;
@@ -109,7 +125,7 @@ var KineProgress = (function () {
   return {
     state: state, plan: plan, repsLabel: repsLabel, variant: variant,
     week: function () { return state().week; },
-    loadWeek: loadWeek, painHold: painHold,
+    loadWeek: loadWeek, painHold: painHold, painToday: painToday,
     markStart: function () { if (!get("kf-start")) { set("kf-start", iso(Date.now())); set("kf-reset", ""); } }
   };
 })();
@@ -236,7 +252,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
     });
 
     var st = KineProgress.state(), banner = "";
-    if (st.reset) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Reprise en semaine 1.</strong> Plus d'une semaine sans séance : comme prévu par ton programme, on repart du début.</div>";
+    if (st.reset) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Reprise en semaine " + st.week + ".</strong> Plus d'une semaine sans séance : " + (st.week === 1 ? "on repart du début." : "on redescend un peu pour reprendre en douceur.") + "</div>";
     else if (st.cycleDone) banner = "<div class='kf-note' style='margin-bottom:16px'><strong>Cycle de 4 semaines terminé.</strong> Parles-en à ton kinésithérapeute pour la suite.</div>";
     box.innerHTML = banner +
       "<div class='v2-hello'><span>" + WEEKDAYS[dow] + "</span><strong>Bonjour" + (name ? " " + esc(name) : "") + "</strong></div>" +
@@ -309,7 +325,7 @@ var seqSkipped = 0;       // exercices passés pendant la séance
   }
   function shortCue(d) {
     d = String(d || "").trim(); if (d.length <= 110) return d;
-    var parts = d.split(/(?<=[.!?])\s+/), out = "";
+    var parts = d.replace(/([.!?])\s+/g, "$1\u0000").split("\u0000"), out = "";
     for (var i = 0; i < parts.length; i++) { if (out && (out + " " + parts[i]).length > 110) break; out = out ? out + " " + parts[i] : parts[i]; }
     return out.length > 140 ? out.slice(0, 120).replace(/[\s,;:]+\S*$/, "") + "…" : out;
   }

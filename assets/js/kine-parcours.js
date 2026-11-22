@@ -13,7 +13,7 @@ var KineParcours = (function () {
   var M = {
     quad:   { l: "Force du quadriceps", c: "Quadri", u: "kg", s: 1, n: 3, g: "Force", how: "Assis, genou fléchi à 60°, dynamomètre à la cheville, 3 essais de 5 s, on garde le meilleur. Toujours la même position." },
     ischio: { l: "Force des ischio-jambiers", u: "kg", s: 1, n: 3, g: "Force", how: "Assis, genou fléchi à 60°, dynamomètre derrière la cheville, 3 essais de 5 s." },
-    abd:    { l: "Force des abducteurs de hanche", u: "kg", s: 1, n: 3, g: "Force", how: "Couché sur le côté, dynamomètre au-dessus de la malléole externe, 3 essais de 5 s." },
+    abdh:   { l: "Force des abducteurs de hanche", u: "kg", s: 1, n: 3, g: "Force", how: "Couché sur le côté, dynamomètre au-dessus de la malléole externe, 3 essais de 5 s." },
     flex:   { l: "Flexion du genou", c: "Flexion", u: "°", s: 1, incl: 1, g: "Amplitude", how: "Couché sur le dos, talon qui glisse vers la fesse. Au téléphone : posé sur la cuisse puis sur le tibia." },
     ext:    { l: "Extension du genou", c: "Extension", u: "°", s: 1, incl: 1, g: "Amplitude", how: "0 = extension complète, valeur négative = déficit (−5 = il manque 5°), positive = hyperextension." },
     peri:   { l: "Périmètre au milieu de la rotule", u: "cm", s: 1, g: "Périmètre", how: "Mètre ruban au milieu de la rotule, genou tendu et détendu. Reflète l'épanchement." },
@@ -102,6 +102,8 @@ var KineParcours = (function () {
     collins: "Collins NJ et al. 2018 Consensus statement on exercise therapy and physical interventions (orthoses, taping and manual therapy) to treat patellofemoral pain. Br J Sports Med 2018.",
     willy: "Willy RW et al. Patellofemoral pain: clinical practice guidelines. J Orthop Sports Phys Ther 2019.",
     malliaras: "Malliaras P et al. Patellar tendinopathy: clinical diagnosis, load management, and advice for challenging case presentations. J Orthop Sports Phys Ther 2015.",
+    oms2020: "Bull FC et al. World Health Organization 2020 guidelines on physical activity and sedentary behaviour. Br J Sports Med 2020.",
+    firth2019: "Firth J et al. The Lancet Psychiatry Commission: a blueprint for protecting physical health in people with mental illness. Lancet Psychiatry 2019.",
     breda: "Breda SJ et al. Effectiveness of progressive tendon-loading exercise therapy in patients with patellar tendinopathy: a randomised clinical trial. Br J Sports Med 2021.",
     silber: "Silbernagel KG et al. Continued sports activity, using a pain-monitoring model, during rehabilitation in patients with Achilles tendinopathy. Am J Sports Med 2007.",
     oarsi: "Bannuru RR et al. OARSI guidelines for the non-surgical management of knee, hip, and polyarticular osteoarthritis. Osteoarthritis Cartilage 2019.",
@@ -209,8 +211,7 @@ var KineParcours = (function () {
 
   P.lca_op = {
     nom: "LCA opéré", long: "Ligamentoplastie du ligament croisé antérieur", zone: "genou", op: 1,
-    opts: [{ id: "greffe", l: "Greffe", ch: [["didt", "Ischio-jambiers (DIDT)"], ["kj", "Tendon rotulien (KJ)"], ["quadri", "Tendon quadricipital"], ["autre", "Autre"]] },
-           { id: "menisque", l: "Suture méniscale associée", ch: [["non", "Non"], ["oui", "Oui"]] }],
+    opts: [{ id: "greffe", l: "Greffe", ch: [["didt", "Ischio-jambiers (DIDT)"], ["kj", "Tendon rotulien (KJ)"], ["quadri", "Tendon quadricipital"], ["autre", "Autre"]] }],
     key: { m: "quad", lsi: 1, l: "Symétrie du quadriceps" },
     mes: ["quad", "ischio", "flex", "ext", "peri", "cuisse", "epanch", "hop1", "hop3", "hop6", "yb", "aclrsi"],
     ref: "Leg extension amplitude limitée",
@@ -246,14 +247,14 @@ var KineParcours = (function () {
         obj: [
           { id: "course", t: "30 min de course continue sans douleur ni gonflement le lendemain", p: "Tu cours 30 minutes sans douleur" },
           { id: "quad85", t: "Symétrie du quadriceps d'au moins 85 %", p: "Ta cuisse a retrouvé 85 % de sa force", a: { m: "quad", lsi: 85 } },
-          { id: "hop80", t: "Tests de saut à au moins 80 % du côté sain", p: "Tes sauts atteignent 80 % de l'autre jambe", a: { hops: 80 } },
+          { id: "hop80", t: "Tests de saut à au moins 80 % du côté sain", p: "Tes sauts atteignent 80 % de l'autre jambe", a: { hops: 80, need: ["hop1", "hop3", "hop6"] } },
           { id: "recep", t: "Réceptions de sauts symétriques, genou dans l'axe", p: "Tu te réceptionnes bien droit" }],
         exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Montées de genoux", "Skater latéral sans saut", "Squat réactif", "Squat bulgare", "Presse à une jambe", "Leg extension", "Copenhague dynamique genou", "Réception de saut stabilisée", "Saut sur la marche", "Le kangourou"] },
       { nom: "Grands sauts et changements de direction", but: "Pliométrie, pivots, agilité, puis travail spécifique au sport.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps et des ischios d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
           { id: "isch90", t: "Symétrie des ischio-jambiers d'au moins 90 %", p: "L'arrière de ta cuisse a retrouvé 90 % de sa force", a: { m: "ischio", lsi: 90 } },
-          { id: "hop90", t: "Tests de saut (simple, triple, 6 m) à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
+          { id: "hop90", t: "Tests de saut (simple, triple, 6 m) à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90, need: ["hop1", "hop3", "hop6"] } },
           { id: "agil", t: "Changements de direction et pivots sans appréhension", p: "Tu changes de direction sans crainte" }],
         exos: ["Sauts sur une jambe", "Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Fentes réactives", "Pas chassés réactifs", "Copenhague dynamique", "Nordic curl assisté", "Fente avec charge", "Saut sur une jambe, réception tenue", "Bonds du patineur", "Fentes sautées"] },
       { nom: "Retour au sport", but: "Entraînement complet puis compétition. Programme de prévention à garder.",
@@ -297,12 +298,14 @@ var KineParcours = (function () {
       { nom: "Courir et sauter", but: "Course, sauts progressifs puis changements de direction.",
         obj: [
           { id: "course", t: "30 min de course sans douleur ni gonflement", p: "Tu cours 30 minutes sans douleur" },
-          { id: "hop85", t: "Tests de saut à au moins 85 %", p: "Tes sauts atteignent 85 % de l'autre jambe", a: { hops: 85 } }],
+          { id: "hop85", t: "Tests de saut à au moins 85 %", p: "Tes sauts atteignent 85 % de l'autre jambe", a: { hops: 85, need: ["hop1", "hop3", "hop6"] } }],
         exos: ["Petits sauts sur place", "Sauts latéraux par-dessus une ligne", "Sauts sur une jambe", "Pas chassés réactifs", "Fentes réactives", "Squat réactif", "Réception de saut stabilisée", "Saut sur la marche", "Saut sur une jambe, réception tenue", "Le kangourou"] },
       { nom: "Retour à l'activité", but: "Reprise du sport choisi. Si sport à pivots : décision partagée avec le patient.",
         obj: [
           { id: "quad90", t: "Symétrie du quadriceps d'au moins 90 %", p: "Ta cuisse a retrouvé 90 % de sa force", a: { m: "quad", lsi: 90 } },
-          { id: "hop90", t: "Tests de saut à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90 } },
+          { id: "isch90", t: "Symétrie des ischio-jambiers d'au moins 90 %", p: "L'arrière de ta cuisse a retrouvé 90 % de sa force", a: { m: "ischio", lsi: 90 } },
+          { id: "rsi", t: "ACL-RSI satisfaisant (repère : 65 ou plus, à interpréter)", p: "Tu te sens prêt dans ta tête", a: { m: "aclrsi", min: 65 } },
+          { id: "hop90", t: "Tests de saut à au moins 90 %", p: "Tes sauts atteignent 90 % de l'autre jambe", a: { hops: 90, need: ["hop1", "hop3", "hop6"] } },
           { id: "nodero2", t: "Pas de dérobement à l'entraînement", p: "Ton genou tient à l'entraînement" }],
         exos: ["Sauts bulgares réactifs", "Sauts latéraux sur une jambe réactifs", "Nordic curl assisté", "Planche Copenhague", "Bonds du patineur", "Fentes sautées"] }
     ],
@@ -379,7 +382,7 @@ var KineParcours = (function () {
   P.sfp = {
     nom: "Syndrome fémoro-patellaire", long: "Douleur antérieure du genou (fémoro-patellaire)", zone: "genou",
     key: { m: "akps", l: "Score de Kujala" },
-    mes: ["dou", "akps", "quad", "abd", "flex", "yb"],
+    mes: ["dou", "akps", "quad", "abdh", "flex", "yb"],
     ref: "Chaise contre le mur",
     notes: ["Le traitement de référence associe des exercices pour la hanche et pour le genou, et l'éducation sur la gestion de la charge.",
             "Douleur tolérée pendant les exercices : jusqu'à 3 ou 4 sur 10, si elle redescend dans les 24 heures.",
@@ -459,7 +462,7 @@ var KineParcours = (function () {
       { nom: "Renforcer et contrôler", but: "Renforcement progressif et exercices neuromusculaires (genou dans l'axe, équilibre).",
         obj: [
           { id: "sts", t: "Lever de chaise amélioré d'au moins 2 répétitions", p: "Tu te lèves plus facilement de ta chaise", a: { m: "sts30", gain: 2 } },
-          { id: "marche", t: "Marche rapide 4 × 10 m plus rapide qu'au premier bilan", p: "Tu marches plus vite", a: { m: "marche40", gain: 1 } },
+          { id: "marche", t: "Marche rapide 4 × 10 m : au moins 1 s gagnée depuis le premier bilan", p: "Tu marches plus vite", a: { m: "marche40", gain: 1 } },
           { id: "dou", t: "Douleur à l'effort de 4/10 au maximum", p: "La douleur à l'effort a baissé", a: { m: "dou", max: 4 } }],
         exos: ["Step-up sur marche", "Squat ballon dans le dos contre le mur", "Squat bilatéral", "Marche latérale élastique", "Pont fessier unilatéral", "Extension de genou assis", "Unipodal yeux fermés", "Toucher en étoile unipodal", "Presse à cuisses", "Leg extension", "Marche arrière", "Fente statique", "Descente de marche sur le côté", "La chaise qui récite l'alphabet"] },
       { nom: "Autonomie", but: "Programme à faire seul, activité physique régulière (marche, vélo, natation).",
@@ -469,6 +472,40 @@ var KineParcours = (function () {
         exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Squat bulgare", "Marche du fermier sur place", "Se relever du sol", "Squat sur une jambe vers la chaise", "Fentes en marchant, bras au ciel"] }
     ],
     src: ["oarsi", "nice", "glad", "fransen", "dobson"]
+  };
+
+  /* Patients de l'hôpital : activité physique adaptée, sans atteinte articulaire à suivre.
+     Pas de côté atteint, pas de date d'opération ; les critères sont ceux de la régularité et de l'autonomie. */
+  P.hopital = {
+    nom: "Hôpital : sport adapté", long: "Activité physique adaptée (patient de l'hôpital)", zone: "hopital", nocote: true,
+    key: { m: "sts30", l: "Lever de chaise en 30 s" },
+    mes: ["sts30", "dou"],
+    ref: "Assis-debout de chaise",
+    d0: "Date de début des séances",
+    notes: ["Les séances encadrées ont lieu à l'hôpital, avec toi, environ quatre fois par semaine, dont une séance d'étirements. L'appli n'en compte pas la présence : elle sert de complément, en dehors de ces séances.",
+            "Les critères sont évalués par toi, avec un test fonctionnel (lever de chaise en 30 s) et l'effort perçu (échelle de Borg).",
+            "Pas de bilan articulaire par défaut : tu ajoutes une mesure ou change de parcours si une douleur ou une blessure apparaît.",
+            "Les séances du jour restent courtes : 5 à 6 exercices."],
+    etapes: [
+      { nom: "Réactivation physique", but: "Reprise progressive de l'activité physique, mobilisation douce, apprentissage des gestes de base.",
+        obj: [
+          { id: "tol", t: "Tolère les séances encadrées sans gêne ni douleur", p: "Tu supportes bien les séances" },
+          { id: "gestes", t: "Exécute correctement les gestes de base (lever de chaise, pont, équilibre)", p: "Tu réalises correctement les gestes de base" }],
+        exos: ["Assis-debout de chaise", "Pont de hanche", "Élévation des talons", "Pompes contre le mur", "Serrage des omoplates", "Tandem talon-pointe"] },
+      { nom: "Reconditionnement à l'effort", but: "Amélioration de l'endurance cardiorespiratoire et du renforcement musculaire global.",
+        obj: [
+          { id: "sts", t: "Lever de chaise en 30 s : au moins 2 répétitions de gain depuis le premier bilan", p: "Tu te lèves plus facilement de ta chaise", a: { m: "sts30", gain: 2 } },
+          { id: "borg", t: "Tolère un effort d'intensité modérée (Borg 11 à 13)", p: "Tu supportes un effort modéré" },
+          { id: "globale", t: "Réalise une séance globale complète (membres inférieurs, tronc, membres supérieurs)", p: "Tu fais une séance complète en entier" }],
+        exos: ["Squat bilatéral", "Pompes sur genoux", "Rowing deux bras penché", "Squat + élévation bras", "Dead bug", "Équilibre unipodal"] },
+      { nom: "Autonomisation", but: "Entretien de l'activité physique en dehors des séances encadrées, réduction de la sédentarité.",
+        obj: [
+          { id: "auto", t: "Réalise un programme d'exercices en autonomie", p: "Tu fais ton programme seul" },
+          { id: "marche", t: "Pratique une activité d'endurance hors séances (marche, vélo)", p: "Tu marches ou pédales en dehors des séances" },
+          { id: "act", t: "Atteint les recommandations de l'OMS : 150 min d'activité modérée par semaine", p: "Tu bouges 150 minutes par semaine" }],
+        exos: ["Fente latérale avec toucher sol", "Marche du fermier sur place", "Curl biceps", "Plank — gainage avant-bras", "Se relever du sol", "Squat bilatéral"] }
+    ],
+    src: ["oms2020", "firth2019"]
   };
 
   P.ptg = {
@@ -504,7 +541,6 @@ var KineParcours = (function () {
 
   P.lcm = {
     nom: "Entorse du ligament latéral interne", long: "Entorse du ligament collatéral médial (LLI)", zone: "genou",
-    opts: [{ id: "grade", l: "Gravité", ch: [["1", "Grade 1 (bénin)"], ["2", "Grade 2 (partielle)"], ["3", "Grade 3 (rupture)"]] }],
     key: { m: "quad", lsi: 1, l: "Symétrie du quadriceps" },
     mes: ["quad", "flex", "ext", "peri", "epanch", "hop1", "yb"],
     ref: "Presse à une jambe",
@@ -604,7 +640,6 @@ var KineParcours = (function () {
 
   P.entorse = {
     nom: "Entorse de cheville", long: "Entorse du ligament latéral externe de la cheville", zone: "cheville",
-    opts: [{ id: "grade", l: "Gravité", ch: [["1", "Bénigne"], ["2", "Moyenne"], ["3", "Grave"]] }],
     key: { m: "heel", lsi: 1, l: "Symétrie des élévations du talon" },
     mes: ["dou", "fig8", "dfl", "dfa", "heel", "yb", "hopside", "hop1", "cait", "faam"],
     ref: "Élévation des talons unipodale",
@@ -712,7 +747,6 @@ var KineParcours = (function () {
   P.rupt_achille = {
     nom: "Rupture du tendon d'Achille", long: "Rupture du tendon d'Achille, opérée ou traitée sans opération", zone: "cheville", op: 1,
     d0: "Date de la rupture ou de l'opération",
-    opts: [{ id: "trait", l: "Traitement", ch: [["chir", "Opérée"], ["fonct", "Sans opération (botte)"]] }],
     key: { m: "heelh", lsi: 1, l: "Symétrie de la hauteur du talon" },
     mes: ["dou", "atra", "heel", "heelh", "fig8", "atrs", "hop1"],
     ref: "Talons levés assis",
@@ -724,19 +758,22 @@ var KineParcours = (function () {
         obj: [
           { id: "j42", t: "Au moins 6 semaines depuis la rupture ou l'opération", p: "6 semaines depuis le début", a: { j: 42 } },
           { id: "appui", t: "Appui complet dans la botte, sans douleur", p: "Tu marches en appui complet dans la botte" },
-          { id: "atra", t: "ATRA : moins de 10° d'écart avec l'autre côté", p: "Ton tendon cicatrise à la bonne longueur", a: { m: "atra", diff: 10 } }],
+          { id: "atra", t: "ATRA : moins de 10° d'écart avec l'autre côté", p: "Ton tendon cicatrise à la bonne longueur", a: { m: "atra", diff: 10 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Contraction du quadriceps couché", "Relevé de jambe tendue couché", "Pont de hanche", "Clamshell", "Abduction couché sur le côté"] },
       { nom: "Sortir de la botte et remarcher", but: "Sevrage de la botte, marche normale, premières contractions du mollet sans étirement.",
         obj: [
           { id: "j70", t: "Au moins 10 semaines", p: "10 semaines depuis le début", a: { j: 70 } },
           { id: "marche", t: "Marche sans boiterie, chaussures normales", p: "Tu marches normalement, sans botte" },
-          { id: "deux", t: "Élévation du talon sur deux pieds", p: "Tu montes sur la pointe des deux pieds" }],
+          { id: "deux", t: "Élévation du talon sur deux pieds", p: "Tu montes sur la pointe des deux pieds" },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Talons levés assis", "Mollet assis avec charge", "Pointes de pieds tenues", "Élévation des talons", "Bascule d'un pied à l'autre", "Vélo d'appartement", "Équilibre unipodal", "Pousser le bord du pied contre le mur"] },
       { nom: "Renforcer le mollet", but: "Élévations du talon sur une jambe, de plus en plus hautes et nombreuses.",
         obj: [
           { id: "j112", t: "Au moins 16 semaines", p: "16 semaines depuis le début", a: { j: 112 } },
           { id: "heel60", t: "Élévations du talon : au moins 60 % du côté sain", p: "Ton mollet a retrouvé 60 % de son endurance", a: { m: "heel", lsi: 60 } },
-          { id: "heelh80", t: "Hauteur du talon : au moins 80 % du côté sain", p: "Ton talon monte presque aussi haut que l'autre", a: { m: "heelh", lsi: 80 } }],
+          { id: "heelh80", t: "Hauteur du talon : au moins 80 % du côté sain", p: "Ton talon monte presque aussi haut que l'autre", a: { m: "heelh", lsi: 80 } },
+          { id: "chir3", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Élévation des talons unipodale", "Élévation du talon sur une jambe, genou plié", "Élévation des talons genoux fléchis", "Marche sur la pointe des pieds", "Unipodal sur coussin", "Le flamant rose", "Le cueilleur de pommes", "Élévation des talons sur une marche"] },
       { nom: "Courir et sauter", but: "Reprise de la course, puis sauts et sport, selon la force du mollet.",
         obj: [
@@ -780,7 +817,6 @@ var KineParcours = (function () {
   P.fract_cheville = {
     nom: "Fracture de la cheville", long: "Fracture de la cheville, opérée ou traitée par plâtre ou botte", zone: "cheville", op: 1,
     d0: "Date de l'opération ou du plâtre",
-    opts: [{ id: "trait", l: "Traitement", ch: [["chir", "Opérée"], ["ortho", "Plâtre ou botte"]] }],
     key: { m: "dfl", lsi: 1, l: "Symétrie de la fente au mur" },
     mes: ["dou", "fig8", "dfl", "dfa", "heel", "yb", "omas"],
     ref: "Fente de cheville au mur",
@@ -867,7 +903,7 @@ var KineParcours = (function () {
         exos: ["Contraction de l'épaule contre le mur", "Pendulaire de Codman", "Élévation du bras aidée, couché", "Rotation externe au bâton, coude au corps", "Serrage des omoplates", "Haussement et enroulement des épaules", "Glissement de la main sur la table"] },
       { nom: "Renforcer la coiffe", but: "Rotations externes et élévations progressives, travail de l'omoplate.",
         obj: [
-          { id: "fle", t: "Élévation complète, sans arc douloureux net", p: "Tu lèves le bras jusqu'en haut", a: { m: "fle", lsi: 95 } },
+          { id: "fle", t: "Élévation complète (au moins 95 % du côté sain), sans arc douloureux net", p: "Tu lèves le bras jusqu'en haut", a: { m: "fle", lsi: 95 } },
           { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } }],
         exos: ["Rotation externe à l'élastique", "Rotation externe couché sur le côté", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Coup de poing vers le plafond", "Bras en arrière à plat ventre", "Wall slides", "Face pull à l'élastique", "Le mime contre la vitre", "Le chef d'orchestre"] },
       { nom: "Bras en hauteur et reprise", but: "Charges au-dessus de la tête, vitesse, gestes du sport ou du travail.",
@@ -883,7 +919,6 @@ var KineParcours = (function () {
 
   P.coiffe_op = {
     nom: "Réparation de la coiffe opérée", long: "Suture des tendons de la coiffe des rotateurs", zone: "epaule", op: 1,
-    opts: [{ id: "taille", l: "Taille de la rupture", ch: [["petite", "Petite ou moyenne"], ["large", "Large ou massive"]] }],
     key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
     mes: ["dou", "dnu", "fle", "abd", "re1", "fRE", "fElev", "sane", "psfs"],
     ref: "Élévation du bras aidée, couché",
@@ -895,18 +930,21 @@ var KineParcours = (function () {
         obj: [
           { id: "j42", t: "Au moins 6 semaines depuis l'opération", p: "6 semaines depuis l'opération", a: { j: 42 } },
           { id: "passif", t: "Élévation passive d'au moins 120°", p: "Ton bras monte bien quand on t'aide" },
-          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Haussement et enroulement des épaules", "Serrage des omoplates"] },
       { nom: "Bouger activement", but: "Sevrage de l'attelle, mouvements actifs aidés puis actifs, sans charge.",
         obj: [
           { id: "j70", t: "Au moins 10 semaines", p: "10 semaines depuis l'opération", a: { j: 70 } },
-          { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } }],
+          { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Marche des doigts sur le mur", "Rotation externe au bâton, coude au corps", "Élévation du bâton bras tendus", "Contraction de l'épaule contre le mur", "Coup de poing vers le plafond", "Wall slides", "Le mime contre la vitre"] },
       { nom: "Renforcer", but: "Renforcement progressif de la coiffe et de l'omoplate.",
         obj: [
           { id: "j112", t: "Au moins 16 semaines", p: "16 semaines depuis l'opération", a: { j: 112 } },
           { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } },
-          { id: "fre70", t: "Force des rotateurs externes : au moins 70 % du côté sain", p: "Ton épaule a retrouvé 70 % de sa force", a: { m: "fRE", lsi: 70 } }],
+          { id: "fre70", t: "Force des rotateurs externes : au moins 70 % du côté sain", p: "Ton épaule a retrouvé 70 % de sa force", a: { m: "fRE", lsi: 70 } },
+          { id: "chir3", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Rotation externe à l'élastique", "Rotation externe couché sur le côté", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Bras en arrière à plat ventre", "Rowing un bras appui chaise", "Le chef d'orchestre"] },
       { nom: "Reprendre les activités", but: "Charges, bras au-dessus de la tête, sport, en général à partir de 6 mois.",
         obj: [
@@ -949,7 +987,6 @@ var KineParcours = (function () {
 
   P.instab_ep = {
     nom: "Instabilité ou luxation de l'épaule", long: "Luxation ou instabilité de l'épaule, traitée sans opération", zone: "epaule",
-    opts: [{ id: "type", l: "Origine", ch: [["trauma", "Après une luxation"], ["laxe", "Sans traumatisme (épaule laxe)"]] }],
     key: { m: "fRE", lsi: 1, l: "Symétrie de la force des rotateurs externes" },
     mes: ["dou", "fle", "abd", "re1", "re90", "fRE", "ckc", "sane", "psfs"],
     ref: "Rotation externe à l'élastique",
@@ -984,7 +1021,6 @@ var KineParcours = (function () {
 
   P.stab_op = {
     nom: "Stabilisation de l'épaule opérée", long: "Opération de Bankart ou de Latarjet après luxations", zone: "epaule", op: 1,
-    opts: [{ id: "tech", l: "Opération", ch: [["bankart", "Bankart (sous arthroscopie)"], ["latarjet", "Latarjet (butée osseuse)"]] }],
     key: { m: "fRE", lsi: 1, l: "Symétrie de la force des rotateurs externes" },
     mes: ["dou", "fle", "abd", "re1", "re90", "fRE", "ckc", "sane", "psfs"],
     ref: "Rotation externe à l'élastique",
@@ -995,17 +1031,20 @@ var KineParcours = (function () {
       { nom: "Protéger (attelle)", but: "Mobilisation passive dans les limites du chirurgien, omoplate, coude et main.",
         obj: [
           { id: "j28", t: "Au moins 4 semaines depuis l'opération", p: "4 semaines depuis l'opération", a: { j: 28 } },
-          { id: "dou3", t: "Douleur de 3/10 au maximum", p: "La douleur a bien baissé", a: { m: "dou", max: 3 } }],
+          { id: "dou3", t: "Douleur de 3/10 au maximum", p: "La douleur a bien baissé", a: { m: "dou", max: 3 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Serrage des omoplates", "Haussement et enroulement des épaules"] },
       { nom: "Bouger et contrôler", but: "Amplitudes actives progressives, contractions de la coiffe.",
         obj: [
           { id: "j56", t: "Au moins 8 semaines", p: "8 semaines depuis l'opération", a: { j: 56 } },
-          { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } }],
+          { id: "fle90", t: "Élévation : au moins 90 % du côté sain", p: "Ton bras monte presque aussi haut que l'autre", a: { m: "fle", lsi: 90 } },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Contraction de l'épaule contre le mur", "Marche des doigts sur le mur", "Rotation externe au bâton, coude au corps", "Coup de poing vers le plafond", "Wall slides", "Le mime contre la vitre"] },
       { nom: "Renforcer", but: "Coiffe, omoplate, appuis sur les mains.",
         obj: [
           { id: "j84", t: "Au moins 12 semaines", p: "12 semaines depuis l'opération", a: { j: 84 } },
-          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } }],
+          { id: "fre80", t: "Force des rotateurs externes : au moins 80 % du côté sain", p: "Ton épaule a retrouvé 80 % de sa force", a: { m: "fRE", lsi: 80 } },
+          { id: "chir3", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Rotation externe à l'élastique", "Rotation interne à l'élastique", "Élévation dans le plan de l'omoplate", "Bras en arrière à plat ventre", "Pompes contre le mur", "Rowing un bras appui chaise", "Face pull à l'élastique"] },
       { nom: "Retour au sport", but: "Bras armé, vitesse, contacts, sur critères.",
         obj: [
@@ -1020,7 +1059,6 @@ var KineParcours = (function () {
 
   P.pte = {
     nom: "Prothèse d'épaule", long: "Prothèse totale d'épaule, anatomique ou inversée", zone: "epaule", op: 1,
-    opts: [{ id: "type", l: "Type de prothèse", ch: [["anat", "Anatomique"], ["inv", "Inversée"]] }],
     key: { m: "fle", lsi: 1, l: "Symétrie de l'élévation du bras" },
     mes: ["dou", "dnu", "fle", "abd", "re1", "sane", "psfs"],
     ref: "Élévation du bras aidée, couché",
@@ -1031,12 +1069,14 @@ var KineParcours = (function () {
       { nom: "Protéger", but: "Attelle, mobilisation passive puis active aidée, selon le chirurgien.",
         obj: [
           { id: "j42", t: "Au moins 6 semaines depuis l'opération", p: "6 semaines depuis l'opération", a: { j: 42 } },
-          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } }],
+          { id: "nuit", t: "Douleur la nuit de 3/10 au maximum", p: "Tu dors mieux", a: { m: "dnu", max: 3 } },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pendulaire de Codman", "Élévation du bras aidée, couché", "Glissement de la main sur la table", "Haussement et enroulement des épaules", "Serrage des omoplates"] },
       { nom: "Bouger activement", but: "Mouvements actifs dans les amplitudes fonctionnelles.",
         obj: [
           { id: "fle120", t: "Élévation active d'au moins 120°", p: "Tu lèves ton bras seul, assez haut", a: { m: "fle", min: 120 } },
-          { id: "quot", t: "Main à la bouche et à la tête sans aide", p: "Tu manges et te coiffes seul" }],
+          { id: "quot", t: "Main à la bouche et à la tête sans aide", p: "Tu manges et te coiffes seul" },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Marche des doigts sur le mur", "Élévation du bâton bras tendus", "Coup de poing vers le plafond", "Contraction de l'épaule contre le mur", "Le chef d'orchestre", "Le mime contre la vitre"] },
       { nom: "Renforcer et autonomie", but: "Renforcement du deltoïde et de la coiffe, gestes du quotidien et loisirs.",
         obj: [
@@ -1088,8 +1128,8 @@ var KineParcours = (function () {
   ];
   P.hanche = {
     nom: "Hanche, sans diagnostic précis", long: "Douleur de hanche ou de l'aine sans diagnostic établi", zone: "hanche",
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "hflex", "hri", "abd", "fAdd", "sts30", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "hri", "abdh", "fAdd", "sts30", "sane", "psfs"],
     ref: "Pont de hanche",
     notes: ["Parcours général en attendant d'affiner : le guide d'orientation propose une piste à partir de l'interrogatoire et des tests.",
             "Penser à examiner le rachis lombaire : une douleur de fesse ou de hanche vient parfois du dos."],
@@ -1101,12 +1141,12 @@ var KineParcours = (function () {
         exos: ["Contraction des fessiers couché", "Rotation de hanche couché, genou plié", "Pont de hanche", "Clamshell", "Montée de genou assis", "Vélo d'appartement", "Le hula hoop"] },
       { nom: "Renforcer", but: "Fessiers, abducteurs, adducteurs, contrôle du bassin sur une jambe.",
         obj: [
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } },
           { id: "uni", t: "Tient 30 s sur une jambe, bassin horizontal", p: "Tu tiens 30 secondes sur une jambe, bien droit" }],
         exos: ["Abduction contre le mur, debout", "Abduction couché sur le côté", "Pont fessier unilatéral", "Montée de marche sur le côté", "Marche latérale élastique", "Serrage de ballon entre les genoux", "Squat bilatéral", "La marche du mannequin"] },
       { nom: "Reprendre les activités", but: "Charges, course, sport.",
         obj: [
-          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abdh", lsi: 90 } },
           { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
         exos: ["Squat bulgare", "Fente latérale", "Avion sur une jambe", "Planche Copenhague genou", "Le pas du crabe", "La porte du saloon"] }
     ],
@@ -1116,7 +1156,7 @@ var KineParcours = (function () {
   P.coxarthrose = {
     nom: "Arthrose de la hanche", long: "Coxarthrose", zone: "hanche",
     key: { m: "sts30", l: "Levers de chaise en 30 secondes" },
-    mes: ["dou", "hflex", "hri", "abd", "sts30", "tug", "marche40", "sane", "psfs"],
+    mes: ["dou", "hflex", "hri", "abdh", "sts30", "tug", "marche40", "sane", "psfs"],
     ref: "Assis-debout de chaise",
     notes: ["L'exercice et les explications sont le traitement de base, à tous les stades : il ne use pas la hanche.",
             "La perte de poids aide si elle est nécessaire. Une canne du côté opposé soulage la marche les mauvais jours.",
@@ -1130,11 +1170,11 @@ var KineParcours = (function () {
       { nom: "Renforcer et contrôler", but: "Renforcement progressif et exercices d'équilibre, comme le programme GLA:D.",
         obj: [
           { id: "sts", t: "Levers de chaise en 30 s en hausse d'au moins 2", p: "Tu te lèves plus facilement d'une chaise", a: { m: "sts30", gain: 2 } },
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } }],
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } }],
         exos: ["Abduction contre le mur, debout", "Montée de marche sur le côté", "Step-up sur marche", "Squat bilatéral", "Pont fessier unilatéral", "Équilibre unipodal", "Marche latérale élastique", "La marche du mannequin"] },
       { nom: "Autonomie", but: "Programme à faire seul, activité physique régulière (marche, vélo, natation).",
         obj: [
-          { id: "marche", t: "Marche rapide 4 × 10 m améliorée", p: "Tu marches plus vite", a: { m: "marche40", gain: 2 } },
+          { id: "marche", t: "Marche rapide 4 × 10 m : au moins 2 s gagnées depuis le premier bilan", p: "Tu marches plus vite", a: { m: "marche40", gain: 2 } },
           { id: "activ", t: "Activité physique régulière en place", p: "Tu bouges régulièrement" }],
         exos: ["Fente arrière", "Montée de marche avec charge", "Goblet squat", "Se relever du sol", "Le pas du crabe", "Avion sur une jambe"] }
     ],
@@ -1143,9 +1183,8 @@ var KineParcours = (function () {
   };
   P.pth = {
     nom: "Prothèse de hanche", long: "Prothèse totale de hanche", zone: "hanche", op: 1,
-    opts: [{ id: "voie", l: "Voie d'abord", ch: [["ant", "Antérieure"], ["post", "Postérieure ou latérale"]] }],
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "hflex", "abd", "sts30", "tug", "marche40", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "abdh", "sts30", "tug", "marche40", "sane", "psfs"],
     ref: "Assis-debout de chaise",
     notes: ["Voie postérieure : les premières semaines, éviter de plier la hanche au-delà de 90°, de croiser les jambes et de tourner le genou vers l'intérieur, selon le chirurgien.",
             "Voie antérieure : éviter au début l'extension forcée avec la jambe tournée vers l'extérieur.",
@@ -1154,17 +1193,19 @@ var KineParcours = (function () {
       { nom: "Remarcher", but: "Marche avec aides techniques, mobilité dans les limites autorisées, réveil des fessiers.",
         obj: [
           { id: "j21", t: "Au moins 3 semaines depuis l'opération", p: "3 semaines depuis l'opération", a: { j: 21 } },
-          { id: "esc", t: "Escaliers avec une rampe, en sécurité", p: "Tu montes les escaliers en sécurité" }],
+          { id: "esc", t: "Escaliers avec une rampe, en sécurité", p: "Tu montes les escaliers en sécurité" },
+          { id: "chir1", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Pompe de cheville couché", "Contraction des fessiers couché", "Glissement de la jambe sur le côté, couché", "Glissement du talon couché", "Pont de hanche", "Montée de genou assis"] },
       { nom: "Marcher sans aide", but: "Sevrage des cannes, marche sans boiterie, renforcement des abducteurs.",
         obj: [
           { id: "j42", t: "Au moins 6 semaines", p: "6 semaines depuis l'opération", a: { j: 42 } },
           { id: "marche", t: "Marche sans canne et sans boiterie", p: "Tu marches sans canne et sans boiter" },
-          { id: "abd70", t: "Force des abducteurs : au moins 70 % du côté sain", p: "Ta hanche a retrouvé 70 % de sa force", a: { m: "abd", lsi: 70 } }],
+          { id: "abd70", t: "Force des abducteurs : au moins 70 % du côté sain", p: "Ta hanche a retrouvé 70 % de sa force", a: { m: "abdh", lsi: 70 } },
+          { id: "chir2", t: "Autorisé par le chirurgien pour passer à l'étape suivante", p: "Ton chirurgien autorise la suite" }],
         exos: ["Abduction contre le mur, debout", "Abduction couché sur le côté", "Assis-debout de chaise", "Step-up sur marche", "Montée de marche sur le côté", "Marche latérale élastique", "Vélo d'appartement"] },
       { nom: "Renforcer et autonomie", but: "Force, équilibre, activités de loisir adaptées.",
         obj: [
-          { id: "abd85", t: "Force des abducteurs : au moins 85 % du côté sain", p: "Ta hanche a presque retrouvé sa force", a: { m: "abd", lsi: 85 } },
+          { id: "abd85", t: "Force des abducteurs : au moins 85 % du côté sain", p: "Ta hanche a presque retrouvé sa force", a: { m: "abdh", lsi: 85 } },
           { id: "sts", t: "Levers de chaise en 30 s en hausse d'au moins 3", p: "Tu te lèves bien plus facilement", a: { m: "sts30", gain: 3 } }],
         exos: ["Pont fessier unilatéral", "Squat bilatéral", "Équilibre unipodal", "Fente arrière", "Se relever du sol", "La marche du mannequin"] }
     ],
@@ -1173,8 +1214,8 @@ var KineParcours = (function () {
   };
   P.tendino_fess = {
     nom: "Douleur latérale de hanche (fessiers)", long: "Tendinopathie des moyen et petit fessiers", zone: "hanche",
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "abd", "hri", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "abdh", "hri", "sane", "psfs"],
     ref: "Abduction contre le mur, debout",
     notes: ["Le programme explications + exercices fait mieux qu'une infiltration à un an (essai LEAP).",
             "À éviter : croiser les jambes, se tenir debout en appui sur une hanche, dormir couché sur le côté douloureux sans coussin entre les genoux, les étirements de la face externe de la hanche.",
@@ -1187,12 +1228,12 @@ var KineParcours = (function () {
         exos: ["Abduction contre le mur, debout", "Contraction des fessiers couché", "Pont de hanche", "Montée de genou assis", "Vélo d'appartement"] },
       { nom: "Renforcer en charge", but: "Renforcement progressif des abducteurs, contrôle du bassin.",
         obj: [
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } },
           { id: "uni", t: "Tient 30 s sur une jambe sans douleur", p: "Tu tiens 30 secondes sur une jambe sans douleur" }],
         exos: ["Montée de marche sur le côté", "Pont fessier unilatéral", "Marche latérale élastique", "Squat bilatéral", "Équilibre unipodal", "La marche du mannequin"] },
       { nom: "Reprendre les activités", but: "Montées, course, sport.",
         obj: [
-          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "abd90", t: "Force des abducteurs : au moins 90 % du côté sain", p: "Ta hanche a retrouvé sa force", a: { m: "abdh", lsi: 90 } },
           { id: "activ", t: "Activités reprises sans douleur gênante", p: "Tu as repris tes activités" }],
         exos: ["Squat bulgare", "Fente latérale", "Avion sur une jambe", "Step-up sur marche", "Le pas du crabe"] }
     ],
@@ -1201,8 +1242,8 @@ var KineParcours = (function () {
   };
   P.cfa = {
     nom: "Douleur de hanche du sportif (conflit)", long: "Conflit fémoro-acétabulaire et douleur de hanche du sujet jeune et actif", zone: "hanche",
-    key: { m: "abd", lsi: 1, l: "Symétrie de la force des abducteurs" },
-    mes: ["dou", "hflex", "hri", "abd", "fAdd", "sane", "psfs"],
+    key: { m: "abdh", lsi: 1, l: "Symétrie de la force des abducteurs" },
+    mes: ["dou", "hflex", "hri", "abdh", "fAdd", "sane", "psfs"],
     ref: "Pont fessier unilatéral",
     notes: ["Rééducation de 3 mois au moins en première intention : renforcement de la hanche et du tronc, contrôle du mouvement, adaptation du sport.",
             "Limiter au début les flexions profondes de hanche avec rotation interne (squat très bas, position assise basse prolongée).",
@@ -1215,12 +1256,12 @@ var KineParcours = (function () {
         exos: ["Pont de hanche", "Clamshell", "Contraction des fessiers couché", "Dead bug", "Montée de genou assis", "Le hula hoop"] },
       { nom: "Renforcer hanche et tronc", but: "Fessiers, adducteurs, gainage, sur une jambe.",
         obj: [
-          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abd", lsi: 80 } },
+          { id: "abd80", t: "Force des abducteurs : au moins 80 % du côté sain", p: "Ta hanche a retrouvé 80 % de sa force", a: { m: "abdh", lsi: 80 } },
           { id: "add80", t: "Force des adducteurs : au moins 80 % du côté sain", p: "L'intérieur de ta cuisse a retrouvé 80 % de sa force", a: { m: "fAdd", lsi: 80 } }],
         exos: ["Pont fessier unilatéral", "Montée de marche sur le côté", "Planche Copenhague genou", "Side plank sur genoux", "Avion sur une jambe", "Charnière de hanche, fesses au mur", "La porte du saloon"] },
       { nom: "Reprendre le sport", but: "Course, changements de direction, frappes, sur critères.",
         obj: [
-          { id: "abd90", t: "Force des abducteurs et des adducteurs : au moins 90 %", p: "Ta hanche a retrouvé sa force", a: { m: "abd", lsi: 90 } },
+          { id: "abd90", t: "Force des abducteurs et des adducteurs : au moins 90 %", p: "Ta hanche a retrouvé sa force", a: { m: "abdh", lsi: 90 } },
           { id: "sport", t: "Entraînement repris sans douleur gênante", p: "Tu as repris l'entraînement" }],
         exos: ["Squat bulgare", "Fente latérale", "Planche Copenhague", "Bonds du patineur", "Le pas du crabe"] }
     ],
@@ -1230,7 +1271,7 @@ var KineParcours = (function () {
   P.pubalgie = {
     nom: "Douleur de l'aine du sportif (adducteurs)", long: "Douleur de l'aine liée aux adducteurs (pubalgie)", zone: "hanche",
     key: { m: "fAdd", lsi: 1, l: "Symétrie de la force des adducteurs" },
-    mes: ["dou", "fAdd", "abd", "hri", "sane", "psfs"],
+    mes: ["dou", "fAdd", "abdh", "hri", "sane", "psfs"],
     ref: "Planche Copenhague genou",
     notes: ["Le renforcement actif des adducteurs et du tronc est le traitement de référence (programme d'Hölmich).",
             "Le programme Copenhague (adducteurs) réduit nettement les douleurs de l'aine chez les footballeurs : à garder en prévention.",
@@ -1266,7 +1307,6 @@ var KineParcours = (function () {
   ];
   P.dos = {
     nom: "Lombalgie commune", long: "Lombalgie commune, aiguë ou persistante", zone: "rachis",
-    opts: [{ id: "duree", l: "Durée", ch: [["aigue", "Moins de 6 semaines"], ["sub", "6 à 12 semaines"], ["chro", "Plus de 3 mois"]] }],
     key: { m: "dou", l: "Douleur à l'effort" },
     mes: ["dou", "dsol", "sorensen", "plk", "sts30", "sane", "psfs"],
     ref: "Superman quadrupédique en gainage",
@@ -1379,7 +1419,7 @@ var KineParcours = (function () {
                "cheville", "entorse", "instab", "achille", "rupt_achille", "aponev", "fract_cheville",
                "epaule", "coiffe", "coiffe_op", "capsulite", "instab_ep", "stab_op", "pte", "fx_humerus",
                "hanche", "coxarthrose", "pth", "tendino_fess", "cfa", "pubalgie",
-               "dos", "sciatique", "cervicalgie", "nevralgie_cb"];
+               "dos", "sciatique", "cervicalgie", "nevralgie_cb", "hopital"];
   // Les questionnaires remplis par le patient (note globale, activités choisies) sont proposés dans tous les parcours
   // Tests de saut au téléphone : hauteur, réactivité et symétrie, dans les parcours qui reprennent les sauts
   var SAUTS = { lca_op: ["hopv", "rsi", "tcs"], lca_cons: ["hopv", "rsi", "tcs"], suture_men: ["hopv"], menisectomie: ["hopv", "rsi"], lcm: ["hopv", "rsi"],
@@ -1421,7 +1461,7 @@ var KineParcours = (function () {
   });
   // Tendinopathie rotulienne : contractions statiques lourdes dès la première étape
   if (P.tendino_rot.etapes[0].exos.indexOf("Spanish squat tenu lourd") < 0) P.tendino_rot.etapes[0].exos.unshift("Spanish squat tenu lourd");
-  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"], ["hanche", "Hanche"], ["rachis", "Dos et cou"]];
+  var ZONES = [["genou", "Genou"], ["cheville", "Cheville et pied"], ["epaule", "Épaule"], ["hanche", "Hanche"], ["rachis", "Dos et cou"], ["hopital", "Hôpital"]];
 
   /* ════════ Calculs ════════ */
   function num(v) { if (v == null || v === "") return null; var n = +String(v).replace(",", "."); return isFinite(n) ? n : null; }
@@ -1435,7 +1475,8 @@ var KineParcours = (function () {
   function val(b, mid, side) { var r = b && b.m && b.m[mid]; if (!r) return null; return best(mid, side === "s" ? r.s : r.a); }
   function lsi(b, mid) {
     var a = val(b, mid, "a"), s = val(b, mid, "s");
-    if (a == null || s == null || !a || !s) return null;
+    if (a == null || s == null || !s) return null;
+    if (!a) return M[mid] && M[mid].lo ? null : 0;   // 0 kg : 0 % (pas de contraction) ; un temps nul n'a pas de sens
     return Math.round((M[mid] && M[mid].lo ? s / a : a / s) * 100);
   }
   // Dernière valeur connue d'une mesure dans l'historique des bilans (plus récent en premier)
@@ -1443,11 +1484,12 @@ var KineParcours = (function () {
   function firstWith(bilans, mid) { for (var i = bilans.length - 1; i >= 0; i--) if (val(bilans[i], mid, "a") != null) return bilans[i]; return null; }
   function days(from) { if (!from) return null; var p = String(from).split("-"); return Math.floor((Date.now() - new Date(+p[0], +p[1] - 1, +p[2]).getTime()) / 86400000); }
 
+  var HOPN = { hop1: "saut simple", hop3: "triple saut", hop6: "6 m" };
   /* Évalue un objectif calculé : { ok: true/false/null (pas de mesure), v: texte de la valeur } */
   function evalObj(a, ctx) {
     if (!a) return null;
     var B = ctx.bilans || [];
-    if (a.j != null) { var d = days(ctx.date0); return d == null ? { ok: null, v: "date à renseigner" } : { ok: d >= a.j, v: Math.floor(d / 7) + " sem." }; }
+    if (a.j != null) { var d = days(ctx.date0); return d == null ? { ok: null, v: "date à renseigner" } : d < 0 ? { ok: false, v: "date dans le futur" } : { ok: d >= a.j, v: Math.floor(d / 7) + " sem." }; }
     if (a.dou != null) {
       var ss = (ctx.seances || []).filter(function (s) { return s.dou != null && s.dou !== ""; }).slice(0, 3);
       if (ss.length < 2) return { ok: null, v: "2 séances à noter" };
@@ -1455,11 +1497,18 @@ var KineParcours = (function () {
       return { ok: mx <= a.dou, v: "max " + mx + "/10" };
     }
     if (a.hops != null) {
-      var b0 = B[0] ? B : [];
-      var got = ["hop1", "hop3", "hop6"].map(function (h) { var bb = lastWith(b0, h); return bb ? lsi(bb, h) : null; }).filter(function (x) { return x != null; });
-      if (!got.length) return { ok: null, v: "à mesurer" };
-      var mn = Math.min.apply(null, got);
-      return { ok: mn >= a.hops, v: mn + " %" };
+      // need : tests exigés (batterie complète) ; sinon, tous ceux qui sont mesurés. Un test sous le seuil suffit à ne pas valider ;
+      // un test exigé jamais mesuré empêche de valider (pas de retour au sport sur un seul saut quand le parcours en demande trois).
+      var b0 = B[0] ? B : [], need = a.need || [], got = [], miss = [];
+      (need.length ? need : ["hop1", "hop3", "hop6"]).forEach(function (h) {
+        var bb = lastWith(b0, h), l = bb ? lsi(bb, h) : null;
+        if (l != null) got.push(l); else if (need.length) miss.push(HOPN[h] || h);
+      });
+      var mn = got.length ? Math.min.apply(null, got) : null;
+      if (mn != null && mn < a.hops) return { ok: false, v: mn + " %" };
+      if (miss.length) return { ok: null, v: "à mesurer : " + miss.join(", ") };
+      if (mn == null) return { ok: null, v: "à mesurer" };
+      return { ok: true, v: mn + " %" };
     }
     var b = lastWith(B, a.m); if (!b) return { ok: null, v: "à mesurer" };
     var va = val(b, a.m, "a"), vs = val(b, a.m, "s"), u = M[a.m] && M[a.m].u ? M[a.m].u : "", sp = u === "°" ? "" : " ";

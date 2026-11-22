@@ -1,7 +1,7 @@
 // KinéForce — Service Worker v2
 // Réseau d'abord pour l'appli (les mises à jour s'affichent dès la première ouverture),
 // cache en secours hors connexion. Bibliothèques et polices : cache d'abord.
-const VERSION = 'kineforce-v142';
+const VERSION = 'kineforce-v155';
 const VOIX = 'kineforce-voix';   // jamais vidé à chaque mise à jour
 const POSE = 'kineforce-pose-0.10.35';   // outil d'analyse caméra : téléchargé une fois, gardé entre les versions
 const APP_FILES = [
@@ -20,15 +20,25 @@ const APP_FILES = [
   'assets/js/kine-niveau.js',
   'assets/js/kine-biblio.js',
   'assets/js/kine-compose.js',
+  'assets/js/kine-glossaire.js',
   'assets/js/kine-officiel.js',
   'assets/js/kine-themes.js',
   'assets/js/kine-nouveaux.js',
   'assets/js/kine-nouveaux2.js',
+  'assets/js/kine-nouveaux3.js',
+  'assets/js/kine-hopital.js',
+  'assets/js/kine-cabpatient.js',
+  'assets/hop/hop-global.webp',
+  'assets/hop/hop-tronc.webp',
+  'assets/hop/hop-jambes.webp',
+  'assets/hop/hop-recup.webp',
   'assets/js/kine-salle-ex.js',
   'assets/js/kine-genou-ex.js',
   'assets/js/kine-cheville-ex.js',
   'assets/js/kine-epaule-ex.js',
   'assets/js/kine-hanche-dos-ex.js',
+  'assets/js/kine-etirements-ex.js',
+  'assets/js/kine-mobilite.js',
   'assets/js/kine-renfo-ex.js',
   'assets/js/kine-quest.js',
   'assets/js/kine-salle.js',
@@ -77,6 +87,8 @@ const APP_FILES = [
   'assets/lumiere/yass-anim/biceps.webp',
   'assets/lumiere/yass-anim/etire.webp',
   'assets/lumiere/yass-anim/pouce.webp',
+  'assets/lumiere/yass-anim/course.webp',
+  'assets/lumiere/yass-anim/st-marche.webp',
   'assets/illus/walk.webp',
   'assets/illus/back.webp',
   'assets/illus/knee.webp',

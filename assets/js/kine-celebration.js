@@ -77,6 +77,7 @@
           "<div><b>" + (duration || 1) + " min</b><span>durée</span></div>" +
           "<div><b>" + st.total + "</b><span>séance" + (st.total > 1 ? "s" : "") + " en tout</span></div>" +
         "</div>" +
+        (window.KineHopital && KineHopital.isHop() ? KineHopital.feelHtml() : "") +
         "<button class='seq-btn-main cele-go' id='cele-go'>Faire mon bilan</button>" +
       "</div>";
     el.classList.add("open");

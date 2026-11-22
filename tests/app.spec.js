@@ -229,6 +229,12 @@ test("suivi au cabinet : parcours, bilan, objectifs et patient relié", async ({
   await shot(page, info, "21-cabinet-patient");
   const custom = await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine").map(x => x.ex.length)[0]);
   expect(custom).toBe(2);
+  // l'accueil propose la séance du kiné, le programme général reste accessible
+  await page.evaluate(() => { KineMonSuivi.close(); showPage("home"); });
+  await expect(page.locator("#page-cab-today .kh-hero")).toContainText("La séance de ton kiné");
+  await expect(page.locator("#page-cab-today .kh-hero .kh-big")).toContainText("2 exercices");
+  await page.locator("#page-cab-today .kh-hero .kh-go").click();
+  await expect(page.locator("#seq-overlay.open, #kf-preview.open, .kf-sheet.open").first()).toBeVisible();
   await clean(errs);
 });
 
@@ -341,14 +347,15 @@ test("kiné ou patient : premier lancement, demande d'accès et acceptation", as
   await clean(errs);
 });
 
-test("mon espace : bouton toujours visible, code du kiné dans Progrès", async ({ page }, info) => {
+test("mon espace : bouton toujours visible, code du kiné dans Mon kiné (plus de doublon dans Progrès)", async ({ page }, info) => {
   const errs = []; await setup(page, errs);
   await page.route(/firebase|gstatic|googleapis/, r => r.abort());
   await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
   await expect(page.locator("#kf-me")).toBeVisible();
   await page.evaluate(() => showPage("suivi"));
-  await expect(page.locator("#page-suivi #kms-join-row")).toBeVisible();
+  await expect(page.locator("#page-suivi #kms-join-row")).toHaveCount(0);
   await page.locator("#kf-me").click();
+  await expect(page.locator("#kf-hub.open")).toContainText("J'ai un code de mon kiné");
   await expect(page.locator("#kf-hub.open .khb-seg")).toHaveCount(0);
   await expect(page.locator("#kf-hub.open .khb-out")).toContainText("Changer de profil");
   await shot(page, info, "23-mon-espace");
@@ -365,7 +372,13 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
   await expect(page.locator("#kms-sheet .seq-btn-main")).toHaveText("Oui, sauvegarder");
-  await page.evaluate(() => { localStorage.setItem("kf-sessions", JSON.stringify([{ id: 11, ts: 11, date: "2026-10-27", seance: "J1 — Membres inférieurs", borg: 3, douleur: 2, duree: 30 }])); sessions = JSON.parse(localStorage.getItem("kf-sessions")); KineMonSuivi.consent(1); });
+  await page.evaluate(() => { localStorage.setItem("kf-sessions", JSON.stringify([{ id: 11, ts: 11, date: "2026-10-27", seance: "J1 — Membres inférieurs", borg: 3, douleur: 2, duree: 30 }])); sessions = JSON.parse(localStorage.getItem("kf-sessions"));
+    // réglages faits à la maison et sorties du journal de course
+    const d0 = new Date(), iso = (n) => { const z = new Date(d0); z.setDate(z.getDate() - n); return z.toISOString().slice(0, 10); };
+    localStorage.setItem("kf-variant", JSON.stringify({ "Chaise contre le mur": "Position du skieur" }));
+    localStorage.setItem("kf-variant-log", JSON.stringify([{ t: "Chaise contre le mur → Position du skieur", d: "30/10" }, { t: "Chaise contre le mur : 60 s", d: "29/10" }]));
+    localStorage.setItem("kf-runs", JSON.stringify([{ id: "a", d: iso(0), min: 40, pain: 1, next: 0 }, { id: "b", d: iso(8), min: 30, pain: 0, next: 0 }, { id: "c", d: iso(15), min: 30, pain: 2, next: 1 }]));
+    KineMonSuivi.consent(1); });
   await expect.poll(() => page.evaluate(() => { const p = Object.values(window.__db.patients)[0]; return p.journal && p.journal["2026-10"] && p.journal["2026-10"].s.length; })).toBe(1);
   // identifiant et mot de passe
   await page.evaluate(() => { KineMonSuivi.close(); KineRole.loginForm("create"); });
@@ -376,7 +389,20 @@ test("sauvegarde : identifiant, journal des séances à la maison et récupérat
   await page.evaluate(() => { KineRole.hubClose(); window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.fiche(Object.keys(window.__db.patients)[0]); });
   await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
   await page.evaluate(() => KineCabinet.maison());
-  await expect(page.locator("#kcb-sheet .kcb-jh")).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-jh").first()).toBeVisible();
+  await expect(page.locator("#kcb-sheet .kcb-niv .kcb-nv")).toContainText("Position du skieur");
+  await expect(page.locator("#kcb-sheet .kcb-run")).toContainText("3 sorties");
+  await expect(page.locator("#kcb-sheet .kcb-runmsg")).toContainText("40 min cette semaine");
+  await page.waitForTimeout(600); await page.evaluate(() => { const e = document.querySelector("#kcb-sheet .kcb-niv"); if (e) e.scrollIntoView({ block: "center" }); }); await page.waitForTimeout(300);
+  await shot(page, info, "101-reglages-maison-kine");
+  // le kiné reprend la variante dans sa séance en un geste
+  await page.evaluate(async () => { const id = Object.keys(window.__db.patients)[0]; await fbCab.save(id, { exos: ["Chaise contre le mur", "Pont de hanche"] }); KineCabinet.fiche(id); });
+  await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
+  await page.evaluate(() => KineCabinet.maison());
+  await page.evaluate(() => KineCabinet.varTake());
+  await expect(page.locator("#kcb-sheet .seq-btn-main", { hasText: "Envoyer au patient (2)" })).toBeVisible();
+  await expect(page.locator("#kcb-sheet")).toContainText("Position du skieur");
+  expect(await page.evaluate(() => [...document.querySelectorAll("#kcb-sheet .kcb-exck.on")].some(b => /Chaise contre le mur/.test(b.textContent)))).toBe(false);
   // nouveau téléphone : tout est effacé, puis retrouvé avec l'identifiant
   await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; ["kf-cab", "kf-sessions", "kf-cab-jh"].forEach(k => localStorage.removeItem(k)); sessions = []; KineRole.loginForm("restore"); });
   await page.fill("#kl-id", "samir.b"); await page.fill("#kl-pw", "mauvais1");
@@ -412,7 +438,7 @@ test("nouveaux exercices et schémas animés", async ({ page }, info) => {
     KineAvatar.setShirt(["Yasser", "Ladraa"]); const t1 = KineAvatar.shirt(); KineAvatar.setShirt(null);
     return { miss, nb: KineChevilleEx.names.length, zones, piste: piste && piste.parcours, rupt: rupt && rupt.parcours, t1, t2: KineAvatar.shirt(), al: KineParcours.alertes("entorse")[0].slice(0, 20) };
   });
-  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7, 8, 6, 4]);
+  expect(c.miss).toEqual([]); expect(c.nb).toBe(23); expect(c.zones).toEqual([10, 7, 8, 6, 4, 1]);
   expect(c.piste).toBe("entorse"); expect(c.rupt).toBe("rupt_achille");
   expect(c.t1).toEqual(["Yasser", "Ladraa"]); expect(c.t2).toBe(null); expect(c.al).toBe("Impossible de faire ");
   // Épaule : exercices animés, 8 parcours, guide avec tests conseillés
@@ -463,7 +489,10 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
   await page.evaluate(() => { KineCabinet.setKine(); KineCabinet.nouveau(); });
   await page.fill("#kcb-alias", "J.S.");
+  // opéré : la date de l'opération restée à aujourd'hui est signalée une fois, puis la fiche se crée
   await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await expect(page.locator("#kcb-d0f.kcb-check")).toBeVisible();
+  await page.evaluate(() => KineCabinet.saveForm(null));
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
@@ -483,7 +512,9 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   const v = await page.evaluate(() => [0, 1, 2].map(i => +document.querySelector("input[data-m=hopv][data-s=a][data-i='" + i + "']").value.replace(",", ".")));
   expect(v[1]).toBeGreaterThan(19); expect(v[1]).toBeLessThan(21.5); expect(v[0]).toBeLessThan(v[1]);
   // sauts répétés : RSI et temps de contact
-  await page.evaluate(() => { KineCabinet.saut("rsi", "a"); KineSaut.begin();
+  await page.evaluate(() => { KineCabinet.saut("rsi", "a"); KineSaut.begin(); });
+  await expect(page.locator("#ks-test .kcb-ang")).toHaveText("Prêt");
+  await page.evaluate(() => {
     const js = []; for (let i = 0; i < 10; i++) js.push({ tf: 0.42, tc: 0.21, rebound: true });
     KineSaut._feed(sautSim(js)); });
   await expect(page.locator("#ks-test .ks-c")).toContainText("RSI");
@@ -500,6 +531,13 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   await page.evaluate(() => { KineReactif._set("sig", "tot"); KineReactif.start(); });
   await expect(page.locator("#kr-run .kr-sig")).toBeVisible({ timeout: 9000 });
   await shot(page, info, "42-signal-en-cours");
+  await page.evaluate(() => KineReactif.stop());
+  // pas réactifs aux flèches, sans matériel
+  await page.evaluate(() => { KineReactif.open("fleches"); KineReactif._set("diag", true); KineReactif._set("rythme", "rapide"); });
+  await expect(page.locator("#kr-sheet .kr-svg text")).toHaveCount(12);
+  await page.evaluate(() => KineReactif.start());
+  await expect(page.locator("#kr-run .kr-arr")).toBeVisible({ timeout: 9000 });
+  await shot(page, info, "97-fleches");
   await page.evaluate(() => KineReactif.stop());
   // le kiné envoie le test de saut ; le patient le fait chez lui ; les hauteurs reviennent dans le bilan avec la symétrie
   await page.evaluate((pid) => { KineReactif.close(); KineCabinet.fiche(pid); }, pid);
@@ -522,7 +560,7 @@ test("test de saut au téléphone et réception sur signal", async ({ page }, in
   for (const tf of [[0.4, 0.42], [0.36, 0.38]]) {   // jambe droite (atteinte) puis gauche
     await expect(page.locator("#kq-sheet .kq-q")).toContainText("Saut vertical");
     await page.locator("#kq-next").click();
-    for (const t of tf) { await page.evaluate((t) => { KineSaut.begin(); KineSaut._feed(sautSim([{ tf: t }])); }, t); await expect(page.locator("#ks-test .kcb-ang.big")).toContainText("cm"); }
+    for (const t of tf) { await page.evaluate(() => KineSaut.begin()); await expect(page.locator("#ks-test .kcb-ang")).toHaveText("Prêt"); await page.evaluate((t) => { KineSaut._feed(sautSim([{ tf: t }])); }, t); await expect(page.locator("#ks-test .kcb-ang.big")).toContainText("cm"); }
     await page.evaluate(() => KineSaut.use());
     await expect(page.locator("#kq-sheet .kq-sum b")).toContainText("cm");
     if (tf[0] === 0.4) await shot(page, info, "44-saut-patient-mesure");
@@ -610,7 +648,7 @@ test("fiche : raccourcis, étapes expliquées, bilan par familles et photos gard
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
-  await expect(page.locator("#kcb-sheet .kcb-tile")).toHaveCount(4);
+  await expect(page.locator("#kcb-sheet .kcb-tile")).toHaveCount(5);
   await page.waitForTimeout(600);
   await shot(page, info, "60-fiche-raccourcis");
   await page.evaluate(() => KineCabinet.etapes());
@@ -660,6 +698,12 @@ test("fiche : raccourcis, étapes expliquées, bilan par familles et photos gard
   await page.emulateMedia({ media: "screen" });
   await page.evaluate(() => KineCabinet.crClose());
   expect(await page.evaluate((pid) => Object.keys(window.__db.patients[pid].photos || {}).length, pid)).toBe(1);
+  // plus de 5 patients : recherche dans la liste
+  await page.evaluate(async () => { for (const a of ["A.A.", "B.B.", "C.C.", "D.D.", "E.E."]) await fbCab.create({ alias: a, parcours: "dos", etape: 0, cote: "D", date0: "2026-10-01" }); KineCabinet.open(); });
+  await expect(page.locator("#kcb-ps")).toBeVisible();
+  await page.fill("#kcb-ps", "lm");
+  await page.evaluate(() => KineCabinet.psearch("l.m"));
+  expect(await page.evaluate(() => [...document.querySelectorAll("#kcb-sheet .kcb-pat")].filter(b => b.style.display !== "none").length)).toBe(1);
   await clean(errs);
 });
 
@@ -700,7 +744,7 @@ test("séance au cabinet : plusieurs exercices, notés un par un, progression pr
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
   await page.evaluate(() => KineCabinet.nouveau());
   await page.fill("#kcb-alias", "R.K.");
-  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); KineCabinet.saveForm(null); });
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
@@ -788,7 +832,7 @@ test("envoi programmé : séance et questionnaire reçus à la date choisie", as
   // une semaine plus tard : la nouvelle séance arrive
   await page.evaluate(() => { const D = window.__db.patients[Object.keys(window.__db.patients)[0]].doc; D.exosFrom = "2000-01-01"; });
   await page.evaluate(() => KineMonSuivi.open());
-  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine")[0].ex.length)).toBe(2);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom") || "[]").filter(x => x.id === "kine")[0].ex.length), { timeout: 20000 }).toBe(2); // synchro asynchrone : attente large pour le moteur lent de GitHub
   await clean(errs);
 });
 
@@ -802,13 +846,17 @@ test("fiches : une fiche par parcours, conseils du kiné, visibles dans Mon kin�
   await expect(page.locator("#kcb-sheet .kcb-fab")).toBeVisible();
   await page.evaluate(() => KineCabinet.nouveau());
   await page.fill("#kcb-alias", "F.T.");
-  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); });
+  await page.evaluate(() => { KineCabinet.set("parcours", "lca_op"); KineCabinet.saveForm(null); KineCabinet.saveForm(null); });
   await expect(page.locator("#kcb-sheet .kcb-code")).toBeVisible();
   const pid = await page.evaluate(() => Object.keys(window.__db.patients)[0]);
   await page.evaluate((pid) => KineCabinet.fiche(pid), pid);
   await page.fill("#kcb-conseil", "Glace 15 minutes après chaque séance. Pas de course avant le prochain bilan.");
   await page.evaluate(() => KineCabinet.saveMsg());
   await expect.poll(() => page.evaluate((pid) => window.__db.patients[pid].doc.conseil || "", pid)).toContain("Glace");
+  // deux photos de flexion prises au cabinet : le patient les verra avant / après
+  await page.evaluate(async (pid) => { function im(c, a) { const cv = document.createElement("canvas"); cv.width = 300; cv.height = 400; const g = cv.getContext("2d"); g.fillStyle = c; g.fillRect(0, 0, 300, 400); g.strokeStyle = "#fff"; g.lineWidth = 18; g.beginPath(); g.moveTo(60, 120); g.lineTo(150, 230); g.lineTo(150 + 120 * Math.cos(a), 230 + 120 * Math.sin(a)); g.stroke(); return cv.toDataURL("image/jpeg", .7); }
+    await fbCab.photo(pid, { b: "b1", d: "2026-09-10", m: "flex", sd: "a", v: 85, img: im("#3B4252", 1.2) });
+    await fbCab.photo(pid, { b: "b2", d: "2026-10-28", m: "flex", sd: "a", v: 125, img: im("#2E5E4E", 2.1) }); }, pid);
   await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; showPage("suivi"); KineMonSuivi.join(); });
   await page.fill("#kms-code", "K7M2QX");
   await page.evaluate(() => KineMonSuivi.doJoin());
@@ -816,6 +864,14 @@ test("fiches : une fiche par parcours, conseils du kiné, visibles dans Mon kin�
   await expect(page.locator("#kms-sheet .kmk-fiche")).toContainText("conseils de ton kiné");
   await page.evaluate(() => { KineMonSuivi.close(); showPage("monkine"); });
   await expect(page.locator("#monkine-body .kmk-fiche")).toContainText("conseils de ton kiné");
+  await expect(page.locator("#monkine-body .kmk-ph-pair figure")).toHaveCount(2);
+  await expect(page.locator("#monkine-body .kmk-ph-t em")).toHaveText("+40°");
+  await page.locator("#monkine-body .kmk-ph").scrollIntoViewIfNeeded();
+  await shot(page, info, "98-photos-patient");
+  await page.locator("#monkine-body .kmk-ph-pair figure").last().click();
+  await expect(page.locator("#kmk-phz img")).toBeVisible();
+  await page.locator("#kmk-phz").click();
+  await expect(page.locator("#kmk-phz")).toBeHidden();
   await page.waitForTimeout(800);
   await page.evaluate(() => KineMonSuivi.fiche());
   await expect(page.locator("#kms-sheet .kfi-perso")).toContainText("Glace");
@@ -847,7 +903,16 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await expect(page.locator("#kcb-sheet .kcb-tiles")).toBeVisible();
   await page.evaluate(() => { KineCabinet.maison(); KineReprise.edit(); });
   await page.locator("#krp-ed .krp-mods button", { hasText: "Tendinopathie" }).click();
-  await expect(page.locator("#krp-ed .kf-chips button.sel").first()).toHaveText("3");
+  await expect(page.locator("#krp-ed .kf-chips").nth(2).locator("button.sel")).toHaveText("3");
+  await expect(page.locator("#krp-ed .krp-adv")).toContainText("palier 3");
+  await page.locator("#krp-ed .kf-chips button", { hasText: "3 fois par semaine" }).click();
+  await page.locator("#krp-ed .kf-chips button", { hasText: "10 km/h" }).click();
+  await expect(page.locator("#krp-ed .krp-adv p")).toContainText("8,5 km/h");
+  await page.locator("#krp-ed .krp-adv").scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
+  await page.screenshot({ path: "/tmp/ra-kine.png" });
+  await page.locator("#krp-ed button", { hasText: "Fixer l'allure" }).click();
+  await page.locator("#krp-ed .krp-st button", { hasText: "+" }).first().click();
+  await expect(page.locator("#krp-ed .krp-st b").first()).toHaveText("9,5 km/h");
   await page.waitForTimeout(400);
   await shot(page, info, "92-reprise-kine");
   await page.locator("#krp-ed .seq-btn-main").click();
@@ -858,9 +923,11 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await page.evaluate(() => KineMonSuivi.doJoin());
   await page.evaluate(() => KineMonSuivi.consent(0));
   await expect(page.locator("#kms-sheet .krp-p")).toContainText("Palier 3 sur 10");
+  await expect(page.locator("#kms-sheet .krp-p")).toContainText("9,5 km/h");
   await page.waitForTimeout(400);
   await shot(page, info, "93-reprise-patient");
   await page.evaluate(() => { KineMonSuivi.close(); KineReprise.go(); });
+  await page.locator("#krp-start").click();
   await expect(page.locator("#krp-run.open .krp-big b")).toHaveText("Marche vite");
   await page.evaluate(() => KineReprise._skip());
   await expect(page.locator("#krp-run .krp-big b")).toHaveText("Marche");
@@ -875,5 +942,45 @@ test("reprise de course : réglée par le kiné, séance avec Yass, palier suiva
   await expect(page.locator("#monkine-body .krp-p")).toContainText("Ta douleur ce matin");
   await page.locator("#monkine-body .krp-scale button", { hasText: "1" }).first().click();
   await expect(page.locator("#monkine-body .krp-p")).toContainText("Palier 4 sur 10");
+  // reliée au journal de course : la reprise en tête, ses séances dans la liste
+  await page.locator("#monkine-body .krp-jr").click();
+  await expect(page.locator("#kco-sheet .kco-rp")).toContainText("Palier 4 sur 10");
+  // et rappelée sur l'accueil
+  await page.evaluate(() => { KineCourse.close(); showPage("home"); KineLayout.render(); });
+  await expect(page.locator("#page-cab-today .lu-rp")).toContainText("palier 4 sur 10");
+  await page.locator("#page-cab-today .lu-rp").scrollIntoViewIfNeeded(); await page.waitForTimeout(300); await shot(page, info, "102-accueil-reprise");
+  await page.evaluate(() => KineCourse.open());
+  await expect(page.locator("#kco-sheet .kco-row").first()).toContainText("Reprise, palier 3");
+  await page.waitForTimeout(400);
+  await shot(page, info, "99-reprise-journal");
+  await page.locator("#kco-sheet .kco-rp .seq-btn-main").click();
+  await expect(page.locator("#krp-run.open")).toBeVisible();
+  await page.evaluate(() => KineReprise.close());
+  await clean(errs);
+});
+
+test("niveau : + ajoute du temps jusqu'à 60 s, puis montre la variante avant de la prendre", async ({ page }, info) => {
+  const errs = []; await setup(page, errs);
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 });
+  // familles : un même geste d'un bout à l'autre
+  expect(await page.evaluate(() => KineVariantes.chains.some(c => c.includes("Gainage frontal sur genoux") && c.includes("Side plank sur genoux")))).toBe(false);
+  await page.evaluate(() => { window.speak = () => {}; launchSeq("day0"); });
+  for (let i = 0; i < 6 && await page.evaluate(() => seqExIdx) < 3; i++) { await page.evaluate(() => seqSkipExercise()); await page.waitForTimeout(500); }
+  expect(await page.evaluate(() => SEQ_DAYS.day0.exercises[seqExIdx].name)).toBe("Chaise contre le mur");
+  await page.evaluate(() => { const t = document.getElementById("kf-tuto-go"); if (t) t.click(); });
+  await expect(page.locator("#kv-hint")).toContainText("jusqu'à 60 s");
+  for (const s of ["40 s", "50 s", "60 s"]) { await page.locator("#kv-level .kv-btn.up").click(); await expect(page.locator("#kv-hint")).toContainText(s); }
+  // au seuil : la variante est montrée, l'exercice ne change pas encore
+  await page.locator("#kv-level .kv-btn.up").click();
+  await expect(page.locator(".kv-prev")).toContainText("Position du skieur");
+  expect(await page.evaluate(() => SEQ_DAYS.day0.exercises[seqExIdx].name)).toBe("Chaise contre le mur");
+  await page.locator(".kv-prev").scrollIntoViewIfNeeded(); await page.waitForTimeout(500);
+  await shot(page, info, "100-variante-apercu");
+  await page.locator(".kv-no").click();
+  await expect(page.locator(".kv-prev")).toHaveCount(0);
+  await page.locator("#kv-level .kv-btn.up").click();
+  await page.locator(".kv-yes").click();
+  await expect.poll(() => page.evaluate(() => SEQ_DAYS.day0.exercises[seqExIdx].name)).toBe("Position du skieur");
   await clean(errs);
 });

@@ -338,7 +338,7 @@ var KineLumiere = (function () {
   function explainMenu() {
     var o = function (js, t, sub) { return "<button class='lu-row' onclick=\"KineLumiere.closeSheet();setTimeout(function(){" + js + "},250)\"><span><b>" + esc(t) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>" + CHEV + "</button>"; };
     sheet("<h2 class='lu-sh-t'>Je te réexplique quoi ?</h2><div class='lu-rows'>" +
-      o("KineLumiere.replay('tour')", "Toute l'appli", "La visite complète, en 7 étapes") +
+      o("KineLumiere.replay('tour')", "Toute l'appli", "La visite de l'accueil, en 3 étapes") +
       o("KineLumiere.replay('prog')", "Exercices › Programme", "Tes 4 semaines et tes 5 séances") +
       o("KineLumiere.replay('lib')", "Exercices › Bibliothèque", "Tous les exercices, la vidéo") +
       o("KineLumiere.replay('mes')", "Ma séance", "Composer ta propre séance") +
@@ -355,7 +355,8 @@ var KineLumiere = (function () {
     setTimeout(function () { window.scrollTo(0, 0); M.replay(TABS[k].steps, TABS[k].key); }, 700);
   }
   var explT = null;
-  function explainSoon() { clearTimeout(explT); explT = setTimeout(explain, 1100); }
+  // Allégé : les onglets ne se présentent plus d'eux-mêmes ; l'explication reste disponible à la demande (bulle de Yass › « Je te réexplique »)
+  function explainSoon() { clearTimeout(explT); }
   function explain() {
     var M = window.KineMascotte; if (!M || !M.guide || (M.isOff && M.isOff())) return;
     try { if (!localStorage.getItem("kf-tour-v2")) return; } catch (e) { return; }   // la visite générale passe d'abord

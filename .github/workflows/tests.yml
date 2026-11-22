@@ -7,7 +7,7 @@ permissions:
   contents: write
 jobs:
   regles:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
           mkdir -p tools && grep -v -i -E "token|key" /tmp/regles.txt | tail -80 > tools/regles_test.txt && git add tools/regles_test.txt && git commit -q -m "Regles test [skip ci]" && git push -q origin diag-regles:diag || true
           exit $code
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4

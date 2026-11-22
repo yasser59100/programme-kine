@@ -154,6 +154,7 @@ var KineCompose = (function () {
     return el;
   }
   function open(id) {
+    if (id && jget(KEY, []).some(function (x) { return x.id === id && x.lock; })) return;
     var list = jget(KEY, []), s = id ? list.filter(function (x) { return x.id === id; })[0] : null;
     editing = s ? s.id : null; sel = s ? s.ex.slice() : []; title = s ? s.name : "";
     render();
@@ -237,6 +238,7 @@ var KineCompose = (function () {
     if (typeof openPreview === "function") openPreview("perso"); else if (typeof launchSeq === "function") launchSeq("perso");
   }
   function remove(id) {
+    if (jget(KEY, []).some(function (x) { return x.id === id && x.lock; })) return;
     if (!confirm("Supprimer cette séance ?")) return;
     jset(KEY, jget(KEY, []).filter(function (x) { return x.id !== id; }));
     if (window.KineProgram) KineProgram.render(); if (window.KineLayout) KineLayout.render(); page();
@@ -249,9 +251,9 @@ var KineCompose = (function () {
     var rows = list.map(function (s) {
       var reds = s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length;
       return "<div class='kc-mine'><button class='pg-day' onclick='KineCompose.start(" + q(s.id) + ")'><span class='pg-j'>★</span>" +
-        "<span class='pg-day-t'><b>" + esc(s.name) + "</b><span>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</span></span></button>" +
-        "<button class='kc-mini' aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button>" +
-        "<button class='kc-mini' aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>🗑</button></div>";
+        "<span class='pg-day-t'><b>" + esc(s.name) + "</b><span>" + s.ex.length + " exercice" + (s.ex.length > 1 ? "s" : "") + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</span></span></button>" +
+        (s.lock ? "<span class='kc-lock' title='Séance fixée par ton kiné'>Fixée par ton kiné</span>" : "<button class='kc-mini' aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button>" +
+        "<button class='kc-mini' aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>🗑</button>") + "</div>";
     }).join("");
     return "<div class='kf-phase' style='color:var(--text2)'>Mes séances</div>" + rows +
       "<button class='v2-row kc-new' onclick='KineCompose.open()'><b>＋ Créer ma séance</b><span>›</span></button>";
@@ -308,11 +310,13 @@ var KineCompose = (function () {
     var all = KineBiblio.all(), gear = jget(GKEY, {}), list = jget(KEY, []);
     var count = function (c) { return all.filter(function (e) { return KineBiblio.color(e.name) === c; }).length; };
     var face = window.KineMascotte && KineMascotte.portrait ? KineMascotte.portrait() : null;
+    var cabP0 = false; try { cabP0 = !!(window.KineCabPatient && KineCabPatient.isCab()); } catch (e) {}
+    if (cabP0) list = list.filter(function (s) { return s.id !== "kine"; });
     var mine = list.length ? list.map(function (s) {
       var reds = s.ex.filter(function (n) { return KineBiblio.color(n) === 3; }).length;
       var dots = s.ex.map(function (n) { return "<i class='kb-dot c" + KineBiblio.color(n) + "'></i>"; }).join("");
-      return "<div class='mx-mine'><button class='mx-sess' onclick='KineCompose.start(" + q(s.id) + ")'><b>" + esc(s.name) + "</b><span>" + dots + "</span><small>" + s.ex.length + " exercices" + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small><em>Lancer ›</em></button>" +
-        "<div class='mx-tools'><button aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button><button aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div></div>";
+      return "<div class='mx-mine'><button class='mx-sess' onclick='KineCompose.start(" + q(s.id) + ")'><b>" + esc(s.name) + "</b><span>" + dots + "</span><small>" + s.ex.length + " exercice" + (s.ex.length > 1 ? "s" : "") + (reds ? ", " + reds + " difficile" + (reds > 1 ? "s" : "") : "") + "</small><em>Lancer ›</em></button>" +
+        (s.lock ? "<div class='mx-tools'><span class='kc-lock'>Fixée par ton kiné</span></div>" : "<div class='mx-tools'><button aria-label='Modifier' onclick='KineCompose.open(" + q(s.id) + ")'>✎</button><button aria-label='Supprimer' onclick='KineCompose.remove(" + q(s.id) + ")'>✕</button></div>") + "</div>";
     }).join("") : "<button type='button' class='mx-empty-card' onclick='KineCompose.open()'><span class='mx-plus' aria-hidden='true'>+</span><span><strong>Crée ta première séance</strong>Choisis 5 à 8 exercices, ça prend une minute.</span></button>";
     var groups = KineBiblio.groups.map(function (g) {
       var it = all.filter(function (e) { return e.group === g[0] && (!e.gear || gear[e.gear]); }); if (!it.length) return "";
@@ -320,9 +324,10 @@ var KineCompose = (function () {
       return "<button class='mx-grp' data-n='" + esc(it[0].name) + "' onclick='KineBiblio.open(\"" + g[0] + "\")'><span class='mx-im'>" + (t ? "<img src='" + t + "' alt=''>" : "<span class='pg-fig'></span>") + "</span>" +
         "<b>" + esc(g[1]) + "</b><small>" + it.length + " exercice" + (it.length > 1 ? "s" : "") + "</small></button>";
     }).join("");
+    var cabP = false; try { cabP = !!(window.KineCabPatient && KineCabPatient.isCab()); } catch (e) {}
     root.innerHTML =
-      "<div class='community-header mx-head'><h1 class='lx-title'>Ma séance</h1></div>" +
-      "<div class='mx-hero' id='mx-create'>" + (face ? "<img class='mx-face' src='" + face + "' alt=''>" : "") +
+      "<div class='community-header mx-head'><h1 class='lx-title'>" + (cabP ? "Séances" : "Ma séance") + "</h1></div>" + (cabP ? KineCabPatient.seanceHero() : "") +
+      "<div class='mx-hero" + (face ? "" : " mx-noface") + "' id='mx-create'>" + (face ? "<img class='mx-face' src='" + face + "' alt=''>" : "") +
         "<div><h1>Compose ta séance</h1><p>" + all.length + " exercices animés. Tu choisis, je m'occupe de l'échauffement, des étirements et de l'ordre.</p></div>" +
         "<button class='mx-cta' onclick='KineCompose.open()'>＋ Créer une séance</button></div>" +
       "<div class='mx-colors' id='mx-colors'><span><i class='kb-dot c1'></i>Facile <b>" + count(1) + "</b></span><span><i class='kb-dot c2'></i>Intermédiaire <b>" + count(2) + "</b></span><span><i class='kb-dot c3'></i>Difficile <b>" + count(3) + "</b></span></div>" +

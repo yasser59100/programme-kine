@@ -1,0 +1,179 @@
+const { test, expect } = require('@playwright/test');
+async function boot(page) {
+  await page.addInitScript(() => { localStorage.setItem("kf-install-never", "1"); localStorage.setItem("kf-masc-off", "1"); sessionStorage.setItem("kf-ressenti-later", "1"); });
+  await page.route(/firebase|gstatic|googleapis/, r => r.abort());
+  await page.goto("index.html"); await expect(page.locator("#kf-splash")).toBeHidden({ timeout: 12000 }); await page.evaluate(() => window.kfNeed && kfNeed("suivi"));
+  await page.addScriptTag({ path: require("path").join(__dirname, "cabinet-mock.js") });
+}
+test("mode hôpital : une demande s'accepte en un geste, sans parcours ni côté", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await expect(page.locator("#kcb-sheet .kcb-hopq")).toHaveCount(1);
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  expect(await page.evaluate(() => Object.keys(window.__db.demandes).length)).toBe(0);
+  const doc = await page.evaluate(() => { const k = Object.keys(window.__db.patients)[0]; return window.__db.patients[k].doc; });
+  expect(doc.parcours).toBe("hopital");
+  // côté patient : le téléphone se relie et tous les écrans du suivi s'ouvrent sans erreur
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true); });
+  await page.evaluate(() => showPage("suivi")); await page.waitForTimeout(800);
+  await page.evaluate(() => { try { KineMonSuivi.fiche && KineMonSuivi.fiche(); } catch (e) {} });
+  await page.waitForTimeout(800);
+  await page.evaluate(() => { const P = KineParcours || window.KP; return 1; }).catch(() => {});
+  const plan = await page.evaluate(() => { try { const p = KineProgress.plan(); return p ? "ok" : "vide"; } catch (e) { return "ERR " + e.message; } });
+  expect(plan.indexOf("ERR")).toBe(-1);
+  expect(errs).toEqual([]);
+});
+test("mode hôpital : dans une fiche manuelle, un bouton règle le parcours et cache le côté atteint", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await expect(page.locator("#kcb-sheet .kcb-tabs")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => KineCabinet.nouveau());
+  await expect(page.locator("#kcb-sheet .kcb-hop")).toBeVisible();
+  await expect(page.locator("#kcb-sheet")).toContainText("Côté atteint");
+  await page.locator("#kcb-sheet .kcb-hop").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-hop.sel")).toBeVisible();
+  await expect(page.locator("#kcb-sheet")).not.toContainText("Côté atteint");
+  await page.fill("#kcb-alias", "Léa M.");
+  await page.evaluate(() => KineCabinet.saveForm(null));
+  await expect(page.locator("#kcb-sheet")).toContainText("Fiche créée", { timeout: 8000 });
+  expect(await page.evaluate(() => Object.values(window.__db.patients)[0].doc.parcours)).toBe("hopital");
+  expect(errs).toEqual([]);
+});
+test("espace hôpital : séances prêtes, le savais-tu, vrai ou faux côté patient", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  // toutes les séances ne contiennent que des exercices existants
+  const manquants = await page.evaluate(() => KineHopital.seances.flatMap(s => s.ex.filter(n => !KineBiblio.find(n))));
+  expect(manquants).toEqual([]);
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true); });
+  await page.evaluate(() => { try { KineMonSuivi.consent(0); } catch (e) {} }); await page.waitForTimeout(1200);
+  await page.evaluate(() => showPage("monkine")); await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => KineHopital.isHop())).toBe(true);
+  await page.evaluate(() => { const d = document.createElement("div"); d.id = "zz"; d.innerHTML = KineHopital.feelHtml(); document.body.appendChild(d); });
+  await page.locator("#zz .kh-face").nth(2).dispatchEvent("click");
+  expect(await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("kf-checkin"))).some(c => c.feel === 3))).toBe(true);
+  expect(await page.evaluate(() => [...document.querySelectorAll(".bnav-btn")].filter(b => b.style.display !== "none").map(b => b.textContent.trim()).join("|"))).toBe("Aujourd'hui|Séances|Apprendre|Moi");
+  await page.evaluate(() => showPage("hop-seances"));
+  await expect(page.locator("#page-hop-seances .kh-card").first()).toBeVisible({ timeout: 8000 });
+  expect(await page.locator("#page-hop-seances .kh-card").count()).toBe(4);
+  await page.evaluate(() => showPage("hop-today"));
+  await page.locator(".kh-zone[data-z=\"dos\"]").dispatchEvent("click");
+  await expect(page.locator("#kh-advice")).toContainText("mal au dos");
+  expect(await page.evaluate(() => Object.values(JSON.parse(localStorage.getItem("kf-checkin"))).some(c => c.zone === "dos"))).toBe(true);
+  await page.waitForTimeout(1500); await page.screenshot({ path: "/tmp/hop-espace.png" }); await page.screenshot({ path: "/tmp/hop-espace2.png" });
+  await page.evaluate(() => showPage("hop-learn"));
+  await page.locator(".kh-lh").first().dispatchEvent("click");
+  await expect(page.locator("#kh-sheet.open")).toBeVisible();
+  await page.evaluate(() => KineHopital.tipClose());
+  await page.locator("#kh-vf .kh-vb").first().dispatchEvent("click");
+  await expect(page.locator("#kh-vf")).toContainText(/C'est (vrai|faux)/);
+  await page.evaluate(() => showPage("hop-seances"));
+  await page.locator(".kh-card").nth(3).dispatchEvent("click");
+  await page.waitForTimeout(800);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kf-custom")).some(x => String(x.id).indexOf("hop-") === 0))).toBe(true);
+  expect(errs).toEqual([]);
+});
+
+test("liste des patients : groupe Hôpital, deux boutons à l'acceptation", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await expect(page.locator("#kcb-sheet .kcb-pick")).toHaveCount(2);
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kcb-sheet){display:none!important}" }); await page.waitForTimeout(700); await page.screenshot({ path: "/tmp/kine-accept.png" });
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => { window.__db.patients.p2 = { doc: { alias: "Marc D.", parcours: "lca_opere", etape: 0, cote: "D" }, bilans: {}, seances: {}, maison: {}, notes: {}, journal: {}, membres: 0 }; });
+  await page.evaluate(() => KineCabinet.open());
+  await expect(page.locator("#kcb-sheet .kcb-grp").first()).toContainText("Hôpital", { timeout: 8000 });
+  await expect(page.locator("#kcb-sheet .kcb-grp")).toHaveCount(2);
+  await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/kine-liste.png" });
+  expect(errs).toEqual([]);
+});
+
+test("kiné : vue « Ce matin » des patients de l'hôpital", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  await page.evaluate(() => {
+    const n = new Date(), ym = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2), ds = ym + "-" + ("0" + n.getDate()).slice(-2);
+    const mk = (alias, r) => ({ doc: { alias, parcours: "hopital", etape: 0 }, bilans: {}, seances: {}, maison: {}, notes: {}, journal: r ? { [ym]: { r: { [ds]: r } } } : {}, membres: 1 });
+    window.__db.patients.h1 = mk("Léa M.", { zone: "dos", pre: 2 });
+    window.__db.patients.h2 = mk("Karim B.", { zone: "fatigue", pre: 1, walk: 1 });
+    window.__db.patients.h3 = mk("Sophie T.", { zone: "bien", pre: 3 });
+    window.__db.patients.h4 = mk("Paul R.", null);
+    window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open();
+  });
+  await expect(page.locator("#kcb-sheet .kcb-mat")).toBeVisible({ timeout: 8000 });
+  await expect(page.locator("#kcb-sheet .kcb-mat-h")).toContainText("3/4");
+  await expect(page.locator("#kcb-sheet .kcb-mat-c")).toContainText("1 dos");
+  await expect(page.locator("#kcb-sheet .kcb-mat-c")).toContainText("1 fatigué");
+  await expect(page.locator("#kcb-sheet .kcb-mrow")).toHaveCount(4);
+  await expect(page.locator("#kcb-sheet .kcb-mrow.none")).toContainText("Pas encore répondu");
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kcb-sheet){display:none!important}" }); await page.waitForTimeout(600); await page.screenshot({ path: "/tmp/kine-matin.png" });
+  expect(errs).toEqual([]);
+});
+
+test("cabinet : « Avant ton rendez-vous » et message du patient au kiné", async ({ page }) => {
+  const errs = []; page.on("pageerror", e => errs.push(String(e.message || e)));
+  await boot(page);
+  // le patient écrit à son kiné
+  await page.evaluate(() => { KineRole.pick("patient"); return KineRole.demande(); });
+  await page.fill("#krl-prenom", "Léa"); await page.fill("#krl-nom", "Martin"); await page.check("#krl-ok");
+  await page.evaluate(() => KineRole.send());
+  await page.evaluate(() => { window.fbUser = { uid: "k1", isAdmin: true }; KineCabinet.open(); });
+  await page.evaluate(() => KineCabinet.demandes());
+  await page.locator("#kcb-sheet .kcb-hopq").dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-slab")).toBeVisible({ timeout: 8000 });
+  await page.evaluate(() => { KineCabinet.close(true); localStorage.setItem("kf-role", "patient"); document.body.classList.remove("kf-kine"); window.fbUser = null; return KineMonSuivi.refresh(true); });
+  await page.evaluate(() => { try { KineMonSuivi.consent(0); } catch (e) {} }); await page.waitForTimeout(1000);
+  await page.evaluate(() => showPage("monkine")); await page.waitForTimeout(1500);
+  await expect(page.locator(".kms-write").first()).toBeVisible();
+  await page.locator(".kms-write").first().scrollIntoViewIfNeeded(); await page.waitForTimeout(400); await page.screenshot({ path: "/tmp/pat-moi.png" });
+  await page.evaluate(() => KineMonSuivi.msg());
+  await expect(page.locator("#kms-msg")).toBeVisible();
+  await page.fill("#kms-msg", "Mon genou tire un peu depuis hier soir, je peux venir quand même ?");
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kms-sheet){display:none!important}" }); await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/pat-msg.png" });
+  await page.evaluate(() => KineMonSuivi.msgSend());
+  await expect(page.locator("#kms-sheet")).toContainText("C'est envoyé", { timeout: 8000 });
+  const n = await page.evaluate(() => Object.values(window.__db.patients)[0].msgs.length);
+  expect(n).toBe(1);
+  // le kiné voit la liste
+  await page.evaluate(() => {
+    const t = new Date(), ds = t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2), ym = ds.slice(0, 7);
+    const mk = (alias, extra, r) => Object.assign({ doc: Object.assign({ alias, parcours: "genou", etape: 1, cote: "D" }, extra), bilans: {}, seances: {}, maison: {}, notes: {}, journal: r ? { [ym]: { r: { [ds]: r } } } : {}, membres: 1 });
+    window.__db.patients.c1 = mk("Marc D.", { next: ds }, { pain: 6 });
+    window.__db.patients.c2 = mk("Julie P.", { next: ds }, null);
+    window.__db.patients.c2.msgs = [{ txt: "Mon genou tire un peu depuis hier soir, je peux venir quand même ?", t: Date.now() }];
+    window.__db.patients.c3 = mk("Anne L.", { next: "2099-01-01" }, null);
+    window.fbUser = { uid: "k1", isAdmin: true }; KineMonSuivi.close(); KineCabinet.open();
+  });
+  await expect(page.locator("#kcb-sheet .kcb-mat-h").first()).toContainText("Avant ton rendez-vous", { timeout: 8000 });
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).toContainText("Marc D.");
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).toContainText("douleur 6/10 ce matin");
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).not.toContainText("Anne L.");
+  await expect(page.locator("#kcb-sheet .kcb-mat").first()).toContainText("genou tire");
+  await expect(page.locator("#kcb-sheet .kcb-mat").nth(1)).toContainText("message");
+  await page.addStyleTag({ content: "#kf-role,#kf-hub,.krl:not(#kcb-sheet){display:none!important}" }); await page.waitForTimeout(600); await page.screenshot({ path: "/tmp/kine-avant.png" });
+  // ouvrir la fiche : le message y est, puis il n'est plus « non lu »
+  await page.locator("#kcb-sheet .kcb-mrow", { hasText: "genou" }).first().dispatchEvent("click");
+  await expect(page.locator("#kcb-sheet .kcb-msgs")).toContainText("Mon genou tire", { timeout: 8000 });
+  await page.waitForTimeout(500); await page.screenshot({ path: "/tmp/kine-fiche-msg.png" });
+  expect(errs).toEqual([]);
+});

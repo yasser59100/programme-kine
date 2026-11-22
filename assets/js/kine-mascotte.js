@@ -77,7 +77,7 @@
   var FAQ = [
     ["J'ai des courbatures, c'est normal ?", "Oui, surtout les premières semaines. Une courbature, c'est une raideur dans le muscle qui apparaît 1 à 2 jours après l'effort, diffuse, et qui diminue quand tu bouges. Elle passe en 2 à 4 jours. Tu peux faire ta séance en réduisant un peu l'amplitude."],
     ["Douleur ou courbature, comment faire la différence ?", "La courbature est dans le muscle, diffuse, souvent des deux côtés, et elle s'améliore en bougeant. Une douleur à surveiller est dans l'articulation ou à un point précis, vive, augmente pendant l'exercice ou te réveille la nuit. Dans ce cas, utilise le bouton « J'ai mal » et parles-en à ton kiné."],
-    ["J'ai raté une séance, je fais quoi ?", "Pas de panique : fais simplement la séance suivante prévue, sans doubler. Une séance manquée ne casse rien, c'est la régularité sur la semaine qui compte. Après plus d'une semaine sans séance, le programme reprend en semaine 1, pour ta sécurité."],
+    ["J'ai raté une séance, je fais quoi ?", "Pas de panique : fais simplement la séance suivante prévue, sans doubler. Une séance manquée ne casse rien, c'est la régularité sur la semaine qui compte. Après plus d'une semaine sans séance, le programme redescend d'une ou deux semaines selon la durée de la pause, et repart de la semaine 1 après un mois, pour ta sécurité."],
     ["Je peux faire deux séances le même jour ?", "Mieux vaut pas : les muscles progressent pendant la récupération. Une séance par jour au maximum, et garde au moins un jour de repos dans la semaine."],
     ["Je peux marcher ou faire du sport à côté ?", "La marche, oui, tous les jours si tu peux : c'est un excellent complément. Pour la course, les sports collectifs ou la salle, demande d'abord l'accord de ton kiné, selon ta blessure ou ton opération."],
     ["Comment je dois respirer ?", "Ne bloque jamais ta respiration. Souffle pendant l'effort, quand tu montes ou que tu pousses, et inspire en revenant. Pendant les gainages, respire calmement et régulièrement."],
@@ -377,14 +377,11 @@
 
   /* ════════ Visite guidée (premier lancement) ════════ */
   // Visite de la nouvelle appli : montrée une fois à tout le monde (nouveaux patients et anciens après la refonte)
+  // Visite de l'accueil, allégée à l'essentiel : la séance du jour, les onglets, Yass et « J'ai mal »
   var TOUR = [
-    { sel: "#today-card .lu-slab, #today-card .lx-cta", text: "Salut, je suis Yass, ton coach ! Ici, c'est ta séance du jour : touche Commencer et je te guide, mouvement par mouvement.", gesture: "wave" },
-    { sel: "#lu-video", text: "Tester en vidéo : tu te filmes avec le téléphone, je regarde ton mouvement, je te corrige à voix haute et je compte pour toi.", gesture: "point" },
-    { sel: "#ki-express", text: "Pas le temps ? La séance express dure une dizaine de minutes.", gesture: "point" },
-    { sel: "#bn-guide", text: "Dans Exercices, tu as ton programme sur quatre semaines et la bibliothèque. Fais défiler : je fais chaque exercice dans sa case.", gesture: "point" },
-    { sel: "#bn-mes", text: "Au centre, Ma séance : compose ta propre séance avec les exercices que tu veux.", gesture: "point" },
-    { sel: "#bn-suivi", text: "Dans Progrès, tu vois tes chiffres et ton objectif, et tu envoies ton bilan à ton kiné. Ton espace et les réglages sont sous le petit bonhomme, en haut à droite.", gesture: "point" },
-    { sel: null, text: "Et moi, je reste dans le coin de l'écran : touche ma tête pour une question, la vidéo ou les réglages. Si un exercice fait mal, appuie sur J'ai mal.", gesture: "open" }
+    { sel: "#today-card .lu-slab", text: "Salut, je suis Yass, ton coach ! Ici, c'est ta séance du jour : touche Commencer et je te guide, mouvement par mouvement.", gesture: "wave" },
+    { sel: ".bottom-nav", text: "En bas : Exercices pour ton programme et la bibliothèque, Ma séance pour composer la tienne, Progrès pour tes chiffres, et Mon kiné pour ton suivi au cabinet.", gesture: "point" },
+    { sel: null, text: "Et moi, je reste dans le coin de l'écran : touche ma tête pour une question ou une explication. Si un exercice fait mal, appuie sur J'ai mal.", gesture: "open" }
   ];
   var TOUR_MAIN = TOUR, TOUR_KEY = "kf-tour-v2";
   function guide(steps, key) { if (!steps || !steps.length) return false; TOUR = steps; TOUR_KEY = key || "kf-masc-guide"; return tour(0); }
@@ -434,6 +431,9 @@
     var p = !L.r || !L.r.height || L.kind === "peek" ? "pSide" : L.bottom ? "pUp" : "pDown";
     return [[p, 0.55], [p, 1.6], ["talkA", 0.5], [p, 0.5], [p, 1.4], ["talkB", 0.5], [p, 0.5], [p, 3]];
   }
+  // Le cadre de lumière suit l'élément expliqué quand on fait défiler la page pendant la visite
+  var holePlace = null;
+  window.addEventListener("scroll", function () { if (mode === "tour" && holePlace) holePlace(); }, { passive: true });
   function tour(i) {
     var st = TOUR[i];
     var hole = $("km-hole");
@@ -465,7 +465,8 @@
         hole.classList.add("on");
       };
       place(); setTimeout(place, 400); setTimeout(place, 1200);   // l'accueil peut se redessiner juste après l'ouverture
-    }
+      holePlace = place;
+    } else holePlace = null;
     bubble(st.text, "<div class='km-dots'>" + TOUR.map(function (_, j) { return "<i" + (j === i ? " class='on'" : "") + "></i>"; }).join("") + "</div>",
       "<button class='km-go' onclick='KineMascotte.tour(" + (i + 1) + ")'>" + (i < TOUR.length - 1 ? "Suivant" : "C'est compris") + "</button>" +
       (i < TOUR.length - 1 ? "<button class='km-later' onclick='KineMascotte.tour(99)'>Passer</button>" : ""));
@@ -593,7 +594,7 @@
     { title: "Mettre des exercices réactifs dans ma séance", kw: "réactif couleurs plots ma séance ajouter",
       text: "Dans « Ma séance », les exercices réactifs sont dans le groupe « Réactivité ». Pendant la séance, avant chaque série, tu règles tes couleurs, le nombre, le rythme et les pièges." },
     { title: "Envoyer mes résultats à mon kiné", kw: "envoyer partager kiné bilan résumé message mail sms whatsapp transmettre",
-      text: "Dans l'onglet Suivi, touche « Envoyer à mon kiné ». Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.", action: "envoyer", actionLabel: "Ouvrir l'envoi" },
+      text: "Dans l'onglet Progrès, touche « Envoyer à mon kiné ». Tu choisis la période, tu ajoutes un mot si tu veux, puis tu partages le résumé par message ou par mail.", action: "envoyer", actionLabel: "Ouvrir l'envoi" },
     { title: "Noter mon ressenti du jour", kw: "ressenti humeur forme moral sommeil énergie noter journée",
       text: "Chaque jour, tu peux noter en quelques secondes ta douleur, ton énergie, ton sommeil et ton moral. Après une dizaine de jours, je te montre ce qui ressort.", action: "ressenti", actionLabel: "Noter maintenant" },
     { title: "Voir mon calendrier", kw: "calendrier agenda jours séances faites historique mois",
@@ -815,9 +816,16 @@
     setInterval(peekTick, 700);
     var base = window.showPage;
     if (typeof base === "function" && !base.__masc) {
-      window.showPage = function () { var r = base.apply(this, arguments); if (mode !== "bouge" && mode !== "tour") hide(); setTimeout(maybe, 1200); return r; };
+      // changer d'onglet ferme la bulle ; une visite guidée en cours s'arrête (sinon son cadre resterait sur un autre écran)
+      window.showPage = function () { var r = base.apply(this, arguments); if (mode === "tour") tour(99); else if (mode !== "bouge") hide(); setTimeout(maybe, 1200); return r; };
       window.showPage.__masc = true;
     }
+    // Une séance qui démarre referme la bulle de Yass (elle ne reste pas par-dessus la séance)
+    ["launchSeq", "openPreview"].forEach(function (f) {
+      var b = window[f]; if (typeof b !== "function" || b.__masc) return;
+      window[f] = function () { if (mode && mode !== "bouge" && mode !== "tour") hide(); return b.apply(this, arguments); };
+      window[f].__masc = true;
+    });
   }
   if (document.readyState === "complete") init(); else window.addEventListener("load", init);
 })();
