@@ -30,6 +30,7 @@ var KineReprise = (function () {
   /* ── Allure : km/h et min/km ── */
   function fmtV(v) { return String(Math.round(v * 10) / 10).replace(".", ","); }
   function pace(v) { var t = Math.round(3600 / v), m = Math.floor(t / 60), x = t % 60; return m + ":" + ("0" + x).slice(-2); }
+  function fmtS(v) { return fmtV(v).replace(",", " virgule "); }   // à voix haute : « huit virgule cinq », pas « huit, cinq »
   function paceSay(v) { var t = Math.round(3600 / v), m = Math.floor(t / 60), x = t % 60; return m + " minutes " + (x ? x : ""); }
   function round5(v) { return Math.round(v * 2) / 2; }
   var LIEUX = { tapis: "Sur tapis", dehors: "Dehors", mixte: "Les deux" };
@@ -394,7 +395,7 @@ var KineReprise = (function () {
   function spd(kind) { return kind === "course" ? RUN.p.v : kind === "retour" ? Math.max(3.5, RUN.p.vw - 1.5) : RUN.p.vw; }
   function instr(kind) {
     var v = spd(kind), tp = RUN.where === "tapis", m = RUN.montre, big = kind === "course";
-    if (tp) return { line: "Règle le tapis sur " + fmtV(v) + " km/h", say: (big ? "Cours." : "Marche.") + " Tapis à " + fmtV(v) + "." };
+    if (tp) return { line: "Règle le tapis sur " + fmtV(v) + " km/h", say: (big ? "Cours." : "Marche.") + " Tapis à " + fmtS(v) + "." };
     if (m && big) return { line: "Entre " + pace(v * 1.08) + " et " + pace(v * 0.92) + " par km", say: "Cours. Allure " + paceSay(v) + " par kilomètre." };
     if (m) return { line: kind === "retour" ? "Marche lente" : "Marche à environ " + pace(v) + " par km", say: LAB[kind][3] };
     return { line: big ? "Allure où tu peux parler, environ " + fmtV(v) + " km/h" : kind === "retour" ? "Marche lente" : "Marche d'un bon pas", say: LAB[kind][3] };
@@ -451,7 +452,7 @@ var KineReprise = (function () {
     if (!RUN || RUN.p.v - 0.5 < 5) return;
     RUN.p.v = round5(RUN.p.v - 0.5); RUN.slow++;
     var P = prof(RUN.c); if (P) { P.v = RUN.p.v; saveProf(P); }
-    say("D'accord. " + (RUN.where === "tapis" ? "Tapis à " + fmtV(RUN.p.v) + "." : RUN.montre ? "Allure " + paceSay(RUN.p.v) + " par kilomètre." : "Ralentis un peu."));
+    say("D'accord. " + (RUN.where === "tapis" ? "Tapis à " + fmtS(RUN.p.v) + "." : RUN.montre ? "Allure " + paceSay(RUN.p.v) + " par kilomètre." : "Ralentis un peu."));
     if (navigator.vibrate) { try { navigator.vibrate(150); } catch (e) {} }
     paint();
   }
